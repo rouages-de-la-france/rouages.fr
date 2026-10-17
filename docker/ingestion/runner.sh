@@ -21,7 +21,7 @@ fi
 if [ ! -f .runner ]; then
   : "${RUNNER_TOKEN:?Le jeton d'inscription manque : RUNNER_TOKEN dans .env (Settings → Actions → Runners → New self-hosted runner).}"
   ./config.sh --unattended --replace \
-    --url "${RUNNER_URL:-https://github.com/MayetSoft/rouages.fr}" \
+    --url "${RUNNER_URL:-https://github.com/rouages-de-la-france/rouages.fr}" \
     --token "$RUNNER_TOKEN" \
     --name "${RUNNER_NAME:-rouages-$(hostname)}" \
     --labels rouages --work _work

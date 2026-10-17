@@ -21,7 +21,7 @@
  */
 
 /** Le dépôt est public : l'issue est le canal, et elle est traçable. */
-export const DEPOT = 'https://github.com/MayetSoft/Rouages.fr';
+export const DEPOT = 'https://github.com/rouages-de-la-france/rouages.fr';
 
 export interface Contexte {
   /** Le chemin de la page où l'erreur a été vue, avec son ancre s'il y en a une. */
