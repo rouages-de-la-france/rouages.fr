@@ -3724,7 +3724,11 @@ leur est rattaché que par son SIRET, jamais par le nom.
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,
-  autres nœuds.
+  autres nœuds. Cadrés le 18 octobre 2026 dans `10-rouages-economiques.md` :
+  trois sources qui tiennent (ROME 4.0, Observatoire des prix et des marges,
+  les textes), aucune entité nouvelle, trois règles de validation, et un
+  premier lot de trois processus — la commune qui achète, la commande à la
+  facture, du blé à la baguette —, en attente de l'accord du mainteneur.
 - **Rouages de l'influence** (prebunking), une fois la neutralité installée, et
   sous la règle absolue : des mécanismes, jamais des personnes.
 
@@ -3735,7 +3739,7 @@ procédure applicable. Adossés au graphe, jamais construits isolément. Voir
 `07-risques.md` avant la première ligne de code.
 
 Où en sont les trois : la recherche dans les délibérations est en ligne
-(sections 8 du cadrage) ; la procédure applicable est construite et attend
+(section 8 du cadrage) ; la procédure applicable est construite et attend
 la relecture d'un praticien (section 9, `docs/09-relecture-autorisations.md`) ;
 la lecture assistée du PLU est cadrée le 18 octobre 2026 (section 10) —
 « ce qui touche ma parcelle », puis la page du règlement elle-même — et

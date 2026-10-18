@@ -86,7 +86,7 @@ intervenants », « Comment une commune achète (marchés publics) ».
 au-delà du civisme, et c'est de la pédagogie professionnelle réutilisable en
 formation. **Mais c'est aussi la famille la moins « sourçable »** (peu d'open
 data, beaucoup de variabilité). À traiter après A et B, avec une exigence
-particulière sur les sources.
+particulière sur les sources. Le cadrage est dans `10-rouages-economiques.md`.
 
 ---
 
