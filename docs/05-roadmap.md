@@ -5345,3 +5345,30 @@ région et à la France entière, calculées des mêmes fichiers. Une commune
 dont les arrêts ne figurent dans aucun fichier d'horaires couvrant la
 semaine n'est pas comptée. Rien ne s'affiche avant la réingestion, qui
 produira la couverture, la desserte et les distances.
+
+### Les services de la vie courante à distance (18 octobre 2026)
+
+`scripts/acces-emettre.ts` mesure désormais, du même passage dans la base
+des équipements géolocalisée, six services : le médecin généraliste (D265),
+la pharmacie (D307), l'école maternelle ou élémentaire (C107 à C109), La
+Poste — bureau, relais ou agence postale, le regroupement de l'INSEE (A206
+à A208) —, l'alimentation générale — hypermarché, supermarché, supérette,
+épicerie (B104, B105, B201, B202) — et la boulangerie (B207). Les codes sont
+ceux de la nomenclature 2025, relus dans `TYPEQU_2025.csv`. Pour chacun, la
+part des habitants à un, cinq et dix kilomètres ou moins et la distance
+médiane ; un minimum par service fait échouer la collecte si la base change
+de forme.
+
+La page de commune les donne en tableau sous « Ce qu'on trouve sur place »,
+et le bilan du département et de la région compare, service par service, la
+part des habitants à un kilomètre ou moins.
+
+Essayé sur l'Allier (non publié) : au Mayet-de-Montagne, la moitié des
+habitants vivent à 500 à 700 mètres de chacun des six services, et tous à
+cinq kilomètres ou moins. Le calcul Python indépendant donne, pour la
+pharmacie, 71 % à un kilomètre ou moins et une médiane de 435 mètres
+(69 % et 500 mètres ici), pour l'école 69 % et 688 mètres (68 % et
+700 mètres), pour La Poste 67 % et 672 mètres (66 % et 700 mètres) ; les
+écarts tiennent aux carreaux de bordure, pris par leur commune INSEE d'un
+côté, par le contour de l'autre. La collecte lit toute la France en deux
+minutes et quart.

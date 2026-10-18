@@ -62,7 +62,7 @@ Mobilités seule 160 Mo, gardés dans `.cache/gtfs/`), et les cartes de
 couverture 4G de l'Arcep (1,1 Go en 7z, recalculées seulement quand un
 nouveau trimestre paraît), avec le carroyage Filosofi de l'INSEE (92 Mo,
 2,3 millions de carreaux de 200 m) et la base des équipements géolocalisée
-(143 Mo, 1,5 Go lus en flux, pour la position des généralistes). `--cache` les
+(143 Mo, 1,5 Go lus en flux, pour la position des services du quotidien). `--cache` les
 réutilise, et sans lui il faut compter le téléchargement en plus.
 
 La réingestion complète se lance aussi en intégration continue : workflow

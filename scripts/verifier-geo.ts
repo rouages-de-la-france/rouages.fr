@@ -14,7 +14,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { km, medecins, Voisinage } from './acces-emettre.ts';
+import { equipements, km, SERVICES, Voisinage } from './acces-emettre.ts';
 import { distance, phraseArrets, phraseMedecin } from '../src/modele/distances.ts';
 import { anneauxGpkg, poser } from './couverture-emettre.ts';
 import { depuisLaea3035, depuisLambert93, depuisUtm, lireGml, lireShapefile } from './geo-formats.ts';
@@ -309,7 +309,8 @@ try {
 
   const d = [0.05, 0.5, 0.96, 1, 4.1, 12].map(distance).join(' | ');
   attendre('Distances en clair', d === 'moins de 100 mètres | 500 mètres | 1 kilomètre | 1 kilomètre | 4,1 kilomètres | 12 kilomètres', d, 'Au-dessous du kilomètre, à la centaine de mètres ; au-delà, au dixième.');
-  const acces = { habitants: 1274, medecin: { parts: [69, 100, 100] as [number, number, number], mediane: 0.5 }, arrets: { desservi: 67, frequent: 0 }, semaine: '2026-11-02', carroyage: 2021, bpe: 2025, maj: '2026-10-17' };
+  const medecin = { cle: 'medecin', nom: 'un médecin généraliste', parts: [69, 100, 100] as [number, number, number], mediane: 0.5 };
+  const acces = { habitants: 1274, services: [medecin], medecin, arrets: { desservi: 67, frequent: 0 }, semaine: '2026-11-02', carroyage: 2021, bpe: 2025, maj: '2026-10-17' };
   const pm = phraseMedecin(acces);
   attendre(
     'Phrase du médecin',
@@ -317,7 +318,7 @@ try {
     pm,
     'Le Mayet-de-Montagne, essai du 17 octobre 2026 : la médiane, puis les parts ; rien au-delà de dix kilomètres quand personne n’y vit.',
   );
-  const loin = phraseMedecin({ ...acces, medecin: { parts: [0, 40, 85], mediane: 6.3 } });
+  const loin = phraseMedecin({ ...acces, medecin: { ...medecin, parts: [0, 40, 85], mediane: 6.3 } });
   attendre('Phrase du médecin, loin', !!loin?.endsWith('à cinq kilomètres ou moins, et 15 % à plus de dix kilomètres.') && loin.includes('6,3 kilomètres ou moins'), loin, 'La part au-delà de dix kilomètres se dit.');
   const pa = phraseArrets(acces);
   attendre('Phrase des arrêts', !!pa?.startsWith('67 % des habitants vivent à 800 mètres ou moins') && pa.includes('du 2 au 8 novembre 2026') && pa.endsWith('et 0 % d’un arrêt desservi au moins dix fois chaque jour du lundi au vendredi.'), pa, 'La semaine comptée et les deux seuils se disent.');
@@ -332,9 +333,16 @@ try {
       '"2025";"SANS POSITION";"D265";;',
     ].join('\n');
     writeFileSync(join(dossier, 'bpe.zip'), zip([['BPE25.csv', Buffer.from(csv)]]));
-    const lus: [number, number][] = [];
-    for await (const p of medecins(join(dossier, 'bpe.zip'))) lus.push(p);
-    attendre('Base des équipements : les généralistes', JSON.stringify(lus) === '[[3.6671,46.0725]]', lus, 'Seul le type D265 avec sa position est lu ; un point-virgule dans le nom ne décale pas les colonnes.');
+    const lus: [string, number, number][] = [];
+    for await (const p of equipements(join(dossier, 'bpe.zip'), ['D265', 'D307'])) lus.push(p);
+    attendre(
+      'Base des équipements : les types demandés',
+      JSON.stringify(lus) === '[["D265",3.6671,46.0725],["D307",3.668,46.073]]',
+      lus,
+      'Seuls les types demandés, avec leur position, sont lus ; un point-virgule dans le nom ne décale pas les colonnes, et un code dans un nom ne trompe pas.',
+    );
+    const codes = SERVICES.flatMap((x) => x.codes);
+    attendre('Services : un type ne sert qu’une fois', new Set(codes).size === codes.length, codes, 'Chaque type de la base mène à un seul service.');
   } finally {
     rmSync(dossier, { recursive: true, force: true });
   }

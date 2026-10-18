@@ -1,0 +1,53 @@
+---
+/**
+ * À quelle distance les habitants de la commune vivent-ils des services de
+ * la vie courante : le médecin, la pharmacie, l'école, La Poste,
+ * l'alimentation, la boulangerie. D'après le carroyage de l'INSEE et la base
+ * des équipements géolocalisée — voir `scripts/acces-emettre.ts`.
+ */
+import type { Acces } from '../../modele/fiche-vie.ts';
+import { distance } from '../../modele/distances.ts';
+import { enFrancais } from '../../modele/urbanisme.ts';
+
+interface Props {
+  a: Acces;
+}
+const { a } = Astro.props;
+const mediane = (km: number | null) => (km === null ? 'plus de 60 kilomètres' : km < 0.1 ? 'moins de 100 mètres' : distance(km));
+// « Une pharmacie » en tête de ligne.
+const capitale = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+---
+<p class="mesure">
+  {`La distance au service le plus proche, dans la commune ou ailleurs, à vol d’oiseau depuis là où vivent ses ${a.habitants.toLocaleString('fr-FR')} habitants :`}
+</p>
+<div class="cpt-defile" tabindex="0" role="region" aria-label="Les distances aux services du quotidien — le tableau défile sur les petits écrans">
+  <table class="cpt-tableau">
+    <caption>Part des habitants selon la distance au service le plus proche</caption>
+    <thead>
+      <tr>
+        <th scope="col">Service</th>
+        <th scope="col">La moitié des habitants à</th>
+        <th scope="col">À 1 km ou moins</th>
+        <th scope="col">À 5 km ou moins</th>
+        <th scope="col">À plus de 10 km</th>
+      </tr>
+    </thead>
+    <tbody>
+      {a.services.map((s) => (
+        <tr>
+          <th scope="row">{capitale(s.nom)}</th>
+          <td>{`${mediane(s.mediane)}${s.mediane !== null && s.mediane >= 0.1 ? ' ou moins' : ''}`}</td>
+          <td>{`${s.parts[0]} %`}</td>
+          <td>{`${s.parts[1]} %`}</td>
+          <td>{`${100 - s.parts[2]} %`}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<p class="p-source-territoire">
+  {`D’après le carroyage de l’INSEE (Filosofi ${a.carroyage}, carreaux de 200 mètres) et la base permanente des équipements géolocalisée (INSEE, ${a.bpe}). ` +
+    'Distances à vol d’oiseau depuis le centre de chaque carreau, pondérées par ceux qui y vivent — les ménages fiscaux, sans les personnes en maison de retraite ou en internat. ' +
+    'Un équipement n’est pas une capacité : une école ne dit pas ses places, une épicerie pas ses horaires ; le médecin compte les généralistes libéraux, sans les salariés des centres de santé. ' +
+    `Calcul du ${enFrancais(a.maj)}.`}
+</p>
