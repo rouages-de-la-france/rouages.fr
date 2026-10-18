@@ -3734,6 +3734,13 @@ Recherche dans les délibérations · lecture assistée du PLU · recherche de l
 procédure applicable. Adossés au graphe, jamais construits isolément. Voir
 `07-risques.md` avant la première ligne de code.
 
+Où en sont les trois : la recherche dans les délibérations est en ligne
+(sections 8 du cadrage) ; la procédure applicable est construite et attend
+la relecture d'un praticien (section 9, `docs/09-relecture-autorisations.md`) ;
+la lecture assistée du PLU est cadrée le 18 octobre 2026 (section 10) —
+« ce qui touche ma parcelle », puis la page du règlement elle-même — et
+attend l'accord du mainteneur avant tout code.
+
 ## Ce qu'on ne fait pas
 
 - Pas d'articles. Jamais. Le plafond de 280 signes sur les résumés est là pour
