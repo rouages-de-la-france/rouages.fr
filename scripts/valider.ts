@@ -247,6 +247,58 @@ for (const [ou, t] of textesVisibles) {
   );
 }
 
+// Une entreprise est nommée quand une source publique la désigne pour ce que
+// le site en dit — décision du 19 octobre 2026 (docs/10-rouages-economiques.md).
+// Un archétype se reconnaît à son article : « le délégataire », « les
+// employeurs », « une boulangerie ». Un nom propre doit porter `designee_par`,
+// une source de droit, de données ouvertes ou une page officielle, citée parmi
+// ses liens : c'est elle qu'on lit pour savoir pourquoi cette entreprise-là.
+const ARCHETYPE = /^(le|la|les|l['’]|un|une|des)\s?/i;
+const DESIGNANTES = new Set(['droit', 'donnees_ouvertes', 'page_officielle']);
+for (const a of g.acteurs.values()) {
+  if (a.type !== 'entreprise') {
+    if (a.designee_par) erreurs.push(`acteur « ${a.id} » : « designee_par » est réservé aux entreprises`);
+    continue;
+  }
+  if (ARCHETYPE.test(a.nom)) continue;
+  const src = a.designee_par ? g.sources.get(a.designee_par) : undefined;
+  if (!a.designee_par) erreurs.push(`acteur « ${a.id} » : une entreprise nommée dit la source publique qui la désigne (« designee_par »), sinon elle reste un archétype — « le délégataire », « une boulangerie »`);
+  else if (!src || !DESIGNANTES.has(src.type)) erreurs.push(`acteur « ${a.id} » : « designee_par » doit être une source de droit, de données ouvertes ou une page officielle`);
+  else if (!a.liens.includes(a.designee_par)) erreurs.push(`acteur « ${a.id} » : la source qui le désigne, « ${a.designee_par} », doit figurer parmi ses liens`);
+}
+
+// Tout montant ou pourcentage d'un processus économique dit d'où il vient
+// (docs/10-rouages-economiques.md) : soit un texte qui le fixe, ou la page
+// officielle qui le présente, cité parmi les liens de l'élément ; soit une
+// étude ou des données publiques, citées aussi, et l'année à laquelle le
+// chiffre se rapporte, écrite dans la phrase. Un pourcentage porte son année
+// dans tous les cas. Un « qui gagne quoi sur une baguette » sans millésime est exactement le chiffre
+// que la règle refuse.
+const CHIFFRE = /\d[\d\s\u202f\u00a0.,]*\s?(%|€|euros?\b|pour\s?cent)/i;
+const MILLESIME = /\b(19|20)\d{2}\b/;
+for (const p of g.processus.values()) {
+  if (p.famille !== 'economiques') continue;
+  const elements: [string, string[], (string | undefined)[]][] = [
+    [`processus « ${p.id} »`, p.liens, [p.resume, p.declencheur, p.sortie]],
+    ...p.etapes.map((e): [string, string[], (string | undefined)[]] => [`processus « ${p.id} », étape ${e.ordre}`, e.liens, [e.action, e.note]]),
+    ...p.leviers.map((l): [string, string[], (string | undefined)[]] => [`processus « ${p.id} », levier « ${l.id} »`, l.liens, [l.quoi, l.quand, l.piege, l.aupres_de]]),
+  ];
+  for (const [ou, liens, textes] of elements) {
+    const types = new Set(liens.map((id) => g.sources.get(id)?.type));
+    for (const t of textes) {
+      if (!t || !CHIFFRE.test(t)) continue;
+      // Le texte lui-même, ou la page officielle qui le présente : Légifrance refuse souvent la lecture
+      // automatique, et la fiche de service-public.fr dit le montant avec sa date de vérification.
+      // Un pourcentage porte toujours son année : un taux légal change, une part de marge aussi.
+      const pourcentage = /%|pour\s?cent/i.test(t.match(CHIFFRE)?.[0] ?? '');
+      const parLeTexte = (types.has('droit') || types.has('page_officielle')) && (!pourcentage || MILLESIME.test(t));
+      const parUneEtude = (types.has('etude') || types.has('donnees_ouvertes')) && MILLESIME.test(t);
+      if (!parLeTexte && !parUneEtude)
+        erreurs.push(`${ou} : « ${t.slice(0, 70)}… » porte un montant ou un pourcentage sans texte qui le fixe, ni étude citée avec son année`);
+    }
+  }
+}
+
 // Un levier sans « quand » exploitable ne sert à rien : c'est la question 5.
 for (const p of g.processus.values()) {
   for (const l of p.leviers) {

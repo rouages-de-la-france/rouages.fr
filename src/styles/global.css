@@ -994,6 +994,7 @@ abbr[title] {
 .v-tableau thead th { background: var(--fond-doux); font-weight: 600; }
 .v-nature { color: var(--encre-douce); font-size: .8rem; }
 .equivalent summary { cursor: pointer; font-size: .85rem; color: var(--encre-douce); }
+.equivalent-tableau { overflow-x: auto; }
 footer { border-top: 1px solid var(--trait); margin-top: 3rem; padding: 1.2rem 1.1rem; color: var(--encre-douce); font-size: .82rem; }
 footer p { max-width: var(--mesure); margin: 0 0 .5rem; }
 

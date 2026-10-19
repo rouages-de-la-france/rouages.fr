@@ -48,6 +48,7 @@ const PAGES = [
   '/simulateurs/frais-achat',
   '/simulateurs/autorisation?travaux=extension',
   '/simulateurs/ma-parcelle',
+  '/n/du-ble-a-la-baguette',
   '/mentions',
   '/signaler',
 ];

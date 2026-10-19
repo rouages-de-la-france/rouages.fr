@@ -1,7 +1,9 @@
 # 10 — Les rouages économiques : cadrage
 
-> Statut : proposition du 18 octobre 2026, à valider. Rien n'est écrit dans
-> `contenu/` avant l'accord du mainteneur.
+> Statut : proposition du 18 octobre 2026, **validée par le mainteneur le
+> 19 octobre 2026** avec deux décisions, reportées plus bas : la règle sur les
+> entreprises nommées est reformulée, et chaque fiche économique renvoie aux
+> registres qui nomment les entreprises de la commune.
 
 `02-familles.md` décrit la famille C — « qui fait quoi dans une organisation »
 — et la dit **la moins sourçable**. Ce document dit comment la peupler sans
@@ -37,7 +39,9 @@ entreprise qui remporte un marché, où va le prix d'une baguette.
 - **L'exemple qui devient une publicité, ou une accusation.** Nommer une
   enseigne pour illustrer une marge, c'est faire sa publicité ou la mettre en
   cause. Le graphe décrit des archétypes — « une boulangerie artisanale »,
-  « une PME de vingt salariés » —, jamais une entreprise.
+  « une PME de vingt salariés » — et ne nomme une entreprise que quand une
+  source publique la désigne pour ce que le site en dit (voir la décision
+  plus bas), jamais pour l'exemple.
 - **La généralité fausse.** L'organisation d'une entreprise varie bien plus
   que la répartition des compétences entre collectivités. Une fiche qui
   prétend dire « comment fonctionne une PME » se trompe pour la plupart.
@@ -83,14 +87,47 @@ Sans entité nouvelle :
 Trois règles de validation à ajouter, pour que les risques ci-dessus tiennent
 d'eux-mêmes :
 
-1. **Pas d'entreprise nommée** dans un nœud économique, sauf celles que la loi
-   désigne pour une mission (Enedis, gestionnaire du réseau de distribution) —
-   le pendant de la règle « pas de personnes » de la famille influence.
+1. **Une entreprise est nommée quand une source publique la désigne pour ce
+   que le site en dit** — titulaire d'un marché, délégataire d'un service,
+   entreprise que la loi charge d'une mission (Enedis, gestionnaire du réseau
+   de distribution, article L111-52 du code de l'énergie) —, jamais comme
+   exemple non sourcé. Dans le graphe, un acteur `entreprise` dont le nom
+   n'est pas un archétype (« le délégataire », « une boulangerie ») porte
+   `designee_par`, la source de droit, de données ouvertes ou la page
+   officielle qui le désigne, citée parmi ses liens ; la validation refuse
+   sinon. *Reformulée le 19 octobre 2026 ; la version proposée disait « pas
+   d'entreprise nommée, sauf celles que la loi désigne ».*
 2. **Tout chiffre d'un nœud économique** cite une source statistique avec son
-   millésime ; la validation refuse un pourcentage ou un montant sans eux.
+   millésime ; la validation refuse un pourcentage ou un montant sans eux. Un
+   montant que fixe un texte — un seuil de la commande publique, l'indemnité
+   forfaitaire de recouvrement — est sourcé par ce texte, ou par la page
+   officielle qui le présente, cité parmi les liens de l'élément ; un
+   pourcentage porte toujours son année, même fixé par un texte.
 3. **Une nouvelle valeur de confiance**, `variable_selon_organisation`, pour
    dire qu'une description d'organisation est un cas type — comme
    `variable_selon_territoire` le dit d'une compétence.
+
+## Décision du 19 octobre 2026
+
+Le mainteneur valide le cadrage et tranche deux points :
+
+1. **Les entreprises nommées.** La règle « pas d'entreprise nommée » devient
+   « une entreprise est nommée quand une source publique la désigne pour ce
+   que le site en dit » (règle 1 ci-dessus). Motif : le site nomme déjà, dans
+   ses données, les titulaires des marchés et les délégataires, d'après des
+   registres publics ; l'interdit visait l'exemple non sourcé, pas le fait
+   publié. Appliqué dans `src/modele/schemas.ts` (`designee_par`) et
+   `scripts/valider.ts`.
+2. **Le renvoi aux entreprises de la commune.** Chaque fiche économique
+   renvoie aux données qui nomment les entreprises de la commune : la section
+   « Ses entreprises » de la page de commune, d'après le répertoire SIRENE
+   de l'INSEE et le BODACC, avec ses règles de diffusion — une entreprise
+   individuelle en diffusion partielle y est comptée, pas nommée. Appliqué
+   dans `src/pages/n/[id].astro`, pour tout processus de la famille
+   `economiques`.
+
+Les deux autres règles de validation (chiffre avec source et millésime,
+`variable_selon_organisation`) entrent avec le premier lot.
 
 ## Un premier lot, et le critère pour continuer
 
@@ -119,6 +156,49 @@ pour chacune de ses affirmations, aucun ne nomme une entreprise, et un
 lecteur qui ne connaît pas le sujet comprend le circuit en une page. Si un
 nœud ne trouve pas sa source, il n'est pas publié — on le note ici plutôt
 que de l'écrire de mémoire.
+
+## Le premier lot, écrit le 19 octobre 2026
+
+Les trois processus sont en ligne dans le graphe :
+`comment-une-commune-achete`, `de-la-commande-a-la-facture` et
+`du-ble-a-la-baguette`, avec leurs archétypes (le fournisseur, le client
+professionnel, l'entreprise candidate, le producteur de blé tendre,
+l'organisme stockeur, la meunerie, la boulangerie) et trois services publics
+(le Médiateur des entreprises, le médiateur des relations commerciales
+agricoles, l'Observatoire). Aucune entreprise n'y est nommée.
+
+**Les sources.** Légifrance et les fiches de la direction des affaires
+juridiques de Bercy refusent la lecture automatique depuis l'environnement
+de développement. Les règles viennent donc des fiches
+d'entreprendre.service-public.fr, chacune avec sa date de vérification, de
+impots.gouv.fr, et du site du Conseil d'État pour les arrêts Tarn-et-Garonne
+et Seateam Aviation. Les articles cités sont ceux que ces pages donnent.
+
+**Les chiffres de la baguette** sont ceux du graphique 171 du rapport 2026 de
+l'Observatoire, pour 2025, en euros par kilo de baguette : 4,05 € toutes
+taxes comprises, dont 0,24 € de blé, 0,27 € de marge brute de la meunerie,
+3,33 € de marge brute en aval et 0,21 € de taxe. Recoupés par un calcul
+indépendant sur le rapport téléchargé et sur la série de l'Insee (même prix
+de 4,05 € en 2025). Les parts en pourcentage ne sont pas reprises : calculées
+sur les montants arrondis, elles ne retombent pas sur celles du rapport
+(7,0 % contre 7,2 % pour la meunerie).
+
+**Ce qui reste à relire depuis une machine qui joint Légifrance** :
+
+- l'article L441-9 du code de commerce, dont une version est datée « en
+  vigueur jusqu'au 1er janvier 2027 » ;
+- le seuil des travaux sans publicité, porté à 140 000 € au 1er janvier 2027
+  d'après service-public, et l'article de loi qui le fixe ;
+- le texte en vigueur des articles R2122-8 et R2191-7 du code de la commande
+  publique, modifiés en 2025-2026.
+
+**Ce qui n'est pas écrit, faute de source qui tienne** : la contractualisation
+obligatoire de la vente de blé (les céréales seraient exemptées, d'après la
+presse agricole seulement), le taux de la taxe sur le pain (le rapport ne
+l'écrit pas), le prix d'une baguette à l'unité (le rapport raisonne au kilo).
+
+Les fiches se périment vite exprès : trois mois pour la commande publique,
+six pour la facturation, douze pour la baguette, au rythme du rapport.
 
 ## Ce qu'on ne fait pas
 

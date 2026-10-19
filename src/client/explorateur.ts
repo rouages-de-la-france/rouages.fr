@@ -872,7 +872,8 @@ function demarrer(reseau: Reseau) {
         ligne(
           'span',
           'p-confiance',
-          n.confiance === 'variable_selon_territoire' ? 'variable selon le territoire' : 'à confirmer',
+          ({ variable_selon_territoire: 'variable selon le territoire', variable_selon_organisation: 'variable selon l’organisation' } as Record<string, string>)[n.confiance] ??
+            'à confirmer',
         ),
       );
     }

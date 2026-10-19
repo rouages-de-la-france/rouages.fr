@@ -34,7 +34,7 @@ npm run relecture-autorisations  réécrit la fiche de relecture du praticien (d
 npm run verifier-parcelle    le test d'appartenance de la lecture du PLU, sans réseau
 npm run relecture-parcelle   réécrit la fiche de relecture de la parcelle (docs/11-…), en lisant le Géoportail
 npm run verifier-types       les types, fichiers .astro compris — `tsc` seul ne les voit pas
-npm run verifier-accessibilite  axe-core sur dix-sept pages du build, en clair, en sombre et à 390 px
+npm run verifier-accessibilite  axe-core sur dix-huit pages du build, en clair, en sombre et à 390 px
 npm run build                valide puis génère (le build refuse un contenu invalide)
 npm run relire               les fiches encore à vérifier contre leur source
 npm run veille               l'état des sources surveillées

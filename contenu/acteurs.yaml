@@ -966,8 +966,11 @@ acteurs:
     nom_court: "Enedis"
     type: entreprise
     echelon: prive
+    # Nommée parce que la loi la désigne : gestionnaire du réseau de distribution
+    # dans sa zone de desserte exclusive (code de l'énergie, art. L111-52).
+    designee_par: cl-gestionnaires-distribution
     resume: "Exploite le réseau de distribution d'électricité sous concession, pour le compte des collectivités qui en sont propriétaires."
-    liens: [wp-enedis, enedis-fr, od-enedis, code-energie, enedis-concession]
+    liens: [wp-enedis, enedis-fr, od-enedis, code-energie, enedis-concession, cl-gestionnaires-distribution]
     verifie_le: 2026-09-22
     confiance: etabli
 
@@ -1032,6 +1035,126 @@ acteurs:
   # prérogative de puissance publique, et leur intervention est obligatoire —
   # pas choisie. Ils sont donc des rouages, au même titre qu'un délégataire
   # d'eau ou qu'un commissaire enquêteur, qui figurent déjà ici.
+  # Les archétypes de la famille économique (docs/10-rouages-economiques.md) :
+  # des rôles, jamais des entreprises prises pour l'exemple.
+  - id: fournisseur
+    nom: "Le fournisseur"
+    nom_court: "Fournisseur"
+    type: entreprise
+    echelon: prive
+    resume: "Une petite entreprise qui vend un bien ou un service à un client professionnel : elle livre, facture, et attend d'être payée dans le délai convenu."
+    liens: [esp-delais-paiement, esp-mentions-facture]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: client-professionnel
+    nom: "Le client professionnel"
+    nom_court: "Client professionnel"
+    type: entreprise
+    echelon: prive
+    resume: "L'entreprise qui commande et paie : elle reçoit la facture, la vérifie et la règle dans le délai que la loi plafonne."
+    liens: [esp-delais-paiement, impots-facturation-electronique]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: entreprise-candidate
+    nom: "L'entreprise candidate"
+    nom_court: "Entreprise candidate"
+    type: entreprise
+    echelon: prive
+    resume: "Répond à un marché public : elle dépose sa candidature et son offre, puis, si elle l'emporte, exécute le marché et facture l'acheteur."
+    liens: [esp-procedures-marches, esp-paiement-marche]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: cerealier
+    nom: "Le producteur de blé tendre"
+    nom_court: "Producteur de blé"
+    type: metier
+    echelon: prive
+    resume: "L'exploitation qui cultive le blé tendre et le livre à un organisme stockeur ; la quasi-totalité du blé consommé en France y est produite."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: organisme-stockeur
+    nom: "L'organisme stockeur"
+    nom_court: "Organisme stockeur"
+    type: entreprise
+    echelon: prive
+    resume: "Collecte le blé des exploitations et le revend ; le prix du blé que suit l'Observatoire comprend sa marge, qui n'est pas chiffrée."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: meunerie
+    nom: "La meunerie"
+    nom_court: "Meunerie"
+    type: entreprise
+    echelon: prive
+    resume: "Transforme le blé tendre en farine : environ cinq millions de tonnes de blé par an, dont la moitié pour faire du pain."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: boulangerie
+    nom: "La boulangerie"
+    nom_court: "Boulangerie"
+    type: entreprise
+    echelon: prive
+    resume: "L'artisan, l'industriel ou le rayon d'une grande surface qui fait le pain et le vend ; les boulangeries artisanales en font près de la moitié."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: observatoire-prix-marges
+    nom: "L'Observatoire de la formation des prix et des marges"
+    nom_court: "Observatoire des marges"
+    type: organe_collegial
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Décompose chaque année, dans un rapport au Parlement, le prix au détail de produits alimentaires suivis, dont la baguette, entre matière première et marges."
+    liens: [ofpm-rapports, ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: mediateur-relations-agricoles
+    nom: "Le médiateur des relations commerciales agricoles"
+    nom_court: "Médiateur agricole"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Saisi gratuitement par les professionnels du secteur agroalimentaire, du producteur au distributeur, pour un litige sur un contrat de vente de produits agricoles."
+    liens: [agri-mediateur-relations-commerciales]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: mediateur-entreprises
+    nom: "Le Médiateur des entreprises"
+    nom_court: "Médiateur entreprises"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Service de l'État saisi gratuitement par une entreprise en litige avec un client, un fournisseur ou une administration, retards de paiement compris."
+    liens: [esp-mediateur-entreprises]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: tribunal-commerce
+    nom: "Le tribunal de commerce"
+    nom_court: "Tribunal de commerce"
+    type: juridiction
+    echelon: etat
+    pouvoirs: [judiciaire]
+    releve_de: etat
+    resume: "Juge les litiges entre commerçants ; son président délivre l'injonction de payer. Douze sont devenus, le 1er janvier 2025, des tribunaux des activités économiques."
+    liens: [esp-injonction-payer, esp-tribunaux-activites-economiques, code-organisation-judiciaire]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
   - id: notaire
     nom: "Le notaire"
     type: metier

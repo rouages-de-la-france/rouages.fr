@@ -1,0 +1,98 @@
+# Du blé à la baguette : la filière, maillon par maillon, et la décomposition
+# du prix telle que l'Observatoire de la formation des prix et des marges la
+# publie (docs/10-rouages-economiques.md). Les montants sont ceux du graphique
+# 171 du rapport 2026 au Parlement, pour 2025, en euros par kilo de baguette :
+# le rapport ne raisonne pas par baguette, et on ne convertit pas. Recoupés le
+# 19 octobre 2026 : les quatre montants font 4,05 €, et la série de l'Insee
+# donne le même prix au détail pour 2025. Les parts en pourcentage ne sont pas
+# reprises : calculées sur des montants arrondis, elles ne retombent pas sur
+# celles du rapport.
+processus:
+  - id: du-ble-a-la-baguette
+    nom: "Du blé à la baguette"
+    famille: economiques
+    resume: "Du champ au comptoir : qui intervient entre le blé et la baguette, et comment se décompose le prix d'un kilo de baguette, d'après l'Observatoire de la formation des prix et des marges."
+    declencheur: "Une récolte de blé tendre"
+    sortie: "Une baguette vendue au prix que fixe chaque boulangerie"
+    decideur: boulangerie
+    liens: [ofpm-rapport-2026-pain, ofpm-rapports, insee-prix-baguette]
+    verifie_le: 2026-10-19
+    # Le prochain rapport paraît en principe l'été suivant : la fiche se relit alors.
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: cerealier
+        action: "Culture et récolte du blé tendre"
+        note: "La quasi-totalité du blé tendre consommé en France est produite sur place. Le rapport ne suit pas le prix payé au producteur : il part du prix du blé à la sortie des organismes stockeurs."
+        liens: [ofpm-rapport-2026-pain]
+        confiance: etabli
+      - ordre: 2
+        acteur: organisme-stockeur
+        action: "Collecte, stockage et vente du blé"
+        note: "Le prix du blé que retient l'Observatoire comprend la marge des organismes stockeurs, qui n'est pas chiffrée à part."
+        liens: [ofpm-rapport-2026-pain]
+        confiance: etabli
+      - ordre: 3
+        acteur: meunerie
+        action: "Mouture du blé en farine"
+        note: "La meunerie transforme environ cinq millions de tonnes de blé tendre par an ; la moitié de la farine va à la fabrication du pain."
+        liens: [ofpm-rapport-2026-pain]
+        confiance: etabli
+      - ordre: 4
+        acteur: boulangerie
+        action: "Fabrication et vente de la baguette, au prix que fixe chaque boulangerie"
+        note: "Le prix du pain est libre depuis l'ordonnance du 1er décembre 1986 sur la liberté des prix : chaque boulangerie fixe le sien. La boulangerie artisanale fait près de la moitié du pain ; l'industrie et les rayons des grandes surfaces, le reste."
+        liens: [an-qe-118929-prix-pain, ofpm-rapport-2026-pain]
+        confiance: variable_selon_organisation
+      - ordre: 5
+        acteur: citoyen
+        action: "Achat du pain, et ce que paie le prix"
+        note: "En 2025, un kilo de baguette courante coûte en moyenne 4,05 € toutes taxes comprises, tous circuits de vente confondus. L'Observatoire le décompose ainsi : 0,24 € de blé, 0,27 € de marge brute de la meunerie, 3,33 € de marge brute en aval de la meunerie, et 0,21 € de taxe sur la valeur ajoutée. L'aval réunit l'artisan, l'industriel et le rayon de la grande surface, sans les distinguer."
+        liens: [ofpm-rapport-2026-pain, insee-prix-baguette]
+        confiance: etabli
+      - ordre: 6
+        acteur: observatoire-prix-marges
+        action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
+        note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. La baguette est le seul produit suivi par l'Observatoire dont la vente au détail passe surtout par les artisans, et non par les grandes surfaces."
+        liens: [ofpm-rapports, ofpm-rapport-2026-pain]
+        confiance: etabli
+      - ordre: 7
+        acteur: mediateur-relations-agricoles
+        action: "Médiation d'un litige commercial entre professionnels de la filière"
+        conditionnelle: true
+        note: "Du producteur au distributeur, tout professionnel du secteur peut le saisir, gratuitement. Entre professionnels, la médiation est obligatoire avant de saisir le juge."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
+
+    leviers:
+      - id: lire-la-decomposition-du-prix
+        quoi: "Lire la décomposition du prix de la baguette dans le rapport de l'Observatoire"
+        quand: "Chaque année, à la parution du rapport au Parlement — le 9 juillet en 2026"
+        aupres_de: "L'Observatoire de la formation des prix et des marges, sur son site"
+        difficulte: faible
+        ancre_etape: 6
+        piege: "Une marge brute n'est pas un bénéfice : elle doit couvrir les coûts de production, dont l'énergie et les salaires que le rapport cite. Et celle de l'aval mêle l'artisan, l'industrie et la grande surface : elle ne dit pas ce que gagne une boulangerie."
+        liens: [ofpm-rapport-2026-pain]
+        confiance: etabli
+      - id: suivre-le-prix-de-la-baguette
+        quoi: "Suivre le prix moyen du kilo de baguette, année après année"
+        quand: "À tout moment : la série de l'Insee est publique"
+        aupres_de: "L'Insee, série du prix moyen de vente au détail de la baguette"
+        difficulte: faible
+        ancre_etape: 5
+        piege: "C'est une moyenne nationale, tous circuits confondus : le prix d'une boulangerie donnée peut s'en écarter largement, puisqu'il est libre."
+        liens: [insee-prix-baguette, an-qe-118929-prix-pain]
+        confiance: etabli
+      - id: saisir-le-mediateur-agricole
+        acteur: cerealier
+        quoi: "Saisir le médiateur des relations commerciales agricoles"
+        quand: "En cas de litige sur un contrat de vente de produits agricoles, avant de saisir le juge"
+        aupres_de: "Le médiateur des relations commerciales agricoles, gratuitement"
+        difficulte: moyenne
+        ancre_etape: 7
+        recours_si_refus: "Le juge, une fois la médiation tentée"
+        piege: "Entre professionnels, la médiation est obligatoire avant toute saisine du juge, sauf si le contrat prévoit une autre médiation ou un arbitrage."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
