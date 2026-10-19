@@ -3728,7 +3728,9 @@ leur est rattaché que par son SIRET, jamais par le nom.
   trois sources qui tiennent (ROME 4.0, Observatoire des prix et des marges,
   les textes), aucune entité nouvelle, trois règles de validation, et un
   premier lot de trois processus — la commune qui achète, la commande à la
-  facture, du blé à la baguette —, en attente de l'accord du mainteneur.
+  facture, du blé à la baguette. Validé le 19 octobre 2026, avec la règle
+  reformulée — une entreprise est nommée quand une source publique la
+  désigne — ; le premier lot est écrit le même jour (voir le document).
 - **Rouages de l'influence** (prebunking), une fois la neutralité installée, et
   sous la règle absolue : des mécanismes, jamais des personnes.
 

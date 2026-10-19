@@ -124,16 +124,18 @@ const theme = THEMES.find((t) => t.fiche === noeud.id);
     {fenetres && (
       <section>
         <h2 class="badge">{fenetres.titre}</h2>
-        <div class="cadre-schema" set:html={fenetres.svg} />
-        <details class="equivalent"><summary>Le même en tableau</summary><div set:html={fenetres.tableau} /></details>
+        {/* Le schéma défile au téléphone : la zone se prend au clavier, comme le tableau qui le double. */}
+        <div class="cadre-schema" tabindex="0" role="region" aria-label={fenetres.titre} set:html={fenetres.svg} />
+        <details class="equivalent"><summary>Le même en tableau</summary><div class="equivalent-tableau" tabindex="0" role="region" aria-label={`${fenetres.titre}, en tableau`} set:html={fenetres.tableau} /></details>
       </section>
     )}
 
     {frise && (
       <section>
         <h2 class="badge">{frise.titre}</h2>
-        <div class="cadre-schema" set:html={frise.svg} />
-        <details class="equivalent"><summary>Le même en tableau</summary><div set:html={frise.tableau} /></details>
+        {/* Le schéma défile au téléphone : la zone se prend au clavier, comme le tableau qui le double. */}
+        <div class="cadre-schema" tabindex="0" role="region" aria-label={frise.titre} set:html={frise.svg} />
+        <details class="equivalent"><summary>Le même en tableau</summary><div class="equivalent-tableau" tabindex="0" role="region" aria-label={`${frise.titre}, en tableau`} set:html={frise.tableau} /></details>
       </section>
     )}
 

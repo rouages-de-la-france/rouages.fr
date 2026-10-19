@@ -1067,6 +1067,70 @@ acteurs:
     verifie_le: 2026-10-19
     confiance: variable_selon_organisation
 
+  - id: cerealier
+    nom: "Le producteur de blé tendre"
+    nom_court: "Producteur de blé"
+    type: metier
+    echelon: prive
+    resume: "L'exploitation qui cultive le blé tendre et le livre à un organisme stockeur ; la quasi-totalité du blé consommé en France y est produite."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: organisme-stockeur
+    nom: "L'organisme stockeur"
+    nom_court: "Organisme stockeur"
+    type: entreprise
+    echelon: prive
+    resume: "Collecte le blé des exploitations et le revend ; le prix du blé que suit l'Observatoire comprend sa marge, qui n'est pas chiffrée."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: meunerie
+    nom: "La meunerie"
+    nom_court: "Meunerie"
+    type: entreprise
+    echelon: prive
+    resume: "Transforme le blé tendre en farine : environ cinq millions de tonnes de blé par an, dont la moitié pour faire du pain."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: boulangerie
+    nom: "La boulangerie"
+    nom_court: "Boulangerie"
+    type: entreprise
+    echelon: prive
+    resume: "L'artisan, l'industriel ou le rayon d'une grande surface qui fait le pain et le vend ; les boulangeries artisanales en font près de la moitié."
+    liens: [ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: observatoire-prix-marges
+    nom: "L'Observatoire de la formation des prix et des marges"
+    nom_court: "Observatoire des marges"
+    type: organe_collegial
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Décompose chaque année, dans un rapport au Parlement, le prix au détail de produits alimentaires suivis, dont la baguette, entre matière première et marges."
+    liens: [ofpm-rapports, ofpm-rapport-2026-pain]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: mediateur-relations-agricoles
+    nom: "Le médiateur des relations commerciales agricoles"
+    nom_court: "Médiateur agricole"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Saisi gratuitement par les professionnels du secteur agroalimentaire, du producteur au distributeur, pour un litige sur un contrat de vente de produits agricoles."
+    liens: [agri-mediateur-relations-commerciales]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
   - id: mediateur-entreprises
     nom: "Le Médiateur des entreprises"
     nom_court: "Médiateur entreprises"

@@ -157,6 +157,49 @@ lecteur qui ne connaît pas le sujet comprend le circuit en une page. Si un
 nœud ne trouve pas sa source, il n'est pas publié — on le note ici plutôt
 que de l'écrire de mémoire.
 
+## Le premier lot, écrit le 19 octobre 2026
+
+Les trois processus sont en ligne dans le graphe :
+`comment-une-commune-achete`, `de-la-commande-a-la-facture` et
+`du-ble-a-la-baguette`, avec leurs archétypes (le fournisseur, le client
+professionnel, l'entreprise candidate, le producteur de blé tendre,
+l'organisme stockeur, la meunerie, la boulangerie) et trois services publics
+(le Médiateur des entreprises, le médiateur des relations commerciales
+agricoles, l'Observatoire). Aucune entreprise n'y est nommée.
+
+**Les sources.** Légifrance et les fiches de la direction des affaires
+juridiques de Bercy refusent la lecture automatique depuis l'environnement
+de développement. Les règles viennent donc des fiches
+d'entreprendre.service-public.fr, chacune avec sa date de vérification, de
+impots.gouv.fr, et du site du Conseil d'État pour les arrêts Tarn-et-Garonne
+et Seateam Aviation. Les articles cités sont ceux que ces pages donnent.
+
+**Les chiffres de la baguette** sont ceux du graphique 171 du rapport 2026 de
+l'Observatoire, pour 2025, en euros par kilo de baguette : 4,05 € toutes
+taxes comprises, dont 0,24 € de blé, 0,27 € de marge brute de la meunerie,
+3,33 € de marge brute en aval et 0,21 € de taxe. Recoupés par un calcul
+indépendant sur le rapport téléchargé et sur la série de l'Insee (même prix
+de 4,05 € en 2025). Les parts en pourcentage ne sont pas reprises : calculées
+sur les montants arrondis, elles ne retombent pas sur celles du rapport
+(7,0 % contre 7,2 % pour la meunerie).
+
+**Ce qui reste à relire depuis une machine qui joint Légifrance** :
+
+- l'article L441-9 du code de commerce, dont une version est datée « en
+  vigueur jusqu'au 1er janvier 2027 » ;
+- le seuil des travaux sans publicité, porté à 140 000 € au 1er janvier 2027
+  d'après service-public, et l'article de loi qui le fixe ;
+- le texte en vigueur des articles R2122-8 et R2191-7 du code de la commande
+  publique, modifiés en 2025-2026.
+
+**Ce qui n'est pas écrit, faute de source qui tienne** : la contractualisation
+obligatoire de la vente de blé (les céréales seraient exemptées, d'après la
+presse agricole seulement), le taux de la taxe sur le pain (le rapport ne
+l'écrit pas), le prix d'une baguette à l'unité (le rapport raisonne au kilo).
+
+Les fiches se périment vite exprès : trois mois pour la commande publique,
+six pour la facturation, douze pour la baguette, au rythme du rapport.
+
 ## Ce qu'on ne fait pas
 
 - Pas de classement d'entreprises, ni de « bonnes » ou « mauvaises »
