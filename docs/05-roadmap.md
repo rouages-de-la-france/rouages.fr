@@ -3742,8 +3742,10 @@ Où en sont les trois : la recherche dans les délibérations est en ligne
 (section 8 du cadrage) ; la procédure applicable est construite et attend
 la relecture d'un praticien (section 9, `docs/09-relecture-autorisations.md`) ;
 la lecture assistée du PLU est cadrée le 18 octobre 2026 (section 10) —
-« ce qui touche ma parcelle », puis la page du règlement elle-même — et
-attend l'accord du mainteneur avant tout code.
+« ce qui touche ma parcelle », puis la page du règlement elle-même ; le
+premier niveau est construit le 19 octobre (`/simulateurs/ma-parcelle`) et
+attend, comme la procédure, la relecture d'un praticien
+(`docs/11-relecture-parcelle.md`).
 
 ## Ce qu'on ne fait pas
 

@@ -1,0 +1,88 @@
+---
+/**
+ * Ce qui touche ma parcelle dans le document d'urbanisme : la lecture
+ * assistée du PLU, niveau 1 — voir `docs/07-risques.md`, section 10, et
+ * `src/modele/parcelle-plu.ts`. L'outil retrouve et cite, il ne conclut pas.
+ * La page reste hors des moteurs et du menu tant que `PUBLIE` est faux : elle
+ * attend la relecture d'un praticien (`docs/11-relecture-parcelle.md`).
+ */
+import Base from '../../layouts/Base.astro';
+import { STANDARD } from '../../modele/cnig.ts';
+import { PUBLIE } from '../../modele/parcelle-plu.ts';
+import { enFrancais } from '../../modele/urbanisme.ts';
+import '../../styles/jeux.css';
+---
+<Base
+  titre="Ce qui touche ma parcelle"
+  description="Depuis une adresse ou une référence cadastrale, les zones, prescriptions, informations et servitudes que le Géoportail de l’urbanisme publie sur une parcelle, avec la page du règlement à lire."
+  section="simulateurs"
+  indexer={PUBLIE}
+>
+  <div class="page page--etroite">
+    <p class="badge"><a href="/simulateurs">Simulateurs</a></p>
+    <h1>Ce qui touche ma parcelle</h1>
+    {!PUBLIE && (
+      <p class="au-relecture" role="note">
+        Page en relecture&nbsp;: elle n’est ni au menu ni dans les moteurs de recherche tant qu’un praticien de
+        l’urbanisme n’a pas relu ses réponses.
+      </p>
+    )}
+    <p class="resume">
+      Les zones, prescriptions, informations et servitudes que le Géoportail de l’urbanisme publie sur une parcelle,
+      chacune avec son libellé, son type en clair et la page du document à lire. La page ne dit pas ce qu’on peut
+      construire&nbsp;: elle dit où le lire.
+    </p>
+
+    <div class="jeu-carte mp-saisie">
+      <form id="mp-adresse" class="mp-form">
+        <label for="mp-q">Une adresse</label>
+        <div class="mp-ligne">
+          <input id="mp-q" name="q" type="search" autocomplete="street-address" placeholder="Place de l’Église, Le Mayet-de-Montagne" />
+          <button type="submit" class="mp-bouton">Chercher</button>
+        </div>
+      </form>
+      <form id="mp-reference" class="mp-form">
+        <fieldset>
+          <legend>Ou la référence cadastrale</legend>
+          <div class="mp-ligne">
+            <label>Code INSEE de la commune <input name="insee" inputmode="numeric" maxlength="5" size="6" placeholder="03165" /></label>
+            <label>Section <input name="section" maxlength="2" size="3" placeholder="AC" /></label>
+            <label>Numéro <input name="numero" inputmode="numeric" maxlength="4" size="5" placeholder="62" /></label>
+            <button type="submit" class="mp-bouton">Lire</button>
+          </div>
+        </fieldset>
+      </form>
+      <p class="p-strate">
+        Rien ne part sans un clic. L’adresse va au géocodeur de la Géoplateforme de l’IGN, la parcelle et le document
+        d’urbanisme à son service cartographique, l’état du document au Géoportail de l’urbanisme&nbsp;: ces services
+        voient votre adresse IP, et Rouages ne garde rien.
+      </p>
+    </div>
+
+    <p id="mp-etat" class="mp-etat" role="status" aria-live="polite"></p>
+    <div id="mp-choix"></div>
+    <div id="mp-resultat"></div>
+    <noscript><p class="mesure">Cette page a besoin de JavaScript : elle lit le Géoportail dans le navigateur, et ne garde rien.</p></noscript>
+
+    <h2 class="badge">Ce que la page ne dit pas</h2>
+    <ul class="mesure">
+      <li><strong>Ce qu’on peut construire.</strong> Une zone renvoie à un chapitre du règlement, qui renvoie lui-même aux dispositions générales, au lexique et parfois aux orientations d’aménagement. Seule la lecture du document, ou la mairie, répond.</li>
+      <li><strong>Que rien d’autre ne s’applique.</strong> Toutes les servitudes ne sont pas numérisées, un plan de sauvegarde remplace le PLU sur son périmètre, et une commune au règlement national d’urbanisme n’a pas de zones. La page dit ce que le Géoportail publie, jamais «&nbsp;aucune contrainte&nbsp;».</li>
+      <li><strong>Que le Géoportail soit le document qui s’applique.</strong> La publication y conditionne en principe le caractère exécutoire d’un PLU, mais une collectivité peut publier autrement en cas de difficulté technique, et une carte communale n’en dépend pas. Le document tenu en mairie fait foi.</li>
+      <li><strong>Où passe exactement une limite.</strong> Le zonage et le cadastre sont dessinés séparément&nbsp;: une zone qui ne touche qu’une bande étroite le long de la limite est signalée comme telle, pas tue.</li>
+    </ul>
+    <p class="p-source-territoire">
+      Sources, lues au moment de la demande&nbsp;: le cadastre (Parcellaire Express) et les couches du Géoportail de
+      l’urbanisme sur la Géoplateforme de l’IGN, l’état des documents sur le
+      <a href="https://www.geoportail-urbanisme.gouv.fr/" target="_blank" rel="noopener">Géoportail de l’urbanisme</a>,
+      l’adresse par le géocodeur de la Géoplateforme. Les types en clair sont ceux du
+      <a href={STANDARD.url} target="_blank" rel="noopener">{STANDARD.titre}</a> du Conseil national de l’information
+      géolocalisée ({enFrancais(STANDARD.date)}), repris mot pour mot&nbsp;; le libellé d’une catégorie de servitude est celui
+      que donne le Géoportail.
+    </p>
+  </div>
+</Base>
+<script>
+  import { brancherMaParcelle } from '../../client/ma-parcelle.ts';
+  brancherMaParcelle();
+</script>

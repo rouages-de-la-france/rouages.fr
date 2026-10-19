@@ -1823,3 +1823,42 @@ a.p-sommaire-lien { text-decoration: none; }
 .au-aide { margin: .3rem 0 0; font-size: .85rem; color: var(--encre-douce); }
 .au-hypothese { border-left: 3px solid var(--trait); padding-left: .6rem; color: var(--encre-douce); }
 .au-source { font-size: .85rem; color: var(--encre-douce); margin-top: .6rem; }
+
+/* Ce qui touche ma parcelle (src/client/ma-parcelle.ts). */
+.mp-saisie { max-width: 46rem; }
+.mp-form { margin: 0 0 .9rem; }
+.mp-form fieldset { border: 0; padding: 0; margin: 0; }
+.mp-form legend, .mp-form > label { font-weight: 600; display: block; margin-bottom: .3rem; }
+.mp-ligne { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem .8rem; }
+.mp-ligne label { display: flex; flex-direction: column; font-size: .9rem; gap: .15rem; }
+.mp-ligne input { font: inherit; padding: .3rem .4rem; border: 1px solid var(--trait); border-radius: 4px; background: var(--fond); color: var(--encre); }
+#mp-q { flex: 1 1 16rem; min-width: 0; }
+.mp-bouton { font: inherit; padding: .35rem .8rem; border: 1px solid var(--trait); border-radius: 4px; background: var(--fond); color: var(--encre); cursor: pointer; text-align: left; }
+.mp-bouton:hover { border-color: var(--encre-douce); }
+.mp-bouton[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-doux); }
+.mp-etat:empty { display: none; }
+.mp-adresses, .mp-parcelles { list-style: none; padding: 0; margin: .4rem 0 1rem; max-width: 46rem; }
+.mp-adresses li, .mp-parcelles li { margin: .3rem 0; }
+.mp-precision { font-size: .88rem; color: var(--encre-douce); }
+.mp-figure { margin: .6rem 0; max-width: 420px; }
+.mp-carte { width: 100%; height: auto; border: 1px solid var(--trait); border-radius: 4px; background: var(--fond); }
+.mp-parcelle { fill: var(--accent-doux); fill-opacity: .35; stroke: var(--encre-douce); stroke-width: .8; cursor: pointer; }
+.mp-parcelle:hover { fill-opacity: .7; }
+.mp-parcelle.mp-choisie { fill: var(--accent); fill-opacity: .55; stroke: var(--encre); stroke-width: 1.6; }
+.mp-point { fill: var(--encre); stroke: var(--fond); stroke-width: 1.5; }
+.mp-sous-titre { font-weight: 600; margin: .6rem 0 .2rem; cursor: pointer; }
+.mp-titre { margin-top: 1.6rem; }
+.mp-titre:focus { outline: none; }
+.mp-intro { max-width: 46rem; color: var(--encre-douce); font-size: .92rem; }
+.mp-alerte { border-left: 3px solid var(--plu-au); padding: .3rem .7rem; max-width: 46rem; }
+.mp-document { border-left: 3px solid var(--accent); padding: .2rem .8rem; margin: .8rem 0; max-width: 46rem; }
+.mp-document p { margin: .2rem 0; }
+.mp-document-titre { font-weight: 600; }
+.mp-famille { max-width: 46rem; margin-top: 1.2rem; }
+.mp-famille h3 { margin-bottom: .2rem; }
+.mp-liste { padding-left: 1.1rem; margin: .4rem 0; }
+.mp-element { margin: .55rem 0; }
+.mp-element.mp-bord, .mp-element.mp-limite { color: var(--encre-douce); }
+.mp-contact { font-size: .92rem; }
+.mp-type, .mp-piece { display: block; font-size: .88rem; color: var(--encre-douce); overflow-wrap: anywhere; }
+.mp-vide { color: var(--encre-douce); font-size: .92rem; }
