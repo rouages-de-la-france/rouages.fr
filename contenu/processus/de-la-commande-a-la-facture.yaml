@@ -80,6 +80,13 @@ processus:
         note: "Quand les deux entreprises sont commerçantes, la demande va au président du tribunal de commerce, ou du tribunal des activités économiques là où il existe. Le débiteur a un mois, après la signification de l'ordonnance, pour former opposition."
         liens: [esp-injonction-payer, esp-tribunaux-activites-economiques]
         confiance: etabli
+      - ordre: 10
+        acteur: commissaire-justice
+        action: "Signification de l'ordonnance au débiteur"
+        conditionnelle: true
+        note: "Le créancier remet l'ordonnance d'injonction de payer à un commissaire de justice, qui la signifie au débiteur ; c'est cette signification qui ouvre le délai d'opposition d'un mois."
+        liens: [esp-injonction-payer]
+        confiance: etabli
 
     leviers:
       - id: reclamer-penalites-et-indemnite
