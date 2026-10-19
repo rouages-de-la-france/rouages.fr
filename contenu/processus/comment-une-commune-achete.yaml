@@ -1,0 +1,144 @@
+# Comment une commune achète : le marché public vu du côté de l'entreprise.
+# Le pont entre la famille A et la famille C (docs/10-rouages-economiques.md),
+# et l'explication des marchés que la page de chaque commune affiche. Les
+# seuils et les délais viennent des fiches d'entreprendre.service-public.fr,
+# lues le 19 octobre 2026 ; Légifrance et les fiches de la direction des
+# affaires juridiques de Bercy refusent la lecture automatique depuis
+# l'environnement de développement. Les seuils ont changé deux fois en 2026,
+# et le seuil des travaux change encore au 1er janvier 2027 : d'où une
+# péremption courte.
+processus:
+  - id: comment-une-commune-achete
+    nom: "Comment une commune achète"
+    famille: economiques
+    resume: "Le marché public vu de l'entreprise : à partir de quel montant la commune doit publier et mettre en concurrence, comment elle choisit, dans quel délai elle paie, et ce que peut faire le candidat écarté."
+    declencheur: "Un besoin de la commune : des travaux, des fournitures, un service"
+    sortie: "Un marché signé, exécuté et payé, ou annulé par le juge administratif"
+    decideur: commune
+    competences: [seuils-marches-publics]
+    liens: [esp-procedures-marches, esp-seuils-publicite, esp-paiement-marche, esp-rejet-offre]
+    verifie_le: 2026-10-19
+    perime_apres_mois: 3
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: commune
+        action: "Définition du besoin, et du montant qui fixe la procédure"
+        note: "C'est la valeur estimée du besoin qui décide. En dessous de 60 000 € hors taxes pour des fournitures ou des services, et de 100 000 € pour des travaux, la commune peut acheter sans publicité ni mise en concurrence. Au-delà de 216 000 € pour des fournitures ou des services, et de 5 404 000 € pour des travaux, elle suit une procédure formalisée, comme l'appel d'offres ; entre les deux, une procédure adaptée qu'elle organise elle-même."
+        liens: [esp-procedures-marches, esp-seuils-publicite]
+        confiance: etabli
+      - ordre: 2
+        acteur: commune
+        action: "Publicité de l'avis de marché"
+        note: "À partir de 90 000 € hors taxes, l'avis paraît au Bulletin officiel des annonces des marchés publics ou dans un journal d'annonces légales ; en dessous, la commune choisit le support, son profil d'acheteur par exemple. Pour des travaux, la publicité n'est obligatoire qu'à partir de 100 000 €."
+        liens: [esp-seuils-publicite, od-boamp]
+        confiance: etabli
+      - ordre: 3
+        acteur: entreprise-candidate
+        action: "Dépôt de la candidature et de l'offre"
+        delai: { valeur: 30, unite: jours, nature: minimum_legal }
+        note: "Dans un appel d'offres ouvert, la commune laisse au moins trente jours après l'envoi de l'avis quand les offres sont déposées par voie électronique, trente-cinq par courrier ; quinze après un avis de préinformation ou en cas d'urgence."
+        liens: [esp-procedures-marches]
+        confiance: etabli
+      - ordre: 4
+        acteur: commune
+        action: "Choix de l'attributaire, et information des candidats écartés"
+        note: "Le rejet est notifié sans délai aux autres candidats, dans toutes les procédures. Dans une procédure formalisée, la notification donne les motifs, le nom de l'attributaire et la date à laquelle la commune compte signer."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+      - ordre: 5
+        acteur: commune
+        action: "Délai d'attente avant la signature"
+        delai: { valeur: 11, unite: jours, nature: minimum_legal }
+        note: "Dans une procédure formalisée, la commune attend au moins onze jours entre l'envoi de la notification et la signature, seize si elle a écrit par courrier : c'est le temps laissé au candidat écarté pour saisir le juge. Ce délai ne vaut pas en procédure adaptée."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+      - ordre: 6
+        acteur: commune
+        action: "Signature et notification du marché, et versement de l'avance"
+        note: "L'avance est obligatoire quand le marché dépasse 50 000 € hors taxes et dure plus de deux mois. Elle va de 5 % à 30 % du montant initial toutes taxes comprises, d'après les taux en vigueur en 2026 ; une collectivité dont les dépenses de fonctionnement dépassent 60 millions d'euros verse au moins 10 % à une petite ou moyenne entreprise."
+        liens: [esp-paiement-marche]
+        confiance: etabli
+      - ordre: 7
+        acteur: entreprise-candidate
+        action: "Exécution du marché et facture électronique"
+        note: "Le titulaire facture électroniquement, par le portail public Chorus Pro ; pour un marché qui n'est pas de travaux, il peut aussi passer par une plateforme agréée par l'État."
+        liens: [esp-paiement-marche]
+        confiance: etabli
+      - ordre: 8
+        acteur: dgfip
+        action: "Paiement par le comptable public"
+        delai: { valeur: 30, unite: jours, nature: maximum_legal }
+        note: "Une commune paie dans les trente jours. Passé ce délai, les intérêts moratoires sont dus sans que l'entreprise ait à les demander, au taux de la Banque centrale européenne majoré de huit points, avec une indemnité forfaitaire de 40 € pour frais de recouvrement ; les deux sont payés dans les quarante-cinq jours qui suivent la mise en paiement de la somme due."
+        liens: [esp-paiement-marche, decret-gbcp]
+        confiance: etabli
+      - ordre: 9
+        acteur: tribunal-administratif
+        action: "Référé précontractuel, avant la signature"
+        conditionnelle: true
+        note: "Le candidat écarté peut le former tant que le marché n'est pas signé ; dès que le tribunal est saisi, la commune doit suspendre la signature jusqu'à ce que le juge statue."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+
+    leviers:
+      - id: demander-les-motifs-du-rejet
+        acteur: entreprise-candidate
+        quoi: "Demander par écrit les motifs du rejet de son offre"
+        quand: "Dès la notification du rejet ; la commune répond dans les quinze jours de la demande"
+        aupres_de: "L'acheteur, la commune"
+        difficulte: faible
+        ancre_etape: 4
+        piege: "La réponse donne le classement final et les notes attribuées : c'est elle qui dit s'il y a matière à un recours."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+      - id: former-un-refere-precontractuel
+        acteur: entreprise-candidate
+        quoi: "Former un référé précontractuel"
+        quand: "Tant que le marché n'est pas signé — dans une procédure formalisée, pendant les onze jours d'attente"
+        aupres_de: "Le tribunal administratif"
+        difficulte: elevee
+        ancre_etape: 5
+        recours_si_refus: "Référé contractuel, ou recours en contestation de la validité du contrat"
+        piege: "Une fois le contrat signé, il n'est plus recevable : c'est la date de signature, pas celle du rejet, qui ferme la porte."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+      - id: former-un-refere-contractuel
+        acteur: entreprise-candidate
+        quoi: "Former un référé contractuel, après la signature"
+        quand: "Dans les 31 jours de la publication de l'avis d'attribution d'une procédure formalisée, ou dans les six mois de la signature à défaut d'avis"
+        aupres_de: "Le tribunal administratif"
+        difficulte: elevee
+        ancre_etape: 9
+        piege: "Il ne vaut que pour un manquement à la publicité, au délai d'attente ou à la suspension de la signature : ce n'est pas un second référé précontractuel."
+        liens: [esp-rejet-offre]
+        confiance: etabli
+      - id: contester-la-validite-du-contrat
+        acteur: entreprise-candidate
+        quoi: "Contester la validité du contrat signé"
+        quand: "Dans les deux mois de la publicité de sa conclusion, par un avis qui dit comment le consulter"
+        aupres_de: "Le tribunal administratif"
+        difficulte: elevee
+        piege: "Le délai de deux mois ne part que si l'avis donne l'objet du contrat, les parties et le service où le consulter ; sinon, le recours reste possible dans un délai raisonnable, en règle générale un an à partir du moment où l'on a connu le contrat."
+        liens: [ce-tarn-et-garonne, ce-seateam-aviation]
+        confiance: etabli
+      - id: reclamer-les-interets-moratoires
+        acteur: entreprise-candidate
+        quoi: "Vérifier que les intérêts moratoires et l'indemnité de 40 € ont été versés"
+        quand: "Dès que le délai de paiement de trente jours est dépassé"
+        aupres_de: "L'acheteur, la commune, qui ordonne le paiement"
+        difficulte: faible
+        ancre_etape: 8
+        piege: "Ils sont dus d'office : une entreprise qui ne regarde pas le relevé de paiement ne voit pas qu'ils manquent."
+        liens: [esp-paiement-marche]
+        confiance: etabli
+      - id: suivre-les-marches-de-sa-commune
+        acteur: entreprise-candidate
+        quoi: "Suivre les avis de marché et les marchés passés par sa commune"
+        quand: "En continu, avant la date limite de remise des offres"
+        aupres_de: "Le Bulletin officiel des annonces des marchés publics, et la page de la commune sur ce site"
+        difficulte: faible
+        ancre_etape: 2
+        piege: "Sous 90 000 € hors taxes, l'avis peut ne paraître que sur le profil d'acheteur de la commune, pas au bulletin officiel."
+        liens: [od-boamp, od-decp, esp-seuils-publicite]
+        confiance: etabli

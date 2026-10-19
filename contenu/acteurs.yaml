@@ -1057,6 +1057,16 @@ acteurs:
     verifie_le: 2026-10-19
     confiance: variable_selon_organisation
 
+  - id: entreprise-candidate
+    nom: "L'entreprise candidate"
+    nom_court: "Entreprise candidate"
+    type: entreprise
+    echelon: prive
+    resume: "Répond à un marché public : elle dépose sa candidature et son offre, puis, si elle l'emporte, exécute le marché et facture l'acheteur."
+    liens: [esp-procedures-marches, esp-paiement-marche]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
   - id: mediateur-entreprises
     nom: "Le Médiateur des entreprises"
     nom_court: "Médiateur entreprises"
