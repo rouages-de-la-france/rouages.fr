@@ -268,10 +268,11 @@ for (const a of g.acteurs.values()) {
 }
 
 // Tout montant ou pourcentage d'un processus économique dit d'où il vient
-// (docs/10-rouages-economiques.md) : soit un texte qui le fixe, cité parmi les
-// liens de l'élément ; soit une étude ou des données publiques, citées aussi,
-// et l'année à laquelle le chiffre se rapporte, écrite dans la phrase. Un
-// « qui gagne quoi sur une baguette » sans millésime est exactement le chiffre
+// (docs/10-rouages-economiques.md) : soit un texte qui le fixe, ou la page
+// officielle qui le présente, cité parmi les liens de l'élément ; soit une
+// étude ou des données publiques, citées aussi, et l'année à laquelle le
+// chiffre se rapporte, écrite dans la phrase. Un pourcentage porte son année
+// dans tous les cas. Un « qui gagne quoi sur une baguette » sans millésime est exactement le chiffre
 // que la règle refuse.
 const CHIFFRE = /\d[\d\s\u202f\u00a0.,]*\s?(%|€|euros?\b|pour\s?cent)/i;
 const MILLESIME = /\b(19|20)\d{2}\b/;
@@ -286,7 +287,11 @@ for (const p of g.processus.values()) {
     const types = new Set(liens.map((id) => g.sources.get(id)?.type));
     for (const t of textes) {
       if (!t || !CHIFFRE.test(t)) continue;
-      const parLeTexte = types.has('droit');
+      // Le texte lui-même, ou la page officielle qui le présente : Légifrance refuse souvent la lecture
+      // automatique, et la fiche de service-public.fr dit le montant avec sa date de vérification.
+      // Un pourcentage porte toujours son année : un taux légal change, une part de marge aussi.
+      const pourcentage = /%|pour\s?cent/i.test(t.match(CHIFFRE)?.[0] ?? '');
+      const parLeTexte = (types.has('droit') || types.has('page_officielle')) && (!pourcentage || MILLESIME.test(t));
       const parUneEtude = (types.has('etude') || types.has('donnees_ouvertes')) && MILLESIME.test(t);
       if (!parLeTexte && !parUneEtude)
         erreurs.push(`${ou} : « ${t.slice(0, 70)}… » porte un montant ou un pourcentage sans texte qui le fixe, ni étude citée avec son année`);

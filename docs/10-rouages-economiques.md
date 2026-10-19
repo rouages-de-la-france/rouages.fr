@@ -100,8 +100,9 @@ d'eux-mêmes :
 2. **Tout chiffre d'un nœud économique** cite une source statistique avec son
    millésime ; la validation refuse un pourcentage ou un montant sans eux. Un
    montant que fixe un texte — un seuil de la commande publique, l'indemnité
-   forfaitaire de recouvrement — est sourcé par ce texte, cité parmi les liens
-   de l'élément.
+   forfaitaire de recouvrement — est sourcé par ce texte, ou par la page
+   officielle qui le présente, cité parmi les liens de l'élément ; un
+   pourcentage porte toujours son année, même fixé par un texte.
 3. **Une nouvelle valeur de confiance**, `variable_selon_organisation`, pour
    dire qu'une description d'organisation est un cas type — comme
    `variable_selon_territoire` le dit d'une compétence.

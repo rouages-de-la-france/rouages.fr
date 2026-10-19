@@ -1,0 +1,144 @@
+# De la commande à la facture, entre deux entreprises.
+# Le premier circuit de la famille économique (docs/10-rouages-economiques.md) :
+# deux entreprises types, pas d'entreprise nommée. Les règles viennent des
+# fiches d'entreprendre.service-public.fr et d'impots.gouv.fr, lues le
+# 19 octobre 2026 ; Légifrance refuse la lecture automatique depuis
+# l'environnement de développement, et les articles sont ceux que ces fiches
+# citent.
+processus:
+  - id: de-la-commande-a-la-facture
+    nom: "De la commande à la facture"
+    famille: economiques
+    resume: "Entre deux entreprises : qui facture, quand, avec quelles mentions, dans quel délai la loi oblige à payer, et ce que peut faire le fournisseur qui attend."
+    declencheur: "Un client professionnel commande un bien ou un service"
+    sortie: "Une facture payée dans le délai, ou une créance recouvrée par la médiation ou le juge"
+    decideur: client-professionnel
+    liens: [esp-delais-paiement, esp-mentions-facture, impots-facturation-electronique]
+    verifie_le: 2026-10-19
+    perime_apres_mois: 6
+    # L'organisation d'une petite entreprise varie : devis ou non, bon de
+    # commande ou non. Les étapes de droit, elles, sont établies.
+    confiance: variable_selon_organisation
+
+    etapes:
+      - ordre: 1
+        acteur: fournisseur
+        action: "Accord sur le prix et les conditions de paiement"
+        note: "Le délai de paiement et le taux des pénalités de retard se conviennent à l'avance, dans les conditions générales de vente ou le contrat. Sans accord, la loi fixe le délai : trente jours après la réception de la marchandise ou la réalisation de la prestation."
+        liens: [esp-delais-paiement]
+        confiance: variable_selon_organisation
+      - ordre: 2
+        acteur: client-professionnel
+        action: "Commande, avec ou sans bon de commande"
+        note: "Quand le client émet un bon de commande, son numéro devient une mention obligatoire de la facture."
+        liens: [esp-mentions-facture]
+        confiance: variable_selon_organisation
+      - ordre: 3
+        acteur: fournisseur
+        action: "Livraison du bien ou réalisation de la prestation"
+        note: "C'est de cette date que court le délai de paiement par défaut, et c'est elle qui déclenche la facture."
+        liens: [esp-delais-paiement, bofip-emission-facture]
+        confiance: etabli
+      - ordre: 4
+        acteur: fournisseur
+        action: "Émission de la facture, avec ses mentions obligatoires"
+        note: "La facture s'émet en principe dès la livraison ou la prestation. Elle porte notamment sa date et un numéro unique dans une suite continue, l'identité des deux entreprises, le détail et le prix hors taxe de chaque produit, la TVA, la date de règlement, le taux des pénalités de retard et l'indemnité forfaitaire de 40 € pour frais de recouvrement. Une mention omise ou inexacte coûte une amende de 15 €, dans la limite du quart du montant de la facture."
+        liens: [bofip-emission-facture, esp-facturation, esp-mentions-facture]
+        confiance: etabli
+      - ordre: 5
+        acteur: client-professionnel
+        action: "Réception de la facture, au format électronique"
+        note: "Depuis le 1er septembre 2026, toute entreprise doit pouvoir recevoir des factures électroniques. Les grandes entreprises et les entreprises de taille intermédiaire les émettent sous cette forme depuis la même date ; les petites et micro-entreprises ont jusqu'au 1er septembre 2027. La facture passe alors par une plateforme agréée par l'État, qui transmet aussi des données à l'administration fiscale."
+        liens: [impots-facturation-electronique, esp-mentions-facture]
+        confiance: etabli
+      - ordre: 6
+        acteur: client-professionnel
+        action: "Paiement dans le délai convenu"
+        delai: { valeur: 60, unite: jours, nature: maximum_legal }
+        note: "Le délai convenu ne peut pas dépasser soixante jours à compter de la date d'émission de la facture, ou quarante-cinq jours fin de mois si le contrat le prévoit. Quelques secteurs ont des plafonds plus courts : transport routier, denrées périssables, viandes fraîches."
+        liens: [esp-delais-paiement]
+        confiance: etabli
+      - ordre: 7
+        acteur: fournisseur
+        action: "Pénalités de retard et indemnité forfaitaire, sans relance préalable"
+        conditionnelle: true
+        note: "Au lendemain de l'échéance, les pénalités courent sans rappel ni mise en demeure, au taux convenu, qui ne peut être inférieur à trois fois le taux de l'intérêt légal — 8,25 % au second semestre 2026. S'y ajoute l'indemnité forfaitaire de 40 € par facture payée en retard."
+        liens: [esp-delais-paiement]
+        confiance: etabli
+      - ordre: 8
+        acteur: mediateur-entreprises
+        action: "Médiation, sur saisine de l'une des deux entreprises"
+        conditionnelle: true
+        note: "Gratuite et confidentielle, elle suppose que les deux entreprises soient en relations d'affaires. Le médiateur prend contact dans les sept jours."
+        liens: [esp-mediateur-entreprises]
+        confiance: etabli
+      - ordre: 9
+        acteur: tribunal-commerce
+        action: "Injonction de payer, demandée au président du tribunal"
+        conditionnelle: true
+        delai: { valeur: 1, unite: mois, nature: maximum_legal }
+        note: "Quand les deux entreprises sont commerçantes, la demande va au président du tribunal de commerce, ou du tribunal des activités économiques là où il existe. Le débiteur a un mois, après la signification de l'ordonnance, pour former opposition."
+        liens: [esp-injonction-payer, esp-tribunaux-activites-economiques]
+        confiance: etabli
+
+    leviers:
+      - id: reclamer-penalites-et-indemnite
+        acteur: fournisseur
+        quoi: "Réclamer les pénalités de retard et l'indemnité forfaitaire de 40 €"
+        quand: "Dès le lendemain de la date de règlement portée sur la facture"
+        aupres_de: "Le client, par écrit"
+        difficulte: faible
+        ancre_etape: 7
+        piege: "L'indemnité doit figurer dans les conditions générales de vente et sur la facture. Elle est due une fois par facture, même payée en partie."
+        liens: [esp-delais-paiement]
+        confiance: etabli
+      - id: saisir-le-mediateur-des-entreprises
+        acteur: fournisseur
+        quoi: "Saisir le Médiateur des entreprises"
+        quand: "Quand le retard dure et que la relation commerciale vaut d'être gardée"
+        aupres_de: "Le Médiateur des entreprises, en ligne et gratuitement"
+        difficulte: faible
+        ancre_etape: 8
+        recours_si_refus: "Injonction de payer, ou procédure des petites créances"
+        piege: "Une entreprise en procédure collective ne passe pas par le médiateur, mais par le président du tribunal."
+        liens: [esp-mediateur-entreprises]
+        confiance: etabli
+      - id: recouvrer-une-petite-creance
+        acteur: fournisseur
+        quoi: "Demander à un commissaire de justice la procédure simplifiée des petites créances"
+        quand: "Pour une créance de 5 000 € au plus, avant de saisir le juge"
+        aupres_de: "Un commissaire de justice"
+        difficulte: moyenne
+        recours_si_refus: "Injonction de payer"
+        piege: "Le débiteur a un mois pour accepter, et son silence vaut refus : la procédure ne marche qu'avec un client qui ne conteste pas."
+        liens: [esp-petites-creances]
+        confiance: etabli
+      - id: demander-une-injonction-de-payer
+        acteur: fournisseur
+        quoi: "Demander une injonction de payer"
+        quand: "Quand la créance n'est pas contestée et que le client ne paie toujours pas"
+        aupres_de: "Le greffe du tribunal de commerce du siège social du débiteur, ou en ligne"
+        difficulte: moyenne
+        ancre_etape: 9
+        piege: "L'ordonnance obtenue, il faut la remettre à un commissaire de justice, qui la signifie au débiteur : c'est cette signification qui ouvre son délai d'opposition d'un mois, et une ordonnance qui n'est pas signifiée à temps devient caduque."
+        liens: [esp-injonction-payer]
+        confiance: etabli
+      - id: verifier-les-mentions-avant-de-payer
+        acteur: client-professionnel
+        quoi: "Vérifier les mentions de la facture avant de la payer"
+        quand: "À réception de chaque facture, avant l'échéance"
+        aupres_de: "Le fournisseur, pour une facture rectificative"
+        difficulte: faible
+        ancre_etape: 5
+        piege: "Le délai convenu court de la date d'émission de la facture : la vérification se fait dans ce délai, pas à l'échéance."
+        liens: [esp-mentions-facture, esp-delais-paiement]
+        confiance: etabli
+      - id: choisir-sa-plateforme-agreee
+        acteur: client-professionnel
+        quoi: "Choisir une plateforme agréée pour émettre ses factures électroniques"
+        quand: "Avant le 1er septembre 2027 pour une petite ou une micro-entreprise"
+        aupres_de: "Une plateforme agréée par l'État, dont la liste est publiée par l'administration fiscale"
+        difficulte: moyenne
+        piege: "Recevoir est obligatoire dès le 1er septembre 2026 pour toutes : une petite entreprise qui attend 2027 pour s'équiper ne reçoit plus les factures de ses fournisseurs."
+        liens: [impots-facturation-electronique]
+        confiance: etabli

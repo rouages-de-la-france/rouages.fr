@@ -1035,6 +1035,52 @@ acteurs:
   # prérogative de puissance publique, et leur intervention est obligatoire —
   # pas choisie. Ils sont donc des rouages, au même titre qu'un délégataire
   # d'eau ou qu'un commissaire enquêteur, qui figurent déjà ici.
+  # Les archétypes de la famille économique (docs/10-rouages-economiques.md) :
+  # des rôles, jamais des entreprises prises pour l'exemple.
+  - id: fournisseur
+    nom: "Le fournisseur"
+    nom_court: "Fournisseur"
+    type: entreprise
+    echelon: prive
+    resume: "Une petite entreprise qui vend un bien ou un service à un client professionnel : elle livre, facture, et attend d'être payée dans le délai convenu."
+    liens: [esp-delais-paiement, esp-mentions-facture]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: client-professionnel
+    nom: "Le client professionnel"
+    nom_court: "Client professionnel"
+    type: entreprise
+    echelon: prive
+    resume: "L'entreprise qui commande et paie : elle reçoit la facture, la vérifie et la règle dans le délai que la loi plafonne."
+    liens: [esp-delais-paiement, impots-facturation-electronique]
+    verifie_le: 2026-10-19
+    confiance: variable_selon_organisation
+
+  - id: mediateur-entreprises
+    nom: "Le Médiateur des entreprises"
+    nom_court: "Médiateur entreprises"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Service de l'État saisi gratuitement par une entreprise en litige avec un client, un fournisseur ou une administration, retards de paiement compris."
+    liens: [esp-mediateur-entreprises]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: tribunal-commerce
+    nom: "Le tribunal de commerce"
+    nom_court: "Tribunal de commerce"
+    type: juridiction
+    echelon: etat
+    pouvoirs: [judiciaire]
+    releve_de: etat
+    resume: "Juge les litiges entre commerçants ; son président délivre l'injonction de payer. Douze sont devenus, le 1er janvier 2025, des tribunaux des activités économiques."
+    liens: [esp-injonction-payer, esp-tribunaux-activites-economiques, code-organisation-judiciaire]
+    verifie_le: 2026-10-19
+    confiance: etabli
+
   - id: notaire
     nom: "Le notaire"
     type: metier
