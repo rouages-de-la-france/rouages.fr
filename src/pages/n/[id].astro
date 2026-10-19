@@ -59,7 +59,7 @@ const theme = THEMES.find((t) => t.fiche === noeud.id);
       {noeud.confiance !== 'etabli' && (
         <span class="badge--alerte">
           {' · '}
-          {noeud.confiance === 'variable_selon_territoire' ? 'varie selon le territoire' : 'à confirmer'}
+          {{ variable_selon_territoire: 'varie selon le territoire', variable_selon_organisation: 'varie selon l’organisation' }[noeud.confiance as string] ?? 'à confirmer'}
         </span>
       )}
       {perime && <span class="badge--alerte">{' · '}à revérifier</span>}
@@ -134,6 +134,21 @@ const theme = THEMES.find((t) => t.fiche === noeud.id);
         <h2 class="badge">{frise.titre}</h2>
         <div class="cadre-schema" set:html={frise.svg} />
         <details class="equivalent"><summary>Le même en tableau</summary><div set:html={frise.tableau} /></details>
+      </section>
+    )}
+
+    {/* Décision du 19 octobre 2026 (docs/10-rouages-economiques.md) : une fiche économique décrit des entreprises
+        types et renvoie aux registres publics qui nomment celles de la commune. */}
+    {processus?.famille === 'economiques' && (
+      <section>
+        <h2 class="badge">Les entreprises de votre commune</h2>
+        <p class="mesure">
+          Cette fiche décrit un circuit sur des entreprises types&nbsp;: elle ne nomme aucune entreprise pour l’exemple.
+          Celles de votre commune sont nommées par les registres publics, sur sa page — la section «&nbsp;Ses
+          entreprises&nbsp;» reprend le répertoire SIRENE de l’INSEE et les annonces du BODACC, par exemple
+          <a href="/commune/03165#entreprises">au Mayet-de-Montagne</a>. Une entreprise individuelle qui s’est opposée à
+          la diffusion de ses données au répertoire y est comptée, pas nommée. Cherchez votre commune en haut de la page.
+        </p>
       </section>
     )}
 

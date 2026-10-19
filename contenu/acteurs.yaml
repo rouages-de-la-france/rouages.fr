@@ -966,8 +966,11 @@ acteurs:
     nom_court: "Enedis"
     type: entreprise
     echelon: prive
+    # Nommée parce que la loi la désigne : gestionnaire du réseau de distribution
+    # dans sa zone de desserte exclusive (code de l'énergie, art. L111-52).
+    designee_par: cl-gestionnaires-distribution
     resume: "Exploite le réseau de distribution d'électricité sous concession, pour le compte des collectivités qui en sont propriétaires."
-    liens: [wp-enedis, enedis-fr, od-enedis, code-energie, enedis-concession]
+    liens: [wp-enedis, enedis-fr, od-enedis, code-energie, enedis-concession, cl-gestionnaires-distribution]
     verifie_le: 2026-09-22
     confiance: etabli
 

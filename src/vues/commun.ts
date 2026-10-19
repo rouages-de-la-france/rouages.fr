@@ -137,5 +137,6 @@ export const DIFFICULTE_LONG: Record<string, string> = {
 export const CONFIANCE: Record<string, string> = {
   etabli: 'Établi',
   variable_selon_territoire: 'Variable selon le territoire',
+  variable_selon_organisation: 'Variable selon l’organisation',
   a_confirmer: 'À confirmer',
 };

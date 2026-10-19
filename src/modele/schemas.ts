@@ -50,9 +50,14 @@ export const Id = z
  * Le niveau de certitude affiché à l'usager. `variable_selon_territoire` est
  * indispensable en France : la répartition commune / EPCI dépend des statuts
  * locaux, et prétendre à une réponse unique serait faux.
+ *
+ * `variable_selon_organisation` en est le pendant pour la famille économique
+ * (`docs/10-rouages-economiques.md`) : l'organisation d'une entreprise varie
+ * bien plus que la répartition des compétences, et une étape décrite sur une
+ * entreprise type le dit.
  */
 export const Confiance = z
-  .enum(['etabli', 'variable_selon_territoire', 'a_confirmer'])
+  .enum(['etabli', 'variable_selon_territoire', 'variable_selon_organisation', 'a_confirmer'])
   .default('etabli');
 
 const dateSimple = z.coerce.date();
@@ -173,6 +178,15 @@ export const Acteur = z.object({
    * « International », refusé ailleurs (`scripts/valider.ts`).
    */
   domaine: z.enum(DOMAINES).optional(),
+  /**
+   * Pour une entreprise nommée, la source publique qui la désigne pour ce que
+   * le site en dit : la loi qui lui confie une mission, le contrat publié.
+   * Décision du 19 octobre 2026 (`docs/10-rouages-economiques.md`) : une
+   * entreprise est nommée quand une source publique la désigne, jamais comme
+   * exemple. Un archétype — « le délégataire », « une boulangerie » — n'en a
+   * pas besoin. La règle est appliquée par `scripts/valider.ts`.
+   */
+  designee_par: Id.optional(),
   /** Une phrase, pas un paragraphe : le détail est sur les pages liées. */
   resume: z.string().min(10).max(280, 'une phrase suffit — le reste est sur les pages liées'),
   ...tracable,

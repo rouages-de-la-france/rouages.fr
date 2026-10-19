@@ -1,7 +1,9 @@
 # 10 — Les rouages économiques : cadrage
 
-> Statut : proposition du 18 octobre 2026, à valider. Rien n'est écrit dans
-> `contenu/` avant l'accord du mainteneur.
+> Statut : proposition du 18 octobre 2026, **validée par le mainteneur le
+> 19 octobre 2026** avec deux décisions, reportées plus bas : la règle sur les
+> entreprises nommées est reformulée, et chaque fiche économique renvoie aux
+> registres qui nomment les entreprises de la commune.
 
 `02-familles.md` décrit la famille C — « qui fait quoi dans une organisation »
 — et la dit **la moins sourçable**. Ce document dit comment la peupler sans
@@ -37,7 +39,9 @@ entreprise qui remporte un marché, où va le prix d'une baguette.
 - **L'exemple qui devient une publicité, ou une accusation.** Nommer une
   enseigne pour illustrer une marge, c'est faire sa publicité ou la mettre en
   cause. Le graphe décrit des archétypes — « une boulangerie artisanale »,
-  « une PME de vingt salariés » —, jamais une entreprise.
+  « une PME de vingt salariés » — et ne nomme une entreprise que quand une
+  source publique la désigne pour ce que le site en dit (voir la décision
+  plus bas), jamais pour l'exemple.
 - **La généralité fausse.** L'organisation d'une entreprise varie bien plus
   que la répartition des compétences entre collectivités. Une fiche qui
   prétend dire « comment fonctionne une PME » se trompe pour la plupart.
@@ -83,14 +87,46 @@ Sans entité nouvelle :
 Trois règles de validation à ajouter, pour que les risques ci-dessus tiennent
 d'eux-mêmes :
 
-1. **Pas d'entreprise nommée** dans un nœud économique, sauf celles que la loi
-   désigne pour une mission (Enedis, gestionnaire du réseau de distribution) —
-   le pendant de la règle « pas de personnes » de la famille influence.
+1. **Une entreprise est nommée quand une source publique la désigne pour ce
+   que le site en dit** — titulaire d'un marché, délégataire d'un service,
+   entreprise que la loi charge d'une mission (Enedis, gestionnaire du réseau
+   de distribution, article L111-52 du code de l'énergie) —, jamais comme
+   exemple non sourcé. Dans le graphe, un acteur `entreprise` dont le nom
+   n'est pas un archétype (« le délégataire », « une boulangerie ») porte
+   `designee_par`, la source de droit, de données ouvertes ou la page
+   officielle qui le désigne, citée parmi ses liens ; la validation refuse
+   sinon. *Reformulée le 19 octobre 2026 ; la version proposée disait « pas
+   d'entreprise nommée, sauf celles que la loi désigne ».*
 2. **Tout chiffre d'un nœud économique** cite une source statistique avec son
-   millésime ; la validation refuse un pourcentage ou un montant sans eux.
+   millésime ; la validation refuse un pourcentage ou un montant sans eux. Un
+   montant que fixe un texte — un seuil de la commande publique, l'indemnité
+   forfaitaire de recouvrement — est sourcé par ce texte, cité parmi les liens
+   de l'élément.
 3. **Une nouvelle valeur de confiance**, `variable_selon_organisation`, pour
    dire qu'une description d'organisation est un cas type — comme
    `variable_selon_territoire` le dit d'une compétence.
+
+## Décision du 19 octobre 2026
+
+Le mainteneur valide le cadrage et tranche deux points :
+
+1. **Les entreprises nommées.** La règle « pas d'entreprise nommée » devient
+   « une entreprise est nommée quand une source publique la désigne pour ce
+   que le site en dit » (règle 1 ci-dessus). Motif : le site nomme déjà, dans
+   ses données, les titulaires des marchés et les délégataires, d'après des
+   registres publics ; l'interdit visait l'exemple non sourcé, pas le fait
+   publié. Appliqué dans `src/modele/schemas.ts` (`designee_par`) et
+   `scripts/valider.ts`.
+2. **Le renvoi aux entreprises de la commune.** Chaque fiche économique
+   renvoie aux données qui nomment les entreprises de la commune : la section
+   « Ses entreprises » de la page de commune, d'après le répertoire SIRENE
+   de l'INSEE et le BODACC, avec ses règles de diffusion — une entreprise
+   individuelle en diffusion partielle y est comptée, pas nommée. Appliqué
+   dans `src/pages/n/[id].astro`, pour tout processus de la famille
+   `economiques`.
+
+Les deux autres règles de validation (chiffre avec source et millésime,
+`variable_selon_organisation`) entrent avec le premier lot.
 
 ## Un premier lot, et le critère pour continuer
 
