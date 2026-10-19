@@ -39,6 +39,8 @@ jobs:
         run: npm run verifier-horaires
       - name: Orienteur des autorisations d’urbanisme
         run: npm run verifier-autorisations
+      - name: Lecture de la parcelle (PLU)
+        run: npm run verifier-parcelle
       - name: Citations retrouvées par la veille des aides locales
         run: npm run verifier-veille-aides
       - name: Types

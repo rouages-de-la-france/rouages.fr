@@ -971,3 +971,31 @@ orientations d'aménagement. C'est la « citation littérale » de la section
 3. La même porte que l'orienteur : la page reste hors du menu et des
    moteurs tant qu'un praticien n'a pas relu ses réponses, sur une fiche de
    relecture tirée des cas.
+
+### Où on en est (19 octobre 2026)
+
+Le cadrage validé, le niveau 1 est codé et reste fermé :
+`/simulateurs/ma-parcelle`, hors du menu et des moteurs (`PUBLIE` dans
+`src/modele/parcelle-plu.ts`). Ce qui a été tranché en l'écrivant :
+
+- **Le test d'appartenance** se fait dans le navigateur sur la géométrie de
+  chaque entité rendue. Une zone touche la parcelle entière, une partie, ou
+  seulement une bande : moins du dixième de la surface, et rien à plus de
+  trois mètres de la limite. Une ligne ou un point compte s'il passe sur la
+  parcelle, ou à moins d'un mètre de sa limite, et la page le dit. Les cas
+  sont fixés sans réseau par `npm run verifier-parcelle`.
+- **Les types en clair** viennent du standard CNIG PLU v2024-01, mot pour
+  mot (`src/modele/cnig.ts`). Le libellé d'une catégorie de servitude n'est
+  pas écrit dans le dépôt : il vient de l'API du Géoportail, avec la fiche de
+  la catégorie, au moment de la demande, comme l'état du document.
+- **Aucun chiffre calculé n'est affiché** : ni part de la parcelle en
+  pourcentage, ni distance. La contenance est celle du cadastre.
+- Le service WFS sait filtrer sur l'intersection (`CQL_FILTER=INTERSECTS`),
+  mais la parcelle entière ne tient pas dans une adresse : on garde le
+  rectangle et le test dans le navigateur.
+
+La fiche de relecture, `docs/11-relecture-parcelle.md`, est tirée de quatre
+parcelles du Mayet-de-Montagne, une proposition à confirmer avec le
+mainteneur : le bourg (AC 62), une limite entre zone urbaine et zone
+agricole (AC 184), la zone agricole (AE 14), et une parcelle que la zone
+urbaine voisine ne touche qu'au bord (AE 1).

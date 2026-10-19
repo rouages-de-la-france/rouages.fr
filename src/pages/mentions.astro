@@ -137,6 +137,17 @@ const ouvertes = nb('licence-ouverte-2.0') + nb('licence-ouverte-1.0') + nb('lic
       rien de la réponse.
     </p>
     <p class="mesure">
+      <strong>«&nbsp;Ce qui touche ma parcelle&nbsp;» envoie l’adresse ou la parcelle que vous saisissez.</strong>
+      L’adresse part au géocodeur de la Géoplateforme de l’IGN (data.geopf.fr), qui répond par sa
+      position&nbsp;; la parcelle choisie, ou la référence cadastrale saisie, part au service
+      cartographique de la même Géoplateforme, qui rend le cadastre et le document d’urbanisme
+      autour d’elle&nbsp;; l’identifiant de chaque document trouvé part au Géoportail de
+      l’urbanisme (geoportail-urbanisme.gouv.fr), qui en donne l’état. Ces services voient votre
+      adresse IP. Rien ne part sans un clic, et Rouages ne garde ni l’adresse, ni la parcelle, ni
+      la réponse&nbsp;: la référence de la parcelle ne reste que dans l’adresse de la page, pour
+      qu’un lien mène à la même lecture.
+    </p>
+    <p class="mesure">
       <strong>«&nbsp;Le plus proche&nbsp;» envoie le centre d’une commune, pas le vôtre.</strong>
       Pour une entreprise, la page demande à l’API Recherche d’entreprises de
       l’État (recherche-entreprises.api.gouv.fr) les établissements autour du
