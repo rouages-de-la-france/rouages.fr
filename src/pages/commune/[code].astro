@@ -47,6 +47,7 @@ import Marches from '../../composants/commune/Marches.astro';
 import Representants from '../../composants/commune/Representants.astro';
 import Deliberations from '../../composants/commune/Deliberations.astro';
 import Distances from '../../composants/commune/Distances.astro';
+import DistancesServices from '../../composants/commune/DistancesServices.astro';
 import Subventions from '../../composants/commune/Subventions.astro';
 import Associations from '../../composants/commune/Associations.astro';
 import CentresSociaux from '../../composants/commune/CentresSociaux.astro';
@@ -384,7 +385,7 @@ const sommaire: [string, string, unknown][] = [
   ['entreprises', 'Les entreprises', plus.presentes || plus.entreprises],
   ['representants', 'Les représentants d’intérêts', plus.representants],
   ['travail', 'Le travail', vie.travail],
-  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements],
+  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length],
   ['services', 'Les services', (fiche?.services.length ?? 0) > 0],
   ['sante', 'Le médecin', vie.sante || vie.acces?.medecin],
   ['defibrillateurs', 'Les défibrillateurs', vie.defibrillateurs],
@@ -1074,10 +1075,16 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
       </section>
     )}
 
-    {equ && (
+    {(equ || vie.acces?.services.length) && (
       <section id="equipements" class="p-equipements">
         <h2 class="badge">Ce qu’on trouve sur place</h2>
-        <Equipements e={equ} />
+        {equ && <Equipements e={equ} />}
+        {vie.acces && vie.acces.services.length > 0 && (
+          <>
+            <h3>À quelle distance</h3>
+            <DistancesServices a={vie.acces} />
+          </>
+        )}
         <p class="mesure">
           Ce qui manque ici, où le trouver&nbsp;: <a href={`/le-plus-proche?c=${commune.code}`}>le plus proche</a> —
           l’équipement, l’entreprise ou l’association la plus proche de {commune.nom}.

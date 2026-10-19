@@ -842,3 +842,132 @@ Un **orienteur**, pas un simulateur qui conclut :
 
 Répondre sur la constructibilité d'un terrain (section 5), interpréter un
 règlement de PLU, ou dire qu'une autorisation sera accordée.
+
+## 10. La lecture assistée du PLU (cadrage du 18 octobre 2026)
+
+La section 5 pose la règle : l'outil **retrouve et cite**, il ne conclut
+jamais, et rien ne répond à une question de faisabilité. Cette section dit
+ce que la règle permet de construire, ce qu'on a mesuré avant, et ce qui
+reste refusé. Rien n'est codé avant l'accord du mainteneur.
+
+### Ce qui existe, et ce qui manque
+
+La page de commune montre déjà, à la demande, le zonage du PLU ou du PLUi
+tel que le Géoportail de l'urbanisme le publie à l'instant, chaque zone avec
+son libellé et un lien vers la page du règlement qui la décrit
+(`src/client/zonage-plu.ts`). Elle dit aussi quel document s'applique, et le
+dernier dépôt de la collectivité quand l'enquête annuelle ne l'a pas vu
+(`scripts/plu-emettre.ts`).
+
+Ce qui manque à un habitant, c'est **sa parcelle** : quelles zones, quelles
+prescriptions, quelles informations et quelles servitudes la touchent, et
+quelles pages lire. Le Géoportail de l'urbanisme le permet déjà, en cliquant
+sur sa carte, pour qui sait s'y retrouver. L'apport possible tient en quatre
+choses : partir d'une adresse ou d'une parcelle cadastrale plutôt que d'une
+carte ; tout réunir en une liste ; traduire les codes du standard CNIG
+(type de zone, de prescription, d'information, de servitude) en mots ; et
+relier au reste du site — l'orienteur des autorisations, le permis de
+construire, la mairie. Si un prototype n'apporte pas cela, on lie le
+Géoportail et on s'arrête là (section 7).
+
+### Ce qu'on a mesuré (18 octobre 2026)
+
+Sur le service WFS de la Géoplateforme (`data.geopf.fr/wfs`), au
+Mayet-de-Montagne, dans le PLUi de la Montagne bourbonnaise :
+
+- **Le filtre du service est lâche.** Une requête par petit rectangle rend
+  les entités dont l'*enveloppe* le touche, pas celles qui le couvrent. En
+  un point : trois ou quatre zones rendues (UA, UB, N, A), une seule le
+  contient ; deux prescriptions surfaciques rendues, une le contient ; sept
+  assiettes de servitudes rendues — dont l'emprise ferroviaire de tout le
+  Puy-de-Dôme —, aucune ne le contient. **Le test d'appartenance doit être
+  refait sur la géométrie**, sans quoi l'outil afficherait des règles qui ne
+  s'appliquent pas.
+- **Le règlement ne se lit pas seul.** La page de la zone UA renvoie au
+  rapport de présentation, aux orientations d'aménagement (« pièce n° 3 »)
+  et à un lexique (les astérisques). Au même point s'appliquent aussi des
+  prescriptions graphiques (sismicité) et des informations (droit de
+  préemption urbain, exposition au plomb, retrait-gonflement des argiles,
+  réglementation des boisements), chacune publiée dans sa couche.
+- **Le texte extrait trahit le document.** La page 27 du règlement se lit
+  (pypdf, 1 991 caractères), mais le tableau des destinations — interdit,
+  autorisé, autorisé sous conditions — perd ses coches : il ne reste que les
+  intitulés de colonnes. Des mots se coupent (« Aménagem ent », « Saint
+  -Clément »). **Un texte extrait ne peut pas servir de citation.**
+- **Le document bouge.** L'identifiant du PLUi est passé de
+  `200071363_PLUi_20260108_A` (mesure du 23 septembre) à
+  `200071363_PLUi_20260911_A`, avec un nouveau fichier de règlement. Une
+  page de règlement gardée par le site serait déjà fausse : tout se lit au
+  moment de la demande.
+
+### Ce qui peut encore mal tourner
+
+- **Le Géoportail n'est pas toujours le document qui s'applique.** Depuis
+  le 1er janvier 2023, la publication sur le Géoportail conditionne le
+  caractère exécutoire d'un PLU (article L153-23 du code de l'urbanisme,
+  réécrit par l'ordonnance n° 2021-1310 du 7 octobre 2021, d'après la fiche
+  de la DGCL — à confirmer contre le texte par le relecteur). Mais en cas
+  de difficulté technique, une collectivité peut publier autrement et
+  verser au Géoportail dans les six mois ; une carte communale n'en dépend
+  pas ; et un document antérieur peut n'y être qu'en partie. Le document
+  tenu en mairie fait foi, et la page le dit.
+- **Une limite de zone n'est pas une limite de parcelle.** Le zonage et le
+  cadastre sont dessinés séparément ; une parcelle peut chevaucher deux
+  zones, ou en sembler la voisine. L'outil part donc de la parcelle entière,
+  dit toutes les zones qu'elle touche, et signale une zone qui n'en couvre
+  qu'une bande étroite plutôt que de la taire.
+- **Une absence ne prouve rien.** Les servitudes d'utilité publique ne sont
+  pas toutes numérisées ; une commune au règlement national d'urbanisme n'a
+  pas de règlement de zone ; un plan de sauvegarde remplace le PLU sur son
+  périmètre. L'outil dit ce que le Géoportail publie, jamais « aucune
+  contrainte ».
+- **L'adresse est approximative.** Le géocodage peut tomber à la rue ou à
+  la commune (au Mayet-de-Montagne, la recherche « mairie » rend le centre
+  de la commune, pas la mairie). L'outil montre la précision obtenue et fait
+  choisir la parcelle sur la carte.
+- **L'adresse est une donnée personnelle.** Elle part au service de
+  géocodage et au service WFS de l'IGN, qui voient l'adresse IP ; rien n'est
+  gardé par le site, et `/mentions` le dit, comme pour le zonage.
+
+### Ce qui est acceptable
+
+**Niveau 1 — ce qui touche ma parcelle.** Depuis une adresse ou une
+parcelle cadastrale, la liste des zones, prescriptions, informations et
+servitudes dont la géométrie touche la parcelle, chacune avec :
+
+1. son libellé tel que publié, sans reformulation ;
+2. son type en clair, d'après le standard CNIG, cité ;
+3. le lien vers la pièce qui la décrit — la page du règlement, l'annexe —
+   sur les annexes de la Géoplateforme ;
+4. le document, son état et sa date, comme le Géoportail les donne.
+
+Le calcul se fait dans le navigateur ; rien n'est stocké. Chaque réponse se
+termine sur la mairie, l'orienteur des autorisations et le certificat
+d'urbanisme, seule réponse qui engage l'administration.
+
+**Niveau 2 — la page elle-même.** Afficher la page du règlement *telle
+qu'elle est*, rendue depuis le PDF (sans en extraire le texte), avec un
+rappel des autres pièces à lire : dispositions générales, lexique,
+orientations d'aménagement. C'est la « citation littérale » de la section
+5 : le document, pas une copie.
+
+### Ce qui est refusé
+
+- Répondre à une question — « puis-je construire une piscine ? », « quelle
+  hauteur maximale ? » — ou dire qu'un terrain est constructible
+  (section 5).
+- Résumer un règlement, en extraire une règle chiffrée, ou le faire lire par
+  un modèle de langue : le tableau des destinations perd ses coches à la
+  première extraction, et une règle a ses exceptions ailleurs dans le
+  document.
+- Garder une copie du zonage, du règlement ou de ses numéros de page.
+
+### Avant d'écrire le code
+
+1. L'accord du mainteneur sur ce cadrage.
+2. Un prototype sur le Mayet-de-Montagne, quelques parcelles choisies avec
+   le mainteneur — dans le bourg, en limite de zone, en zone agricole —,
+   comparé à ce que montre le Géoportail.
+3. La même porte que l'orienteur : la page reste hors du menu et des
+   moteurs tant qu'un praticien n'a pas relu ses réponses, sur une fiche de
+   relecture tirée des cas.

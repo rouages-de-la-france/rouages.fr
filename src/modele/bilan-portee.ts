@@ -17,7 +17,7 @@ import { communes } from './territoires.ts';
 type PartsDep = [number[], number[][]];
 type CouvertureDep = { au: string; c: Record<string, { n: number; s?: PartsDep; h?: number; p?: PartsDep }> };
 type TransportsDep = { s?: string; c: Record<string, { h?: unknown; z?: 1; n?: number }> };
-type AccesDep = { maj: string; s?: string; c: Record<string, { h: number; m?: number[]; a?: number[] }> };
+type AccesDep = { maj: string; s?: string; services: [string, string][]; c: Record<string, { h: number; s: number[][]; a?: number[] }> };
 const couvertureDep = parDepartement<CouvertureDep>('couverture');
 const transportsDep = parDepartement<TransportsDep>('transports');
 const accesDep = parDepartement<AccesDep>('acces');
@@ -32,6 +32,8 @@ export interface PartsPortee {
   arrets: { h: number; desservi: number; frequent: number };
   /** Habitants là où la distance au généraliste est calculée ; à 1 km ou moins ; à plus de 10 km. */
   medecin: { h: number; proche: number; loin: number };
+  /** Par service, dans l'ordre du fichier : habitants à 1 km ou moins (le dénominateur est `medecin.h`). */
+  services: Record<string, number>;
 }
 
 const VIDES = (): PartsPortee => ({
@@ -39,6 +41,7 @@ const VIDES = (): PartsPortee => ({
   car: { communes: 0, sansPassage: 0, habitantsSansPassage: 0 },
   arrets: { h: 0, desservi: 0, frequent: 0 },
   medecin: { h: 0, proche: 0, loin: 0 },
+  services: {},
 });
 
 const parDep = new Map<string, PartsPortee>();
@@ -76,10 +79,16 @@ function partsDuDepartement(dep: string): PartsPortee {
       p.arrets.desservi += (f.h * f.a[0]) / 100;
       p.arrets.frequent += (f.h * f.a[1]) / 100;
     }
-    if (f.m) {
+    if (f.s?.length) {
+      const d = accesDep.get(dep)!;
       p.medecin.h += f.h;
-      p.medecin.proche += (f.h * f.m[0]) / 100;
-      p.medecin.loin += (f.h * (100 - f.m[2])) / 100;
+      d.services.forEach(([cle], i) => {
+        p.services[cle] = (p.services[cle] ?? 0) + (f.h * f.s[i][0]) / 100;
+        if (cle === 'medecin') {
+          p.medecin.proche += (f.h * f.s[i][0]) / 100;
+          p.medecin.loin += (f.h * (100 - f.s[i][2])) / 100;
+        }
+      });
     }
   }
   parDep.set(dep, p);
@@ -89,7 +98,7 @@ function partsDuDepartement(dep: string): PartsPortee {
 function additionner(deps: string[]): PartsPortee {
   const s = VIDES();
   for (const p of deps.map(partsDuDepartement))
-    for (const k of Object.keys(s) as (keyof PartsPortee)[]) for (const [c, v] of Object.entries(p[k])) (s[k] as Record<string, number>)[c] += v;
+    for (const k of Object.keys(s) as (keyof PartsPortee)[]) for (const [c, v] of Object.entries(p[k])) (s[k] as Record<string, number>)[c] = ((s[k] as Record<string, number>)[c] ?? 0) + v;
   return s;
 }
 
@@ -101,6 +110,8 @@ export interface BilanPortee {
   au: string | null;
   semaine: string | null;
   maj: string | null;
+  /** Les services dont la distance est mesurée : clé et nom. */
+  services: [string, string][];
 }
 
 /** Le territoire, sa région quand c'est un département, et la France entière ; rien quand aucun fichier ne couvre le territoire. */
@@ -116,5 +127,6 @@ export function bilanPortee(deps: string[], region: string[] | null): BilanPorte
     au: premier((d) => couvertureDep.get(d)?.au),
     semaine: premier((d) => transportsDep.get(d)?.s),
     maj: premier((d) => accesDep.get(d)?.maj),
+    services: premier((d) => accesDep.get(d)?.services) ?? [],
   };
 }
