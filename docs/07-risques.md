@@ -995,7 +995,8 @@ Le cadrage validé, le niveau 1 est codé et reste fermé :
   rectangle et le test dans le navigateur.
 
 La fiche de relecture, `docs/11-relecture-parcelle.md`, est tirée de quatre
-parcelles du Mayet-de-Montagne, une proposition à confirmer avec le
-mainteneur : le bourg (AC 62), une limite entre zone urbaine et zone
-agricole (AC 184), la zone agricole (AE 14), et une parcelle que la zone
-urbaine voisine ne touche qu'au bord (AE 1).
+parcelles du Mayet-de-Montagne, proposées le 19 octobre et retenues par le
+mainteneur le 22 octobre 2026 : le bourg (AC 62), une limite entre zone
+urbaine et zone agricole (AC 184), la zone agricole (AE 14), et une parcelle
+que la zone urbaine voisine ne touche qu'au bord (AE 1). Reste la relecture
+par un praticien de l'urbanisme.

@@ -10,9 +10,10 @@
  * en tête. `npm run relecture-parcelle` la réécrit ; aucune vérification
  * automatique ne la compare, faute de réseau en intégration continue.
  *
- * Les parcelles sont une proposition, à confirmer avec le mainteneur, qui
- * connaît la commune : une dans le bourg, une à cheval sur une limite de
- * zone, une en zone agricole, une que la zone voisine ne touche qu'au bord.
+ * Les parcelles ont été proposées le 19 octobre 2026 et retenues par le
+ * mainteneur, qui connaît la commune, le 22 octobre : une dans le bourg, une
+ * à cheval sur une limite de zone, une en zone agricole, une que la zone
+ * voisine ne touche qu'au bord.
  */
 import { writeFileSync } from 'node:fs';
 import { STANDARD } from '../src/modele/cnig.ts';
