@@ -445,6 +445,9 @@ function element(famille: Famille, couche: string, p: Proprietes, c: Contact): E
     libelleLong = long && long !== libelle ? long : null;
   } else if (famille === 'prescription') type = typePrescription(p);
   else if (famille === 'information') type = typeInformation(p);
+  // Le code de la catégorie est dans la couche ; son libellé vient de l'API du Géoportail, plus bas. Si l'API
+  // ne répond pas — elle était en panne le 22 octobre 2026 —, la servitude garde au moins son code.
+  else if (famille === 'servitude' && texte(p.suptype)) type = { code: texte(p.suptype).toUpperCase(), libelle: '', references: '' };
   const url = piece(p, famille === 'servitude' ? 'fichier' : 'nomfic');
   const page = url && /#page=(\d+)/.exec(url);
   return { famille, libelle, libelleLong, type, contact: c, piece: url, page: page ? Number(page[1]) : null, document: texte(p.gpu_doc_id) };

@@ -325,7 +325,7 @@ export function brancherMaParcelle(): void {
     if (e.type) {
       const t = el('span', 'mp-type');
       if (e.famille === 'servitude') {
-        t.append(`Catégorie ${e.type.code} : ${e.type.libelle}`);
+        t.append(`Catégorie ${e.type.code}${e.type.libelle ? ` : ${e.type.libelle}` : ' (libellé indisponible : le Géoportail de l’urbanisme n’a pas répondu)'}`);
         if (e.type.references) t.append(' (', lien(e.type.references, 'fiche de la catégorie'), ')');
         const d = l.documents.get(e.document);
         if (d?.producteur) t.append(`, gestionnaire : ${d.producteur}`);
@@ -341,6 +341,20 @@ export function brancherMaParcelle(): void {
       const p = el('span', 'mp-piece');
       const quoi = e.famille === 'zone' ? 'règlement' : e.famille === 'servitude' ? 'acte instituant la servitude' : 'pièce écrite';
       p.append(lien(e.piece, e.page ? `${quoi}, p. ${e.page}` : quoi));
+      // Niveau 2 : la page elle-même, dessinée dans la page, quand le document dit laquelle.
+      if (e.famille === 'zone' && e.page) {
+        const voir = el('button', 'mp-bouton mp-voir', `Voir la page ${e.page} ici`);
+        voir.type = 'button';
+        const url = e.piece;
+        const page = e.page;
+        voir.addEventListener('click', async () => {
+          voir.disabled = true;
+          const { montrerPage } = await import('./page-reglement.ts');
+          await montrerPage(li, url, page, 'règlement');
+          voir.disabled = false;
+        });
+        p.append(' ', voir);
+      }
       li.append(p);
     }
     return li;

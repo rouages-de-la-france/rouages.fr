@@ -51,6 +51,7 @@ const QUESTIONS = [
   '**La tolérance des lignes et des points.** Une prescription ou une information linéaire ou ponctuelle à moins d’un mètre de la limite, dehors, est montrée comme « longe la limite de la parcelle ». Faut-il la montrer, ou la taire ?',
   '**Le type CNIG à côté du libellé.** La collectivité range parfois une couche sous un code qui ne lui correspond pas tout à fait (au Mayet-de-Montagne, « Sismicité faible » sous le code 02, « Limitations de la constructibilité pour des raisons environnementales, de risques, d’intérêt général »). La page montre les deux, le libellé d’abord. Le code, cité tel que le standard le nomme, risque-t-il d’induire en erreur ?',
   '**Le caractère exécutoire.** La page dit que la publication au Géoportail « conditionne en principe le caractère exécutoire d’un PLU », d’après l’article L153-23 du code de l’urbanisme tel que la fiche de la DGCL le résume, et que le document tenu en mairie fait foi. Est-ce exact, et assez prudent ?',
+  '**La page elle-même.** Sous une zone, « Voir la page ici » dessine la page du règlement en image, avec un rappel général des dispositions générales, du lexique et des orientations d’aménagement, et le lien vers le PDF entier. Ce rappel suffit-il, ou la page en image fait-elle croire que la zone se lit seule ?',
   '**Ce qui manque.** Faut-il dire autre chose à la fin de chaque lecture que la mairie, l’orienteur des autorisations et le certificat d’urbanisme ?',
 ];
 
@@ -58,7 +59,7 @@ function ligne(e: Element, l: Lecture): string[] {
   const morceaux = [`**${e.libelle}**${e.libelleLong ? ` — ${e.libelleLong}` : ''} : ${CONTACTS[e.contact]}.`];
   if (e.type && e.famille === 'servitude') {
     const d = l.documents.get(e.document);
-    morceaux.push(`Catégorie ${e.type.code} : ${e.type.libelle}${d?.producteur ? `, gestionnaire : ${d.producteur}` : ''}.`);
+    morceaux.push(`Catégorie ${e.type.code}${e.type.libelle ? ` : ${e.type.libelle}` : ' (libellé indisponible)'}${d?.producteur ? `, gestionnaire : ${d.producteur}` : ''}.`);
   } else if (e.type && e.famille === 'zone') morceaux.push(`Type ${e.type.code}, ${e.type.libelle}.`);
   else if (e.type) morceaux.push(`Type CNIG ${e.type.code} : « ${e.type.libelle.replace(/\.$/, '')} »${e.type.references ? ` (${e.type.references})` : ''}.`);
   else morceaux.push('Type non reconnu dans le standard CNIG.');
