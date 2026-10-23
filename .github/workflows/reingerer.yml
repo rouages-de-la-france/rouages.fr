@@ -45,8 +45,10 @@ jobs:
     # Le runner auto-hébergé ne sert qu'à ce déclenchement manuel, jamais à du
     # code venu d'une pull request : voir la documentation.
     runs-on: ${{ inputs.machine == 'auto-hebergee' && fromJSON('["self-hosted", "rouages"]') || 'ubuntu-latest' }}
-    # 2 h 38 d'ingestion le 16 octobre 2026, sous la limite de trois heures : on laisse de la marge.
-    timeout-minutes: 240
+    # 2 h 38 d'ingestion le 16 octobre 2026 ; le 17, coupée à quatre heures, juste après les horaires de
+    # transport (45 minutes à eux seuls) et avant la couverture mobile et les distances aux services. On
+    # monte au plus près des six heures que GitHub accorde à un job.
+    timeout-minutes: 350
     env:
       ROUAGES_RETRAITS_SECRET: ${{ secrets.ROUAGES_RETRAITS_SECRET }}
     steps:
@@ -119,6 +121,9 @@ jobs:
       - name: Pousser une branche et ouvrir la PR
         env:
           GH_TOKEN: ${{ github.token }}
+          # La PR vise toujours la branche par défaut, même lancée depuis une branche de travail qui
+          # corrige le workflow : sinon les données atterriraient dans cette branche.
+          BASE: ${{ github.event.repository.default_branch }}
         run: |
           if [ -z "$(git status --porcelain public/territoires)" ]; then
             echo "::notice::Aucun fichier n'a changé : rien à proposer."
@@ -170,9 +175,9 @@ jobs:
             mv corps-court.md corps.md
           fi
 
-          if ! gh pr create --base "${GITHUB_REF_NAME}" --head "$branche" \
+          if ! gh pr create --base "${BASE}" --head "$branche" \
                --title "Territoires : réingestion du $jour" --body-file corps.md; then
-            echo "::warning::La PR n'a pas pu être ouverte (réglage « Allow GitHub Actions to create and approve pull requests » ?). La branche est poussée : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/${GITHUB_REF_NAME}...$branche?expand=1"
+            echo "::warning::La PR n'a pas pu être ouverte (réglage « Allow GitHub Actions to create and approve pull requests » ?). La branche est poussée : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/${BASE}...$branche?expand=1"
           fi
 
       - name: Garder le journal

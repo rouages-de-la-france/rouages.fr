@@ -995,7 +995,32 @@ Le cadrage validé, le niveau 1 est codé et reste fermé :
   rectangle et le test dans le navigateur.
 
 La fiche de relecture, `docs/11-relecture-parcelle.md`, est tirée de quatre
-parcelles du Mayet-de-Montagne, une proposition à confirmer avec le
-mainteneur : le bourg (AC 62), une limite entre zone urbaine et zone
-agricole (AC 184), la zone agricole (AE 14), et une parcelle que la zone
-urbaine voisine ne touche qu'au bord (AE 1).
+parcelles du Mayet-de-Montagne, proposées le 19 octobre et retenues par le
+mainteneur le 22 octobre 2026 : le bourg (AC 62), une limite entre zone
+urbaine et zone agricole (AC 184), la zone agricole (AE 14), et une parcelle
+que la zone urbaine voisine ne touche qu'au bord (AE 1). Reste la relecture
+par un praticien de l'urbanisme.
+
+**Le niveau 2 (22 octobre 2026).** Sous chaque zone dont le document donne
+la page, un bouton « Voir la page ici » dessine la page du règlement dans
+la page, en image, avec pdf.js (`src/client/page-reglement.ts`) : pas de
+couche de texte, pas d'extraction, un lien vers le PDF original pour le
+lecteur d'écran et pour le reste du document. Mesures faites avant :
+
+- **Le fichier entier.** Le service des annexes ne sert pas le PDF par
+  morceaux — une requête `Range` reçoit tout le fichier, sans longueur
+  annoncée. Le règlement du PLUi qui couvre le Mayet-de-Montagne pèse
+  4 Mo pour 108 pages : il est téléchargé au clic, une fois par visite.
+- **Pas de signets.** Ce règlement n'a pas de table des matières lisible
+  par la machine : la page ne peut pas désigner d'elle-même les
+  dispositions générales ou le lexique sans lire le texte, ce que le
+  cadrage refuse. Elle les rappelle donc en général, sous l'image, avec le
+  lien vers le document entier.
+- **Ce que l'image garde.** À la page 27, le tableau des destinations garde
+  ses coches — interdit, autorisé, autorisé sous conditions —, que
+  l'extraction du texte perdait.
+
+L'API du Géoportail de l'urbanisme était en panne le 22 octobre 2026 (page
+« 503 – Service temporairement indisponible », 404 sur l'API) : l'état du
+document ne s'affiche pas, et une servitude garde au moins son code de
+catégorie, tiré de la couche, faute du libellé.
