@@ -5198,6 +5198,20 @@ La collecte allonge la réingestion de quelques minutes à un quart d'heure ;
 un échec des horaires laisse les arrêts. Les données arriveront avec la
 prochaine réingestion.
 
+**Ce que la donnée ne voit pas (23 octobre 2026).** Après la réingestion du
+22 octobre, le mainteneur a relevé que la ligne F, un car qui relie Vichy au
+Mayet-de-Montagne plusieurs fois par jour, manquait : la page ne voyait que
+le car de l'internat. Elle n'est dans aucun fichier publié — ni celui de
+Mobivie (Vichy Communauté : lignes A à I sans F, valable du 15 octobre 2026
+au 29 août 2027), ni celui du réseau interurbain de l'Allier (Région), ni
+l'agrégat Oùra, où les seuls arrêts à moins de 2,5 km du bourg sont les deux
+arrêts scolaires de la ligne 366. Le calcul est juste, la donnée publiée est
+incomplète, et rien ne le signale. La page le dit désormais à côté du chiffre
+quand la desserte est faible (aucun arrêt, aucun passage, ou moins de deux
+par jour en moyenne), avec un lien de signalement. Le signalement au
+producteur, sur la fiche du jeu au Point d'accès national, reste à faire par
+quelqu'un qui y a un compte.
+
 ### La couverture 4G de chaque commune, en part de sa surface (16 octobre 2026)
 
 Le bloc des antennes disait ce qui est installé, pas ce qui est couvert. Les

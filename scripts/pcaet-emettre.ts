@@ -47,7 +47,13 @@ export async function collecterPcaet(lireJson: LireJson, dire: (m: string) => vo
   const parSiren: Pcaet['c'] = {};
   const versions: Pcaet['jeux'] = [];
   for (const jeu of JEUX_PCAET) {
-    const meta = (await lireJson(`${API}/${encodeURIComponent(jeu)}`)) as { updatedAt?: string; count?: number };
+    const meta = (await lireJson(`${API}/${encodeURIComponent(jeu)}`)) as { updatedAt?: string; count?: number; schema?: { key: string }[] };
+    // Le 1er novembre 2026, la mise à jour automatique de l'ADEME a remplacé les démarches par une page HTML :
+    // une seule colonne, « <!DOCTYPE html> ». La requête des lignes répond alors 400 sans dire pourquoi ; on le dit.
+    const colonnes = new Set((meta.schema ?? []).map((c) => c.key));
+    const manquantes = CHAMPS.filter((c) => !colonnes.has(c));
+    if (meta.schema && manquantes.length)
+      throw new Error(`${jeu} : colonnes absentes (${manquantes.slice(0, 3).join(', ')}…) — le jeu publié par l'ADEME a changé de forme ou a été écrasé (première colonne : « ${meta.schema[0]?.key ?? '?'} »)`);
     const q = new URLSearchParams({ size: '10000', select: CHAMPS.join(',') });
     const { results = [] } = (await lireJson(`${API}/${encodeURIComponent(jeu)}/lines?${q}`)) as { results?: Ligne[] };
     if (meta.count && results.length < meta.count) throw new Error(`${jeu} : ${results.length} lignes lues sur ${meta.count}`);
