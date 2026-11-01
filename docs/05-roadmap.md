@@ -4509,6 +4509,29 @@ Les SIREN des départements et des régions correspondent à la liste de
 référence du dépôt ; ceux des intercommunalités sont contrôlés par la
 validation.
 
+**Haute-Loire, Cantal, Corrèze (1er novembre 2026) ✔.** Les trois
+départements des zones de prospection de pro.rouages.fr qui n'avaient encore
+rien. Trois lots en parallèle, puis le contrôle de chaque citation contre le
+texte lu, et des montants revérifiés en ligne ou sur l'image. Le registre
+passe de 269 à 359 aides :
+
+| Lot | Aides | Ce qui manque encore |
+| --- | --- | --- |
+| Haute-Loire | 27 | les montants des OPAH de Loire Semène, Brioude Sud Auvergne, Auzon et Cayres-Pradelles, non publiés ; le texte des primes du Département dans les OPAH ; le règlement des façades de Cayres-Pradelles, sur Calaméo seulement ; rien trouvé pour les Sucs, Marches du Velay-Rochebaron, le Haut-Lignon et le Haut Pays du Velay |
+| Cantal | 36 | Aurillac Agglomération, dont le site refuse cet environnement : OPAH sans montant ; le Pays Gentiane, injoignable ; les barèmes du Pays de Salers et du Carladès ; les aides de neuf communes du Pays de Mauriac |
+| Corrèze | 27 | le Bassin de Brive, Ventadour-Égletons-Monédières, le Pays d'Uzerche, Vézère-Monédières-Millesources et Lubersac-Pompadour, sans texte en vigueur ; les montants des OPAH intercommunales, non publiés |
+
+Ce qui reste à trancher à la relecture :
+- **la Haute-Loire ne publie qu'une carte** pour les 37 communes de son aide
+  aux toitures en lauze : la liste est relevée commune par commune sur
+  l'image ;
+- **les façades d'Ussel, Bort-les-Orgues, Meymac et Neuvic** et les barèmes de
+  Sumène Artense viennent de projets de convention : à confirmer ;
+- **les délibérations de Saint-Flour Communauté** sont des PDF scannés,
+  transcrits depuis l'image ;
+- **à Hautes Terres**, le périmètre des aides aux bailleurs est retenu sur les
+  39 communes, celui des toitures sur les quatre communes à périmètre ORT.
+
 **La veille des textes (15 octobre 2026).** Chaque lundi, la veille des
 sources relit les 79 textes du registre (`scripts/veille-aides.ts`). Elle
 cherche dans chacun les citations qui fondent les montants et les
