@@ -220,10 +220,34 @@ const plier = (s: string) =>
 
 const CATEGORIES: Record<string, BienMondial['categorie']> = { Cultural: 'culturel', Natural: 'naturel', Mixed: 'mixte' };
 
-/** « {name: Stadhuis, ref: 943-003, latitude: 51.22, longitude: 4.39}, … » */
+/** « {name: Stadhuis, ref: 943-003, latitude: 51.22, longitude: 4.39}, … » : l'ancien format, sans guillemets. */
 const COMPOSANT = /\{name: (.*?), ref: ([^,]+), latitude: (-?[\d.]+), longitude: (-?[\d.]+)\}/g;
 
-type Ligne = { id_no: string; name_fr: string; category: string; date_inscribed: string; iso_codes: string | null; components_list: string | null; coordinates: string | null };
+/**
+ * L'UNESCO a changé de format à l'automne 2026 : `iso_codes` est devenu une liste (`["FR"]`, ou « ['FR'] » selon
+ * l'API) et `components_list` du JSON. La collecte du 22 octobre ne trouvait plus aucun bien français. On lit
+ * les deux formats.
+ */
+export function paysDe(iso: unknown): string[] {
+  if (Array.isArray(iso)) return iso.map((c) => String(c).trim());
+  return String(iso ?? '').match(/[A-Z]{2}/g) ?? [];
+}
+
+export function composantsDe(liste: unknown): { nom: string; lat: number; lon: number }[] {
+  const brut = String(liste ?? '').trim();
+  if (brut.startsWith('[') && brut.includes('"name"')) {
+    try {
+      return (JSON.parse(brut) as { name?: string; latitude?: number; longitude?: number }[])
+        .filter((c) => Number.isFinite(Number(c.latitude)) && Number.isFinite(Number(c.longitude)))
+        .map((c) => ({ nom: texte(c.name), lat: Number(c.latitude), lon: Number(c.longitude) }));
+    } catch {
+      // Un JSON abîmé : on retombe sur le motif de l'ancien format, qui ne trouvera rien.
+    }
+  }
+  return [...brut.matchAll(COMPOSANT)].map((m) => ({ nom: texte(m[1]), lat: Number(m[3]), lon: Number(m[4]) }));
+}
+
+type Ligne = { id_no: string; name_fr: string; category: string; date_inscribed: string; iso_codes: unknown; components_list: string | null; coordinates: unknown };
 
 /** Les entités d'une source, quel que soit son format. */
 async function entitesDe(src: Perimetre, lireJson: LireJson, cache: string): Promise<Entite[]> {
@@ -243,7 +267,7 @@ export type CollecteMondial = PatrimoineMondial & { traces: Map<string, TraceMon
 export async function collecterPatrimoineMondial(sortie: string, lireJson: LireJson, dire: (m: string) => void, cache = tmpdir()): Promise<CollecteMondial> {
   const fiche = (await lireJson(LISTE)) as { metas?: { default?: { modified?: string; license?: string } } };
   const q = new URLSearchParams({ where: 'iso_codes like "FR"', select: 'id_no,name_fr,category,date_inscribed,iso_codes,components_list,coordinates' });
-  const lignes = ((await lireJson(`${LISTE}/exports/json?${q}`)) as Ligne[]).filter((l) => (l.iso_codes ?? '').split(',').some((c) => c.trim() === 'FR'));
+  const lignes = ((await lireJson(`${LISTE}/exports/json?${q}`)) as Ligne[]).filter((l) => paysDe(l.iso_codes).includes('FR'));
   if (lignes.length < 40) throw new Error(`Patrimoine mondial : ${lignes.length} biens français seulement dans la liste de l'UNESCO`);
 
   const biens: Record<string, BienMondial> = {};
@@ -302,7 +326,7 @@ export async function collecterPatrimoineMondial(sortie: string, lireJson: LireJ
   // Les éléments que l'UNESCO situe.
   let situes = 0;
   for (const l of lignes) {
-    const points = [...(l.components_list ?? '').matchAll(COMPOSANT)].map((m) => ({ nom: texte(m[1]), lat: Number(m[3]), lon: Number(m[4]) }));
+    const points = composantsDe(l.components_list);
     for (const p of points) {
       // Un bien d'un seul élément le nomme comme lui, souvent en anglais : on ne le répète pas.
       const nomme = points.length > 1 ? p.nom : null;

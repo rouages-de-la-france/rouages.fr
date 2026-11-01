@@ -15,6 +15,7 @@
  * Chacune de ces trois précautions vient d'un fichier réel qui l'a exigée, et
  * non d'une prudence de principe.
  */
+import { depuisCp1252 } from './geo-formats.ts';
 
 /**
  * Le délimiteur change d'un producteur à l'autre : Mégalis Bretagne écrit en
@@ -73,7 +74,8 @@ export function decoder(octets: Uint8Array): string {
   try {
     return new TextDecoder('utf-8', { fatal: true }).decode(octets);
   } catch {
-    return new TextDecoder('windows-1252').decode(octets);
+    // La table explicite, et non le décodeur de Node, dont la table varie d'une installation à l'autre (geo-formats.ts).
+    return depuisCp1252(octets);
   }
 }
 

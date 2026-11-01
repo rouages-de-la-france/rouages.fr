@@ -154,6 +154,22 @@ function extraire(zip: string, membre: string): Buffer {
   return execFileSync('unzip', ['-p', zip, membre], { maxBuffer: 512 * 1024 * 1024 });
 }
 
+/**
+ * Windows-1252, sans dépendre du Node qui tourne : il coïncide avec Latin-1 sauf pour les octets 0x80 à 0x9F, que
+ * la norme WHATWG fait correspondre aux caractères ci-dessous. Le `TextDecoder('windows-1252')` d'un Node de
+ * l'environnement de développement (22.22) rendait 0x92 en caractère de contrôle au lieu de l'apostrophe ’, quand
+ * celui de GitHub la rendait juste : la même table lue deux fois donnait deux noms.
+ */
+const CP1252 = [
+  0x20ac, 0x81, 0x201a, 0x192, 0x201e, 0x2026, 0x2020, 0x2021, 0x2c6, 0x2030, 0x160, 0x2039, 0x152, 0x8d, 0x17d, 0x8f,
+  0x90, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x2dc, 0x2122, 0x161, 0x203a, 0x153, 0x9d, 0x17e, 0x178,
+];
+export function depuisCp1252(b: Uint8Array): string {
+  let s = '';
+  for (const o of b) s += String.fromCharCode(o >= 0x80 && o <= 0x9f ? CP1252[o - 0x80] : o);
+  return s;
+}
+
 /** La table attributaire : UTF-8 si elle en est, Windows-1252 sinon (les fichiers sans .cpg ; l'apostrophe typographique y est l'octet 0x92). */
 function lireDbf(b: Buffer): Record<string, string>[] {
   const n = b.readUInt32LE(4);
@@ -169,7 +185,6 @@ function lireDbf(b: Buffer): Record<string, string>[] {
       return false;
     }
   })();
-  const ansi = new TextDecoder('windows-1252');
   const lignes: Record<string, string>[] = [];
   for (let i = 0; i < n; i++) {
     const r = b.subarray(entete + i * ligne, entete + (i + 1) * ligne);
@@ -178,7 +193,7 @@ function lireDbf(b: Buffer): Record<string, string>[] {
     let o = 1;
     for (const [nom, taille] of champs) {
       const brut = r.subarray(o, o + taille);
-      l[nom] = (utf8 ? brut.toString('utf8') : ansi.decode(brut)).trim();
+      l[nom] = (utf8 ? brut.toString('utf8') : depuisCp1252(brut)).trim();
       o += taille;
     }
     lignes.push(l);
