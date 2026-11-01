@@ -1024,3 +1024,36 @@ L'API du Géoportail de l'urbanisme était en panne le 22 octobre 2026 (page
 « 503 – Service temporairement indisponible », 404 sur l'API) : l'état du
 document ne s'affiche pas, et une servitude garde au moins son code de
 catégorie, tiré de la couche, faute du libellé.
+
+## 11. Les bases de condamnations d'élus (1er novembre 2026)
+
+Le mainteneur a signalé Casier Politique (casier-politique.fr), une base de
+313 condamnations de 204 personnalités politiques, publiée en données
+ouvertes, et demandé s'il fallait la croiser avec les déclarations
+d'intérêts publiées par la HATVP. **Décision : on ne l'intègre pas.**
+
+- **Ce n'est pas un registre public.** C'est une initiative personnelle : une
+  extraction automatique de Wikipédia et de Wikidata, dont les passages sont
+  analysés par un modèle de langue. Les règles du site n'admettent un nom que
+  s'il vient d'un registre dont la finalité couvre l'usage ; l'auteur
+  reconnaît lui-même des biais de couverture.
+- **Les condamnations pénales sont la catégorie la plus encadrée.**
+  L'article 10 du RGPD n'en permet le traitement que sous le contrôle de
+  l'autorité publique ou si la loi l'autorise ; en France, l'article 46 de la
+  loi Informatique et Libertés en fixe la liste. Lu dans des commentaires,
+  Légifrance refusant cet environnement : **à valider par un avocat** avant
+  toute autre décision.
+- **Le rapprochement conclurait.** Placer une condamnation à côté d'une
+  déclaration d'intérêts, c'est suggérer un lien que le site ne constate
+  pas, contre la règle : « le site ne conclut rien ».
+
+**Un lien vers la base sous un élu qui y figure** pose les mêmes problèmes :
+savoir quand l'afficher, c'est lire la base, donc traiter des données de
+condamnation ; et sous un nom, le lien affirme une condamnation — une erreur
+de l'extraction deviendrait une imputation relayée par le site. **Reste
+possible**, sur décision du mainteneur : un lien général, le même pour tous,
+dans une rubrique « ailleurs », qui ne dépend d'aucun élu et ne traite
+aucune donnée personnelle.
+
+Les décisions de justice publiées en données ouvertes, elles, sont
+pseudonymisées : elles ne permettent pas de rapprochement nominatif.

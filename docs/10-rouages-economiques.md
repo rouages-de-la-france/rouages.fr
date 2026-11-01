@@ -200,6 +200,38 @@ l'écrit pas), le prix d'une baguette à l'unité (le rapport raisonne au kilo).
 Les fiches se périment vite exprès : trois mois pour la commande publique,
 six pour la facturation, douze pour la baguette, au rythme du rapport.
 
+## Le lot 2 : les métiers (1er novembre 2026)
+
+Six métiers entrent dans le graphe comme acteurs `metier`, chacun relié à sa
+fiche du répertoire opérationnel des métiers et des emplois (ROME 4.0, version
+62 du 19 octobre 2026, France Travail, Licence Ouverte) et à sa page
+MétierScope :
+
+| Acteur | Fiche | Où il intervient |
+|---|---|---|
+| le producteur de blé tendre | A1416, appellation « céréalier » | du blé à la baguette, étape 1 (déjà dans le graphe) |
+| le minotier | H2102, appellation « minotier » | du blé à la baguette, la mouture — il remplace l'archétype « la meunerie », qui n'avait pas d'autre rôle |
+| le boulanger | D1102 | du blé à la baguette, la fabrication ; la boulangerie, entreprise, garde la vente et le prix |
+| le comptable | M1203, appellations « facturation » et « recouvrement » | de la commande à la facture, vérifier les mentions avant de payer |
+| le chargé de recouvrement | D1422 | de la commande à la facture, réclamer les pénalités et l'indemnité |
+| l'assistant commercial | D1401, appellation « et appels d'offres » | comment une commune achète, suivre les avis de marché |
+
+**Ce que la fiche fournit, et ce qu'on n'en prend pas.** Le code, l'intitulé et
+les appellations, pour relier ; le résumé de chaque acteur est écrit d'après
+la définition du ROME, sans la recopier. Pas de salaire : le ROME n'en donne
+pas, et la règle de ce document refuse un salaire sans source par métier.
+
+**Une incohérence de la source.** Le référentiel des appellations rattache
+« meunier, meunière » à la fiche H2102 ; le fichier des fiches le range sous
+H2105 (agent de production en industrie alimentaire). « Minotier » est sous
+H2102 des deux côtés : c'est lui qu'on retient. MétierScope répond aussi pour
+un code qui n'existe pas : chaque code a donc été vérifié dans les données du
+ROME, pas par le lien.
+
+**La suite possible** : la table de correspondance ROME / NAF que publie
+France Travail relierait un métier aux effectifs salariés par secteur que la
+page de commune affiche déjà (Urssaf).
+
 ## Ce qu'on ne fait pas
 
 - Pas de classement d'entreprises, ni de « bonnes » ou « mauvaises »

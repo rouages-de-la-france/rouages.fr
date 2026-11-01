@@ -133,12 +133,12 @@ processus:
         liens: [esp-paiement-marche]
         confiance: etabli
       - id: suivre-les-marches-de-sa-commune
-        acteur: entreprise-candidate
+        acteur: assistant-commercial
         quoi: "Suivre les avis de marché et les marchés passés par sa commune"
         quand: "En continu, avant la date limite de remise des offres"
         aupres_de: "Le Bulletin officiel des annonces des marchés publics, et la page de la commune sur ce site"
         difficulte: faible
         ancre_etape: 2
         piege: "Sous 90 000 € hors taxes, l'avis peut ne paraître que sur le profil d'acheteur de la commune, pas au bulletin officiel."
-        liens: [od-boamp, od-decp, esp-seuils-publicite]
+        liens: [od-boamp, od-decp, esp-seuils-publicite, rome-d1401]
         confiance: etabli

@@ -35,30 +35,36 @@ processus:
         liens: [ofpm-rapport-2026-pain]
         confiance: etabli
       - ordre: 3
-        acteur: meunerie
+        acteur: minotier
         action: "Mouture du blé en farine"
         note: "La meunerie transforme environ cinq millions de tonnes de blé tendre par an ; la moitié de la farine va à la fabrication du pain."
-        liens: [ofpm-rapport-2026-pain]
+        liens: [ofpm-rapport-2026-pain, rome-h2102]
         confiance: etabli
       - ordre: 4
-        acteur: boulangerie
-        action: "Fabrication et vente de la baguette, au prix que fixe chaque boulangerie"
-        note: "Le prix du pain est libre depuis l'ordonnance du 1er décembre 1986 sur la liberté des prix : chaque boulangerie fixe le sien. La boulangerie artisanale fait près de la moitié du pain ; l'industrie et les rayons des grandes surfaces, le reste."
-        liens: [an-qe-118929-prix-pain, ofpm-rapport-2026-pain]
+        acteur: boulanger
+        action: "Fabrication du pain"
+        note: "Le boulanger prépare et cuit le pain ; dans une boulangerie artisanale, il peut aussi tenir la boutique. La boulangerie artisanale fait près de la moitié du pain ; l'industrie et les rayons des grandes surfaces, le reste."
+        liens: [rome-d1102, ofpm-rapport-2026-pain]
         confiance: variable_selon_organisation
       - ordre: 5
+        acteur: boulangerie
+        action: "Vente de la baguette, au prix que fixe chaque boulangerie"
+        note: "Le prix du pain est libre depuis l'ordonnance du 1er décembre 1986 sur la liberté des prix : chaque boulangerie fixe le sien."
+        liens: [an-qe-118929-prix-pain, ofpm-rapport-2026-pain]
+        confiance: etabli
+      - ordre: 6
         acteur: citoyen
         action: "Achat du pain, et ce que paie le prix"
         note: "En 2025, un kilo de baguette courante coûte en moyenne 4,05 € toutes taxes comprises, tous circuits de vente confondus. L'Observatoire le décompose ainsi : 0,24 € de blé, 0,27 € de marge brute de la meunerie, 3,33 € de marge brute en aval de la meunerie, et 0,21 € de taxe sur la valeur ajoutée. L'aval réunit l'artisan, l'industriel et le rayon de la grande surface, sans les distinguer."
         liens: [ofpm-rapport-2026-pain, insee-prix-baguette]
         confiance: etabli
-      - ordre: 6
+      - ordre: 7
         acteur: observatoire-prix-marges
         action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
         note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. La baguette est le seul produit suivi par l'Observatoire dont la vente au détail passe surtout par les artisans, et non par les grandes surfaces."
         liens: [ofpm-rapports, ofpm-rapport-2026-pain]
         confiance: etabli
-      - ordre: 7
+      - ordre: 8
         acteur: mediateur-relations-agricoles
         action: "Médiation d'un litige commercial entre professionnels de la filière"
         conditionnelle: true
@@ -72,7 +78,7 @@ processus:
         quand: "Chaque année, à la parution du rapport au Parlement — le 9 juillet en 2026"
         aupres_de: "L'Observatoire de la formation des prix et des marges, sur son site"
         difficulte: faible
-        ancre_etape: 6
+        ancre_etape: 7
         piege: "Une marge brute n'est pas un bénéfice : elle doit couvrir les coûts de production, dont l'énergie et les salaires que le rapport cite. Et celle de l'aval mêle l'artisan, l'industrie et la grande surface : elle ne dit pas ce que gagne une boulangerie."
         liens: [ofpm-rapport-2026-pain]
         confiance: etabli
@@ -81,7 +87,7 @@ processus:
         quand: "À tout moment : la série de l'Insee est publique"
         aupres_de: "L'Insee, série du prix moyen de vente au détail de la baguette"
         difficulte: faible
-        ancre_etape: 5
+        ancre_etape: 6
         piege: "C'est une moyenne nationale, tous circuits confondus : le prix d'une boulangerie donnée peut s'en écarter largement, puisqu'il est libre."
         liens: [insee-prix-baguette, an-qe-118929-prix-pain]
         confiance: etabli
@@ -91,7 +97,7 @@ processus:
         quand: "En cas de litige sur un contrat de vente de produits agricoles, avant de saisir le juge"
         aupres_de: "Le médiateur des relations commerciales agricoles, gratuitement"
         difficulte: moyenne
-        ancre_etape: 7
+        ancre_etape: 8
         recours_si_refus: "Le juge, une fois la médiation tentée"
         piege: "Entre professionnels, la médiation est obligatoire avant toute saisine du juge, sauf si le contrat prévoit une autre médiation ou un arbitrage."
         liens: [agri-mediateur-relations-commerciales]
