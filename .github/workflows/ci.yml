@@ -13,7 +13,11 @@ on:
 
 jobs:
   controler:
-    runs-on: ubuntu-latest
+    # Pas ubuntu-latest : passée à Ubuntu 26.04 fin octobre 2026, l'image n'est
+    # pas prise en charge par Playwright 1.56.1, et l'audit d'accessibilité ne
+    # trouve plus de navigateur (« Playwright does not support chromium on
+    # ubuntu26.04-x64 »). À revoir quand Playwright la prendra en charge.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
