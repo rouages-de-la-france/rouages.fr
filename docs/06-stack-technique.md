@@ -252,6 +252,35 @@ ingestions, et le manifeste déposé à la fin rend le pari inutile ensuite.
 L'entrée **complet** de `workflow_dispatch` revient à la comparaison taille et
 date, c'est-à-dire à tout renvoyer.
 
+### Le passage à Astro 7 (1er novembre 2026)
+
+Astro 5.18 portait une faille critique (XSS par des noms d'attributs non
+échappés), corrigée à partir de la 7.0.6. On est passé à la **7.4.1** : elle
+se contente de Node 22.22, quand les versions suivantes exigent la 22.23.4,
+que les machines de GitHub ne fournissaient pas encore le 22 octobre. Trois
+changements silencieux, chacun trouvé en comparant le build à celui d'Astro 5,
+page par page :
+
+- **La racine du dépôt.** Le code du prérendu vit désormais dans
+  `dist/.prerender/chunks/` : `new URL('../../', import.meta.url)` tombait
+  sur `dist/`, et le graphe se chargeait vide. `src/modele/racine.ts` remonte
+  jusqu'au dossier qui porte `package.json` et `contenu/`.
+- **Les blancs.** Par défaut, Astro 7 applique les règles de JSX
+  (`compressHTML: 'jsx'`) : 107 620 espaces perdues, des liens collés. On
+  garde la compression sans perte (`compressHTML: true`), qui laisse en
+  revanche une espace entre `</a>` et la virgule qui suit ;
+  `integrations/ponctuation.mjs` la retire des pages produites.
+- **Les noms sans empreinte.** Le crochet `astro:build:setup` n'est plus
+  appelé qu'une fois, avec un environnement Vite par cible :
+  `integrations/noms-fixes.mjs` règle chacun, sans quoi les fichiers de
+  `_astro/` reprenaient leur empreinte.
+
+Le texte des 642 pages de l'Allier est identique à celui d'Astro 5, aux blancs
+près ; le build reste déterministe (22 634 fichiers identiques d'un build à
+l'autre). Le premier déploiement renverra la plupart des pages, dont le HTML a
+changé. Reste une alerte, sur `zod` 3, sans portée ici : il ne valide que le
+contenu du dépôt, au build.
+
 ### Par lots, quand beaucoup de fichiers changent
 
 Un bloc de plus sur la page de commune modifie trente-cinq mille fichiers, et

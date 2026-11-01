@@ -12,8 +12,8 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { RACINE } from './racine.ts';
 
 export function empreinteDeliberation(siren: string, date: string, objet: string): string {
   return createHash('sha256')
@@ -25,7 +25,7 @@ let lues: Set<string> | null = null;
 
 function empreintes(): Set<string> {
   if (lues) return lues;
-  const chemin = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..', 'retraits.yaml');
+  const chemin = join(RACINE, 'retraits.yaml');
   const brut = existsSync(chemin) ? ((parse(readFileSync(chemin, 'utf8')) ?? {}) as { deliberations?: { empreinte?: string }[] }) : {};
   lues = new Set((brut.deliberations ?? []).filter((d) => d?.empreinte).map((d) => String(d.empreinte).trim()));
   return lues;
