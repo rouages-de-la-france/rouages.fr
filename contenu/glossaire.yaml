@@ -29,6 +29,12 @@ sigles:
     noeud: redaction-plu
     liens: [wp-plu, od-gpu]
 
+  - id: sigle-rome
+    sigle: ROME
+    developpe: "Répertoire opérationnel des métiers et des emplois"
+    definition: "La nomenclature des métiers que tient France Travail : une fiche par métier, avec ses appellations, ses compétences et ses accès."
+    liens: [od-rome]
+
   - id: sigle-finess
     sigle: FINESS
     developpe: "Fichier national des établissements sanitaires et sociaux"

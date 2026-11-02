@@ -45,12 +45,16 @@ import { fileURLToPath } from 'node:url';
 import { FILOSOFI, lireCarreaux, type Territoire as TerritoireCarroye } from './carroyage.ts';
 import { contoursDesCommunes, dedans, ECHELLE, type Anneau } from './espaces-emettre.ts';
 import { depuisLambert93, depuisUtm } from './geo-formats.ts';
+import { localisateur } from './localiser.ts';
 import { departementDe, ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
 
 const ARCEP = 'https://data.arcep.fr/mobile/couvertures_theoriques';
 
-/** La version de la méthode : un fichier publié par une autre version est refait. 2 : les habitants et l'outre-mer. */
-const METHODE = 2;
+/**
+ * La version de la méthode : un fichier publié par une autre version est refait. 2 : les habitants et l'outre-mer.
+ * 3 : la commune d'un carreau habité d'après le contour exact, comme les distances aux services.
+ */
+const METHODE = 3;
 
 /** Les noms des opérateurs, d'après la documentation de l'Arcep ; à défaut, le code du fichier. */
 const NOMS: Record<string, string> = {
@@ -335,6 +339,11 @@ export async function collecterCouverture(
     renameSync(`${carroyage}.partiel`, carroyage);
   }
   const contours = contoursDesCommunes(sortie);
+  // La commune d'un carreau habité est celle dont le contour contient son centre, comme pour les distances aux
+  // services (`acces-emettre.ts`) : le point de grille le plus proche, posé sur les contours simplifiés, la
+  // rattachait parfois à la voisine, et la même commune affichait deux populations (1 279 et 1 274 habitants
+  // au Mayet-de-Montagne, le 22 octobre 2026). Le niveau de couverture, lui, reste celui du point de grille.
+  const communeDu = localisateur(contours);
   const communes = new Map<string, CouvertureCommune>();
   const operateurs = new Map<string, string[]>();
 
@@ -348,8 +357,8 @@ export async function collecterCouverture(
     for (const g of grillesDep.values()) for (const c of g.codes) comptes.set(c, nouveau());
     for (const g of grillesDep.values()) for (let p = 0; p < g.commune.length; p++) if (g.commune[p] >= 0) comptes.get(g.codes[g.commune[p]])!.n++;
 
-    // Les carreaux habités, chacun sur son point de grille : celui de sa commune, d'après la grille du département que l'INSEE lui donne.
-    const carreaux = new Map<string, { p: number[]; ind: number[] }>();
+    // Les carreaux habités, chacun sur son point de grille — pour le niveau — et dans sa commune — pour les habitants.
+    const carreaux = new Map<string, { p: number[]; ind: number[]; code: string[] }>();
     let horsGrille = 0;
     if (t.carreaux) {
       for await (const c of lireCarreaux(carroyage, t.carreaux)) {
@@ -361,10 +370,14 @@ export async function collecterCouverture(
           horsGrille += c.ind;
           continue;
         }
-        const x = carreaux.get(dep) ?? carreaux.set(dep, { p: [], ind: [] }).get(dep)!;
+        // Le contour exact ; à défaut (un carreau sur la limite d'un département, une commune hors de ce lot), celle du point.
+        const exacte = communeDu(Math.round(c.lon * ECHELLE), Math.round(c.lat * ECHELLE));
+        const code = exacte && comptes.has(exacte) ? exacte : g.codes[g.commune[p]];
+        const x = carreaux.get(dep) ?? carreaux.set(dep, { p: [], ind: [], code: [] }).get(dep)!;
         x.p.push(p);
         x.ind.push(c.ind);
-        comptes.get(g.codes[g.commune[p]])!.h += c.ind;
+        x.code.push(code);
+        comptes.get(code)!.h += c.ind;
       }
     }
 
@@ -396,7 +409,7 @@ export async function collecterCouverture(
             if (n[p] > m[p]) m[p] = n[p];
           }
           const x = carreaux.get(dep);
-          if (x) x.p.forEach((p, i) => n[p] && (comptes.get(g.codes[g.commune[p]])!.ho[k][3 - n[p]] += x.ind[i]));
+          if (x) x.p.forEach((p, i) => n[p] && (comptes.get(x.code[i])!.ho[k][3 - n[p]] += x.ind[i]));
         }
       } finally {
         rmSync(gpkg, { force: true });
@@ -407,7 +420,7 @@ export async function collecterCouverture(
       const m = meilleur.get(dep)!;
       for (let p = 0; p < m.length; p++) if (g.commune[p] >= 0 && m[p]) comptes.get(g.codes[g.commune[p]])!.m[3 - m[p]]++;
       const x = carreaux.get(dep);
-      if (x) x.p.forEach((p, i) => m[p] && (comptes.get(g.codes[g.commune[p]])!.hm[3 - m[p]] += x.ind[i]));
+      if (x) x.p.forEach((p, i) => m[p] && (comptes.get(x.code[i])!.hm[3 - m[p]] += x.ind[i]));
       operateurs.set(dep, liste.map(([c]) => NOMS[c] ?? c));
     }
     if (t.carreaux) dire(`  Couverture mobile ${t.cle} : ${Math.round(horsGrille).toLocaleString('fr-FR')} habitants de carreaux hors de la grille, laissés.`);

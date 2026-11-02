@@ -8,17 +8,26 @@
 import type { Transports } from '../../modele/fiche-vie.ts';
 import { libelleSemaine, phraseDesserte } from '../../modele/desserte.ts';
 import Glose from '../Glose.astro';
+import { urlSignaler } from '../../modele/signalement.ts';
 
 interface Props {
   t: Transports;
+  /** Le code INSEE de la commune, pour le lien de signalement. */
+  code: string;
 }
-const { t } = Astro.props;
+const { t, code } = Astro.props;
 const nf = (v: number) => v.toLocaleString('fr-FR');
 const p = t.proche;
 const date = t.maj.split('-').reverse().join('/');
 const semaine = t.semaine ? libelleSemaine(t.semaine) : null;
 const d = t.desserte;
 const lignes = d && d.lignes ? `, sur ${nf(d.lignes)} ligne${d.lignes > 1 ? 's' : ''}` : '';
+// Une desserte faible — pas d'arrêt, pas de passage, ou moins de deux par jour en moyenne — peut être un réseau qui
+// ne publie pas toutes ses lignes : le 22 octobre 2026, la ligne de car qui relie Vichy au Mayet-de-Montagne
+// plusieurs fois par jour ne figurait dans aucun fichier publié, et la commune paraissait desservie deux fois par
+// semaine. On le dit à côté du chiffre, pas seulement dans les sources.
+const passages = d ? d.jours.reduce((a, b) => a + b, 0) : 0;
+const faible = !!p || t.aucunPassage || (!!d && passages < 14);
 ---
 {!p && (
   <p class="mesure">
@@ -54,6 +63,14 @@ const lignes = d && d.lignes ? `, sur ${nf(d.lignes)} ligne${d.lignes > 1 ? 's' 
 )}
 {!d && t.aucunPassage && semaine && (
   <p class="mesure">{`Aucun passage n’y est prévu la semaine ${semaine}, d’après les fichiers d’horaires qui la couvrent : une ligne saisonnière, ou un service sur réservation, peut-être.`}</p>
+)}
+{faible && (
+  <p class="mesure">
+    Une ligne que son réseau ne publie pas au Point d’accès national n’apparaît pas ici. Si un car ou un bus passe
+    régulièrement dans la commune sans y figurer,{' '}
+    <a href={urlSignaler(undefined, code, `/commune/${code}#transports`)}>signalez-le</a> pour qu’on le
+    vérifie&nbsp;; le réseau, lui, se prévient sur la fiche de son jeu de données, au Point d’accès national.
+  </p>
 )}
 <p class="p-strate">
   <Glose texte={'Un arrêt figure ici s’il est inscrit dans un fichier d’horaires publié au Point d’accès national : bus, car, tramway, métro, train. ' +

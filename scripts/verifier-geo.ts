@@ -17,6 +17,7 @@ import { join } from 'node:path';
 import { equipements, km, SERVICES, Voisinage } from './acces-emettre.ts';
 import { distance, phraseArrets, phraseMedecin } from '../src/modele/distances.ts';
 import { anneauxGpkg, poser } from './couverture-emettre.ts';
+import { composantsDe, paysDe } from './patrimoine-mondial-emettre.ts';
 import { depuisLaea3035, depuisLambert93, depuisUtm, lireGml, lireShapefile } from './geo-formats.ts';
 import { zip } from './zip-essai.ts';
 
@@ -346,6 +347,18 @@ try {
   } finally {
     rmSync(dossier, { recursive: true, force: true });
   }
+}
+
+// La liste de l'UNESCO, dans ses deux formats : l'ancien (« FR,BE », composants sans guillemets) et celui de
+// l'automne 2026 (une liste de pays, des composants en JSON), qui a fait trouver zéro bien français le 22 octobre.
+{
+  attendre('UNESCO : pays, ancien format', JSON.stringify(paysDe('BE,FR')) === '["BE","FR"]', paysDe('BE,FR'), 'Une chaîne séparée par des virgules.');
+  attendre('UNESCO : pays, liste', JSON.stringify(paysDe(['FR'])) === '["FR"]', paysDe(['FR']), 'L’export JSON rend une vraie liste.');
+  attendre('UNESCO : pays, liste écrite', JSON.stringify(paysDe("['DK', 'FR']")) === '["DK","FR"]', paysDe("['DK', 'FR']"), 'L’API des enregistrements rend la liste écrite en texte.');
+  const ancien = composantsDe('[{name: Gold Beach, ref: 1581-004, latitude: 49.34, longitude: -0.56}, {name: Juno Beach, ref: 1581-005, latitude: 49.33, longitude: -0.43}]');
+  attendre('UNESCO : composants, ancien format', ancien.length === 2 && ancien[1].nom === 'Juno Beach' && ancien[0].lon === -0.56, ancien, 'Le motif sans guillemets.');
+  const nouveau = composantsDe('[{"name": "Gold Beach", "ref": "1581-004", "latitude": 49.3447222222, "longitude": -0.5652777778}, {"name": "Omaha Beach, secteur ouest", "ref": "1581-003", "latitude": 49.3694, "longitude": -0.8714}]');
+  attendre('UNESCO : composants, JSON', nouveau.length === 2 && nouveau[1].nom === 'Omaha Beach, secteur ouest' && nouveau[0].lat === 49.3447222222, nouveau, 'Une virgule dans le nom ne coupe pas le composant.');
 }
 
 if (echecs) {

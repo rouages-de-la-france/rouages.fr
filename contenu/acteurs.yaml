@@ -1073,7 +1073,7 @@ acteurs:
     type: metier
     echelon: prive
     resume: "L'exploitation qui cultive le blé tendre et le livre à un organisme stockeur ; la quasi-totalité du blé consommé en France y est produite."
-    liens: [ofpm-rapport-2026-pain]
+    liens: [ofpm-rapport-2026-pain, rome-a1416, od-rome]
     verifie_le: 2026-10-19
     confiance: etabli
 
@@ -1087,14 +1087,27 @@ acteurs:
     verifie_le: 2026-10-19
     confiance: variable_selon_organisation
 
-  - id: meunerie
-    nom: "La meunerie"
-    nom_court: "Meunerie"
-    type: entreprise
+  # Le métier plutôt que l'entreprise : c'est lui qui moud, et la meunerie n'avait pas d'autre rôle dans le graphe.
+  # Le répertoire des métiers se contredit pour « meunier » — rattaché à la fiche H2102 par le référentiel des
+  # appellations, rangé sous H2105 par les fiches (version 62) — ; « minotier » est sous H2102 des deux côtés.
+  - id: minotier
+    nom: "Le minotier"
+    nom_court: "Minotier"
+    type: metier
     echelon: prive
-    resume: "Transforme le blé tendre en farine : environ cinq millions de tonnes de blé par an, dont la moitié pour faire du pain."
-    liens: [ofpm-rapport-2026-pain]
-    verifie_le: 2026-10-19
+    resume: "Conduit la mouture du blé tendre en farine : la meunerie française en transforme environ cinq millions de tonnes par an, dont la moitié pour faire du pain."
+    liens: [rome-h2102, od-rome, ofpm-rapport-2026-pain]
+    verifie_le: 2026-11-01
+    confiance: etabli
+
+  - id: boulanger
+    nom: "Le boulanger"
+    nom_court: "Boulanger"
+    type: metier
+    echelon: prive
+    resume: "Prépare et cuit le pain et les viennoiseries, et peut tenir la boutique ; le métier s'apprend par un certificat d'aptitude professionnelle ou un brevet professionnel de boulanger."
+    liens: [rome-d1102, od-rome]
+    verifie_le: 2026-11-01
     confiance: etabli
 
   - id: boulangerie
@@ -1129,6 +1142,36 @@ acteurs:
     resume: "Saisi gratuitement par les professionnels du secteur agroalimentaire, du producteur au distributeur, pour un litige sur un contrat de vente de produits agricoles."
     liens: [agri-mediateur-relations-commerciales]
     verifie_le: 2026-10-19
+    confiance: etabli
+
+  - id: comptable
+    nom: "Le comptable"
+    nom_court: "Comptable"
+    type: metier
+    echelon: prive
+    resume: "Tient les comptes de l'entreprise, suit sa trésorerie et ses déclarations de taxe ; le répertoire des métiers lui reconnaît la facturation et le recouvrement pour spécialités."
+    liens: [rome-m1203, od-rome]
+    verifie_le: 2026-11-01
+    confiance: etabli
+
+  - id: charge-recouvrement
+    nom: "Le chargé de recouvrement"
+    nom_court: "Chargé de recouvrement"
+    type: metier
+    echelon: prive
+    resume: "Suit les factures impayées : il relance les clients en retard, négocie un échéancier et peut engager la procédure judiciaire."
+    liens: [rome-d1422, od-rome]
+    verifie_le: 2026-11-01
+    confiance: etabli
+
+  - id: assistant-commercial
+    nom: "L'assistant commercial"
+    nom_court: "Assistant commercial"
+    type: metier
+    echelon: prive
+    resume: "Fait le lien entre les clients et les commerciaux d'une entreprise ; le répertoire des métiers en compte une spécialité pour les appels d'offres."
+    liens: [rome-d1401, od-rome]
+    verifie_le: 2026-11-01
     confiance: etabli
 
   - id: mediateur-entreprises
