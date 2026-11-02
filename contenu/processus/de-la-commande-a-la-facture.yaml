@@ -90,14 +90,14 @@ processus:
 
     leviers:
       - id: reclamer-penalites-et-indemnite
-        acteur: fournisseur
+        acteur: charge-recouvrement
         quoi: "Réclamer les pénalités de retard et l'indemnité forfaitaire de 40 €"
         quand: "Dès le lendemain de la date de règlement portée sur la facture"
         aupres_de: "Le client, par écrit"
         difficulte: faible
         ancre_etape: 7
         piege: "L'indemnité doit figurer dans les conditions générales de vente et sur la facture. Elle est due une fois par facture, même payée en partie."
-        liens: [esp-delais-paiement]
+        liens: [esp-delais-paiement, rome-d1422]
         confiance: etabli
       - id: saisir-le-mediateur-des-entreprises
         acteur: fournisseur
@@ -131,14 +131,14 @@ processus:
         liens: [esp-injonction-payer]
         confiance: etabli
       - id: verifier-les-mentions-avant-de-payer
-        acteur: client-professionnel
+        acteur: comptable
         quoi: "Vérifier les mentions de la facture avant de la payer"
         quand: "À réception de chaque facture, avant l'échéance"
         aupres_de: "Le fournisseur, pour une facture rectificative"
         difficulte: faible
         ancre_etape: 5
         piege: "Le délai convenu court de la date d'émission de la facture : la vérification se fait dans ce délai, pas à l'échéance."
-        liens: [esp-mentions-facture, esp-delais-paiement]
+        liens: [esp-mentions-facture, esp-delais-paiement, rome-m1203]
         confiance: etabli
       - id: choisir-sa-plateforme-agreee
         acteur: client-professionnel
