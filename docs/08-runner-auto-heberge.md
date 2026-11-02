@@ -85,7 +85,7 @@ le dire. Les collectes qui téléchargent toujours (HATVP, répertoire des
 
 ## Sur un PC, avec Docker
 
-L'image de `docker/ingestion/` porte tout ce qu'il faut : Node 22, git,
+L'image de `docker/ingestion/` porte tout ce qu'il faut : Node 26, git,
 curl, unzip, `gh` pour ouvrir la PR, les bibliothèques du runner. Le même
 `compose.yaml` en tire trois services :
 
@@ -180,7 +180,7 @@ Ce qui reste à vérifier, par un premier essai à la main :
   courte — un cas est rapporté sur o2switch pour une décompression de
   plusieurs dizaines de gigaoctets. L'ingestion décompresse et lit en flux
   plusieurs gigaoctets : il faut le constater, pas le supposer ;
-- **la version de Node** : le projet tourne sur Node 22. Le sélecteur de
+- **la version de Node** : le projet tourne sur Node 26. Le sélecteur de
   cPanel ou une installation dans le dossier personnel (`nvm`) y pourvoit ;
 - **les conditions d'utilisation** de l'offre pour un traitement qui n'est
   pas du service web : à demander au support avant d'en faire une habitude.
@@ -212,7 +212,7 @@ pourrait lui faire exécuter le sien. D'où trois règles :
 
 - **Seul ce workflow, déclenché à la main, vise l'étiquette `rouages`.** Les
   workflows déclenchés par une pull request (`ci.yml`, `sonder-sources.yml`)
-  tournent sur `ubuntu-latest` et doivent y rester ; un ajout qui viserait
+  tournent sur les machines de GitHub (`ubuntu-26.04`) et doivent y rester ; un ajout qui viserait
   `self-hosted` sur `pull_request` est à refuser en relecture.
 - **Le déclenchement manuel demande les droits d'écriture sur le dépôt** :
   un contributeur extérieur ne peut pas lancer la réingestion.

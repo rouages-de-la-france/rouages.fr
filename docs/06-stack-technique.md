@@ -281,6 +281,41 @@ l'autre). Le premier déploiement renverra la plupart des pages, dont le HTML a
 changé. Reste une alerte, sur `zod` 3, sans portée ici : il ne valide que le
 contenu du dépôt, au build.
 
+### Les versions : la dernière LTS, nommée, par une PR (2 novembre 2026)
+
+La règle : on suit **la dernière version de support long** de Node et
+d'Ubuntu, et la dernière version des dépendances, **écrite en toutes
+lettres** (`node-version: 26`, `runs-on: ubuntu-26.04`, le fichier de
+verrouillage), jamais un alias qui bouge seul comme `ubuntu-latest`. Une
+montée se fait par une PR à part, après **deux semaines de recul** sur la
+version visée, et se vérifie en comparant le build page par page à celui
+d'avant.
+
+Le premier lot, le 2 novembre 2026 :
+
+- **Node 26** « Lithium », LTS active depuis le 28 octobre 2026 (Node 22
+  restait maintenu jusqu'au 30 avril 2027), dans tous les workflows, l'image
+  Docker de l'ingestion, `engines` et `.nvmrc` ;
+- **Ubuntu 26.04** sur toutes les machines de GitHub, nommée : `ubuntu-latest`
+  y passait par vagues entre le 19 octobre et le 19 novembre 2026 ;
+- **Playwright 1.64.1**, qui connaît Ubuntu 26.04 (depuis la 1.61), et
+  **axe-core 4.14.0** ;
+- **Astro 7.4.4** — pas la 7.4.5, parue le jour même — et tsx, `@types/node`.
+
+L'image Docker reste sur Debian 12 (`node:26-bookworm`) : sous Debian 13,
+plusieurs bibliothèques du runner changent de nom de paquet (`libicu76`,
+`libssl3t64`…), ce qui demande un essai sur la machine du mainteneur. Restent
+pour des lots à eux, parce que ce sont des versions majeures : TypeScript 7,
+pdf.js 6 (on est en 4.10, qui dessine les pages du règlement d'urbanisme)
+et zod 4.
+
+npm 11 signale les scripts d'installation qu'aucune règle n'autorise ; npm 12
+les bloquera. Le seul concerné, celui d'esbuild (via tsx), qui vérifie son
+binaire, est autorisé par son nom dans `allowScripts` de `package.json`.
+
+Le build de l'Allier sous Node 26 et Astro 7.4.4 est identique, octet pour
+octet, à celui de Node 22 et Astro 7.4.1 : 646 pages, aucun fichier différent.
+
 ### Par lots, quand beaucoup de fichiers changent
 
 Un bloc de plus sur la page de commune modifie trente-cinq mille fichiers, et

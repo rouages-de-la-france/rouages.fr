@@ -36,12 +36,12 @@ jobs:
   deployer:
     # Seule la branche par défaut est publiée, quel que soit son nom.
     if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
       - run: npm ci
 

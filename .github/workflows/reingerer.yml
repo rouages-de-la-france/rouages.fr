@@ -44,7 +44,7 @@ jobs:
   reingerer:
     # Le runner auto-hébergé ne sert qu'à ce déclenchement manuel, jamais à du
     # code venu d'une pull request : voir la documentation.
-    runs-on: ${{ inputs.machine == 'auto-hebergee' && fromJSON('["self-hosted", "rouages"]') || 'ubuntu-latest' }}
+    runs-on: ${{ inputs.machine == 'auto-hebergee' && fromJSON('["self-hosted", "rouages"]') || 'ubuntu-26.04' }}
     # 2 h 38 d'ingestion le 16 octobre 2026 ; le 17, coupée à quatre heures, juste après les horaires de
     # transport (45 minutes à eux seuls) et avant la couverture mobile et les distances aux services. On
     # monte au plus près des six heures que GitHub accorde à un job.
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
       - run: npm ci
 
