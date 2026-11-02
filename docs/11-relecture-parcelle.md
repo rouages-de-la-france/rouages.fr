@@ -4,7 +4,7 @@
 
 La page `/simulateurs/ma-parcelle` dit, depuis une adresse ou une référence cadastrale, les zones, prescriptions, informations et servitudes que le Géoportail de l’urbanisme publie sur une parcelle, chacune avec son libellé, son type en clair et la pièce à lire. Elle ne dit pas ce qu’on peut construire. Elle reste **hors du menu et des moteurs de recherche** tant qu’un praticien de l’urbanisme n’a pas relu ses réponses (`docs/07-risques.md`, section 10).
 
-**Lecture du 19 octobre 2026**, sur 4 parcelles du Mayet-de-Montagne (03165), commune de référence du projet. Le Géoportail change : une ligne qui ne correspond plus se vérifie d’abord sur la date du document.
+**Lecture du 1er novembre 2026**, sur 4 parcelles du Mayet-de-Montagne (03165), commune de référence du projet. Le Géoportail change : une ligne qui ne correspond plus se vérifie d’abord sur la date du document.
 
 **Comment relire.** Pour chaque parcelle, ouvrir le [Géoportail de l’urbanisme](https://www.geoportail-urbanisme.gouv.fr/map/), chercher la parcelle, cliquer dessus, et comparer avec la liste ci-dessous : rien de plus, rien de moins, le bon libellé, la bonne page du règlement. Cocher une case par ligne, annoter ce qui est faux, puis trancher les questions de la fin. Compter une demi-heure.
 
@@ -211,5 +211,8 @@ _Aucune assiette de servitude publiée ne touche la parcelle._
 4. **Le caractère exécutoire.** La page dit que la publication au Géoportail « conditionne en principe le caractère exécutoire d’un PLU », d’après l’article L153-23 du code de l’urbanisme tel que la fiche de la DGCL le résume, et que le document tenu en mairie fait foi. Est-ce exact, et assez prudent ?
    - Réponse :
 
-5. **Ce qui manque.** Faut-il dire autre chose à la fin de chaque lecture que la mairie, l’orienteur des autorisations et le certificat d’urbanisme ?
+5. **La page elle-même.** Sous une zone, « Voir la page ici » dessine la page du règlement en image, avec un rappel général des dispositions générales, du lexique et des orientations d’aménagement, et le lien vers le PDF entier. Ce rappel suffit-il, ou la page en image fait-elle croire que la zone se lit seule ?
+   - Réponse :
+
+6. **Ce qui manque.** Faut-il dire autre chose à la fin de chaque lecture que la mairie, l’orienteur des autorisations et le certificat d’urbanisme ?
    - Réponse :

@@ -14,28 +14,48 @@
  * émises par le rendu des pages (cible `server`), dont les autres morceaux ne
  * quittent jamais la machine de build : on n'y renomme que le CSS, sans quoi
  * ces modules atterriraient dans `dist/_astro/`.
+ *
+ * Astro 7 n'appelle plus le crochet qu'une fois, avec un environnement Vite
+ * par cible : la règle s'applique à chacun. Sans cela, les noms reprenaient
+ * leur empreinte sans que rien ne le signale (constaté au passage à la 7.4).
  */
 export function nomsFixes() {
+  /** Les noms de sortie d'un environnement : sans empreinte pour le CSS partout, et pour tout le reste côté client. */
+  const fusion = (o, client) => {
+    const avant = o?.assetFileNames;
+    const assets = (info) => {
+      const nom = info.names?.[0] ?? info.name ?? '';
+      if (nom.endsWith('.css')) return '_astro/[name][extname]';
+      if (client) return '_astro/[name][extname]';
+      return typeof avant === 'function' ? avant(info) : (avant ?? '_astro/[name].[hash][extname]');
+    };
+    return client
+      ? { ...(o ?? {}), entryFileNames: '_astro/[name].js', chunkFileNames: '_astro/[name].js', assetFileNames: assets }
+      : { ...(o ?? {}), assetFileNames: assets };
+  };
+  /** Vite 8 lit `rolldownOptions` ; `rollupOptions` n'en est plus qu'un alias déprécié. */
+  const regler = (build, client) => {
+    const cle = build.rolldownOptions || !build.rollupOptions ? 'rolldownOptions' : 'rollupOptions';
+    build[cle] ??= {};
+    const sortie = build[cle].output;
+    build[cle].output = Array.isArray(sortie) ? sortie.map((o) => fusion(o, client)) : fusion(sortie, client);
+  };
   return {
     name: 'rouages-noms-fixes',
     hooks: {
       'astro:build:setup': ({ vite, target }) => {
+        // Astro 7 : un seul appel, et un environnement Vite par cible (`client`, `prerender`, `ssr`…).
+        if (vite.environments && Object.keys(vite.environments).length) {
+          for (const [nom, env] of Object.entries(vite.environments)) {
+            if (!env) continue;
+            env.build ??= {};
+            regler(env.build, nom === 'client');
+          }
+          return;
+        }
+        // Astro 5 : un appel par cible.
         vite.build ??= {};
-        vite.build.rollupOptions ??= {};
-        const sortie = vite.build.rollupOptions.output;
-        const fusion = (o) => {
-          const avant = o?.assetFileNames;
-          const assets = (info) => {
-            const nom = info.names?.[0] ?? info.name ?? '';
-            if (nom.endsWith('.css')) return '_astro/[name][extname]';
-            if (target === 'client') return '_astro/[name][extname]';
-            return typeof avant === 'function' ? avant(info) : (avant ?? '_astro/[name].[hash][extname]');
-          };
-          return target === 'client'
-            ? { ...(o ?? {}), entryFileNames: '_astro/[name].js', chunkFileNames: '_astro/[name].js', assetFileNames: assets }
-            : { ...(o ?? {}), assetFileNames: assets };
-        };
-        vite.build.rollupOptions.output = Array.isArray(sortie) ? sortie.map(fusion) : fusion(sortie);
+        regler(vite.build, target === 'client');
       },
     },
   };

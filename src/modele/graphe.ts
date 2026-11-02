@@ -26,7 +26,10 @@ import {
   type Jeu,
 } from './schemas.ts';
 
-export const RACINE = new URL('../../', import.meta.url).pathname;
+import { RACINE } from './racine.ts';
+
+// Réexportée : les pages et les modèles qui lisent `public/territoires/` la prennent ici.
+export { RACINE };
 const DOSSIER_CONTENU = 'contenu';
 
 export interface Anomalie {

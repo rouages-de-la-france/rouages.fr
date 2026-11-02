@@ -6,6 +6,9 @@
  * lecteurs d'écran annoncent, elle marche sans JavaScript, et le navigateur
  * l'affiche déjà au survol. Une infobulle dessinée à la main coûterait du code
  * pour faire moins bien.
+ *
+ * L'`<abbr>` tient sur une ligne : un retour à la ligne autour du sigle
+ * deviendrait une espace dans le rendu d'Astro 7 (« ( SDIS ) »).
  */
 import { glossaireDuSite } from '../modele/glossaire-du-site.ts';
 
@@ -18,9 +21,7 @@ const segments = glossaire.decouper(texte);
 ---
 {segments.map((s) =>
   s.sigle ? (
-    <abbr title={s.sigle.definition ? `${s.sigle.developpe} — ${s.sigle.definition}` : s.sigle.developpe}>
-      {s.texte}
-    </abbr>
+    <abbr title={s.sigle.definition ? `${s.sigle.developpe} — ${s.sigle.definition}` : s.sigle.developpe}>{s.texte}</abbr>
   ) : (
     s.texte
   ),
