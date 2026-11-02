@@ -26,6 +26,7 @@ import { thematiquesDepartement } from '../modele/carte-thematique.ts';
 import Investissement from './commune/Investissement.astro';
 import PetiteEnfance from './commune/PetiteEnfance.astro';
 import ElusCollectivite from './ElusCollectivite.astro';
+import AilleursElus from './AilleursElus.astro';
 import { parTitulaire, rapprocher, type Rapprochement } from '../modele/recoupements.ts';
 import Marches from './commune/Marches.astro';
 import { elusDeCollectivite } from '../modele/elus-echelons.ts';
@@ -245,6 +246,7 @@ const titre = c.echelon === 'departement' ? c.nom : `${c.nom}${unique ? '' : ' (
       <section id="elus" class="p-echelons">
         <h2 class="badge">Ses élus</h2>
         <ElusCollectivite e={elus} nomsDeps={nomsDeps} rapprochements={rapprochementsParElu} />
+        <AilleursElus />
       </section>
     )}
     {intercos.length > 0 && (

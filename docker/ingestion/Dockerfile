@@ -1,13 +1,13 @@
 # L'image de l'ingestion : la même sur un PC (Docker Desktop), sur un serveur
 # ou en runner auto-hébergé. Voir `docs/08-runner-auto-heberge.md`.
 #
-# Node 22, comme la CI, et ce dont le workflow « Réingestion des territoires »
+# Node 26, comme la CI, et ce dont le workflow « Réingestion des territoires »
 # a besoin hors de Node : git, curl, unzip, 7z (les cartes de couverture de
 # l'Arcep), gh pour ouvrir la PR, et les
 # bibliothèques du runner GitHub Actions. Le runner lui-même n'est pas dans
 # l'image : il se télécharge au premier lancement, dans son volume, et se met
 # à jour seul.
-FROM node:22-bookworm
+FROM node:26-bookworm
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \

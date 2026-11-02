@@ -1055,5 +1055,16 @@ possible**, sur décision du mainteneur : un lien général, le même pour tous,
 dans une rubrique « ailleurs », qui ne dépend d'aucun élu et ne traite
 aucune donnée personnelle.
 
+**Décidé le 2 novembre 2026** : ce lien général est posé, avec deux autres
+sites qui suivent les responsables politiques — Poligraph (association
+Sankofa) et Datan (association de bénévoles) —, dans la rubrique « La commune
+vue d'ailleurs » et sous « Ses élus » des départements et des régions
+(`SITES_ELUS`, `src/composants/AilleursElus.astro`). La liste est la même sur
+toutes les pages, chaque site avec son éditeur et sa méthode, et une phrase
+dit que le lien ne signifie pas qu'un élu d'ici y figure. Non retenus :
+NosDéputés.fr, qui ne couvrait pas encore la législature élue en 2024, et
+NosSénateurs.fr, dont la page d'accueil ne montrait rien de plus récent que
+mars 2026.
+
 Les décisions de justice publiées en données ouvertes, elles, sont
 pseudonymisées : elles ne permettent pas de rapprochement nominatif.

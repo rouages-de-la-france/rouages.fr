@@ -1,0 +1,15 @@
+---
+/**
+ * Les sites qui suivent les responsables politiques, en renvoi général : la
+ * même liste sur chaque page de commune, de département et de région, jamais
+ * conditionnée à la présence d'un élu dans l'un d'eux (`docs/07-risques.md`,
+ * section 11). Rouages ne reprend rien de ces sites et ne croise rien avec eux.
+ */
+import Ailleurs from './commune/Ailleurs.astro';
+import { SITES_ELUS } from '../modele/sites-complementaires.ts';
+---
+<Ailleurs sites={SITES_ELUS} titre="Sur les responsables politiques" />
+<p class="c-ailleurs-avis">
+  Ces liens sont les mêmes sur toutes les pages : ils ne disent pas qu’un élu d’ici figure sur l’un de ces sites, ni
+  qu’il n’y figure pas. Rouages ne reprend ni ne vérifie ce qu’ils publient.
+</p>
