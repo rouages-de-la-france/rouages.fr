@@ -32,6 +32,8 @@ jobs:
         run: npm run verifier-journal
       - name: Rattachement des annonces du BODACC
         run: npm run verifier-rattachement
+      - name: Collecte des marchés indépendante de l'ordre de lecture
+        run: npm run verifier-marches
       - name: Lecteurs géographiques (Lambert 93, GML, Shapefile)
         run: npm run verifier-geo
       - name: Particuliers nommés dans les délibérations

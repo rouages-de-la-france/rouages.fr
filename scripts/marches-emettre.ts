@@ -412,6 +412,33 @@ function detailDe(l: LigneDecp, duree: number | undefined): DetailMarche {
   ];
 }
 
+/** Comparaison par unités de code : ne dépend ni de la locale ni de la version d'ICU. */
+function comparer(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * L'ordre des marchés d'un acheteur : du plus récent au plus ancien, le plus
+ * gros d'abord à date égale, puis — pour que deux collectes des mêmes données
+ * écrivent les mêmes octets — l'identifiant du marché, l'objet, et enfin tout
+ * le reste. Sans ce départage, des marchés du même jour suivaient l'ordre de
+ * lecture du jeu, qui change d'un téléchargement à l'autre.
+ */
+export function ordreDesMarches(a: Marche, b: Marche): number {
+  return (
+    comparer(b.date, a.date) ||
+    (b.montant ?? 0) - (a.montant ?? 0) ||
+    comparer(a.x?.[0] ?? '', b.x?.[0] ?? '') ||
+    comparer(a.objet, b.objet) ||
+    comparer(JSON.stringify(a), JSON.stringify(b))
+  );
+}
+
+/** L'ordre des autres lots d'une consultation : le libellé, puis le montant, un montant inconnu d'abord. */
+export function ordreDesLots(a: [string, number | null], b: [string, number | null]): number {
+  return comparer(a[0], b[0]) || (a[1] ?? -Infinity) - (b[1] ?? -Infinity) || 0;
+}
+
 /** L'identifiant sans son numéro de lot, ou null s'il n'en porte pas : « 2025-01-TMA-L3 » → « 2025-01-TMA ». */
 export function consultationDe(id: string): string | null {
   const m = /^(.*?\S)[\s._-]*(?:lot|l)[\s._-]*0*\d{1,3}$/i.exec(id.trim());
@@ -466,6 +493,13 @@ export async function collecterMarches(
     dire('Marchés publics : aucune ligne, le jeu a changé de forme.');
     return null;
   }
+  // L'export ne garantit pas l'ordre de ses lignes, et tout ce qui suit en
+  // dépend : la ligne qui représente un groupe de lots identiques, l'ordre
+  // des titulaires, celui des marchés de même date. Triées sur leur contenu
+  // entier, deux collectes des mêmes données écrivent les mêmes fichiers.
+  const cles = new Map(lignes.map((l) => [l, JSON.stringify(l)]));
+  lignes.sort((a, b) => comparer(cles.get(a)!, cles.get(b)!));
+  cles.clear();
 
   // Regroupées avant d'être comptées : un accord-cadre multi-attributaires
   // publie une ligne par lot, avec le même objet, le même montant et la même
@@ -549,8 +583,9 @@ export async function collecterMarches(
       for (const x of g) {
         x.x![9] = g
           .filter((y) => y !== x)
-          .slice(0, 8)
-          .map((y) => [y.objet.length > 80 ? `${y.objet.slice(0, 79)}…` : y.objet, y.montant] as [string, number | null]);
+          .map((y) => [y.objet.length > 80 ? `${y.objet.slice(0, 79)}…` : y.objet, y.montant] as [string, number | null])
+          .sort(ordreDesLots)
+          .slice(0, 8);
         rapproches++;
       }
     }
@@ -596,9 +631,7 @@ export async function collecterMarches(
   let nEcheances = 0;
   let nRecents = 0;
   for (const [siren, m] of brut) {
-    const tout = [...m.values()].sort(
-      (a, b) => b.date.localeCompare(a.date) || (b.montant ?? 0) - (a.montant ?? 0),
-    );
+    const tout = [...m.values()].sort(ordreDesMarches);
     // L'échéance ne voyage qu'avec les échéances : la porter sur chacun des
     // 420 000 marchés alourdirait les listes pour une information qu'elles
     // n'affichent pas. Le code CPV reste, comme avant, sur les marchés qui se
@@ -620,7 +653,7 @@ export async function collecterMarches(
         const h = historique(x, tout);
         return h ? { ...x, h } : x;
       })
-      .sort((a, b) => a.fin.localeCompare(b.fin) || (b.montant ?? 0) - (a.montant ?? 0));
+      .sort((a, b) => a.fin.localeCompare(b.fin) || (b.montant ?? 0) - (a.montant ?? 0) || ordreDesMarches(a, b));
     if (proches.length > 0) {
       echeances.set(siren, proches);
       nEcheances += proches.length;
@@ -963,7 +996,7 @@ export function ecrireEcheancesNationales(sortie: string, marches: Marches): num
     if (!acheteurs.has(siren)) continue;
     for (const x of liste) e.push({ a: siren, ...x });
   }
-  e.sort((x, y) => x.fin.localeCompare(y.fin) || x.a.localeCompare(y.a) || x.objet.localeCompare(y.objet));
+  e.sort((x, y) => x.fin.localeCompare(y.fin) || x.a.localeCompare(y.a) || x.objet.localeCompare(y.objet) || ordreDesMarches(x, y));
   writeFileSync(
     join(sortie, 'echeances.json'),
     JSON.stringify({
@@ -996,7 +1029,7 @@ export function ecrireAttributionsNationales(sortie: string, marches: Marches): 
     if (!acheteurs.has(siren)) continue;
     for (const x of liste) m.push({ a: siren, ...x });
   }
-  m.sort((x, y) => y.date.localeCompare(x.date) || x.a.localeCompare(y.a) || x.objet.localeCompare(y.objet));
+  m.sort((x, y) => y.date.localeCompare(x.date) || x.a.localeCompare(y.a) || x.objet.localeCompare(y.objet) || ordreDesMarches(x, y));
   writeFileSync(
     join(sortie, 'attributions.json'),
     JSON.stringify({
