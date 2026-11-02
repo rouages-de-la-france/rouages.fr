@@ -83,6 +83,88 @@ jobs:
           debut=$(date +%s)
           : "${RACINE:=public_html}"
 
+          # Le serveur FTPS d'o2switch n'envoie que sa feuille, sans
+          # l'intermédiaire qui la relie à une racine connue. Depuis que
+          # Let's Encrypt émet depuis sa génération Y — intermédiaire YR2,
+          # signé par ISRG Root YR, mise en service en 2026 — cette racine
+          # n'est encore dans aucun magasin, et la validation s'arrête sur
+          # « The certificate issuer is unknown ». C'est ce qui a coupé le
+          # déploiement de tous les sites du serveur le même jour, sans
+          # qu'une ligne change ici.
+          #
+          # On reconstitue le maillon manquant sans relâcher la vérification :
+          # chaque certificat ajouté doit lui-même remonter à une racine déjà
+          # installée, sinon il est écarté et on s'arrête. La vérification du
+          # certificat et celle du nom d'hôte restent entières — on complète
+          # la chaîne, on ne la croit pas sur parole.
+          #
+          # Rien n'est récupéré si la chaîne envoyée se vérifie déjà : le jour
+          # où o2switch enverra l'intermédiaire, ce bloc deviendra inerte.
+          #
+          # Les « || true » ne sont pas décoratifs : openssl s_client sort avec
+          # le code de vérification lui-même, donc sous « set -e » la
+          # substitution emporterait l'étape avant la réparation.
+          ANCRES=/tmp/ancres-ftps.pem
+          cp /etc/ssl/certs/ca-certificates.crt "$ANCRES"
+
+          timeout 30 openssl s_client -starttls ftp -connect "$HOTE:21" \
+            -servername "$HOTE" -showcerts </dev/null 2>/dev/null \
+            > /tmp/chaine-ftps.pem || true
+          ENVOYES=$(grep -c 'BEGIN CERTIFICATE' /tmp/chaine-ftps.pem || echo 0)
+          CODE=$(timeout 30 openssl s_client -starttls ftp -connect "$HOTE:21" \
+                   -servername "$HOTE" </dev/null 2>&1 \
+                 | sed -n 's/.*Verify return code: \([0-9]*\).*/\1/p' | head -1 || true)
+          echo "Chaîne TLS : $ENVOYES certificat(s) envoyé(s), vérification ${CODE:-?}."
+
+          if [ "${CODE:-1}" = "0" ]; then
+            echo "    complète et vérifiée — rien à reconstituer."
+          else
+            echo "    incomplète — reconstitution du maillon manquant."
+
+            # Les racines de la génération Y, publiées par l'autorité et
+            # contre-signées par une racine plus ancienne. L'ordre compte :
+            # Root YE passe par X2, qu'il faut avoir admis avant.
+            for R in root-x2-by-x1 root-yr-by-x1 root-ye-by-x2; do
+              if ! curl -fsS --max-time 20 -o "/tmp/$R.pem" \
+                     "https://letsencrypt.org/certs/gen-y/$R.pem"; then
+                echo "    $R : injoignable, ignorée"; continue
+              fi
+              if openssl verify -CAfile "$ANCRES" "/tmp/$R.pem" >/dev/null 2>&1; then
+                cat "/tmp/$R.pem" >> "$ANCRES"
+                echo "    $R : remonte au magasin, admise"
+              else
+                echo "    $R : ne remonte pas au magasin, écartée"
+              fi
+            done
+
+            # L'intermédiaire omis, pris à l'adresse que le certificat du
+            # serveur désigne lui-même — son extension AIA. Donc aucun nom
+            # d'autorité codé en dur : la prochaine rotation d'o2switch ne
+            # demandera aucune retouche ici.
+            openssl x509 -in /tmp/chaine-ftps.pem -out /tmp/feuille.pem 2>/dev/null || true
+            AIA=$(openssl x509 -in /tmp/feuille.pem -noout -text 2>/dev/null \
+                  | sed -n 's#.*CA Issuers - URI:\(http://[^[:space:]]*\).*#\1#p' \
+                  | head -1 || true)
+            if [ -n "${AIA:-}" ] && curl -fsS --max-time 20 -o /tmp/inter.bin "$AIA"; then
+              openssl x509 -inform DER -in /tmp/inter.bin -out /tmp/inter.pem 2>/dev/null \
+                || cp /tmp/inter.bin /tmp/inter.pem
+              if openssl verify -CAfile "$ANCRES" /tmp/inter.pem >/dev/null 2>&1; then
+                cat /tmp/inter.pem >> "$ANCRES"
+                echo "    intermédiaire admis : $(openssl x509 -in /tmp/inter.pem -noout -subject 2>/dev/null)"
+              else
+                echo "::error::L'intermédiaire annoncé par le certificat du serveur ne remonte à aucune racine installée. Ne désactivez pas la vérification : c'est elle qui empêche un intermédiaire de récupérer vos identifiants. Vérifiez l'état du certificat du serveur chez l'hébergeur." >&2
+                exit 1
+              fi
+            fi
+
+            if ! openssl verify -CAfile "$ANCRES" /tmp/feuille.pem >/dev/null 2>&1; then
+              echo "::error::Le certificat du serveur FTPS ne se valide pas, même avec la chaîne reconstituée. Il est peut-être expiré ou révoqué — demandez à l'hébergeur de réémettre le certificat du serveur, et n'ouvrez pas la vérification pour contourner." >&2
+              openssl verify -CAfile "$ANCRES" /tmp/feuille.pem 2>&1 | sed 's/^/    /' >&2
+              exit 1
+            fi
+            echo "    la feuille se valide désormais."
+          fi
+
           # Le chiffrement n'est pas négociable, et le certificat est vérifié :
           # un FTPS qui accepte n'importe quel certificat ne protège de rien.
           #
@@ -97,6 +179,7 @@ jobs:
           reglages="set ftp:ssl-force true;
                     set ftp:ssl-protect-data true;
                     set ssl:verify-certificate true;
+                    set ssl:ca-file $ANCRES;
                     set xfer:use-temp-file true;
                     set net:max-retries 8;
                     set net:reconnect-interval-base 5;
