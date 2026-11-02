@@ -156,3 +156,37 @@ export const SITES_VERIFIER_ENTREPRISE: SiteComplementaire[] = [
     url: 'https://adresse.data.gouv.fr/',
   },
 ];
+
+/**
+ * Les responsables politiques vus par d'autres : des sites qui suivent leur
+ * travail, leurs mandats ou leurs condamnations. Décision du 2 novembre 2026
+ * (`docs/07-risques.md`, section 11) : un lien général, **le même pour toutes
+ * les pages**, jamais posé sous un élu parce qu'il y figure. Rouages ne reprend
+ * rien de ces sites, ne croise rien avec eux et ne vérifie pas leur contenu ;
+ * la description dit comment chacun est fait, pour qu'on sache quel crédit lui
+ * donner. Éditeurs vérifiés le 2 novembre 2026 : la page « à propos » de
+ * Casier Politique, le dépôt public de Poligraph, la page « à propos » de Datan.
+ */
+export const SITES_ELUS: SiteComplementaire[] = [
+  {
+    id: 'poligraph',
+    nom: 'Poligraph',
+    editeur: 'une association, Sankofa',
+    quoi: 'les mandats, les votes, l’activité législative et les affaires judiciaires de responsables politiques, élus locaux compris, d’après des données publiques et la presse',
+    url: 'https://poligraph.fr/',
+  },
+  {
+    id: 'datan',
+    nom: 'Datan',
+    editeur: 'une association de bénévoles',
+    quoi: 'les votes de chaque député et de chaque groupe à l’Assemblée nationale, expliqués',
+    url: 'https://datan.fr/',
+  },
+  {
+    id: 'casier-politique',
+    nom: 'Casier Politique',
+    editeur: 'un particulier, à titre personnel',
+    quoi: 'des condamnations de personnalités politiques, extraites automatiquement de Wikipédia et Wikidata puis analysées par un modèle de langue ; une base en bêta, dont l’auteur expose la méthode et les biais connus',
+    url: 'https://casier-politique.fr/',
+  },
+];

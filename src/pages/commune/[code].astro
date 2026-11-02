@@ -97,6 +97,7 @@ import Travail from '../../composants/commune/Travail.astro';
 import Appellations from '../../composants/commune/Appellations.astro';
 import Secheresse from '../../composants/commune/Secheresse.astro';
 import Ailleurs from '../../composants/commune/Ailleurs.astro';
+import AilleursElus from '../../composants/AilleursElus.astro';
 import { SITES_COMMANDE_PUBLIQUE, SITES_VERIFIER_ENTREPRISE, sitesDeCommune } from '../../modele/sites-complementaires.ts';
 import CarteSituation from '../../composants/commune/CarteSituation.astro';
 import EnTrenteSecondes from '../../composants/commune/EnTrenteSecondes.astro';
@@ -405,7 +406,7 @@ const sommaire: [string, string, unknown][] = [
   ['recharge', 'Recharge et covoiturage', vie.recharge],
   ['agriculture', 'L’agriculture', vie.agriculture],
   ['appellations', 'Les appellations', vie.appellations],
-  ['ailleurs', 'Ailleurs', ailleurs.length > 0],
+  ['ailleurs', 'Ailleurs', true],
   ['journal', 'Ce qui a bougé', journal.length > 0],
 ];
 const entrees = sommaire.filter(([, , present]) => !!present);
@@ -1253,16 +1254,15 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
       </section>
     )}
 
-    {ailleurs.length > 0 && (
-      <section id="ailleurs">
-        <h2 class="badge">La commune vue d’ailleurs</h2>
-        <p class="mesure">
-          D’autres sites montrent la commune sous un autre angle. Rouages ne reprend rien d’eux et ne vérifie pas leurs
-          calculs : ce sont des renvois, avec leur éditeur.
-        </p>
-        <Ailleurs sites={ailleurs} />
-      </section>
-    )}
+    <section id="ailleurs">
+      <h2 class="badge">La commune vue d’ailleurs</h2>
+      <p class="mesure">
+        D’autres sites montrent {ailleurs.length > 0 ? 'la commune' : 'la vie publique'} sous un autre angle. Rouages ne
+        reprend rien d’eux et ne vérifie pas leurs calculs : ce sont des renvois, avec leur éditeur.
+      </p>
+      <Ailleurs sites={ailleurs} />
+      <AilleursElus />
+    </section>
 
     {journal.length > 0 && (
       <section id="journal" class="releve">
