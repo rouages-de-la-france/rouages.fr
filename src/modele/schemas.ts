@@ -81,7 +81,7 @@ export const Source = z.object({
   id: Id,
   type: z.enum(['wikipedia', 'droit', 'donnees_ouvertes', 'page_officielle', 'etude', 'presse']),
   titre: z.string().min(3),
-  url: z.string().url(),
+  url: z.url(),
   consulte_le: dateSimple,
 });
 
@@ -576,7 +576,7 @@ export const Jeu = z.object({
   id: Id,
   nom: z.string().min(2),
   /** L'adresse où l'on joue. */
-  url: z.string().url(),
+  url: z.url(),
   /**
    * Deviner à partir d'une donnée, contribuer à une base en jouant, ou
    * simuler une décision publique.
