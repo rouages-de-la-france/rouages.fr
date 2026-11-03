@@ -316,6 +316,19 @@ binaire, est autorisé par son nom dans `allowScripts` de `package.json`.
 Le build de l'Allier sous Node 26 et Astro 7.4.4 est identique, octet pour
 octet, à celui de Node 22 et Astro 7.4.1 : 646 pages, aucun fichier différent.
 
+**zod 4.6.7**, le 3 novembre 2026, lève la dernière alerte de `npm audit`
+(GHSA-mrhx-c7xc-m3w5, mémoire épuisée sur une collection contrainte trop
+grande, corrigée à partir de la 4.6.6). Astro 7 tirait déjà zod 4 pour son
+compte : il n'en reste qu'une copie. Seul `src/modele/schemas.ts` s'en sert ;
+les deux `z.string().url()`, dépréciés, deviennent `z.url()`. Les autres
+changements de la version 4 ne touchent pas nos schémas : aucun `.default()`
+dans un `.optional()`, et le seul `z.coerce.date()` facultatif l'est
+explicitement. Le graphe chargé, sérialisé, est identique octet pour octet à
+celui de zod 3, de même que la sortie de `npm run valider` et le build de
+l'Allier. Seuls changent les messages par défaut d'une entrée refusée
+(« Invalid URL », « Too small: expected string to have >=3 characters ») ;
+le chemin du champ fautif reste le même.
+
 ### Par lots, quand beaucoup de fichiers changent
 
 Un bloc de plus sur la page de commune modifie trente-cinq mille fichiers, et
