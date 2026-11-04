@@ -1,0 +1,111 @@
+# Embaucher un premier salarié.
+# Lot 4 des rouages économiques (docs/10-rouages-economiques.md) : ce que
+# l'employeur doit faire avant et après l'arrivée de son premier salarié. Il
+# relie l'acteur « employeur », jusqu'ici seulement financeur du versement
+# mobilité, à l'Urssaf et au service de santé au travail. Les règles viennent
+# des fiches d'entreprendre.service-public.fr et de service-public.fr, lues le
+# 4 novembre 2026. Le cas suivi est celui d'un salarié du régime général ; le
+# régime agricole passe par la MSA.
+processus:
+  - id: embaucher-un-premier-salarie
+    nom: "Embaucher un premier salarié"
+    famille: economiques
+    resume: "Avant l'arrivée du salarié, la déclaration préalable à l'Urssaf ; après, le contrat et ses informations, le registre du personnel, la complémentaire santé, la visite de santé au travail et la déclaration sociale de chaque mois."
+    declencheur: "Une entreprise décide de recruter son premier salarié"
+    sortie: "Un salarié déclaré, informé, inscrit au registre, couvert, vu par la santé au travail, et payé chaque mois avec sa déclaration sociale"
+    decideur: employeur
+    liens: [esp-formalites-embauche, esp-dsn, esp-registres-obligatoires, esp-complementaire-sante, sp-visite-information-prevention]
+    verifie_le: 2026-11-04
+    perime_apres_mois: 6
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: employeur
+        action: "Trouver la convention collective de son activité"
+        note: "Dès le premier salarié, l'employeur peut être tenu d'appliquer une convention collective : celle dont relève l'activité principale de l'entreprise. Un service en ligne la retrouve à partir du nom de l'entreprise ou de son numéro SIRET."
+        liens: [esp-convention-collective]
+        confiance: etabli
+      - ordre: 2
+        acteur: employeur
+        action: "Offre d'emploi et recrutement, si besoin"
+        conditionnelle: true
+        note: "L'offre est rédigée en français, datée, et ne contient aucun critère discriminatoire, pas plus que les entretiens. Passer par France Travail n'est pas obligatoire."
+        liens: [esp-formalites-embauche]
+        confiance: etabli
+      - ordre: 3
+        acteur: employeur
+        action: "Déclaration préalable à l'embauche, avant la prise de poste"
+        note: "Elle part à l'Urssaf au plus tôt huit jours avant l'embauche et au plus tard avant la prise de fonction ou le début de la période d'essai — en ligne, et par le site de l'Urssaf pour un premier salarié, ce qui crée le compte de l'employeur. Une copie, ou l'accusé de réception, est remise au salarié."
+        liens: [esp-formalites-embauche]
+        confiance: etabli
+      - ordre: 4
+        acteur: urssaf
+        action: "Immatriculation de l'employeur et du salarié, affiliation à l'assurance chômage, demande de visite de santé au travail"
+        note: "La seule déclaration préalable vaut immatriculation de l'employeur au régime général, immatriculation du salarié à la caisse primaire d'assurance maladie, affiliation à l'assurance chômage, demande de la visite d'information et de prévention et demande d'affiliation aux institutions de retraite."
+        liens: [esp-formalites-embauche]
+        confiance: etabli
+      - ordre: 5
+        acteur: employeur
+        action: "Contrat écrit et informations sur la relation de travail"
+        delai: { valeur: 7, unite: jours, nature: maximum_legal }
+        note: "L'employeur remet un contrat écrit quand la nature du contrat l'exige. Dans les sept jours calendaires, il remet par écrit l'essentiel : le poste, le lieu, la date d'embauche, la période d'essai, la rémunération, la durée du travail ; dans le mois, le droit à la formation, les congés payés et la procédure de rupture. La période d'essai d'un contrat à durée indéterminée ne dépasse pas deux mois pour un employé ou un ouvrier ; elle se renouvelle une fois seulement si un accord de branche étendu le prévoit, si le contrat le dit et si le salarié l'accepte par écrit."
+        liens: [esp-formalites-embauche, esp-periode-essai]
+        confiance: etabli
+      - ordre: 6
+        acteur: employeur
+        action: "Inscription du salarié au registre unique du personnel"
+        note: "Le registre est obligatoire dès le premier salarié, ou dès l'arrivée d'un stagiaire. Aucune forme n'est imposée, mais certaines mentions le sont : l'identité de chaque salarié, ses dates d'entrée et de départ."
+        liens: [esp-registres-obligatoires, esp-formalites-embauche]
+        confiance: etabli
+      - ordre: 7
+        acteur: employeur
+        action: "Complémentaire santé collective, financée pour moitié au moins par l'employeur"
+        note: "Tout employeur du secteur privé propose une complémentaire santé collective à ses salariés, sauf exceptions. Il en paie au moins la moitié de la cotisation, elle respecte un panier de soins minimal, et elle est obligatoire pour le salarié, sauf les cas où il peut la refuser."
+        liens: [esp-complementaire-sante]
+        confiance: etabli
+      - ordre: 8
+        acteur: service-sante-travail
+        action: "Visite d'information et de prévention, dans les trois mois"
+        delai: { valeur: 3, unite: mois, nature: maximum_legal }
+        note: "Un professionnel de santé du service — médecin du travail ou infirmier — reçoit le salarié dans les trois mois qui suivent sa prise de fonction effective ; certains postes exigent plutôt un examen médical d'aptitude avant l'embauche. La visite se renouvelle dans un délai de cinq ans au plus."
+        liens: [sp-visite-information-prevention, esp-formalites-embauche]
+        confiance: etabli
+      - ordre: 9
+        acteur: employeur
+        action: "Déclaration sociale nominative, chaque mois après la paie"
+        delai: { valeur: 15, unite: jours, nature: maximum_legal }
+        note: "Elle part au plus tard le 15 du mois qui suit la période de travail payée, ou le 5 à partir de cinquante salariés, et sert à toutes les déclarations sociales à la fois. C'est elle qui affilie le salarié à la retraite complémentaire, et qui transmet la retenue à la source de l'impôt sur le revenu, prélevée sur le salaire avec les cotisations."
+        liens: [esp-dsn, esp-formalites-embauche]
+        confiance: etabli
+
+    leviers:
+      - id: declarer-l-embauche-a-temps
+        acteur: employeur
+        quoi: "Faire la déclaration préalable avant la première heure de travail"
+        quand: "Dans les huit jours qui précèdent l'embauche, au plus tard avant la prise de poste"
+        aupres_de: "L'Urssaf, en ligne"
+        difficulte: faible
+        ancre_etape: 3
+        piege: "Sans déclaration, l'Urssaf régularise les cotisations et applique une pénalité de 1 305 € par salarié ; l'oubli non intentionnel est une contravention de 1 500 €, l'omission volontaire un délit de travail dissimulé."
+        liens: [esp-formalites-embauche]
+        confiance: etabli
+      - id: organiser-la-visite-dans-les-trois-mois
+        acteur: employeur
+        quoi: "Demander au service de santé au travail la visite du nouveau salarié"
+        quand: "Dès l'embauche, pour qu'elle ait lieu dans les trois mois"
+        aupres_de: "Le service de prévention et de santé au travail auquel l'entreprise adhère"
+        difficulte: faible
+        ancre_etape: 8
+        piege: "Ne pas organiser les examens médicaux coûte une amende de 1 500 €. Les coordonnées du service figurent d'ailleurs parmi les mentions obligatoires de la déclaration préalable : il faut y avoir adhéré avant."
+        liens: [esp-formalites-embauche, sp-visite-information-prevention]
+        confiance: etabli
+      - id: verifier-le-titre-de-travail
+        acteur: employeur
+        quoi: "Vérifier, pour un salarié étranger, qu'il détient un titre l'autorisant à travailler"
+        quand: "Avant l'embauche"
+        aupres_de: "Le salarié, qui présente son titre"
+        difficulte: faible
+        ancre_etape: 3
+        liens: [esp-formalites-embauche]
+        confiance: etabli
