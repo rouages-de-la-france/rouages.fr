@@ -1198,6 +1198,93 @@ acteurs:
     verifie_le: 2026-10-19
     confiance: etabli
 
+  # --- Lot 3 des rouages économiques : la vie d'une entreprise (4 novembre 2026).
+  # Deux archétypes, deux services de l'État et quatre professions que le
+  # tribunal désigne. Aucune entreprise nommée.
+  - id: createur-entreprise
+    nom: "L'entreprise en création"
+    nom_court: "Entreprise en création"
+    type: entreprise
+    echelon: prive
+    resume: "Une micro-entreprise, une entreprise individuelle ou une société qui n'existe pas encore : elle choisit sa forme, prépare son dossier et demande son immatriculation."
+    liens: [esp-forme-juridique, esp-immatriculation-societe, esp-immatriculation-micro]
+    verifie_le: 2026-11-04
+    confiance: variable_selon_organisation
+
+  - id: entreprise-en-difficulte
+    nom: "L'entreprise en difficulté"
+    nom_court: "Entreprise en difficulté"
+    type: entreprise
+    echelon: prive
+    resume: "Une entreprise qui voit venir des difficultés qu'elle ne peut pas surmonter seule, ou qui ne peut déjà plus payer ses dettes à l'échéance."
+    liens: [esp-mandat-ad-hoc, esp-cessation-paiements]
+    verifie_le: 2026-11-04
+    confiance: variable_selon_organisation
+
+  - id: inpi
+    nom: "L'Institut national de la propriété industrielle"
+    nom_court: "INPI"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Opère le registre national des entreprises, que les formalités déposées sur le guichet unique alimentent ; le registre se consulte gratuitement."
+    liens: [inpi-guichet-rne]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: insee
+    nom: "L'Institut national de la statistique et des études économiques"
+    nom_court: "INSEE"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Tient le répertoire Sirene, qui recense toutes les entreprises établies en France ; l'entreprise y entre à son immatriculation, avec ses numéros SIREN et SIRET."
+    liens: [esp-siren-siret, insee-def-sirene]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: greffier-tribunal-commerce
+    nom: "Le greffier du tribunal de commerce"
+    nom_court: "Greffier"
+    type: metier
+    echelon: prive
+    resume: "Contrôle les formalités des entreprises commerciales avant leur inscription, et publie au BODACC les immatriculations et les jugements des procédures collectives."
+    liens: [inpi-guichet-rne, dg-bodacc, esp-redressement-societe]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: mandataire-judiciaire
+    nom: "Le mandataire judiciaire"
+    nom_court: "Mandataire judiciaire"
+    type: metier
+    echelon: prive
+    resume: "Désigné par le tribunal dans une sauvegarde ou un redressement, il représente l'ensemble des créanciers, reçoit leurs déclarations et vérifie chaque créance."
+    liens: [esp-redressement-societe, esp-declarer-creances]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: administrateur-judiciaire
+    nom: "L'administrateur judiciaire"
+    nom_court: "Administrateur jud."
+    type: metier
+    echelon: prive
+    resume: "Désigné par le tribunal, il assiste le dirigeant ou administre l'entreprise pendant la période d'observation, et prépare avec elle le plan de redressement."
+    liens: [esp-redressement-societe, esp-conciliation]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: liquidateur-judiciaire
+    nom: "Le liquidateur judiciaire"
+    nom_court: "Liquidateur"
+    type: metier
+    echelon: prive
+    resume: "Désigné par le jugement de liquidation, il représente l'entreprise à la place du dirigeant, vend ses biens, vérifie les créances et paie les créanciers selon leur rang."
+    liens: [esp-liquidation-societe, esp-declarer-creances]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
   - id: notaire
     nom: "Le notaire"
     type: metier

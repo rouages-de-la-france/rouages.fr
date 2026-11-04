@@ -353,6 +353,25 @@ sigles:
     definition: "Le répertoire que tient l'INSEE : chaque entreprise y a un numéro, et chacun de ses établissements le sien."
     liens: [insee-def-sirene, od-sirene-ods, insee-sirene-variables]
 
+  - id: sigle-siren
+    sigle: SIREN
+    developpe: "Système d'identification du répertoire des entreprises"
+    definition: "Le numéro à neuf chiffres qui identifie une entreprise, attribué à son immatriculation et inscrit au répertoire Sirene."
+    liens: [esp-siren-siret]
+
+  - id: sigle-siret
+    sigle: SIRET
+    developpe: "Système d'identification du répertoire des établissements"
+    definition: "Le numéro à quatorze chiffres d'un établissement : les neuf du SIREN, suivis de cinq propres au lieu ; il change quand l'établissement déménage."
+    liens: [esp-siren-siret]
+
+  - id: sigle-inpi
+    sigle: INPI
+    developpe: "Institut national de la propriété industrielle"
+    definition: "Il opère le registre national des entreprises, que les formalités déposées sur le guichet unique alimentent."
+    noeud: inpi
+    liens: [inpi-guichet-rne]
+
   - id: sigle-sru
     sigle: SRU
     developpe: "Solidarité et renouvellement urbains"
