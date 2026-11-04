@@ -329,6 +329,27 @@ l'Allier. Seuls changent les messages par défaut d'une entrée refusée
 (« Invalid URL », « Too small: expected string to have >=3 characters ») ;
 le chemin du champ fautif reste le même.
 
+**pdf.js 6.4.299 et TypeScript 6.0.3**, le 3 novembre 2026 — pas pdf.js
+6.5.438, paru le 1er novembre.
+
+- **pdf.js** dessine la page du règlement d'urbanisme dans « Ce qui touche
+  ma parcelle » (`src/client/page-reglement.ts`). Deux changements d'API :
+  `render()` prend le `canvas` et non plus son contexte, et l'option
+  `isEvalSupported` disparaît, pdf.js n'évaluant plus aucun code depuis la
+  4.2.67 (CVE-2024-4367). Surtout, **sa version par défaut ne vise plus que
+  les navigateurs de l'année** : elle appelle
+  `Map.prototype.getOrInsertComputed`, absent de Chromium 141, et la page
+  restait blanche. On charge donc la version `legacy`, qui l'apporte : la page
+  doit se lire sur un vieux téléphone. Essai sur la parcelle AC 62 du
+  Mayet-de-Montagne : la page 27 du règlement du PLUi de la Montagne
+  Bourbonnaise se dessine comme avec pdf.js 4, au pixel près ou presque
+  (54 728 pixels d'encre contre 54 723), et « Page suivante » fonctionne.
+- **TypeScript 7**, le portage natif, ne fournit plus l'API JavaScript dont
+  `astro check` a besoin (`@astrojs/check` 0.9.12 n'accepte que TypeScript 5
+  ou 6) : on s'arrête à la **6.0.3**, la dernière de la série 6. La 7 attendra
+  qu'Astro la prenne en charge. `npm run verifier-types` ne trouve aucune
+  erreur, et le build de l'Allier ne change que les trois fichiers de pdf.js.
+
 ### Par lots, quand beaucoup de fichiers changent
 
 Un bloc de plus sur la page de commune modifie trente-cinq mille fichiers, et

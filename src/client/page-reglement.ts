@@ -22,14 +22,18 @@ async function ouvrir(url: string): Promise<Pdf> {
   const deja = ouverts.get(url);
   if (deja) return deja;
   const promesse = (async () => {
-    const pdfjs = await import('pdfjs-dist');
-    const travailleur = (await import('pdfjs-dist/build/pdf.worker.min.mjs?url')).default;
+    // La version « legacy » : depuis la 5, la version par défaut ne vise que les navigateurs de l'année
+    // (elle appelle `Map.prototype.getOrInsertComputed`, absent de Chromium 141), et la page doit rester
+    // lisible sur un vieux téléphone. La legacy apporte ce qui manque.
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const travailleur = (await import('pdfjs-dist/legacy/build/pdf.worker.min.mjs?url')).default;
     pdfjs.GlobalWorkerOptions.workerSrc = travailleur;
     const r = await fetch(url, { signal: AbortSignal.timeout(90000) });
     if (!r.ok) throw new Error(`${r.status}`);
     const donnees = new Uint8Array(await r.arrayBuffer());
-    // Un PDF venu d'ailleurs : ni évaluation de code, ni script, ni police chargée hors du document.
-    return pdfjs.getDocument({ data: donnees, isEvalSupported: false, enableXfa: false }).promise;
+    // Un PDF venu d'ailleurs : ni formulaire XFA, ni script. pdf.js n'évalue plus aucun code depuis
+    // la 4.2.67 (CVE-2024-4367) et a retiré l'option `isEvalSupported`, qui n'avait plus d'objet.
+    return pdfjs.getDocument({ data: donnees, enableXfa: false }).promise;
   })();
   ouverts.set(url, promesse);
   promesse.catch(() => ouverts.delete(url));
@@ -98,9 +102,7 @@ export async function montrerPage(ancre: HTMLElement, url: string, page: number,
     numero.textContent = `p. ${courante} / ${pdf.numPages}`;
     avant.disabled = courante <= 1;
     apres.disabled = courante >= pdf.numPages;
-    const ctx = toile.getContext('2d');
-    if (!ctx) return;
-    const rendu = p.render({ canvasContext: ctx, viewport: vue });
+    const rendu = p.render({ canvas: toile, viewport: vue });
     tache = rendu;
     try {
       await rendu.promise;
