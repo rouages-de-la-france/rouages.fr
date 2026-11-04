@@ -365,6 +365,12 @@ sigles:
     definition: "Le numéro à quatorze chiffres d'un établissement : les neuf du SIREN, suivis de cinq propres au lieu ; il change quand l'établissement déménage."
     liens: [esp-siren-siret]
 
+  - id: sigle-uht
+    sigle: UHT
+    developpe: "Ultra-haute température"
+    definition: "Un traitement du lait de consommation. Le lait demi-écrémé UHT fait près des deux tiers, en valeur, des achats de lait conditionné en grande surface."
+    liens: [ofpm-rapport-2026-lait]
+
   - id: sigle-inpi
     sigle: INPI
     developpe: "Institut national de la propriété industrielle"

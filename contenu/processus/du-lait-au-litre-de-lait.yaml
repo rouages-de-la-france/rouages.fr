@@ -1,0 +1,84 @@
+# Du lait de la ferme au litre de lait UHT : la deuxième filière des rouages
+# économiques (docs/10-rouages-economiques.md), sur le modèle du blé à la
+# baguette. Les montants sont ceux du graphique 114 du rapport 2026 de
+# l'Observatoire de la formation des prix et des marges, pour 2025, en euros
+# par litre de lait demi-écrémé UHT vendu en grande surface, et le prix du lait
+# payé au producteur que le rapport donne page 256. Recoupés le 4 novembre
+# 2026 : les quatre composantes font 1,11 €, et les cinquante-quatre valeurs
+# du graphique lues sur l'image figurent toutes dans le texte de la page. Les
+# évolutions en pourcentage ne sont pas reprises : calculées sur des montants
+# arrondis, elles ne retombent pas sur celles du rapport.
+processus:
+  - id: du-lait-au-litre-de-lait
+    nom: "Du lait de la ferme au litre de lait"
+    famille: economiques
+    resume: "De l'étable au rayon : qui intervient entre la traite et le litre de lait demi-écrémé UHT, et comment se décompose son prix en grande surface, d'après l'Observatoire de la formation des prix et des marges."
+    declencheur: "La traite, à l'exploitation laitière"
+    sortie: "Un litre de lait demi-écrémé UHT vendu en grande surface"
+    decideur: grande-surface
+    liens: [ofpm-rapport-2026-lait, ofpm-rapports]
+    verifie_le: 2026-11-04
+    # Le prochain rapport paraît en principe l'été suivant : la fiche se relit alors.
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: exploitation-laitiere
+        action: "Traite et vente du lait à une laiterie"
+        note: "En 2025, le lait a été payé au producteur 514 € les 1 000 litres en moyenne, toutes primes et toutes qualités comprises, d'après le rapport de l'Observatoire."
+        liens: [ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 2
+        acteur: laiterie
+        action: "Collecte, écrémage partiel, traitement UHT et conditionnement"
+        note: "Pour faire du lait demi-écrémé, la laiterie retire une partie de la crème, qu'elle transforme en beurre et en poudre et vend à part. C'est pourquoi l'Observatoire ne compte pas en matière première le prix du lait payé à la ferme, mais le coût du lait diminué de la valeur de ces coproduits."
+        liens: [ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 3
+        acteur: grande-surface
+        action: "Mise en rayon et vente du litre"
+        note: "L'Observatoire décompose le prix du lait demi-écrémé UHT tel qu'il est vendu en grande surface, hypermarchés et supermarchés, en moyenne sur l'année."
+        liens: [ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 4
+        acteur: citoyen
+        action: "Achat du litre de lait, et ce que paie le prix"
+        note: "En 2025, un litre de lait demi-écrémé UHT coûte en moyenne 1,11 € toutes taxes comprises en grande surface. L'Observatoire le décompose ainsi : 0,31 € de matière première, 0,43 € de marge brute de l'industrie, 0,31 € de marge brute de la grande surface, et 0,06 € de taxe sur la valeur ajoutée. Les 0,31 € de matière première sont le coût du lait une fois déduite la crème vendue à part : ils ne se comparent pas directement aux 514 € les 1 000 litres payés au producteur."
+        liens: [ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 5
+        acteur: observatoire-prix-marges
+        action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
+        note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. Il suit, en produits laitiers de lait de vache, le lait demi-écrémé UHT, le yaourt nature, le camembert, l'emmental et le beurre ; cette fiche ne reprend que le lait."
+        liens: [ofpm-rapports, ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 6
+        acteur: mediateur-relations-agricoles
+        action: "Médiation d'un litige commercial entre professionnels de la filière"
+        conditionnelle: true
+        note: "Du producteur au distributeur, tout professionnel du secteur peut le saisir, gratuitement. Entre professionnels, la médiation est obligatoire avant de saisir le juge."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
+
+    leviers:
+      - id: lire-la-decomposition-du-prix-du-lait
+        quoi: "Lire la décomposition du prix du lait dans le rapport de l'Observatoire"
+        quand: "Chaque année, à la parution du rapport au Parlement — le 9 juillet en 2026"
+        aupres_de: "L'Observatoire de la formation des prix et des marges, sur le site de FranceAgriMer"
+        difficulte: faible
+        ancre_etape: 5
+        piege: "Une marge brute n'est pas un bénéfice : elle doit couvrir les coûts de fabrication et de vente. Et le rapport prévient que les industriels n'apprécient pas leur marge produit par produit, mais sur l'ensemble de ce qu'ils tirent du lait — le litre, le beurre, les poudres."
+        liens: [ofpm-rapport-2026-lait]
+        confiance: etabli
+      - id: saisir-le-mediateur-agricole-lait
+        acteur: exploitation-laitiere
+        quoi: "Saisir le médiateur des relations commerciales agricoles"
+        quand: "En cas de litige avec la laiterie sur le contrat de vente du lait, avant de saisir le juge"
+        aupres_de: "Le médiateur des relations commerciales agricoles, gratuitement"
+        difficulte: moyenne
+        ancre_etape: 6
+        recours_si_refus: "Le juge, une fois la médiation tentée"
+        piege: "Entre professionnels, la médiation est obligatoire avant toute saisine du juge, sauf si le contrat prévoit une autre médiation ou un arbitrage."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
