@@ -1025,8 +1025,8 @@ acteurs:
     nom_court: "Employeurs"
     type: entreprise
     echelon: prive
-    resume: "À partir de onze salariés, et là où l’autorité organisatrice l’a institué, ils financent les transports du territoire par le versement mobilité."
-    liens: [wp-versement-mobilite, code-transports, urssaf-versement-mobilite]
+    resume: "Ils déclarent chaque embauche à l’Urssaf avant la prise de poste ; à partir de onze salariés, et là où l’autorité organisatrice l’a institué, ils financent aussi les transports du territoire par le versement mobilité."
+    liens: [wp-versement-mobilite, code-transports, urssaf-versement-mobilite, esp-formalites-embauche]
     verifie_le: 2026-09-22
     confiance: etabli
 
@@ -1282,6 +1282,30 @@ acteurs:
     echelon: prive
     resume: "Désigné par le jugement de liquidation, il représente l'entreprise à la place du dirigeant, vend ses biens, vérifie les créances et paie les créanciers selon leur rang."
     liens: [esp-liquidation-societe, esp-declarer-creances]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  # --- Lot 4 : embaucher un premier salarié (4 novembre 2026).
+  - id: urssaf
+    nom: "L'Urssaf"
+    nom_court: "Urssaf"
+    type: service_administratif
+    echelon: etat
+    # Comme la CAF : un organisme de sécurité sociale de droit privé, chargé
+    # d'un service public, n'est pas l'État.
+    pouvoirs: [executif]
+    resume: "Reçoit la déclaration préalable à chaque embauche, qui immatricule l'employeur et le salarié et les affilie à l'assurance chômage ; recouvre les cotisations sociales."
+    liens: [esp-formalites-embauche, urssaf-versement-mobilite]
+    verifie_le: 2026-11-04
+    confiance: etabli
+
+  - id: service-sante-travail
+    nom: "Le service de prévention et de santé au travail"
+    nom_court: "Santé au travail"
+    type: association
+    echelon: prive
+    resume: "Le service auquel adhère l'employeur : un médecin du travail ou un infirmier y reçoit chaque nouveau salarié pour sa visite d'information et de prévention."
+    liens: [sp-visite-information-prevention, esp-formalites-embauche]
     verifie_le: 2026-11-04
     confiance: etabli
 

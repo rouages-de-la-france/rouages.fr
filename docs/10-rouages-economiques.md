@@ -271,6 +271,31 @@ dit qu'il opère le registre, que le guichet alimente, pas davantage ; qui
 exerce la fonction de liquidateur ; et le taux de survie des entreprises
 créées, faute d'une source retenue ici.
 
+## Le lot 4 : embaucher un premier salarié (4 novembre 2026)
+
+Le processus `embaucher-un-premier-salarie` relie l'acteur « employeur »,
+qui n'était jusqu'ici que le financeur du versement mobilité, à l'Urssaf et
+au service de prévention et de santé au travail, deux acteurs nouveaux. Ses
+neuf étapes : la convention collective, l'offre d'emploi, la déclaration
+préalable à l'embauche et ce qu'elle déclenche, le contrat et les
+informations dues dans les sept jours et dans le mois, le registre unique du
+personnel, la complémentaire santé collective, la visite d'information et de
+prévention dans les trois mois, la déclaration sociale nominative de chaque
+mois. Le cas suivi est le régime général ; le régime agricole passe par la
+MSA.
+
+**Les sources** : six fiches d'entreprendre.service-public.fr et une de
+service-public.fr, chacune avec sa date de vérification. Les montants (la
+pénalité de 1 305 € par salarié non déclaré, les amendes de 1 500 €) sont
+ceux de la fiche des formalités d'embauche, citée dans les liens de
+l'élément. La part de l'employeur dans la complémentaire santé est écrite
+« la moitié au moins », sans pourcentage, que la règle des fiches
+économiques voudrait daté.
+
+**Ce qui n'est pas écrit** : le coût d'un salarié pour l'employeur. Il se
+calcule au cas par cas — service-public.fr y consacre une fiche — et aucun
+chiffre type ne vaut pour toutes les entreprises.
+
 ## Ce qu'on ne fait pas
 
 - Pas de classement d'entreprises, ni de « bonnes » ou « mauvaises »
