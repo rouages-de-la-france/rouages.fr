@@ -228,9 +228,9 @@ H2102 des deux côtés : c'est lui qu'on retient. MétierScope répond aussi pou
 un code qui n'existe pas : chaque code a donc été vérifié dans les données du
 ROME, pas par le lien.
 
-**La suite possible** : la table de correspondance ROME / NAF que publie
-France Travail relierait un métier aux effectifs salariés par secteur que la
-page de commune affiche déjà (Urssaf).
+**La suite envisagée, puis écartée** : relier un métier aux effectifs
+salariés par secteur que la page de commune affiche (Urssaf). Voir plus bas,
+« Ce qui n'est pas fait : métiers et secteurs ».
 
 ## Le lot 3 : la vie d'une entreprise (4 novembre 2026)
 
@@ -295,6 +295,49 @@ l'élément. La part de l'employeur dans la complémentaire santé est écrite
 **Ce qui n'est pas écrit** : le coût d'un salarié pour l'employeur. Il se
 calcule au cas par cas — service-public.fr y consacre une fiche — et aucun
 chiffre type ne vaut pour toutes les entreprises.
+
+## Le lot 5 : la filière lait (4 novembre 2026)
+
+Le processus `du-lait-au-litre-de-lait` suit le litre de lait demi-écrémé
+UHT de l'exploitation laitière à la grande surface, sur le modèle du blé à la
+baguette, avec trois archétypes nouveaux : l'exploitation laitière, la
+laiterie, la grande surface.
+
+**Les chiffres** sont ceux du rapport 2026 de l'Observatoire, section 5 : le
+graphique 114, page 259, pour la décomposition du prix de 2025 en euros par
+litre — 1,11 € toutes taxes comprises, dont 0,31 € de matière première,
+0,43 € de marge brute de l'industrie, 0,31 € de marge brute de la grande
+surface et 0,06 € de TVA — et la page 256 pour le prix du lait payé au
+producteur, 514 € les 1 000 litres. Recoupés par un script indépendant sur le
+PDF téléchargé : les cinquante-quatre valeurs du graphique lues sur l'image
+figurent toutes dans le texte de la page, et les quatre composantes de 2025
+font 1,11 €. Les évolutions en pourcentage du rapport ne sont pas reprises :
+calculées sur les montants arrondis, elles n'y retombent pas (− 3,1 % contre
+− 4 % pour la matière première). La série de l'Insee sur le lait UHT s'arrête
+en 2019 : elle ne recoupe pas 2025.
+
+**Ce qui n'est pas écrit** : les volumes du schéma 14 (le lait à collecter
+pour mille litres de demi-écrémé, la crème qui part en beurre), parce qu'ils
+ne sont qu'une image, sans texte dans le PDF, et qu'on ne peut pas les
+recouper ; le yaourt, le camembert, l'emmental et le beurre, que le rapport
+suit aussi, pour un lot suivant s'il le faut.
+
+**Le site de l'Observatoire a déménagé** sur franceagrimer.fr : les adresses
+de ses PDF par section renvoient désormais vers sa page. La source de la
+baguette pointe donc, comme celle du lait, vers le rapport complet, identique
+octet pour octet à celui lu le 19 octobre 2026 ; seule l'adresse a changé.
+
+## Ce qui n'est pas fait : métiers et secteurs (4 novembre 2026)
+
+Relier les métiers du graphe aux effectifs salariés par secteur supposait une
+table de correspondance entre le ROME et la nomenclature des activités (NAF).
+**France Travail n'en publie pas.** Le seul croisement en données ouvertes est
+un décompte des déclarations préalables à l'embauche par code ROME et par code
+APE (Etalab, juillet 2017, ROME v3 de 2015), qui prévient lui-même de son
+biais : une embauche d'une personne non inscrite à Pôle emploi n'y est pas
+comptée. Un métier se retrouve d'ailleurs dans des secteurs très différents.
+Décision du mainteneur, le 4 novembre 2026 : pas de lien entre métiers et
+secteurs tant qu'aucune correspondance officielle n'existe.
 
 ## Ce qu'on ne fait pas
 

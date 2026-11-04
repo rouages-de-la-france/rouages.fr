@@ -1127,8 +1127,8 @@ acteurs:
     echelon: etat
     pouvoirs: [executif]
     releve_de: etat
-    resume: "Décompose chaque année, dans un rapport au Parlement, le prix au détail de produits alimentaires suivis, dont la baguette, entre matière première et marges."
-    liens: [ofpm-rapports, ofpm-rapport-2026-pain]
+    resume: "Décompose chaque année, dans un rapport au Parlement, le prix au détail de produits alimentaires suivis, dont la baguette et le lait, entre matière première et marges."
+    liens: [ofpm-rapports, ofpm-rapport-2026-pain, ofpm-rapport-2026-lait]
     verifie_le: 2026-10-19
     confiance: etabli
 
@@ -1298,6 +1298,37 @@ acteurs:
     liens: [esp-formalites-embauche, urssaf-versement-mobilite]
     verifie_le: 2026-11-04
     confiance: etabli
+
+  # --- Lot 5 : la filière lait (4 novembre 2026). Trois archétypes.
+  - id: exploitation-laitiere
+    nom: "L'exploitation laitière"
+    nom_court: "Exploitation laitière"
+    type: entreprise
+    echelon: prive
+    resume: "Un élevage de vaches laitières : il trait, vend son lait à une laiterie, et reçoit un prix au litre que l'Observatoire suit chaque année."
+    liens: [ofpm-rapport-2026-lait]
+    verifie_le: 2026-11-04
+    confiance: variable_selon_organisation
+
+  - id: laiterie
+    nom: "La laiterie"
+    nom_court: "Laiterie"
+    type: entreprise
+    echelon: prive
+    resume: "L'industriel qui collecte le lait et le transforme : lait de consommation, mais aussi beurre et poudres, qu'il vend à part."
+    liens: [ofpm-rapport-2026-lait]
+    verifie_le: 2026-11-04
+    confiance: variable_selon_organisation
+
+  - id: grande-surface
+    nom: "La grande surface"
+    nom_court: "Grande surface"
+    type: entreprise
+    echelon: prive
+    resume: "L'hypermarché ou le supermarché : c'est au rayon de la grande surface que l'Observatoire décompose chaque année le prix du lait de consommation."
+    liens: [ofpm-rapport-2026-lait]
+    verifie_le: 2026-11-04
+    confiance: variable_selon_organisation
 
   - id: service-sante-travail
     nom: "Le service de prévention et de santé au travail"
