@@ -1,0 +1,109 @@
+# Créer une entreprise, jusqu'à son numéro SIREN.
+# Lot 3 des rouages économiques (docs/10-rouages-economiques.md) : la vie
+# d'une entreprise, telle que la page de commune la montre — ses entreprises
+# d'après le répertoire Sirene, ses créations annoncées au BODACC. Un
+# archétype, pas d'entreprise nommée. Les règles viennent des fiches
+# d'entreprendre.service-public.fr et de la page de l'INPI, lues le
+# 4 novembre 2026 ; Légifrance refuse la lecture automatique depuis
+# l'environnement de développement.
+processus:
+  - id: creer-une-entreprise
+    nom: "Créer une entreprise"
+    famille: economiques
+    resume: "De la forme juridique au numéro SIREN : le dossier, le guichet unique, le registre national des entreprises, le répertoire Sirene et, pour une entreprise commerciale, l'annonce au BODACC."
+    declencheur: "Une personne, ou plusieurs associés, décide de créer son entreprise"
+    sortie: "Une entreprise immatriculée au registre national des entreprises, avec ses numéros SIREN et SIRET"
+    decideur: createur-entreprise
+    liens: [esp-forme-juridique, esp-immatriculation-societe, esp-immatriculation-micro, esp-siren-siret, inpi-guichet-rne]
+    verifie_le: 2026-11-04
+    perime_apres_mois: 6
+    # Les étapes varient avec la forme : une micro-entreprise n'a ni statuts ni
+    # capital, une société en a. Le passage par le guichet unique, lui, est le
+    # même pour toutes.
+    confiance: variable_selon_organisation
+
+    etapes:
+      - ordre: 1
+        acteur: createur-entreprise
+        action: "Choix de la forme juridique : micro-entreprise, entreprise individuelle ou société"
+        note: "Chaque forme a son fonctionnement, son régime social et son régime fiscal. C'est elle qui décide de la suite : une micro-entreprise passe directement à la demande d'immatriculation, une société doit d'abord se constituer."
+        liens: [esp-forme-juridique, esp-immatriculation-societe]
+        confiance: etabli
+      - ordre: 2
+        acteur: createur-entreprise
+        action: "Pour une société : statuts, dépôt du capital, nomination du dirigeant"
+        conditionnelle: true
+        note: "Avant la demande, la société choisit sa dénomination et son siège, dépose son capital sur un compte bancaire — il pourra être récupéré après l'immatriculation —, nomme son dirigeant et rédige ses statuts. Un apport en nature est évalué par un commissaire aux apports."
+        liens: [esp-immatriculation-societe]
+        confiance: etabli
+      - ordre: 3
+        acteur: createur-entreprise
+        action: "Pour une société : avis de constitution dans un support d'annonces légales"
+        conditionnelle: true
+        note: "L'avis paraît après la signature des statuts et avant la demande d'immatriculation, dans un journal ou un service de presse en ligne habilité du département du siège. Le tarif est forfaitaire et dépend du département ; l'attestation de parution est jointe au dossier."
+        liens: [esp-annonce-legale-constitution, esp-immatriculation-societe]
+        confiance: etabli
+      - ordre: 4
+        acteur: createur-entreprise
+        action: "Demande d'immatriculation en ligne, sur le guichet des formalités des entreprises"
+        delai: { valeur: 15, unite: jours, nature: maximum_legal }
+        note: "Toutes les entreprises passent par ce guichet unique, quelle que soit leur forme. Une micro-entreprise y dépose sa demande au plus tôt un mois avant le début de son activité et au plus tard quinze jours après. Le dépôt vaut récépissé « En attente d'immatriculation », valable un mois au plus, qui permet déjà de souscrire ses assurances."
+        liens: [esp-immatriculation-micro, esp-immatriculation-societe, inpi-guichet-rne]
+        confiance: etabli
+      - ordre: 5
+        acteur: greffier-tribunal-commerce
+        action: "Contrôle du dossier par l'organisme compétent"
+        note: "Selon l'activité, le contrôle revient au greffe du tribunal de commerce, à la chambre de métiers et de l'artisanat, à la mutualité sociale agricole, à l'INSEE ou au service des impôts. Un dossier incomplet revient avec la liste des pièces manquantes, à fournir dans les quinze jours ouvrables."
+        liens: [inpi-guichet-rne, esp-immatriculation-societe]
+        confiance: etabli
+      - ordre: 6
+        acteur: inpi
+        action: "Inscription au registre national des entreprises"
+        note: "Le registre national des entreprises a remplacé, depuis la loi Pacte, le registre du commerce, le répertoire des métiers et le registre des actifs agricoles ; il se consulte gratuitement. Une activité commerciale est aussi inscrite au registre du commerce et des sociétés. L'immatriculation d'une micro-entreprise est gratuite dans la plupart des cas ; celle d'une société commerciale coûte 33,83 €, plus 19,33 € pour la déclaration de ses bénéficiaires effectifs."
+        liens: [inpi-guichet-rne, esp-immatriculation-micro, esp-immatriculation-societe]
+        confiance: etabli
+      - ordre: 7
+        acteur: insee
+        action: "Attribution des numéros SIREN et SIRET, et inscription au répertoire Sirene"
+        note: "L'entreprise n'a rien à demander : les numéros arrivent dès que l'immatriculation est acceptée, dans son espace du guichet. Le SIREN, neuf chiffres, identifie l'entreprise ; le SIRET, quatorze chiffres, chacun de ses établissements. Ces données sont publiques : ce sont elles que la page de commune lit pour compter et nommer les entreprises du lieu."
+        liens: [esp-siren-siret, insee-def-sirene]
+        confiance: etabli
+      - ordre: 8
+        acteur: greffier-tribunal-commerce
+        action: "Pour une entreprise inscrite au registre du commerce : annonce au BODACC"
+        conditionnelle: true
+        note: "Le BODACC, que publie la direction de l'information légale et administrative, assure la publicité des actes du registre du commerce et des sociétés : son bulletin A annonce les immatriculations et les créations d'établissements, sur avis des greffes. Ce sont ces annonces que la page de commune compte parmi les créations."
+        liens: [dg-bodacc, od-bodacc, dila-api-bodacc]
+        confiance: etabli
+
+    leviers:
+      - id: verifier-activite-reglementee
+        acteur: createur-entreprise
+        quoi: "Vérifier si l'activité est réglementée avant de déposer le dossier"
+        quand: "Avant la demande d'immatriculation"
+        aupres_de: "L'annuaire des activités et professions réglementées, puis l'autorité qui délivre l'autorisation, l'agrément ou le titre"
+        difficulte: faible
+        ancre_etape: 4
+        piege: "Une activité réglementée demande des démarches préalables — une autorisation de la mairie, un agrément — et la copie de l'autorisation, du diplôme ou du titre se joint au dossier."
+        liens: [esp-immatriculation-societe]
+        confiance: etabli
+      - id: completer-un-dossier-incomplet
+        acteur: createur-entreprise
+        quoi: "Compléter un dossier incomplet"
+        quand: "Dans les quinze jours ouvrables qui suivent le récépissé qui liste les pièces manquantes"
+        aupres_de: "Le guichet des formalités des entreprises"
+        difficulte: faible
+        ancre_etape: 5
+        piege: "Exercer une activité commerciale, artisanale ou libérale sans être immatriculé au registre national des entreprises est un délit, puni de 7 500 € d'amende."
+        liens: [esp-immatriculation-societe]
+        confiance: etabli
+      - id: masquer-son-adresse-personnelle
+        acteur: createur-entreprise
+        quoi: "Demander que l'adresse personnelle du dirigeant ne figure pas dans les documents publics"
+        quand: "À l'immatriculation, ou plus tard"
+        aupres_de: "L'INPI, qui en fournit le modèle de demande"
+        difficulte: faible
+        ancre_etape: 6
+        piege: "Les statuts, procès-verbaux et extraits déposés sont accessibles au public. Depuis le 5 mai 2026, une société peut aussi déposer un extrait de ses actes qui ne garde, pour les personnes qui y sont nommées, que le nom, les prénoms, le mois et l'année de naissance et la commune."
+        liens: [esp-immatriculation-societe]
+        confiance: etabli

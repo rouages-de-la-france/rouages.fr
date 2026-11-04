@@ -1,0 +1,138 @@
+# Quand une entreprise ne peut plus payer.
+# Lot 3 des rouages économiques (docs/10-rouages-economiques.md) : ce que
+# disent les procédures collectives que la page de commune compte d'après le
+# BODACC, et le jugement qu'elle montre sous un titulaire de marché. Un
+# archétype, pas d'entreprise nommée. Le circuit suit le cas d'une société ;
+# celui d'un entrepreneur individuel a ses propres fiches. Les règles viennent
+# des fiches d'entreprendre.service-public.fr, lues le 4 novembre 2026.
+processus:
+  - id: quand-une-entreprise-ne-peut-plus-payer
+    nom: "Quand une entreprise ne peut plus payer"
+    famille: economiques
+    resume: "Des procédures confidentielles qui préviennent aux procédures collectives que le tribunal ouvre — sauvegarde, redressement, liquidation —, et ce que doit faire le fournisseur qui attend d'être payé."
+    declencheur: "Une entreprise voit venir des difficultés, ou ne peut plus payer ses dettes"
+    sortie: "Un accord avec les créanciers, un plan de sauvegarde ou de redressement, la cession de l'activité, ou la liquidation"
+    decideur: tribunal-commerce
+    liens: [esp-mandat-ad-hoc, esp-conciliation, esp-sauvegarde-societe, esp-cessation-paiements, esp-redressement-societe, esp-liquidation-societe, esp-declarer-creances]
+    verifie_le: 2026-11-04
+    perime_apres_mois: 6
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: entreprise-en-difficulte
+        action: "Mandat ad hoc : un mandataire négocie avec les créanciers, en toute discrétion"
+        conditionnelle: true
+        note: "Seul le dirigeant peut le demander, au président du tribunal du siège, tant que l'entreprise n'est pas en cessation des paiements. La désignation n'est pas publiée. Aucune durée maximale n'est fixée ; en pratique, trois mois renouvelables. Le dirigeant garde seul la gestion."
+        liens: [esp-mandat-ad-hoc]
+        confiance: etabli
+      - ordre: 2
+        acteur: tribunal-commerce
+        action: "Conciliation : le président du tribunal désigne un conciliateur, qui cherche un accord avec les principaux créanciers"
+        conditionnelle: true
+        delai: { valeur: 5, unite: mois, nature: maximum_legal }
+        note: "Elle est ouverte à l'entreprise qui n'est pas en cessation des paiements, ou qui l'est depuis moins de quarante-cinq jours. Le conciliateur, le plus souvent un administrateur judiciaire, a quatre mois au plus, et la procédure cinq mois en tout. L'accord constaté par le président reste confidentiel ; homologué par le tribunal, il ne l'est plus."
+        liens: [esp-conciliation]
+        confiance: etabli
+      - ordre: 3
+        acteur: tribunal-commerce
+        action: "Sauvegarde, à la demande de l'entreprise qui n'est pas encore en cessation des paiements"
+        conditionnelle: true
+        note: "Pour des difficultés juridiques, économiques ou financières que l'entreprise ne peut pas surmonter seule. Le jugement est publié au BODACC et ouvre une période d'observation de douze mois au plus, pour préparer un plan de sauvegarde."
+        liens: [esp-sauvegarde-societe]
+        confiance: etabli
+      - ordre: 4
+        acteur: entreprise-en-difficulte
+        action: "Déclaration de cessation des paiements au greffe du tribunal"
+        delai: { valeur: 45, unite: jours, nature: maximum_legal }
+        note: "L'entreprise est en cessation des paiements quand sa trésorerie et ses réserves de crédit ne couvrent plus ses dettes échues. Le dirigeant le déclare dans les quarante-cinq jours : au tribunal de commerce pour une activité commerciale ou artisanale, au tribunal judiciaire pour une activité libérale ou agricole, au tribunal des activités économiques dans les douze villes où il existe depuis le 1er janvier 2025. Il y demande le redressement ou la liquidation ; le tribunal décide."
+        liens: [esp-cessation-paiements, esp-tribunaux-activites-economiques]
+        confiance: etabli
+      - ordre: 5
+        acteur: tribunal-commerce
+        action: "Jugement d'ouverture du redressement ou de la liquidation judiciaire"
+        note: "Le tribunal fixe la date de la cessation des paiements, qui peut remonter jusqu'à dix-huit mois : les actes passés pendant cette période suspecte — une facture payée avant son échéance, une donation à un créancier — peuvent être annulés. Il désigne un juge-commissaire et, en redressement, un mandataire judiciaire et un administrateur judiciaire, obligatoire au-delà de vingt salariés et de 3 000 000 € de chiffre d'affaires hors taxes ; en liquidation, un liquidateur."
+        liens: [esp-cessation-paiements, esp-redressement-societe, esp-liquidation-societe]
+        confiance: etabli
+      - ordre: 6
+        acteur: greffier-tribunal-commerce
+        action: "Publication du jugement au BODACC et dans un support d'annonces légales"
+        note: "Le greffier informe l'entreprise dans les huit jours et publie le jugement. C'est cette publication au BODACC qui fait courir le délai des créanciers. Ce sont ces annonces que la page de commune compte, et le dernier jugement publié que Rouages montre sous un titulaire de marché."
+        liens: [esp-redressement-societe, dg-bodacc]
+        confiance: etabli
+      - ordre: 7
+        acteur: fournisseur
+        action: "Déclaration de sa créance au mandataire judiciaire ou au liquidateur"
+        delai: { valeur: 2, unite: mois, nature: maximum_legal }
+        note: "Deux mois à compter de la publication du jugement au BODACC, quatre mois pour un créancier qui n'est pas en métropole. Le créancier qui a une sûreté publiée, ou un contrat publié comme un crédit-bail, est averti personnellement par le mandataire, et son délai court de cet avertissement. Une créance déclarée hors délai ne pourra pas être réglée."
+        liens: [esp-declarer-creances, esp-redressement-societe]
+        confiance: etabli
+      - ordre: 8
+        acteur: mandataire-judiciaire
+        action: "Vérification des créances déclarées, puis liste soumise au juge-commissaire"
+        note: "Le mandataire judiciaire représente l'ensemble des créanciers. Il accuse réception de chaque déclaration dans les quinze jours, vérifie l'existence et le montant de chaque créance et en établit la liste ; les décisions du juge-commissaire se contestent devant la cour d'appel."
+        liens: [esp-declarer-creances, esp-redressement-societe]
+        confiance: etabli
+      - ordre: 9
+        acteur: administrateur-judiciaire
+        action: "Période d'observation, et préparation du plan de redressement"
+        delai: { valeur: 18, unite: mois, nature: maximum_legal }
+        note: "Six mois, renouvelables une fois, et une seconde fois à la demande du ministère public. Le dirigeant reste en place, assisté ou surveillé par l'administrateur ; l'activité et les contrats de travail se poursuivent. L'entreprise ne paie plus ses dettes antérieures au jugement, et les poursuites des créanciers sont suspendues."
+        liens: [esp-redressement-societe]
+        confiance: etabli
+      - ordre: 10
+        acteur: tribunal-commerce
+        action: "Plan de continuation, cession de l'activité ou liquidation"
+        note: "Quand le redressement est sérieusement possible, le tribunal arrête un plan de continuation de dix ans au plus, qui étale le paiement des dettes et peut prévoir des licenciements. Sinon, l'administrateur peut présenter un plan de cession à un repreneur ; quand le redressement est impossible, le tribunal prononce la liquidation. Les salaires que l'entreprise ne peut plus verser le sont par l'assurance de garantie des salaires."
+        liens: [esp-redressement-societe]
+        confiance: etabli
+      - ordre: 11
+        acteur: liquidateur-judiciaire
+        action: "Liquidation : vente des biens, licenciements, paiement des créanciers selon leur rang"
+        conditionnelle: true
+        note: "Le liquidateur représente la société à la place du dirigeant jusqu'à la clôture. Le plus souvent, la liquidation se clôt pour insuffisance d'actif : la société est dissoute et ses dettes sont effacées, sauf sanction prononcée contre le dirigeant. Le jugement de clôture est publié à son tour."
+        liens: [esp-liquidation-societe]
+        confiance: etabli
+
+    leviers:
+      - id: demander-un-mandat-ad-hoc
+        acteur: entreprise-en-difficulte
+        quoi: "Demander la désignation d'un mandataire ad hoc"
+        quand: "Dès les premières difficultés, tant que l'entreprise n'est pas en cessation des paiements"
+        aupres_de: "Le président du tribunal du lieu du siège, par une requête du dirigeant"
+        difficulte: moyenne
+        ancre_etape: 1
+        recours_si_refus: "La conciliation"
+        piege: "Pendant le mandat, les actions en justice et les poursuites des créanciers pour être payés continuent : il ne gèle rien, il donne un négociateur."
+        liens: [esp-mandat-ad-hoc]
+        confiance: etabli
+      - id: declarer-la-cessation-a-temps
+        acteur: entreprise-en-difficulte
+        quoi: "Déclarer la cessation des paiements dans les quarante-cinq jours"
+        quand: "Dès que la trésorerie et les réserves de crédit ne couvrent plus les dettes échues"
+        aupres_de: "Le greffe du tribunal compétent, avec le formulaire de déclaration"
+        difficulte: moyenne
+        ancre_etape: 4
+        piege: "Le dirigeant qui a sciemment tardé peut être condamné à une interdiction de gérer. Ce n'est pas automatique : le tribunal recherche s'il connaissait l'état de cessation des paiements."
+        liens: [esp-cessation-paiements]
+        confiance: etabli
+      - id: declarer-sa-creance
+        acteur: fournisseur
+        quoi: "Déclarer sa créance, par lettre recommandée avec avis de réception"
+        quand: "Dans les deux mois qui suivent la publication du jugement au BODACC"
+        aupres_de: "Le mandataire judiciaire en sauvegarde ou en redressement, le liquidateur en liquidation"
+        difficulte: moyenne
+        ancre_etape: 7
+        piege: "Il n'existe pas de portail pour déclarer en ligne. Le mandataire ou le liquidateur accuse réception dans les quinze jours : sans accusé, mieux vaut relancer avant la fin du délai."
+        liens: [esp-declarer-creances]
+        confiance: etabli
+      - id: consulter-le-bodacc-avant-de-livrer
+        acteur: fournisseur
+        quoi: "Consulter les annonces du BODACC d'un client avant de lui livrer à crédit"
+        quand: "Avant une commande importante, ou quand un client tarde à payer"
+        aupres_de: "Le BODACC, en ligne et gratuitement"
+        difficulte: faible
+        ancre_etape: 6
+        piege: "Les procédures confidentielles — mandat ad hoc, conciliation sans homologation — ne sont pas publiées : une annonce absente ne dit pas que tout va bien."
+        liens: [dg-bodacc, esp-mandat-ad-hoc]
+        confiance: etabli

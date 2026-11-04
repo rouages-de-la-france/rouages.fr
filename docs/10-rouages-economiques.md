@@ -232,6 +232,45 @@ ROME, pas par le lien.
 France Travail relierait un métier aux effectifs salariés par secteur que la
 page de commune affiche déjà (Urssaf).
 
+## Le lot 3 : la vie d'une entreprise (4 novembre 2026)
+
+Deux processus qui expliquent ce que la page de commune montre déjà sans le
+dire : les entreprises du lieu d'après le répertoire Sirene, les créations et
+les procédures collectives annoncées au BODACC, et le jugement affiché sous un
+titulaire de marché.
+
+- **`creer-une-entreprise`** — de la forme juridique au numéro SIREN : la
+  constitution d'une société et son avis dans un support d'annonces légales,
+  la demande sur le guichet unique, le contrôle par l'organisme compétent,
+  l'inscription au registre national des entreprises, les numéros SIREN et
+  SIRET, l'annonce au BODACC d'une entreprise inscrite au registre du
+  commerce.
+- **`quand-une-entreprise-ne-peut-plus-payer`** — des procédures
+  confidentielles (mandat ad hoc, conciliation) à la sauvegarde, à la
+  cessation des paiements et à ses quarante-cinq jours, au redressement et à
+  la liquidation ; la publication au BODACC qui fait courir les deux mois du
+  créancier pour déclarer sa créance. Le circuit suit le cas d'une société :
+  celui d'un entrepreneur individuel a ses propres fiches.
+
+Huit acteurs entrent : deux archétypes (l'entreprise en création,
+l'entreprise en difficulté), l'INPI, qui opère le registre national des
+entreprises, l'INSEE, qui tient le répertoire Sirene, et quatre professions
+(le greffier du tribunal de commerce, le mandataire, l'administrateur et le
+liquidateur judiciaires). Trois sigles au glossaire : SIREN, SIRET, INPI.
+
+**Les sources** : douze fiches d'entreprendre.service-public.fr, chacune avec
+sa date de vérification, la page de l'INPI sur le guichet unique et le
+registre, et la description du BODACC par la DILA sur data.gouv.fr. Les
+montants cités (33,83 € et 19,33 € pour immatriculer une société commerciale,
+7 500 € d'amende pour une activité exercée sans immatriculation, le seuil de
+3 000 000 € de chiffre d'affaires pour l'administrateur obligatoire) sont ceux
+de ces fiches, citées dans les liens de l'élément.
+
+**Ce qui n'est pas écrit** : que l'INPI « gère » le guichet unique — sa page
+dit qu'il opère le registre, que le guichet alimente, pas davantage ; qui
+exerce la fonction de liquidateur ; et le taux de survie des entreprises
+créées, faute d'une source retenue ici.
+
 ## Ce qu'on ne fait pas
 
 - Pas de classement d'entreprises, ni de « bonnes » ou « mauvaises »
