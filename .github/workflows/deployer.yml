@@ -32,6 +32,11 @@ concurrency:
   group: deploiement
   cancel-in-progress: false
 
+# Lecture seule : ce workflow n'écrit rien avec le jeton de GitHub (audit du
+# 6 novembre 2026).
+permissions:
+  contents: read
+
 jobs:
   deployer:
     # Seule la branche par défaut est publiée, quel que soit son nom.

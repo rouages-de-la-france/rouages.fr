@@ -20,6 +20,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { detailDepuisBrut, type DetailAffiche, type DetailBrut } from '../vues/detail-marche.ts';
 import { join } from 'node:path';
 import { anneePlausible } from './annees.ts';
+import { lienWeb } from './lien-web.ts';
 import { COLLECTIVITES_SIRENS } from './collectivites-sirens.ts';
 
 const BASE = join(process.cwd(), 'public', 'territoires');
@@ -1219,7 +1220,7 @@ function assemblerDeliberations(commune: CommuneFiche, structures: StructureFich
       // Une délibération retirée à la demande disparaît dès ce build (`retraits.yaml`).
       liste: e.d
         .filter((x) => !deliberationRetiree(siren, x.date, x.objet))
-        .map((x) => ({ date: x.date, famille: d.familles[x.famille] ?? null, objet: x.objet, url: x.url })),
+        .map((x) => ({ date: x.date, famille: d.familles[x.famille] ?? null, objet: x.objet, url: lienWeb(x.url) ?? '' })),
     });
   };
   const sirenCommune = d.com[commune.code];

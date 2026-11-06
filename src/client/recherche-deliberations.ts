@@ -17,6 +17,7 @@
  */
 import { motsDe, plierMot } from '../modele/mots-deliberations.ts';
 import { THEMES, themesDe } from '../modele/themes-deliberations.ts';
+import { lienWeb } from '../modele/lien-web.ts';
 
 type Meta = { maj: string; depuis: string; n: number; morceau: number; familles: string[]; lettres: string[]; themes?: string[]; c: [string, string][] };
 type Ligne = [string, number, number, string, string];
@@ -189,9 +190,10 @@ export function brancherRechercheDeliberations(): void {
       const li = el('li');
       const tete = el('p', 'rd-tete', `${date.split('-').reverse().join('/')} · ${m.c[c]?.[1] ?? ''}${fam >= 0 && m.familles[fam] ? ` · ${m.familles[fam]}` : ''}`);
       const corps = el('p', 'rd-objet');
-      if (url) {
+      const sur = lienWeb(url);
+      if (sur) {
         const lien = el('a', '', objet);
-        lien.href = url;
+        lien.href = sur;
         lien.target = '_blank';
         lien.rel = 'noopener';
         corps.append(lien);

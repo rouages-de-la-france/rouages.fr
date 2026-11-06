@@ -11,6 +11,7 @@
  * 345 communes, et relire son fichier pour chacune multiplierait par autant le
  * temps de génération.
  */
+import { lienWeb } from './lien-web.ts';
 import { dernierChangement } from './fiche-commune.ts';
 import { deliberationRetiree } from './retraits-deliberations.ts';
 import { readFileSync, existsSync } from 'node:fs';
@@ -292,7 +293,7 @@ function rassemblerJournal(c: CommuneIndex): EvenementCommune[] {
       date: e.d,
       quoi: e.q,
       detail: e.p ?? null,
-      url: e.u ?? null,
+      url: lienWeb(e.u),
       par: e.s ? (nomDe.get(e.s) ?? null) : null,
       // Le genre, la date, l'acteur et l'intitulé : ce qui distingue un
       // événement de tout autre, et qui ne bouge pas d'une ingestion à la

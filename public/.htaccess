@@ -74,6 +74,20 @@
 
   Header set X-Content-Type-Options "nosniff"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Audit du 6 novembre 2026 (pro.rouages.fr, docs/2026-11-06-audit-securite.md).
+  # Le site ne s'intègre nulle part : aucune autre origine ne peut l'afficher
+  # dans un cadre, ce qui ferme le détournement de clic. `frame-ancestors` est
+  # la seule directive de politique de contenu posée ici — une politique
+  # complète demanderait l'empreinte de chaque script en ligne d'Astro.
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Content-Security-Policy "frame-ancestors 'self'"
+  # Le site ne se sert que de la position (« Là où je suis »), et seulement
+  # pour lui-même.
+  Header set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=(), usb=()"
+  # HTTPS seulement, six mois, sans les sous-domaines : un sous-domaine qui ne
+  # serait pas en HTTPS deviendrait inaccessible.
+  Header set Strict-Transport-Security "max-age=15552000"
 </IfModule>
 
 # --- Compression ------------------------------------------------------------
@@ -118,3 +132,17 @@ Options -Indexes
     Require all denied
   </FilesMatch>
 </IfModule>
+
+# Le site est statique : aucun PHP n'a à y être exécuté. Un fichier de
+# diagnostic oublié (`test.php`, créé à la main le 30 septembre 2026 et
+# découvert le 6 novembre parce qu'il affichait la version de PHP) est ainsi
+# refusé même s'il reste sur le serveur.
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(php[0-9]?|phtml|phar)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+# Un refus montre la page 404 du site plutôt que celle d'Apache : il ne dit pas
+# ce qui existe.
+ErrorDocument 403 /404.html
