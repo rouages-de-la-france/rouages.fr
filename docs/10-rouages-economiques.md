@@ -183,14 +183,30 @@ de 4,05 € en 2025). Les parts en pourcentage ne sont pas reprises : calculées
 sur les montants arrondis, elles ne retombent pas sur celles du rapport
 (7,0 % contre 7,2 % pour la meunerie).
 
-**Ce qui reste à relire depuis une machine qui joint Légifrance** :
+**Ce qui restait à relire depuis une machine qui joint Légifrance** — revu
+le 6 novembre 2026, par recherche, Légifrance refusant toujours la lecture
+automatique d'ici :
 
-- l'article L441-9 du code de commerce, dont une version est datée « en
-  vigueur jusqu'au 1er janvier 2027 » ;
-- le seuil des travaux sans publicité, porté à 140 000 € au 1er janvier 2027
-  d'après service-public, et l'article de loi qui le fixe ;
-- le texte en vigueur des articles R2122-8 et R2191-7 du code de la commande
-  publique, modifiés en 2025-2026.
+- **l'article L441-9 du code de commerce** : Légifrance date bien la version
+  actuelle « en vigueur jusqu'au 1er janvier 2027 ». Un seul site, Pappers,
+  attribue la version suivante à une « ordonnance n° 2026-671 du 27 juillet
+  2026 » ; aucune autre source ne la confirme, et le même jour ont paru, sur
+  la facturation électronique, le décret n° 2026-677 et un arrêté. Rien n'est
+  donc écrit sur la version de 2027 : la fiche « De la commande à la facture »
+  se périme désormais en trois mois, pour être relue en janvier ;
+- **le seuil des travaux sans publicité** : 100 000 € hors taxes aujourd'hui
+  (article R2122-8, dans la rédaction du décret n° 2025-1386 du 29 décembre
+  2025 d'après les sites spécialisés), **140 000 € à partir du 1er janvier 2027** d'après la fiche des
+  procédures d'entreprendre.service-public.fr, vérifiée le 21 août 2026. Les
+  sites spécialisés rattachent ce relèvement à l'article 13 de la loi
+  n° 2026-403 du 26 mai 2026 de simplification de la vie économique ; c'est
+  à lire sur Légifrance avant d'écrire l'article dans la fiche. La fiche
+  « Comment une commune achète » donne les deux seuils ;
+- **l'article R2191-7** (l'avance) : la rédaction en vigueur date du décret
+  n° 2024-1251 du 30 décembre 2024, appliquée depuis le 1er janvier 2025,
+  d'après la fiche « Les avances » de la direction des affaires juridiques de
+  Bercy et le texte que reproduit Pappers ; les
+  taux que donne la fiche n'ont pas changé.
 
 **Ce qui n'est pas écrit, faute de source qui tienne** : la contractualisation
 obligatoire de la vente de blé (les céréales seraient exemptées, d'après la
