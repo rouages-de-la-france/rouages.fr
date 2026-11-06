@@ -1,0 +1,7 @@
+# Signaler une faille de sécurité de rouages.fr (RFC 9116).
+# Le site est statique : il ne collecte ni compte ni mot de passe.
+Contact: mailto:contact@rouages.fr
+Contact: https://rouages.fr/signaler
+Expires: 2027-11-06T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://rouages.fr/.well-known/security.txt

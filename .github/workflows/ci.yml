@@ -11,6 +11,11 @@ on:
     # revérification, et les liens de sources devenus morts.
     - cron: '0 6 * * 1'
 
+# Lecture seule : ce workflow n'écrit rien avec le jeton de GitHub (audit du
+# 6 novembre 2026).
+permissions:
+  contents: read
+
 jobs:
   controler:
     # Une version nommée plutôt que `ubuntu-latest`, qui change sous nos pieds (passé de 24.04 à 26.04
@@ -34,6 +39,8 @@ jobs:
         run: npm run verifier-rattachement
       - name: Collecte des marchés indépendante de l'ordre de lecture
         run: npm run verifier-marches
+      - name: Liens venus des registres, en http(s) seulement
+        run: npm run verifier-liens
       - name: Lecteurs géographiques (Lambert 93, GML, Shapefile)
         run: npm run verifier-geo
       - name: Particuliers nommés dans les délibérations

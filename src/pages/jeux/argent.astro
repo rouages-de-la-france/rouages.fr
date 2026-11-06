@@ -74,7 +74,7 @@ const missions = (b?.credits ?? [])
   </div>
 </Base>
 
-<script type="application/json" is:inline id="ja-donnees" data-annee={ANNEE} set:html={JSON.stringify(missions)} />
+<script type="application/json" is:inline id="ja-donnees" data-annee={ANNEE} set:html={JSON.stringify(missions).replace(/</g, '\\u003c')} />
 <script>
   import { brancherClassement } from '../../client/jeux-classement.ts';
 

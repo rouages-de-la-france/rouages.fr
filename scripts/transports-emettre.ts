@@ -36,6 +36,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { lienWeb } from '../src/modele/lien-web.ts';
 import { fileURLToPath } from 'node:url';
 import { contoursDesCommunes, ECHELLE } from './espaces-emettre.ts';
 import { collecterHoraires, semaineDeClasse, type JeuGtfs } from './horaires-gtfs.ts';
@@ -199,7 +200,7 @@ export async function collecterTransports(sortie: string, lireJson: LireJson, di
   const idDe = (titre: string) => {
     const j = fiches.get(titre);
     const id = j?.id ?? titre;
-    if (!reseaux.has(id)) reseaux.set(id, { titre, editeur: j?.publisher?.name ?? '', url: j?.page_url ?? `${PAN}/datasets`, licence: j?.licence ?? '' });
+    if (!reseaux.has(id)) reseaux.set(id, { titre, editeur: j?.publisher?.name ?? '', url: lienWeb(j?.page_url) ?? `${PAN}/datasets`, licence: j?.licence ?? '' });
     return id;
   };
   // Par commune : les arrêts par leur nom — deux quais d'un même arrêt, ou le même arrêt placé à quelques

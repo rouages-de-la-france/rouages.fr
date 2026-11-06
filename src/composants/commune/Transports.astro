@@ -9,6 +9,7 @@ import type { Transports } from '../../modele/fiche-vie.ts';
 import { libelleSemaine, phraseDesserte } from '../../modele/desserte.ts';
 import Glose from '../Glose.astro';
 import { urlSignaler } from '../../modele/signalement.ts';
+import { lienWeb } from '../../modele/lien-web.ts';
 
 interface Props {
   t: Transports;
@@ -48,7 +49,7 @@ const faible = !!p || t.aucunPassage || (!!d && passages < 14);
 <ul class="c-structures">
   {t.reseaux.map((r) => (
     <li>
-      <a href={r.url} target="_blank" rel="noopener">{r.titre}</a>{r.editeur && !r.titre.includes(r.editeur) ? ` — publié par ${r.editeur}` : ''}
+      <a href={lienWeb(r.url) ?? undefined} target="_blank" rel="noopener">{r.titre}</a>{r.editeur && !r.titre.includes(r.editeur) ? ` — publié par ${r.editeur}` : ''}
     </li>
   ))}
 </ul>

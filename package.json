@@ -21,6 +21,7 @@
     "verifier-journal": "tsx scripts/verifier-journal.ts",
     "verifier-rattachement": "tsx scripts/verifier-rattachement.ts",
     "verifier-marches": "tsx scripts/verifier-marches.ts",
+    "verifier-liens": "tsx scripts/verifier-liens.ts",
     "verifier-reseau": "tsx scripts/verifier-reseau.ts",
     "verifier-particuliers": "tsx scripts/verifier-particuliers.ts",
     "verifier-themes": "tsx scripts/verifier-themes.ts",

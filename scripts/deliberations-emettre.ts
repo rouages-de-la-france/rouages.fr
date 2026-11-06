@@ -48,6 +48,7 @@ import { THEMES, themesDe } from '../src/modele/themes-deliberations.ts';
 import { deliberationRetiree } from './retraits.ts';
 import { debutFenetre, GENRES, type Evenement } from '../src/modele/journal.ts';
 import { lireCsvOuvert, ressourcesDuJeu, ressourcesDuSchema } from './donnees-ouvertes.ts';
+import { lienWeb } from '../src/modele/lien-web.ts';
 
 /**
  * Les neuf familles de la nomenclature ACTES, celle que les collectivités
@@ -214,7 +215,7 @@ export async function collecterDeliberations(
       const cle = (l['DELIB_ID'] ?? '').trim() || `${date}|${objet}`;
       if (m.has(cle)) continue;
       const tronque = objet.length > MAX_OBJET ? `${objet.slice(0, MAX_OBJET - 1)}…` : objet;
-      const url = (l['DELIB_URL'] ?? '').trim();
+      const url = lienWeb(l['DELIB_URL']) ?? '';
       m.set(cle, { date, famille, objet: tronque, url });
       // Ici plutôt qu'en tête de boucle : la carte de déduplication vient de
       // l'accepter, donc un acte republié d'un millésime à l'autre n'entre pas
