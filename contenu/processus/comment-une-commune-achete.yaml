@@ -6,7 +6,12 @@
 # affaires juridiques de Bercy refusent la lecture automatique depuis
 # l'environnement de développement. Les seuils ont changé deux fois en 2026,
 # et le seuil des travaux change encore au 1er janvier 2027 : d'où une
-# péremption courte.
+# péremption courte. Revérifié le 6 novembre 2026 : la fiche des procédures,
+# vérifiée le 21 août, annonce les 140 000 € de travaux au 1er janvier 2027 ;
+# plusieurs sites spécialisés les rattachent à l'article 13 de la loi
+# n° 2026-403 du 26 mai 2026, que Légifrance n'a pas permis de lire d'ici. Les
+# taux d'avance de l'article R2191-7 n'ont pas changé depuis le décret du
+# 30 décembre 2024.
 processus:
   - id: comment-une-commune-achete
     nom: "Comment une commune achète"
@@ -25,7 +30,7 @@ processus:
       - ordre: 1
         acteur: commune
         action: "Définition du besoin, et du montant qui fixe la procédure"
-        note: "C'est la valeur estimée du besoin qui décide. En dessous de 60 000 € hors taxes pour des fournitures ou des services, et de 100 000 € pour des travaux, la commune peut acheter sans publicité ni mise en concurrence. Au-delà de 216 000 € pour des fournitures ou des services, et de 5 404 000 € pour des travaux, elle suit une procédure formalisée, comme l'appel d'offres ; entre les deux, une procédure adaptée qu'elle organise elle-même."
+        note: "C'est la valeur estimée du besoin qui décide. En dessous de 60 000 € hors taxes pour des fournitures ou des services, et de 100 000 € pour des travaux — 140 000 € à partir du 1er janvier 2027 —, la commune peut acheter sans publicité ni mise en concurrence. Au-delà de 216 000 € pour des fournitures ou des services, et de 5 404 000 € pour des travaux, elle suit une procédure formalisée, comme l'appel d'offres ; entre les deux, une procédure adaptée qu'elle organise elle-même."
         liens: [esp-procedures-marches, esp-seuils-publicite]
         confiance: etabli
       - ordre: 2

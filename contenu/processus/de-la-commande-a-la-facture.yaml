@@ -15,7 +15,11 @@ processus:
     decideur: client-professionnel
     liens: [esp-delais-paiement, esp-mentions-facture, impots-facturation-electronique]
     verifie_le: 2026-10-19
-    perime_apres_mois: 6
+    # Trois mois et non six : Légifrance date la version actuelle de l'article
+    # L441-9 du code de commerce, qui fixe les mentions de la facture, « en
+    # vigueur jusqu'au 1er janvier 2027 ». Le texte qui la remplace n'a pas pu
+    # être confirmé le 6 novembre 2026 ; la fiche se relit en janvier.
+    perime_apres_mois: 3
     # L'organisation d'une petite entreprise varie : devis ou non, bon de
     # commande ou non. Les étapes de droit, elles, sont établies.
     confiance: variable_selon_organisation
