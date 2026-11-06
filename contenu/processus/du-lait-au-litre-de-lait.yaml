@@ -3,7 +3,10 @@
 # baguette. Les montants sont ceux du graphique 114 du rapport 2026 de
 # l'Observatoire de la formation des prix et des marges, pour 2025, en euros
 # par litre de lait demi-écrémé UHT vendu en grande surface, et le prix du lait
-# payé au producteur que le rapport donne page 256. Recoupés le 4 novembre
+# payé au producteur que le rapport donne page 256 ; ceux du yaourt nature et de
+# l'emmental, ajoutés le 6 novembre 2026, sont ceux des graphiques 116 et 118,
+# en euros par kilo, recoupés de la même façon (les 108 valeurs lues figurent
+# dans le texte de leurs pages). Recoupés le 4 novembre
 # 2026 : les quatre composantes font 1,11 €, et les cinquante-quatre valeurs
 # du graphique lues sur l'image figurent toutes dans le texte de la page. Les
 # évolutions en pourcentage ne sont pas reprises : calculées sur des montants
@@ -12,7 +15,7 @@ processus:
   - id: du-lait-au-litre-de-lait
     nom: "Du lait de la ferme au litre de lait"
     famille: economiques
-    resume: "De l'étable au rayon : qui intervient entre la traite et le litre de lait demi-écrémé UHT, et comment se décompose son prix en grande surface, d'après l'Observatoire de la formation des prix et des marges."
+    resume: "De l'étable au rayon : qui intervient entre la traite et le litre de lait demi-écrémé UHT, et comment se décompose son prix en grande surface — celui du yaourt nature et de l'emmental aussi —, d'après l'Observatoire de la formation des prix et des marges."
     declencheur: "La traite, à l'exploitation laitière"
     sortie: "Un litre de lait demi-écrémé UHT vendu en grande surface"
     decideur: grande-surface
@@ -48,12 +51,18 @@ processus:
         liens: [ofpm-rapport-2026-lait]
         confiance: etabli
       - ordre: 5
-        acteur: observatoire-prix-marges
-        action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
-        note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. Il suit, en produits laitiers de lait de vache, le lait demi-écrémé UHT, le yaourt nature, le camembert, l'emmental et le beurre ; cette fiche ne reprend que le lait."
-        liens: [ofpm-rapports, ofpm-rapport-2026-lait]
+        acteur: citoyen
+        action: "Le yaourt et l'emmental, décomposés de la même façon"
+        note: "En 2025, en grande surface, un kilo de yaourt nature coûte en moyenne 2,36 € : 0,30 € de matière première, 1,15 € de marge brute de l'industrie, 0,78 € de marge brute de la grande surface et 0,12 € de TVA. Un kilo d'emmental coûte 9,12 € : 4,43 € de matière première, 1,59 € de marge brute de l'industrie, 2,63 € de marge brute de la grande surface et 0,48 € de TVA. Les montants sont arrondis au centime : leur somme s'écarte du prix d'un centime."
+        liens: [ofpm-rapport-2026-lait]
         confiance: etabli
       - ordre: 6
+        acteur: observatoire-prix-marges
+        action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
+        note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. Il suit, en produits laitiers de lait de vache, le lait demi-écrémé UHT, le yaourt nature, le camembert, l'emmental et le beurre ; cette fiche reprend le lait, le yaourt et l'emmental."
+        liens: [ofpm-rapports, ofpm-rapport-2026-lait]
+        confiance: etabli
+      - ordre: 7
         acteur: mediateur-relations-agricoles
         action: "Médiation d'un litige commercial entre professionnels de la filière"
         conditionnelle: true
@@ -67,7 +76,7 @@ processus:
         quand: "Chaque année, à la parution du rapport au Parlement — le 9 juillet en 2026"
         aupres_de: "L'Observatoire de la formation des prix et des marges, sur le site de FranceAgriMer"
         difficulte: faible
-        ancre_etape: 5
+        ancre_etape: 6
         piege: "Une marge brute n'est pas un bénéfice : elle doit couvrir les coûts de fabrication et de vente. Et le rapport prévient que les industriels n'apprécient pas leur marge produit par produit, mais sur l'ensemble de ce qu'ils tirent du lait — le litre, le beurre, les poudres."
         liens: [ofpm-rapport-2026-lait]
         confiance: etabli
@@ -77,7 +86,7 @@ processus:
         quand: "En cas de litige avec la laiterie sur le contrat de vente du lait, avant de saisir le juge"
         aupres_de: "Le médiateur des relations commerciales agricoles, gratuitement"
         difficulte: moyenne
-        ancre_etape: 6
+        ancre_etape: 7
         recours_si_refus: "Le juge, une fois la médiation tentée"
         piege: "Entre professionnels, la médiation est obligatoire avant toute saisine du juge, sauf si le contrat prévoit une autre médiation ou un arbitrage."
         liens: [agri-mediateur-relations-commerciales]

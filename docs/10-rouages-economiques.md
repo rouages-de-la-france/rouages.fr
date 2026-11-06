@@ -335,8 +335,16 @@ en 2019 : elle ne recoupe pas 2025.
 **Ce qui n'est pas écrit** : les volumes du schéma 14 (le lait à collecter
 pour mille litres de demi-écrémé, la crème qui part en beurre), parce qu'ils
 ne sont qu'une image, sans texte dans le PDF, et qu'on ne peut pas les
-recouper ; le yaourt, le camembert, l'emmental et le beurre, que le rapport
-suit aussi, pour un lot suivant s'il le faut.
+recouper ; le camembert et le beurre, que le rapport suit aussi.
+
+**Le yaourt nature et l'emmental**, ajoutés le 6 novembre 2026 : graphiques
+116 (page 262) et 118 (page 265) du même rapport, en euros par kilo. En 2025,
+2,36 € le kilo de yaourt nature (0,30 € de matière première, 1,15 € de marge
+brute de l'industrie, 0,78 € de marge brute de la grande surface, 0,12 € de
+TVA) et 9,12 € le kilo d'emmental (4,43 €, 1,59 €, 2,63 €, 0,48 €). Même
+recoupement : les cent huit valeurs lues sur les deux images figurent dans le
+texte de leurs pages ; arrondis au centime, les montants de 2025 font 2,35 €
+et 9,13 €, à un centime du prix, ce que la fiche dit.
 
 **Le site de l'Observatoire a déménagé** sur franceagrimer.fr : les adresses
 de ses PDF par section renvoient désormais vers sa page. La source de la
