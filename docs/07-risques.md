@@ -1068,3 +1068,40 @@ mars 2026.
 
 Les décisions de justice publiées en données ouvertes, elles, sont
 pseudonymisées : elles ne permettent pas de rapprochement nominatif.
+
+## 12. La mesure d'audience (7 novembre 2026)
+
+Jusqu'ici, le site ne mesurait rien, et `/mentions` le disait. Il faut
+désormais savoir si le site est lu : c'est la condition, fixée par le
+mainteneur, pour publier la famille « influence » (`docs/12-rouages-influence.md`).
+
+**Ce qui est retenu** : une instance **Umami** hébergée par l'éditeur. Aucun
+cookie ; un identifiant de visite calculé par Umami à partir de l'adresse IP
+et du navigateur, mêlés à une valeur renouvelée chaque mois ; des statistiques
+agrégées par page, provenance, navigateur, appareil et pays.
+
+**Les conditions de l'exemption de consentement** (lignes directrices de la
+CNIL sur les traceurs, article 5, et sa recommandation consolidée de janvier
+2026, d'après ses pages lues le 7 novembre 2026) : une finalité limitée à la
+mesure d'audience du seul site, pour le compte de l'éditeur ; aucun suivi d'un
+site à l'autre ; aucun recoupement avec un autre traitement ni transmission à
+un tiers ; des statistiques anonymes ; une information des personnes ; une
+conservation limitée — la CNIL recommande vingt-cinq mois au plus.
+
+**Ce que le site fait pour les tenir** (`src/modele/audience.ts`) :
+
+- le script n'est inséré que si l'adresse de l'instance et l'identifiant du
+  site sont configurés, et ne compte que le domaine rouages.fr ;
+- la recherche et le fragment de l'adresse ne sont jamais transmis : une
+  référence cadastrale (`?parcelle=`), un nom cherché ne partent pas ;
+- le signal « ne pas me suivre » du navigateur est respecté ;
+- `/mentions` décrit la mesure dès qu'elle est active.
+
+**Ce qui revient à l'éditeur, côté instance** : l'héberger lui-même, en
+France ou dans l'Union ; n'y suivre que rouages.fr (et pro.rouages.fr, comme
+un site distinct, s'il le souhaite) ; ne partager les statistiques avec
+personne ; effacer les données de plus de vingt-cinq mois ; ne pas activer
+les fonctions qui sortent de la mesure d'audience (rejeu de session,
+identification des visiteurs). *Que ce montage entre dans l'exemption est
+une lecture des textes de la CNIL, à valider par un avocat.*
+

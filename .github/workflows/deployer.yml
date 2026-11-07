@@ -56,6 +56,12 @@ jobs:
       # l'économie numérique impose à tout site accessible au public — c'est
       # ici, et pas au moment d'écrire une fiche, que l'obligation naît.
       - name: Construire
+        # La mesure d'audience (src/modele/audience.ts) : deux variables
+        # publiques du dépôt, ni secrètes ni obligatoires. Sans elles, le site
+        # se construit sans script ni mention.
+        env:
+          PUBLIC_UMAMI_SCRIPT: ${{ vars.UMAMI_SCRIPT }}
+          PUBLIC_UMAMI_SITE: ${{ vars.UMAMI_SITE }}
         run: npm run publier
 
       - name: Vérifier que le serveur est configuré
