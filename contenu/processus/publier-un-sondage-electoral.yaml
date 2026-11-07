@@ -1,0 +1,79 @@
+# Ce qu'un sondage électoral doit dire : deuxième processus de la famille
+# « influence » (docs/12-rouages-influence.md), cachée tant qu'elle n'est pas
+# publiée. Un mécanisme licite et encadré, décrit sans exemple : aucun institut,
+# aucun média, aucun scrutin particulier. Les règles viennent des pages de la
+# Commission des sondages, lues le 7 novembre 2026, qui reproduisent les
+# articles de la loi du 19 juillet 1977 qu'elles commentent.
+processus:
+  - id: publier-un-sondage-electoral
+    nom: "Ce qu'un sondage électoral doit dire"
+    famille: influence
+    resume: "Du commanditaire à la publication : ce que la loi impose à un sondage lié au débat électoral, la notice que chacun peut lire, le silence de la veille du scrutin, et ce qu'une marge d'erreur permet — ou non — de conclure."
+    declencheur: "Un média, un parti ou une organisation commande un sondage lié au débat électoral"
+    sortie: "Un sondage publié avec ses mentions obligatoires, et sa notice en ligne"
+    decideur: commission-sondages
+    liens: [cds-obligations, cds-droits, cds-competences, cds-membres, cds-fonctionnement, cds-communique-2026-11]
+    verifie_le: 2026-11-07
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: institut-sondage
+        action: "Interroger un échantillon représentatif, pour le compte d'un commanditaire"
+        note: "La loi appelle sondage une enquête statistique qui donne une indication quantitative, à une date déterminée, des opinions d'une population par l'interrogation d'un échantillon choisi pour la représenter. Elle s'applique quand le sujet touche, directement ou indirectement, au débat électoral : les intentions de vote et l'opinion sur les candidats toujours, une question de société quand elle est au centre de la campagne. Les simulations de vote tirées de sondages y sont assimilées."
+        liens: [cds-competences]
+        confiance: etabli
+      - ordre: 2
+        acteur: institut-sondage
+        action: "Dépôt de la notice à la Commission des sondages, avant toute publication"
+        note: "La notice reprend les mentions obligatoires et précise l'objet du sondage, la façon dont l'échantillon a été choisi et composé, les conditions de l'interrogation, la proportion de personnes qui n'ont pas répondu — à l'ensemble et à chaque question —, la gratification éventuelle des personnes interrogées et, s'il y a lieu, les critères de redressement des résultats bruts (article 3 de la loi)."
+        liens: [cds-droits]
+        confiance: etabli
+      - ordre: 3
+        acteur: institut-sondage
+        action: "Première publication, avec ses mentions obligatoires"
+        note: "À sa première publication, le sondage indique : l'organisme qui l'a réalisé ; le commanditaire et l'acheteur s'il est différent ; le nombre de personnes interrogées ; les dates de l'interrogation ; le texte intégral des questions ; que tout sondage est affecté de marges d'erreur, et les marges d'erreur des résultats publiés ; le droit de chacun de consulter la notice (article 2). Le texte des questions et les marges peuvent figurer sur le site du média, s'il en donne l'adresse. Un média n'est pas tenu de publier un sondage qu'il a acheté, mais ce qu'il en publie ne doit pas en travestir le sens."
+        liens: [cds-obligations]
+        confiance: etabli
+      - ordre: 4
+        acteur: commission-sondages
+        action: "Mise en ligne de la notice, examen et mise au point"
+        note: "Dès la publication, la Commission rend la notice publique sur son site. Ses experts l'examinent ; elle peut demander des compléments. Si la publication ne respecte pas la loi — mentions manquantes, présentation tendancieuse, résultats omis parce qu'ils dérangent —, elle peut imposer une mise au point, que le média publie dans un espace comparable à celui du sondage : ne pas la publier est puni de 75 000 € d'amende. Ses décisions sont publiées et peuvent être contestées devant le Conseil d'État."
+        liens: [cds-droits, cds-obligations, cds-fonctionnement]
+        confiance: etabli
+      - ordre: 5
+        acteur: commission-sondages
+        action: "Le silence de la veille et du jour du scrutin"
+        note: "La veille et le jour d'un scrutin général ou d'un référendum, aucun sondage électoral ne peut être publié, diffusé ni commenté, par quelque moyen que ce soit. Pour la présidentielle, les législatives, les européennes et les référendums nationaux, l'interdiction court du samedi à zéro heure jusqu'à la fermeture du dernier bureau de vote de métropole. Un sondage publié avant peut rester en ligne et être commenté, avec sa date de première publication, le média et l'institut (article 11)."
+        liens: [cds-obligations]
+        confiance: etabli
+      - ordre: 6
+        acteur: citoyen
+        action: "Lire le sondage : ses mentions, sa notice, sa marge d'erreur"
+        note: "Une intention de vote n'est pas une prévision : elle dit ce qu'un échantillon a répondu, à une date donnée. La marge d'erreur est publiée pour que le lecteur juge lui-même : deux résultats dont l'écart reste dans la marge ne sont pas départagés, et la marge s'élargit quand on lit un sous-groupe plus petit — une tranche d'âge, les seuls électeurs sûrs d'aller voter. C'est pourquoi la Commission demande que chaque notice donne, question par question, le taux de non-réponse, le nombre de réponses effectivement prises en compte et les marges d'erreur qui leur correspondent (communiqué du 5 novembre 2026). Une consultation en ligne ouverte à qui veut répondre n'est pas un sondage au sens de la loi, faute d'échantillon représentatif ; la Commission demande qu'elle le dise."
+        liens: [cds-obligations, cds-competences, cds-droits, cds-communique-2026-11]
+        confiance: etabli
+
+    leviers:
+      - id: lire-la-notice-d-un-sondage
+        acteur: citoyen
+        quoi: "Lire la notice d'un sondage électoral publié"
+        quand: "Dès la publication du sondage"
+        aupres_de: "La Commission des sondages, qui met les notices en ligne sur son site"
+        difficulte: faible
+        ancre_etape: 4
+        piege: "La notice dit qui a payé, comment l'échantillon a été construit, combien n'ont pas répondu et comment les résultats ont été redressés. Elle permet de juger une méthode ; elle ne dit pas si le résultat sera celui du scrutin, et un redressement n'est pas une manipulation : c'est une étape ordinaire, que la loi demande de déclarer."
+        liens: [cds-droits]
+        confiance: etabli
+      - id: reclamer-aupres-de-la-commission-des-sondages
+        acteur: citoyen
+        quoi: "Contester un sondage par une réclamation motivée"
+        quand: "Quand un sondage publié paraît ne pas respecter la loi : mentions absentes, questions tronquées, présentation qui en travestit le sens"
+        aupres_de: "La Commission des sondages"
+        difficulte: moyenne
+        ancre_etape: 4
+        recours_si_refus: "Le Conseil d'État, contre une décision de la Commission"
+        piege: "La réclamation doit être motivée : elle porte sur le respect de la loi, pas sur un résultat qui déplaît. Un sondage défavorable à un candidat n'est pas irrégulier pour autant."
+        liens: [cds-droits, cds-fonctionnement]
+        confiance: etabli

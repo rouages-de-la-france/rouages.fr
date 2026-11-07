@@ -13,11 +13,15 @@ import { budgetEtat, lignesDuBudget, montantBudget } from '../../modele/budget-e
 import { THEMES } from '../../modele/themes-deliberations.ts';
 
 export function getStaticPaths() {
-  return construireReseau().noeuds.map((n) => ({ params: { id: n.id }, props: { noeud: n } }));
+  // Toutes les pages, familles cachées comprises (`src/modele/familles.ts`) :
+  // celles-ci sont construites pour être relues, hors des moteurs.
+  return construireReseau(undefined, { complet: true }).noeuds.map((n) => ({ params: { id: n.id }, props: { noeud: n } }));
 }
 
 const { noeud } = Astro.props;
-const reseau = construireReseau();
+const publie = construireReseau().noeuds.some((n) => n.id === noeud.id);
+// Une page publiée ne montre pas, dans son voisinage, ce qui est encore caché.
+const reseau = construireReseau(undefined, { complet: !publie });
 const g = chargerGraphe();
 
 const glossaire = construireGlossaire([...g.sigles.values()]);
@@ -52,8 +56,14 @@ const N = budgetEtat()?.plf ?? 2026;
 const theme = THEMES.find((t) => t.fiche === noeud.id);
 ---
 
-<Base titre={noeud.nom} description={noeud.resume || noeud.nom} section="fonctionnement">
+<Base titre={noeud.nom} description={noeud.resume || noeud.nom} section="fonctionnement" indexer={publie}>
   <div class="page">
+    {!publie && (
+      <p class="au-relecture" role="note">
+        Page en relecture&nbsp;: les rouages de l’influence décrivent des mécanismes, jamais des personnes. Cette
+        famille n’est ni au menu, ni dans le réseau, ni dans les moteurs de recherche tant qu’elle n’est pas publiée.
+      </p>
+    )}
     <p class="badge">
       {LIBELLE_TYPE_NOEUD[noeud.type]}
       {noeud.confiance !== 'etabli' && (

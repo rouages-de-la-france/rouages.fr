@@ -5,9 +5,13 @@ import { construireGlossaire } from '../modele/glossaire.ts';
 import { schemaBranches } from '../vues/branches.ts';
 import { LIBELLE_POUVOIR, POUVOIRS } from '../modele/schemas.ts';
 import Glose from '../composants/Glose.astro';
+import { construireReseau } from '../modele/reseau.ts';
 
 const g = chargerGraphe();
-const acteurs = [...g.acteurs.values()].filter((a) => a.pouvoirs);
+// Seulement les entités du réseau public : celles qui ne servent qu'une famille
+// encore cachée (src/modele/familles.ts) n'ont pas de page à montrer.
+const publics = new Set(construireReseau(g).noeuds.map((n) => n.id));
+const acteurs = [...g.acteurs.values()].filter((a) => a.pouvoirs && publics.has(a.id));
 const schema = schemaBranches(acteurs, 'branches');
 
 const glossaire = construireGlossaire([...g.sigles.values()]);

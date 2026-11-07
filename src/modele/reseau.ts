@@ -17,6 +17,7 @@
 import { DOMAINES, LIBELLE_DOMAINE, LIBELLE_ECHELON, LIBELLE_POUVOIR, ECHELONS, POUVOIRS, type Domaine, type Echelon, type Pouvoir, type Sigle } from './schemas.ts';
 import { chargerGraphe, type Graphe } from './graphe.ts';
 import { largeurPastille } from '../vues/formes.ts';
+import { familleCachee } from './familles.ts';
 
 export type TypeNoeud = 'acteur' | 'competence' | 'processus' | 'document';
 
@@ -156,9 +157,16 @@ const DANS_ECHELON: Record<Echelon, string> = {
 };
 
 let cache: Reseau | undefined;
+let cacheComplet: Reseau | undefined;
 
-export function construireReseau(g: Graphe = chargerGraphe()): Reseau {
-  if (cache) return cache;
+/**
+ * Le réseau tel qu'on le publie, sans les familles encore cachées
+ * (`src/modele/familles.ts`). `{ complet: true }` les garde : c'est lui qui
+ * construit les pages de ces nœuds, et leur voisinage.
+ */
+
+export function construireReseau(g: Graphe = chargerGraphe(), { complet = false }: { complet?: boolean } = {}): Reseau {
+  if (complet ? cacheComplet : cache) return (complet ? cacheComplet : cache)!;
 
   const liensDe = (ids: string[]): Lien[] =>
     ids
@@ -242,14 +250,32 @@ export function construireReseau(g: Graphe = chargerGraphe()): Reseau {
     for (const l of p.leviers) relier(l.acteur, p.id, 'peut-agir', l.quand);
   }
 
-  for (const a of aretes) {
+  // Les familles cachées : leurs processus, et tout nœud dont chaque arête
+  // mène à l'un d'eux — un acteur qui n'existe que pour ces fiches.
+  let gardees = aretes;
+  if (!complet) {
+    const caches = new Set([...g.processus.values()].filter((p) => familleCachee(p.famille)).map((p) => p.id));
+    if (caches.size) {
+      for (const id of noeuds.keys()) {
+        if (caches.has(id)) continue;
+        const siennes = aretes.filter((a) => a.de === id || a.vers === id);
+        if (siennes.length && siennes.every((a) => caches.has(a.de) || caches.has(a.vers))) caches.add(id);
+      }
+      for (const id of caches) noeuds.delete(id);
+      gardees = aretes.filter((a) => !caches.has(a.de) && !caches.has(a.vers));
+    }
+  }
+
+  for (const a of gardees) {
     noeuds.get(a.de)!.degre++;
     noeuds.get(a.vers)!.degre++;
   }
 
-  const carte = disposerCarte(noeuds, aretes);
-  cache = { noeuds: [...noeuds.values()], aretes, sigles: [...g.sigles.values()], carte };
-  return cache;
+  const carte = disposerCarte(noeuds, gardees);
+  const reseau: Reseau = { noeuds: [...noeuds.values()], aretes: gardees, sigles: [...g.sigles.values()], carte };
+  if (complet) cacheComplet = reseau;
+  else cache = reseau;
+  return reseau;
 }
 
 /**

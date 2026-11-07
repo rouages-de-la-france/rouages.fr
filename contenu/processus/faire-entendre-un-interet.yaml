@@ -1,0 +1,80 @@
+# Faire entendre un intérêt : la représentation d'intérêts déclarée.
+# Premier processus de la famille « influence » (docs/12-rouages-influence.md),
+# cachée tant qu'elle n'est pas publiée (src/modele/familles.ts). Un mécanisme
+# licite et encadré, décrit sans exemple nommé : la famille ne nomme aucune
+# organisation privée. Les règles viennent des pages de la HATVP, lues le
+# 7 novembre 2026 ; les articles cités sont ceux qu'elle cite.
+processus:
+  - id: faire-entendre-un-interet
+    nom: "Faire entendre un intérêt auprès des décideurs publics"
+    famille: influence
+    resume: "La représentation d'intérêts déclarée : qui doit s'inscrire au répertoire de la HATVP, ce qu'il déclare chaque année, et comment chacun peut voir qui a cherché à peser sur une décision."
+    declencheur: "Une organisation veut peser sur une loi, un règlement, une décision publique"
+    sortie: "Des démarches déclarées et publiées au répertoire des représentants d'intérêts"
+    decideur: hatvp
+    liens: [hatvp-faq-representation, hatvp-extension-2022, hatvp-repertoire, od-hatvp-repertoire]
+    verifie_le: 2026-11-07
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: representant-interets
+        action: "Entrer en contact avec un responsable public pour peser sur une décision"
+        note: "Une rencontre, un appel ou une visioconférence, un message ou un courrier, à l'initiative de l'organisation, pour influer sur une loi, un acte réglementaire ou une autre décision publique. Ne comptent que les responsables publics que la loi énumère (l'article 18-2 de la loi du 11 octobre 2013, que cite la HATVP) — un membre du gouvernement ou un député, par exemple, des agents de l'administration centrale — et, depuis le 1er juillet 2022, les présidents de région et de département, les maires des communes de plus de 100 000 habitants, certains de leurs adjoints et collaborateurs."
+        liens: [hatvp-faq-representation, hatvp-extension-2022]
+        confiance: etabli
+      - ordre: 2
+        acteur: representant-interets
+        action: "Franchir le seuil : une activité principale ou régulière"
+        note: "L'activité est principale quand une personne de l'organisation y consacre plus de la moitié de son temps sur six mois ; régulière quand une même personne est entrée en contact au moins dix fois en douze mois avec ces responsables publics. Les contacts de plusieurs salariés ne s'additionnent pas."
+        liens: [hatvp-faq-representation]
+        confiance: etabli
+      - ordre: 3
+        acteur: representant-interets
+        action: "Inscription au répertoire des représentants d'intérêts"
+        delai: { valeur: 2, unite: mois, nature: maximum_legal }
+        note: "Dans les deux mois qui suivent le franchissement du seuil, en ligne sur le téléservice de la HATVP. Une organisation inscrite en retard déclare aussi les années passées."
+        liens: [hatvp-faq-representation]
+        confiance: etabli
+      - ordre: 4
+        acteur: representant-interets
+        action: "Déclaration annuelle de ses actions et de ses moyens"
+        delai: { valeur: 3, unite: mois, nature: maximum_legal }
+        note: "Dans les trois mois qui suivent la clôture de son exercice comptable : les actions menées dans l'année, les dépenses qui leur ont été consacrées et le nombre de personnes, en équivalent temps plein, qui les ont menées. Tout ce qui est déclaré est rendu public."
+        liens: [hatvp-faq-representation, hatvp-extension-2022]
+        confiance: etabli
+      - ordre: 5
+        acteur: hatvp
+        action: "Publication au répertoire, contrôle et mise en demeure"
+        note: "La HATVP publie les déclarations et contrôle leur respect. Elle peut adresser une mise en demeure, qu'elle peut rendre publique. Ne pas lui communiquer les informations dues est puni d'un an d'emprisonnement et de 15 000 € d'amende, comme le fait de manquer à nouveau à ses obligations déontologiques dans les trois ans qui suivent une mise en demeure."
+        liens: [hatvp-faq-representation]
+        confiance: etabli
+      - ordre: 6
+        acteur: citoyen
+        action: "Lire le répertoire"
+        note: "Le répertoire se consulte librement, et ses données sont ouvertes : on y voit qui s'est inscrit, sur quels sujets, auprès de quel type de responsable, avec quels moyens. Rouages en reprend les dirigeants déclarés, département par département."
+        liens: [hatvp-repertoire, od-hatvp-repertoire]
+        confiance: etabli
+
+    leviers:
+      - id: consulter-le-repertoire-des-representants
+        acteur: citoyen
+        quoi: "Chercher qui a déclaré avoir voulu peser sur une décision"
+        quand: "À tout moment, et surtout pendant l'examen d'un texte ou d'une décision qui vous concerne"
+        aupres_de: "Le répertoire des représentants d'intérêts, sur le site de la HATVP"
+        difficulte: faible
+        ancre_etape: 6
+        piege: "Une démarche auprès du maire d'une commune de moins de 100 000 habitants n'est pas une action à déclarer, sauf s'il exerce aussi un mandat visé par la loi — vice-président d'une communauté d'agglomération de plus de 100 000 habitants, par exemple. Une organisation absente du répertoire n'a donc pas forcément rien demandé ; et une organisation inscrite ne fait rien d'illicite : la représentation d'intérêts est permise, à condition d'être déclarée."
+        liens: [hatvp-faq-representation, hatvp-repertoire]
+        confiance: etabli
+      - id: signaler-un-manquement-a-la-hatvp
+        acteur: citoyen
+        quoi: "Signaler à la HATVP une démarche qui aurait dû être déclarée"
+        quand: "Quand une organisation semble remplir les critères sans figurer au répertoire, ou manquer à ses obligations"
+        aupres_de: "La HATVP"
+        difficulte: moyenne
+        ancre_etape: 5
+        piege: "La HATVP peut agir de sa propre initiative ou sur signalement ; c'est elle qui apprécie si les critères sont remplis, et un signalement n'est pas une accusation publique."
+        liens: [hatvp-faq-representation]
+        confiance: etabli
