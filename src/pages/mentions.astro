@@ -11,6 +11,7 @@
  * recopiée : c'est elle qui sait ce que le site ingère réellement, et une liste
  * écrite à la main vieillirait en silence dès la source suivante.
  */
+import { audience } from '../modele/audience.ts';
 import Base from '../layouts/Base.astro';
 import { chargerGraphe } from '../modele/graphe.ts';
 import { ATTENTE_EDITEUR } from '../modele/schemas.ts';
@@ -86,6 +87,32 @@ const ouvertes = nb('licence-ouverte-2.0') + nb('licence-ouverte-1.0') + nb('lic
     )}
 
     <h2 class="badge">Ce que le site sait de vous</h2>
+    {audience ? (
+      <>
+        <p class="mesure">
+          <strong>Aucun cookie, aucun compte.</strong> Rouages est un site
+          statique&nbsp;: il n’a pas de base de données, pas de compte, pas de
+          formulaire, et ne dépose aucun cookie.
+        </p>
+        <p class="mesure">
+          <strong>Une mesure d’audience, et une seule.</strong> Pour savoir
+          combien de personnes lisent le site et quelles pages servent, chaque
+          page vue est comptée par Umami, un logiciel libre que l’éditeur
+          héberge lui-même&nbsp;: rien ne part chez un tiers, rien n’est
+          recoupé avec un autre traitement, et les chiffres ne servent qu’à
+          cela. Sont comptés la page, la page d’où vous venez, le type de
+          navigateur et d’appareil et le pays — jamais ce que vous cherchez ni
+          la commune ou la parcelle demandée dans l’adresse. Pour distinguer
+          deux visites sans cookie, Umami calcule une empreinte de votre
+          adresse IP et de votre navigateur, mêlée à une valeur renouvelée
+          chaque mois&nbsp;: elle ne permet de vous suivre ni d’un mois à
+          l’autre, ni d’un site à l’autre. Les statistiques sont conservées
+          vingt-cinq mois au plus. Si votre navigateur demande à ne pas être
+          suivi, aucune page n’est comptée. Cette mesure entre dans les
+          conditions où la CNIL dispense de demander le consentement.
+        </p>
+      </>
+    ) : (
     <p class="mesure">
       <strong>Rien qui parte d’ici.</strong> Rouages est un site statique&nbsp;:
       il n’a pas de serveur applicatif, pas de base de données, pas de compte,
@@ -93,6 +120,7 @@ const ouvertes = nb('licence-ouverte-2.0') + nb('licence-ouverte-1.0') + nb('lic
       Google Analytics, ni Matomo, ni aucun équivalent. Aucun cookie n’est
       déposé.
     </p>
+    )}
     <p class="mesure">
       Une seule chose est conservée, dans votre navigateur et nulle part
       ailleurs&nbsp;: <strong>la commune que vous avez choisie</strong>, pour ne
