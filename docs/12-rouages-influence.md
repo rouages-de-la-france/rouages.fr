@@ -155,8 +155,14 @@ trouve rien à redire à la symétrie.
    de sondage ») et les institutions publiques y figurent.
 3. **Le premier lot** : les trois processus. Les deux premiers sont écrits —
    `faire-entendre-un-interet` (HATVP) et `publier-un-sondage-electoral`
-   (Commission des sondages). Le troisième, sur les campagnes coordonnées,
-   s'écrit en dernier, à partir des rapports publics de Viginum.
+   (Commission des sondages). Le troisième, `reconnaitre-une-campagne-coordonnee`,
+   suit le guide de VIGINUM de décembre 2025 (« Protéger le débat public
+   numérique en contexte électoral »). Les exemples du guide nomment des
+   acteurs, des pays et des partis : la fiche n'en reprend aucun, décrit
+   chaque technique de façon que n'importe quel camp puisse l'employer, et
+   dit pour chaque signal ce qu'il ne prouve pas. Les rapports techniques de
+   VIGINUM, sur le site du SGDSN, n'ont pas pu être lus d'ici : le site
+   refuse les clients automatisés.
 4. **La relecture de la symétrie** : le mainteneur, avant publication.
    Le « critère pour continuer » reste celui d'une relecture par
    une personne de sensibilité opposée ; il se rouvre au moment de publier.

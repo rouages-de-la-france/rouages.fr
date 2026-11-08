@@ -463,6 +463,30 @@ acteurs:
     verifie_le: 2026-11-07
     confiance: etabli
 
+  - id: viginum
+    nom: "VIGINUM, le service de vigilance contre les ingérences numériques étrangères"
+    nom_court: "VIGINUM"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Service rattaché au secrétariat général de la défense et de la sécurité nationale depuis 2021 : il détecte et caractérise les campagnes de manipulation de l'information en ligne qui impliquent un acteur étranger."
+    liens: [viginum-guide-electoral]
+    verifie_le: 2026-11-08
+    confiance: etabli
+
+  - id: pharos
+    nom: "PHAROS, la plateforme de signalement des contenus illicites"
+    nom_court: "PHAROS"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "Portail officiel de signalement des contenus illicites de l'internet, géré par des policiers et des gendarmes spécialisés, qui transmettent aux services d'enquête ce qu'ils jugent illicite."
+    liens: [sp-signaler-contenu-illicite, arcom-signaler-contenu]
+    verifie_le: 2026-11-08
+    confiance: etabli
+
   - id: cnil
     nom: "La CNIL"
     nom_court: "CNIL"
@@ -1319,6 +1343,16 @@ acteurs:
     resume: "Réalise une enquête auprès d'un échantillon représentatif pour le compte d'un commanditaire ; avant toute publication d'un sondage électoral, il en dépose la notice à la Commission des sondages."
     liens: [cds-droits, cds-competences]
     verifie_le: 2026-11-07
+    confiance: variable_selon_organisation
+
+  - id: auteur-campagne
+    nom: "L'auteur d'une campagne coordonnée"
+    nom_court: "Auteur de campagne"
+    type: personne
+    echelon: prive
+    resume: "Quiconque coordonne des comptes, des sites ou des messages pour donner à un récit plus de poids qu'il n'en a. Rouages n'en nomme aucun : la fiche décrit des techniques, qu'importe qui les emploie."
+    liens: [viginum-guide-electoral]
+    verifie_le: 2026-11-08
     confiance: variable_selon_organisation
 
   - id: representant-interets

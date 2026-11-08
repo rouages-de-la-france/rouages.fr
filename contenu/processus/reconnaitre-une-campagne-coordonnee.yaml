@@ -1,0 +1,97 @@
+# Reconnaître une campagne coordonnée en ligne : troisième processus de la
+# famille « influence » (docs/12-rouages-influence.md), cachée tant qu'elle
+# n'est pas publiée. Les techniques sont celles du guide de VIGINUM de
+# décembre 2025 ; ses exemples nomment des acteurs, des pays et des partis :
+# la fiche n'en reprend aucun (règle de la famille), et décrit chaque technique
+# de façon que n'importe quel camp puisse l'employer. Chaque signal dit ce
+# qu'il ne prouve pas. Les voies de signalement viennent de service-public.fr
+# et de l'Arcom, lus le 8 novembre 2026.
+processus:
+  - id: reconnaitre-une-campagne-coordonnee
+    nom: "Reconnaître une campagne coordonnée en ligne"
+    famille: influence
+    resume: "Faux sites, comptes coordonnés, portée achetée, contenus sortis de leur contexte : les techniques que décrit VIGINUM, ce que chacune laisse voir, ce qu'aucune ne prouve seule, et à qui signaler quoi."
+    declencheur: "Un même message, ou un même sujet, semble soudain partout en ligne"
+    sortie: "Un contenu vérifié avant d'être relayé, et signalé s'il le faut à qui de droit"
+    decideur: viginum
+    liens: [viginum-guide-electoral, sp-signaler-contenu-illicite, arcom-signaler-contenu]
+    verifie_le: 2026-11-08
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: auteur-campagne
+        action: "Emprunter une façade : faux site d'un média, d'une institution ou d'un parti"
+        note: "Un site reprend l'identité visuelle d'une organisation connue, sous un nom de domaine presque identique — une extension différente, une lettre changée : c'est le typosquatting. Ou bien un faux média publie de faux articles et de faux témoignages pour leur donner l'air d'une information vérifiée. Ce qui se voit : l'adresse, à comparer lettre à lettre à celle du site officiel. Ce que cela ne prouve pas : une adresse proche peut être une homonymie de bonne foi."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 2
+        acteur: auteur-campagne
+        action: "Amplifier par des comptes coordonnés"
+        note: "Des réseaux de comptes automatisés ou animés à la main publient ensemble, parfois en masse, pour faire croire qu'un sujet est partout : c'est l'astroturfing. Ils copient-collent le même texte presque à l'identique, ou poussent le même mot-dièse pour peser sur les algorithmes de recommandation. Ce qui se voit : des messages identiques, publiés en même temps, par des comptes qui se ressemblent. Ce que cela ne prouve pas : un appel à mobilisation, une pétition ou une campagne militante déclarée produisent aussi des messages semblables, et ils sont licites."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 3
+        acteur: auteur-campagne
+        action: "Acheter de la portée : publicité ciblée, influenceurs rémunérés sans le dire"
+        note: "Des contenus sponsorisés atteignent des publics choisis par âge ou par lieu, sans qu'ils suivent le compte qui les émet. Des comptes très suivis publient, contre rémunération ou par connivence, des messages d'apparence anodine, sans dire qu'il s'agit d'un partenariat. Ce qui se voit : la mention « sponsorisé », ou son absence sur un message qui suit manifestement un script. Ce que cela ne prouve pas : une publicité politique ou un partenariat déclaré ne sont pas une manipulation ; c'est la dissimulation que le guide décrit."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 4
+        acteur: auteur-campagne
+        action: "Détourner un contenu, ou le fabriquer"
+        note: "Une image, une vidéo ou une phrase est sortie de son contexte et rattachée à un autre événement. Un enregistrement audio ou vidéo est fabriqué par intelligence artificielle à partir de documents vrais. En période électorale, de fausses informations visent le scrutin lui-même — une date, un bureau de vote — ou prétendent qu'il est truqué, pour décourager d'aller voter. Ce qui se voit : un document plus ancien que l'événement qu'il est censé montrer, une source introuvable. Ce que cela ne prouve pas : une erreur de bonne foi se partage de la même façon."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 5
+        acteur: citoyen
+        action: "Vérifier la source avant de relayer"
+        note: "Le guide de VIGINUM recommande de vérifier la source d'une information qui circule, et de ne pas relayer un contenu douteux, ni d'y répondre. Aucun des signaux ci-dessus ne suffit seul : VIGINUM ne parle d'ingérence que si quatre critères sont réunis — un contenu manifestement inexact ou trompeur, des moyens inauthentiques ou coordonnés, la volonté de nuire aux intérêts fondamentaux de la Nation, et l'implication d'un acteur étranger. Un signal n'en montre qu'un, au mieux."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 6
+        acteur: viginum
+        action: "Détecter et caractériser une campagne qui implique un acteur étranger"
+        note: "VIGINUM étudie les comptes suspects, les contenus malveillants et les comportements anormaux ou coordonnés sur les plateformes. Sa compétence s'arrête aux campagnes qui impliquent un acteur étranger, étatique ou non. En période électorale, il renseigne les autorités qui veillent au bon déroulement du scrutin."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
+      - ordre: 7
+        acteur: pharos
+        action: "Examen d'un contenu signalé comme illicite"
+        conditionnelle: true
+        note: "Quand le contenu enfreint la loi, PHAROS transmet le signalement aux services d'enquête de la police ou de la gendarmerie ; une enquête peut être menée sous l'autorité du procureur de la République, et les enquêteurs peuvent demander à l'hébergeur de retirer le contenu. PHAROS ne traite pas les urgences : en cas d'infraction en cours, on appelle le 17."
+        liens: [sp-signaler-contenu-illicite, arcom-signaler-contenu]
+        confiance: etabli
+
+    leviers:
+      - id: signaler-un-contenu-a-la-plateforme
+        acteur: citoyen
+        quoi: "Signaler un contenu à la plateforme qui l'héberge"
+        quand: "Quand un contenu vous paraît faux, trompeur ou illicite"
+        aupres_de: "La plateforme, par son outil de signalement ; l'Arcom rassemble ceux des principaux réseaux"
+        difficulte: faible
+        ancre_etape: 5
+        piege: "Signaler un contenu comme illicite en le sachant licite est puni d'un an de prison et de 15 000 € d'amende. Un signalement dit ce que vous avez vu ; c'est la plateforme qui juge."
+        liens: [sp-signaler-contenu-illicite, arcom-signaler-contenu]
+        confiance: etabli
+      - id: signaler-un-contenu-illicite-a-pharos
+        acteur: citoyen
+        quoi: "Signaler un contenu illicite à PHAROS"
+        quand: "Quand un contenu accessible à tous enfreint la loi : terrorisme, menaces ou incitation à la violence, discrimination, incitation à commettre une infraction"
+        aupres_de: "PHAROS, sur internet-signalement.gouv.fr"
+        difficulte: faible
+        ancre_etape: 7
+        piege: "Une victime d'injure ou de diffamation ne passe pas par PHAROS, mais par un commissariat ou une brigade de gendarmerie. Dénoncer sciemment comme illicite la publication d'une personne déterminée est puni de cinq ans de prison et de 45 000 € d'amende."
+        liens: [sp-signaler-contenu-illicite]
+        confiance: etabli
+      - id: signaler-une-ingerence-a-viginum
+        acteur: citoyen
+        quoi: "Signaler à VIGINUM une campagne qui semble venir de l'étranger"
+        quand: "Quand une campagne coordonnée paraît impliquer un acteur étranger, notamment en période électorale"
+        aupres_de: "VIGINUM, à l'adresse que donne son guide : viginum_signalement@sgdsn.gouv.fr"
+        difficulte: moyenne
+        ancre_etape: 6
+        piege: "VIGINUM ne traite que les ingérences impliquant un acteur étranger : une campagne menée depuis la France, même coordonnée, n'est pas de son ressort. Son guide s'adresse d'abord aux équipes de campagne."
+        liens: [viginum-guide-electoral]
+        confiance: etabli
