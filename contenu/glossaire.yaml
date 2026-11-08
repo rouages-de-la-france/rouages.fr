@@ -629,6 +629,21 @@ sigles:
     developpe: "Observatoire national interministériel de la sécurité routière"
     definition: "Service statistique de la sécurité routière, qui publie chaque année les bases des accidents corporels de la circulation."
     liens: [od-onisr-baac]
+  - id: sigle-viginum
+    sigle: VIGINUM
+    developpe: "Service de vigilance et de protection contre les ingérences numériques étrangères"
+    definition: "Rattaché au SGDSN depuis 2021, il détecte et caractérise les campagnes de manipulation de l'information en ligne qui impliquent un acteur étranger."
+    liens: [viginum-guide-electoral]
+  - id: sigle-sgdsn
+    sigle: SGDSN
+    developpe: "Secrétariat général de la défense et de la sécurité nationale"
+    definition: "Le secrétariat auquel VIGINUM est rattaché depuis sa création en 2021."
+    liens: [viginum-guide-electoral]
+  - id: sigle-pharos
+    sigle: PHAROS
+    developpe: "Plateforme d'harmonisation, d'analyse, de recoupement et d'orientation des signalements"
+    definition: "Portail du ministère de l'Intérieur où signaler un contenu illicite de l'internet, examiné par des policiers et des gendarmes spécialisés."
+    liens: [an-qe-26203-pharos, sp-signaler-contenu-illicite]
   - id: sigle-onu
     sigle: ONU
     developpe: "Organisation des Nations unies"
