@@ -451,6 +451,18 @@ acteurs:
     verifie_le: 2026-09-06
     confiance: etabli
 
+  - id: commission-sondages
+    nom: "La Commission des sondages"
+    nom_court: "Commission des sondages"
+    type: organe_collegial
+    echelon: etat
+    pouvoirs: [independant]
+    releve_de: etat
+    resume: "Neuf membres issus du Conseil d'État, de la Cour de cassation, de la Cour des comptes et trois personnalités qualifiées : elle vérifie les sondages électoraux publiés, publie leurs notices et peut imposer une mise au point."
+    liens: [cds-membres, cds-fonctionnement, cds-obligations]
+    verifie_le: 2026-11-07
+    confiance: etabli
+
   - id: cnil
     nom: "La CNIL"
     nom_court: "CNIL"
@@ -461,6 +473,18 @@ acteurs:
     resume: "Contrôle l'usage des données personnelles, y compris par les administrations et les collectivités, et peut être saisie par toute personne concernée."
     liens: [wp-cnil, cnil-fr, loi-aai, wp-aai]
     verifie_le: 2026-09-06
+    confiance: etabli
+
+  - id: hatvp
+    nom: "La Haute Autorité pour la transparence de la vie publique"
+    nom_court: "HATVP"
+    type: autorite_independante
+    echelon: etat
+    pouvoirs: [independant]
+    releve_de: etat
+    resume: "Reçoit les déclarations des responsables publics et tient le répertoire public des représentants d'intérêts, dont elle contrôle les déclarations."
+    liens: [hatvp-faq-representation, od-hatvp-repertoire, od-hatvp-declarations]
+    verifie_le: 2026-11-07
     confiance: etabli
 
   # --- Le guichet de proximité ---------------------------------------------
@@ -1284,6 +1308,28 @@ acteurs:
     liens: [esp-liquidation-societe, esp-declarer-creances]
     verifie_le: 2026-11-04
     confiance: etabli
+
+  # --- Les rouages de l'influence, lot 1 (7 novembre 2026). Des archétypes :
+  # la famille ne nomme aucune organisation privée (docs/12-rouages-influence.md).
+  - id: institut-sondage
+    nom: "L'institut de sondage"
+    nom_court: "Institut de sondage"
+    type: entreprise
+    echelon: prive
+    resume: "Réalise une enquête auprès d'un échantillon représentatif pour le compte d'un commanditaire ; avant toute publication d'un sondage électoral, il en dépose la notice à la Commission des sondages."
+    liens: [cds-droits, cds-competences]
+    verifie_le: 2026-11-07
+    confiance: variable_selon_organisation
+
+  - id: representant-interets
+    nom: "Le représentant d'intérêts"
+    nom_court: "Représentant d'intérêts"
+    type: entreprise
+    echelon: prive
+    resume: "Une entreprise, une fédération professionnelle, une association, un cabinet de conseil : quiconque entre en contact, de sa propre initiative, avec des responsables publics pour peser sur une décision."
+    liens: [hatvp-faq-representation]
+    verifie_le: 2026-11-07
+    confiance: variable_selon_organisation
 
   # --- Lot 4 : embaucher un premier salarié (4 novembre 2026).
   - id: urssaf

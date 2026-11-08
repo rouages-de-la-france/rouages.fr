@@ -7,6 +7,7 @@
  * donnent ; seules celles dont la confiance est « établi » entrent. Un défi
  * par jour, le même pour tout le monde ; ensuite des parties libres.
  */
+import { familleCachee } from '../../modele/familles.ts';
 import Base from '../../layouts/Base.astro';
 import ClassementJeu from '../../composants/jeux/ClassementJeu.astro';
 import { chargerGraphe, formaterDelai } from '../../modele/graphe.ts';
@@ -17,7 +18,7 @@ const g = chargerGraphe();
 const NATURE = { maximum_legal: 'au plus', minimum_legal: 'au moins', indicatif: 'environ', observe: 'en pratique' } as const;
 /** [id, nom, étapes : [ordre, action, qui, conditionnelle, délai]] — dans l'ordre des id, pour que le tirage soit stable. */
 const procedures = [...g.processus.values()]
-  .filter((p) => p.confiance === 'etabli' && p.etapes.length >= 3 && p.etapes.every((e) => e.confiance === 'etabli'))
+  .filter((p) => !familleCachee(p.famille) && p.confiance === 'etabli' && p.etapes.length >= 3 && p.etapes.every((e) => e.confiance === 'etabli'))
   .sort((a, b) => a.id.localeCompare(b.id))
   .map((p) => [
     p.id,

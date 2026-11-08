@@ -1,9 +1,9 @@
 # 12 — Les rouages de l'influence : cadrage
 
-> Statut : **proposition du 6 novembre 2026, à valider par le mainteneur.**
-> Rien n'entre dans `contenu/` avant sa décision. Les sources citées plus bas
-> sont des pistes : chacune se relit au moment d'écrire la fiche qui s'en sert,
-> et aucun article de loi n'est cité ici de mémoire.
+> Statut : **proposition du 6 novembre 2026, tranchée le 7 novembre** — voir
+> « Ce que le mainteneur a décidé » en fin de document. Les sources citées
+> plus bas sont des pistes : chacune se relit au moment d'écrire la fiche qui
+> s'en sert, et aucun article de loi n'est cité ici de mémoire.
 
 `02-familles.md` décrit la famille D — « comment on vous oriente » — et la
 place en dernier : le prebunking n'a d'effet que porté par une source déjà
@@ -136,3 +136,30 @@ trouve rien à redire à la symétrie.
    premiers, adossés au droit, en laissant les campagnes coordonnées pour
    après ?
 4. **La relecture extérieure** : qui relit la symétrie avant publication ?
+
+## Ce que le mainteneur a décidé — 7 novembre 2026
+
+1. **Le moment.** La famille s'écrit maintenant, mais **ne se publie pas** :
+   le site a deux mois et n'a pas encore été promu. Elle paraîtra quand sa
+   notoriété sera vérifiable : une mesure d'audience sur plusieurs mois, au
+   moins une citation par un tiers, aucun signalement de partialité — les
+   seuils se fixeront au premier bilan. D'ici là, `INFLUENCE_PUBLIEE` vaut `false`
+   (`src/modele/familles.ts`) : les pages sont construites, pour la
+   relecture, mais marquées `noindex`, signalées par un bandeau, absentes du
+   plan du site, du réseau, de la carte d'ensemble et des jeux. Aucun lien
+   du site public n'y mène.
+2. **La règle sur les organisations** : aucune organisation privée nommée
+   dans la famille, même désignée par une source. `scripts/valider.ts`
+   refuse un acteur porteur de `designee_par` dans un processus de la
+   famille ; seuls les archétypes (« le représentant d'intérêts », « l'institut
+   de sondage ») et les institutions publiques y figurent.
+3. **Le premier lot** : les trois processus. Les deux premiers sont écrits —
+   `faire-entendre-un-interet` (HATVP) et `publier-un-sondage-electoral`
+   (Commission des sondages). Le troisième, sur les campagnes coordonnées,
+   s'écrit en dernier, à partir des rapports publics de Viginum.
+4. **La relecture de la symétrie** : le mainteneur, avant publication.
+   Le « critère pour continuer » reste celui d'une relecture par
+   une personne de sensibilité opposée ; il se rouvre au moment de publier.
+
+Le bandeau propre à la famille et l'entrée de menu à part (règle 3) ne sont
+pas faits : ils n'ont de sens qu'à la publication.

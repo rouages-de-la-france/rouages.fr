@@ -267,6 +267,20 @@ for (const a of g.acteurs.values()) {
   else if (!a.liens.includes(a.designee_par)) erreurs.push(`acteur « ${a.id} » : la source qui le désigne, « ${a.designee_par} », doit figurer parmi ses liens`);
 }
 
+// Dans la famille « influence », aucune organisation privée n'est nommée, même
+// désignée par une source (décision du 7 novembre 2026,
+// docs/12-rouages-influence.md) : présentée comme l'exemple d'un mécanisme
+// d'influence, elle serait mise en cause. Seules les institutions publiques y
+// ont un nom ; les autres sont des archétypes, sans « designee_par ».
+for (const p of g.processus.values()) {
+  if (p.famille !== 'influence') continue;
+  const ids = new Set([p.decideur, ...p.etapes.map((e) => e.acteur), ...p.leviers.map((l) => l.acteur).filter((x): x is string => !!x)]);
+  for (const id of ids) {
+    const a = g.acteurs.get(id);
+    if (a?.designee_par) erreurs.push(`processus « ${p.id} » : l'acteur « ${id} » est une organisation nommée (« designee_par ») ; la famille « influence » ne nomme aucune organisation privée`);
+  }
+}
+
 // Tout montant ou pourcentage d'un processus économique dit d'où il vient
 // (docs/10-rouages-economiques.md) : soit un texte qui le fixe, ou la page
 // officielle qui le présente, cité parmi les liens de l'élément ; soit une
