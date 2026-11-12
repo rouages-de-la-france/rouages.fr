@@ -41,6 +41,8 @@ jobs:
         run: npm run verifier-marches
       - name: Liens venus des registres, en http(s) seulement
         run: npm run verifier-liens
+      - name: Ressources data.gouv.fr choisies par leur titre, puis leur adresse
+        run: npm run verifier-ressources
       - name: Lecteurs géographiques (Lambert 93, GML, Shapefile)
         run: npm run verifier-geo
       - name: Particuliers nommés dans les délibérations
