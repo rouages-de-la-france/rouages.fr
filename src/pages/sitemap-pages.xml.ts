@@ -8,8 +8,8 @@
 import type { APIRoute } from 'astro';
 import { construireReseau } from '../modele/reseau.ts';
 import { plan } from '../modele/sitemap.ts';
-import { communes, intercommunalites, lienIntercommunalite } from '../modele/territoires.ts';
-import { collectivites, lienCollectivite } from '../modele/fiche-commune.ts';
+import { communes, intercommunalites, lienIntercommunalite, syndicats } from '../modele/territoires.ts';
+import { collectivites, lienCollectivite, marchesGroupement } from '../modele/fiche-commune.ts';
 
 export const GET: APIRoute = ({ site }) => {
   const base = site?.href.replace(/\/$/, '') ?? 'https://rouages.fr';
@@ -21,5 +21,7 @@ export const GET: APIRoute = ({ site }) => {
   // Les intercommunalités, les départements et les régions, une page chacun.
   const echelons = collectivites().map(lienCollectivite);
   const intercos = intercommunalites().map((e) => lienIntercommunalite(e.siren));
-  return plan(base, [...fixes, ...departements, ...echelons, ...intercos, ...noeuds]);
+  // Les syndicats qui publient des marchés : les seuls à avoir une page (src/pages/syndicat/).
+  const synd = syndicats().filter((s) => marchesGroupement(s)).map((s) => `/syndicat/${s.siren}`);
+  return plan(base, [...fixes, ...departements, ...echelons, ...intercos, ...synd, ...noeuds]);
 };

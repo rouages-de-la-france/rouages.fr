@@ -1,0 +1,23 @@
+---
+/**
+ * Un syndicat — intercommunal, mixte, pôle — qui publie des marchés : ses
+ * marchés ne sont plus repris sur la page de chacune de ses communes
+ * (décision du 12 novembre 2026), ils sont ici, et la commune y renvoie.
+ * Un syndicat sans marché publié n'a pas de page : il n'y aurait rien vers
+ * quoi renvoyer.
+ */
+import PageSyndicat from '../../composants/PageSyndicat.astro';
+import { marchesGroupement } from '../../modele/fiche-commune.ts';
+import { syndicats, type Intercommunalite } from '../../modele/territoires.ts';
+
+export function getStaticPaths() {
+  const filtre = process.env.ROUAGES_DEPS?.split(',').map((d) => d.trim()).filter(Boolean);
+  return syndicats(filtre)
+    .map((s) => ({ s, marches: marchesGroupement(s) }))
+    .filter((x) => x.marches)
+    .map(({ s, marches }) => ({ params: { siren: s.siren }, props: { s, marches } }));
+}
+
+const { s, marches } = Astro.props as { s: Intercommunalite; marches: NonNullable<ReturnType<typeof marchesGroupement>> };
+---
+<PageSyndicat s={s} marches={marches} />

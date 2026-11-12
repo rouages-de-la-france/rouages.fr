@@ -885,6 +885,7 @@ export interface Intercommunalite {
 }
 
 let toutesIntercos: Map<string, Intercommunalite> | undefined;
+let tousSyndicats: Map<string, Intercommunalite> | undefined;
 
 /**
  * Toutes les intercommunalités à fiscalité propre, lues une fois dans les
@@ -894,7 +895,20 @@ let toutesIntercos: Map<string, Intercommunalite> | undefined;
  * une fois.
  */
 function intercosParSiren(): Map<string, Intercommunalite> {
-  if (toutesIntercos) return toutesIntercos;
+  if (!toutesIntercos) toutesIntercos = groupementsParSiren(true);
+  return toutesIntercos;
+}
+
+/**
+ * Les syndicats — intercommunaux, mixtes, pôles —, lus de la même façon :
+ * les fichiers de structure les portent à côté des intercommunalités.
+ */
+function syndicatsParSiren(): Map<string, Intercommunalite> {
+  if (!tousSyndicats) tousSyndicats = groupementsParSiren(false);
+  return tousSyndicats;
+}
+
+function groupementsParSiren(fiscalitePropre: boolean): Map<string, Intercommunalite> {
   const out = new Map<string, Intercommunalite>();
   const m = metaTerritoires();
   const toutes = communes();
@@ -904,7 +918,7 @@ function intercosParSiren(): Map<string, Intercommunalite> {
     if (!m || !d) continue;
     const ici = new Map<number, Intercommunalite>();
     for (const [i, [siren, nom, nature, codes]] of d.g.entries()) {
-      if (!FISCALITE_PROPRE.has(nature)) continue;
+      if (FISCALITE_PROPRE.has(nature) !== fiscalitePropre) continue;
       let e = out.get(siren);
       if (!e) {
         const ids = [...new Set(codes.flatMap((k) => m.codes[k] ?? []))].sort();
@@ -942,7 +956,6 @@ function intercosParSiren(): Map<string, Intercommunalite> {
   // Une structure sans commune dans l'index — dissoute depuis, ou mal
   // rattachée — n'aurait qu'une page vide.
   for (const [siren, e] of out) if (e.communes.length === 0) out.delete(siren);
-  toutesIntercos = out;
   return out;
 }
 
@@ -955,6 +968,17 @@ export function intercommunalites(filtre?: string[]): Intercommunalite[] {
 
 export function intercommunalite(siren: string): Intercommunalite | null {
   return intercosParSiren().get(siren) ?? null;
+}
+
+/** Les syndicats qui ont au moins une commune dans les départements retenus, ou tous. */
+export function syndicats(filtre?: string[]): Intercommunalite[] {
+  const tous = [...syndicatsParSiren().values()];
+  if (!filtre || filtre.length === 0) return tous;
+  return tous.filter((e) => e.deps.some((d) => filtre.includes(d)));
+}
+
+export function syndicat(siren: string): Intercommunalite | null {
+  return syndicatsParSiren().get(siren) ?? null;
 }
 
 export function lienIntercommunalite(siren: string): string {

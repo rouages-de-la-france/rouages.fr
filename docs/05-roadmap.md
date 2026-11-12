@@ -3813,6 +3813,16 @@ passe de 393 à 383 Ko en médiane. Le reste des doublons vient des syndicats
 départementaux (énergie, déchets, eau), repris chacun sur 130 à 200 pages :
 non touché, faute de page à eux.
 
+**Même décision pour les syndicats, 12 novembre 2026** : chaque syndicat
+qui publie des marchés a sa page (`/syndicat/<SIREN>`) — ses compétences
+d'après BANATIC, ses marchés et ses échéances, ses communes membres —, et la
+page de commune ne garde que ses propres marchés, suivis de la liste de ses
+groupements, l'intercommunalité d'abord, chacun avec son nombre de marchés et
+le lien vers sa page. 1 318 pages de syndicat en France. Pas de rapprochement
+par le nom sous leurs marchés : le répertoire des élus ne dit pas qui
+représente sa commune au comité d'un syndicat. Allier : page de commune
+médiane de 383 à 327 Ko ; au Mayet-de-Montagne, de 478 à 413 Ko.
+
 **Qui finance la commune**, en tête de l'onglet de l'argent : les postes
 des comptes qui viennent d'autres que la commune, par habitant et face à la
 médiane, puis les subventions d'investissement de l'État et les fonds
