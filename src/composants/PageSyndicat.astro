@@ -1,0 +1,100 @@
+---
+/**
+ * La page d'un syndicat : ce que ses communes lui ont transféré, ses marchés,
+ * et ses communes membres. Les membres qui ne sont pas des communes — un
+ * département, une intercommunalité, dans un syndicat mixte — n'y sont pas :
+ * les fichiers de structure ne rattachent au syndicat que des communes.
+ *
+ * Pas de rapprochement par le nom sous ses marchés : ce rapprochement compare
+ * la déclaration d'un élu aux marchés des collectivités où il siège, et le
+ * répertoire des élus ne dit pas qui représente sa commune au comité d'un
+ * syndicat.
+ */
+import Base from '../layouts/Base.astro';
+import Glose from './Glose.astro';
+import Marches from './commune/Marches.astro';
+import { collectivites, lienCollectivite, type marchesGroupement } from '../modele/fiche-commune.ts';
+import { construireReseau } from '../modele/reseau.ts';
+import type { Intercommunalite } from '../modele/territoires.ts';
+
+interface Props {
+  s: Intercommunalite;
+  marches: NonNullable<ReturnType<typeof marchesGroupement>>;
+}
+const { s, marches } = Astro.props;
+const nf = (v: number) => v.toLocaleString('fr-FR');
+const n = s.communes.length;
+
+const reseau = construireReseau();
+const noeuds = new Map(reseau.noeuds.map((x) => [x.id, x]));
+const competences = s.competences
+  .map((c) => ({ ...c, noeud: noeuds.get(c.id) }))
+  .filter((c): c is typeof c & { noeud: NonNullable<typeof c.noeud> } => !!c.noeud)
+  .sort((a, b) => a.noeud.nom.localeCompare(b.noeud.nom, 'fr'));
+
+const pagesDep = new Map(collectivites().filter((c) => c.echelon === 'departement').map((c) => [c.code, c]));
+const departements = [
+  ...new Map(
+    s.deps.flatMap((d) => {
+      const c = pagesDep.get(d === '67' || d === '68' ? '67A' : d);
+      return c ? [[c.code, c] as const] : [];
+    }),
+  ).values(),
+];
+const total = marches.liste[0]?.total ?? 0;
+---
+<Base
+  titre={s.nom}
+  description={`${s.natureLibelle} de ${nf(n)} commune${n > 1 ? 's' : ''} : ce que ses communes lui ont transféré, et ses ${nf(total)} marchés publics.`}
+  section="chez-moi"
+>
+  <div class="page page--etroite">
+    <p class="badge">
+      {s.natureLibelle}
+      {departements.map((c) => (
+        <>{' · '}<a href={lienCollectivite(c)}>{c.nom}</a></>
+      ))}
+    </p>
+    <h1>{s.nom}</h1>
+    <p class="resume">
+      {`${nf(n)} commune${n > 1 ? 's' : ''} membre${n > 1 ? 's' : ''}, ${nf(s.population)} habitants. ` +
+        'Ce que ses communes lui ont transféré, ce qu’il commande, et ses communes.'}
+    </p>
+
+    {competences.length > 0 && (
+      <section id="competences">
+        <h2 class="badge">Ce que ses communes lui ont transféré</h2>
+        <ul class="c-structures">
+          {competences.map((c) => (
+            <li>
+              <a href={`/n/${c.noeud.id}`}><Glose texte={c.noeud.court} /></a>
+            </li>
+          ))}
+        </ul>
+        <p class="p-source-territoire">
+          {`D’après les transferts de compétences déclarés à BANATIC (${s.maj}), parmi celles que le site décrit.`}
+        </p>
+      </section>
+    )}
+
+    <section id="marches" class="p-marches">
+      <h2 class="badge">Ses marchés publics</h2>
+      <Marches liste={marches.liste} depuis={marches.depuis} fenetre={marches.fenetre} procedures={marches.procedures} departement={s.deps.length === 1 ? s.deps[0] : undefined} />
+    </section>
+
+    <section id="communes" class="p-echelons">
+      <h2 class="badge">{n > 1 ? `Ses ${nf(n)} communes membres` : 'Sa commune membre'}</h2>
+      <ul class="c-communes">
+        {s.communes.map((c) => (
+          <li>
+            <a href={`/commune/${c.code}`}>{c.nom}</a>
+            <span class="c-departement-detail">{`${nf(c.population)} hab.`}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="p-source-territoire">
+        {`D’après BANATIC (${s.maj}) et les populations légales de l’INSEE. Seules les communes sont listées : un syndicat mixte peut compter d’autres membres.`}
+      </p>
+    </section>
+  </div>
+</Base>

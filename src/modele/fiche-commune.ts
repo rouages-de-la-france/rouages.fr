@@ -1137,10 +1137,10 @@ export function marchesCompletsDe(dep: string, acheteur: string): { objet: strin
 }
 
 /**
- * Les marchés d'une intercommunalité à fiscalité propre, pour sa page : lus
+ * Les marchés d’un groupement — intercommunalité ou syndicat —, pour sa page : lus
  * dans le fichier du premier de ses départements qui les porte.
  */
-export function marchesIntercommunalite(e: { siren: string; nom: string; natureLibelle: string; deps: string[] }): {
+export function marchesGroupement(e: { siren: string; nom: string; natureLibelle: string; deps: string[] }): {
   liste: AcheteurMarches[];
   depuis: string | null;
   fenetre: [string, string] | null;

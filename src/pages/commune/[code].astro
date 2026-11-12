@@ -160,7 +160,13 @@ const rapprochementsMarches = parTitulaire([...rapprochementsParElu.values()].fl
 // Les marchés de l'intercommunalité sont sur sa page, une fois, plutôt que sur
 // celle de chacune de ses communes : la commune garde un renvoi (décision du
 // 12 novembre 2026). Le rapprochement sous l'élu, lui, les compte toujours.
-const marchesAffiches = plus.marches.filter((a) => a !== acheteurEpci);
+const marchesAffiches = plus.marches.filter((a) => a === acheteurCommune);
+// Les groupements — l'intercommunalité d'abord, puis les syndicats — ont leur
+// page, où sont leurs marchés ; la commune y renvoie, avec leur nombre.
+const marchesGroupements = plus.marches
+  .filter((a) => a !== acheteurCommune)
+  .map((a) => ({ a, lien: a === acheteurEpci ? `/intercommunalite/${a.siren}#marches` : `/syndicat/${a.siren}#marches` }))
+  .sort((x, y) => Number(y.a === acheteurEpci) - Number(x.a === acheteurEpci) || y.a.total - x.a.total);
 const vie = complementsVie(commune);
 const carte = carteDeSituation(commune);
 const espaces = espacesNaturels(commune);
@@ -996,13 +1002,25 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
         {marchesAffiches.length > 0 && (
           <Marches liste={marchesAffiches} depuis={plus.marchesDepuis} fenetre={plus.marchesFenetre} procedures={plus.marchesProcedures} rapprochements={rapprochementsMarches} departement={commune.dep} />
         )}
-        {acheteurEpci && epciFp && (
-          <p class="mesure p-marches-epci">
-            {`L’intercommunalité, ${acheteurEpci.nom}, a notifié ${acheteurEpci.total.toLocaleString('fr-FR')} marché${acheteurEpci.total > 1 ? 's' : ''}` +
-              (plus.marchesDepuis ? ` depuis ${plus.marchesDepuis.slice(0, 4)}` : '') +
-              ', pour ses communes. '}
-            <a href={`/intercommunalite/${epciFp.siren}#marches`}>Ils sont sur sa page</a>, avec ses échéances.
-          </p>
+        {marchesGroupements.length > 0 && (
+          <>
+            <p class="mesure p-marches-epci">
+              {marchesAffiches.length > 0
+                ? 'Les groupements dont la commune est membre commandent aussi pour elle. Leurs marchés et leurs échéances sont sur leur page :'
+                : 'Les groupements dont la commune est membre commandent pour elle. Leurs marchés et leurs échéances sont sur leur page :'}
+            </p>
+            <ul class="c-structures p-marches-groupements">
+              {marchesGroupements.map(({ a, lien }) => (
+                <li>
+                  <a href={lien}>{a.nom}</a>
+                  <span class="v-nature">
+                    {`${a === acheteurEpci ? 'intercommunalité, ' : ''}${a.total.toLocaleString('fr-FR')} marché${a.total > 1 ? 's' : ''}` +
+                      (plus.marchesDepuis ? ` depuis ${plus.marchesDepuis.slice(0, 4)}` : '')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
         <Ailleurs sites={SITES_COMMANDE_PUBLIQUE} titre="Pour qui achète ou répond" />
         <Ailleurs sites={SITES_VERIFIER_ENTREPRISE} titre="Vérifier un titulaire ou un candidat" />

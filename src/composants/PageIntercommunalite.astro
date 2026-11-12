@@ -22,7 +22,7 @@ import {
   collectivites,
   comptesCollectivite,
   lienCollectivite,
-  marchesIntercommunalite,
+  marchesGroupement,
 } from '../modele/fiche-commune.ts';
 import Marches from './commune/Marches.astro';
 import { parTitulaire, rapprocher, type Rapprochement } from '../modele/recoupements.ts';
@@ -83,7 +83,7 @@ const petiteEnfance = petiteEnfanceCollectivite('intercommunalite', e.siren);
 // Le rapprochement par le nom (`recoupements.ts`) : la déclaration de chaque
 // élu d'une de ses communes qui siège au conseil communautaire, comparée aux
 // titulaires de ses marchés — le même calcul que sous l'élu, sur sa commune.
-const marches = marchesIntercommunalite(e);
+const marches = marchesGroupement(e);
 const rapprochementsParElu = new Map<string, Rapprochement[]>();
 if (marches) {
   for (const c of e.communes) {
