@@ -16,6 +16,7 @@
  * non d'une prudence de principe.
  */
 import { depuisCp1252 } from './geo-formats.ts';
+import { ressourcesQuiPortent } from './ressource-motif.ts';
 
 /**
  * Le délimiteur change d'un producteur à l'autre : Mégalis Bretagne écrit en
@@ -256,10 +257,10 @@ export async function ressourcesDuJeu(
     const d = await json<{ data?: Ressource[] }>(
       `https://www.data.gouv.fr/api/2/datasets/${encodeURIComponent(jeu)}/resources/?page_size=100`,
     );
-    const cherche = motif.toLowerCase();
-    const urls = (d.data ?? [])
-      .filter((r) => r.url && (r.title ?? r.url ?? '').toLowerCase().includes(cherche))
-      .map((r) => r.url!);
+    const urls = ressourcesQuiPortent(
+      (d.data ?? []).filter((r) => r.url),
+      motif,
+    ).map((r) => r.url!);
     if (urls.length === 0) {
       dire(`  le jeu « ${jeu} » ne porte aucune ressource « ${motif} » : il a changé de forme.`);
     }

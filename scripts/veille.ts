@@ -26,6 +26,7 @@ import { join } from 'node:path';
 import { chargerGraphe, RACINE } from '../src/modele/graphe.ts';
 import type { Surveillance } from '../src/modele/schemas.ts';
 import { veillerAides } from './veille-aides.ts';
+import { ressourcesQuiPortent } from './ressource-motif.ts';
 
 // Le fetch intégré de Node ne lit la configuration de proxy qu'à son démarrage.
 if (process.env.HTTPS_PROXY && process.env.NODE_USE_ENV_PROXY !== '1') {
@@ -353,10 +354,7 @@ const controles: Record<
     const d = (await (await obstine(`https://www.data.gouv.fr/api/1/datasets/${s.url}/`)).json()) as {
       resources?: { title?: string; url?: string; last_modified?: string; created_at?: string }[];
     };
-    const motif = (s.ressource ?? '').toLowerCase();
-    const candidates = (d.resources ?? []).filter((r) =>
-      (r.title ?? r.url ?? '').toLowerCase().includes(motif),
-    );
+    const candidates = ressourcesQuiPortent(d.resources ?? [], s.ressource ?? '');
     if (candidates.length === 0) {
       return {
         gravite: 'alerte',
