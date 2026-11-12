@@ -112,6 +112,7 @@ import { pcaet } from '../../modele/pcaet.ts';
 import { patrimoineMondial } from '../../modele/patrimoine-mondial.ts';
 import Production from '../../composants/commune/Production.astro';
 import Monuments from '../../composants/commune/Monuments.astro';
+import Culture from '../../composants/commune/Culture.astro';
 import SolsPollues from '../../composants/commune/SolsPollues.astro';
 import Installations from '../../composants/commune/Installations.astro';
 import Lieux from '../../composants/commune/Lieux.astro';
@@ -397,6 +398,7 @@ const sommaire: [string, string, unknown][] = [
   ['nature', 'Les espaces naturels', espaces],
   ['mobile', 'Le mobile : antennes et couverture', vie.antennes || vie.couvertureMobile],
   ['production', 'L’électricité produite', vie.production],
+  ['culture', 'Les lieux culturels', vie.culture],
   ['monuments', 'Les monuments historiques', vie.monuments],
   ['a-voir', 'À voir', vie.lieux],
   ['securite', 'La délinquance', vie.delinquance],
@@ -450,7 +452,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'environnement',
     nom: 'Environnement et patrimoine',
-    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'production', 'monuments', 'a-voir'],
+    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'production', 'culture', 'monuments', 'a-voir'],
   },
   { id: 'suivre', nom: 'Suivre la commune', blocs: ['journal', 'ailleurs'] },
 ];
@@ -1187,6 +1189,13 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
         <h2 class="badge">L’électricité produite sur la commune</h2>
         <Production p={vie.production} />
         <Ailleurs sites={ailleurs.filter((x) => x.id === 'terristory')} titre="Pour aller plus loin" />
+      </section>
+    )}
+
+    {vie.culture && (
+      <section id="culture">
+        <h2 class="badge">Les lieux culturels</h2>
+        <Culture c={vie.culture} />
       </section>
     )}
 

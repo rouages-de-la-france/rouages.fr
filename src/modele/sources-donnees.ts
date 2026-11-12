@@ -417,6 +417,10 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /Basilic/,
+    liens: [{ titre: 'Base des lieux et équipements culturels (Basilic), ministère de la Culture', url: dg('61777ddaa9101d073e5506cd') }],
+  },
+  {
     motif: /base Mérimée/i,
     liens: [
       { titre: 'Immeubles protégés au titre des monuments historiques', url: dg('5af120e5b595087cfabcde81') },

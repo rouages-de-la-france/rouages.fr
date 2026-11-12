@@ -3034,7 +3034,7 @@ réécrit ces fichiers seul.
   change aux abords — l'architecte des Bâtiments de France, et les 500 mètres
   de l'article L621-30, vérifié par recherche web — et qu'elle n'a pas les
   périmètres. Au Mayet-de-Montagne : aucun ; à Vichy : 51, dont 4 classés.
-  Les **équipements culturels** restent à sonder.
+  Les **équipements culturels** : sondés le 12 novembre 2026, voir « Les lieux culturels » plus bas.
 - **À voir** ✔ (`lieux-emettre.ts`, demandé le 30 septembre en complément des
   monuments) : d'après DATAtourisme, la base que tiennent les offices de
   tourisme — un fichier par région, republié chaque nuit. Trois familles
@@ -3720,6 +3720,36 @@ leur est rattaché que par son SIRET, jamais par le nom.
 **Ce que ça coûte.** `echeances.json` passe de 9,8 à 14,3 Mo,
 `attributions.json` de 5,6 à 8,6 Mo ; la collecte relit au répertoire
 98 637 titulaires au lieu de 75 030, et 2 490 SIRET d'acheteurs de plus.
+
+### Les lieux culturels — en attente de la prochaine ingestion
+
+Sur la page de chaque commune, onglet « Environnement et patrimoine » : les
+bibliothèques, cinémas, théâtres et scènes, musées, conservatoires, services
+d'archives, sites patrimoniaux remarquables, parcs et jardins, lieux de
+mémoire et lieux archéologiques, d'après la base des lieux et équipements
+culturels (Basilic) du ministère de la Culture (`scripts/culture-emettre.ts`,
+fichiers `dep/XX-culture.json`, collecte isolée, surveillée par la veille).
+Version lue : celle du 18 février 2026.
+
+Écartés : les monuments historiques, que la page tient déjà de Mérimée ; les
+librairies, papeteries et maisons de la presse, des commerces souvent au nom
+de leur exploitant, donc des entrepreneurs individuels que le site ne nomme
+que d'après SIRENE. La base nomme aussi des points lecture d'après la
+personne qui les tient (« Domicile de Mme … », un prénom et un nom suivis de
+« Mairie ») : un nom qui porte une civilité ou « domicile », ou qui ressemble
+à celui d'une personne sans dire ce qu'est le lieu, n'est pas repris — la
+page dit le type de lieu sans son nom. 120 lieux sur 25 939 ; le prix en est
+une soixantaine de cinémas montrés sans leur nom (Jean Gabin, Max Linder…).
+Un lieu qui porte le nom de quelqu'un qu'on honore, avec ce qu'il est
+(« médiathèque Louis Aragon »), garde son nom, comme l'école Yves Duteil.
+
+Recoupé le 12 novembre 2026 par un calcul indépendant : 25 956 lieux des
+types retenus ; 17 à l'étranger ou sans commune (la villa Médicis, Hauteville
+House…), 44 dans des collectivités d'outre-mer sans page — 25 895 écrits. Au
+Mayet-de-Montagne, la bibliothèque, place de l'Église, seule ; la base des
+équipements de l'INSEE, qui ne garde de la culture que les bibliothèques, en
+compte une aussi. À Vichy, huit lieux, dont l'Étoile Palace (Art et essai,
+sept écrans) et le site patrimonial remarquable.
 
 ## Phase 3 — Élargir
 
