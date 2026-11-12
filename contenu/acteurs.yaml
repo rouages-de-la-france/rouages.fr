@@ -1380,6 +1380,36 @@ acteurs:
     confiance: etabli
 
   # --- Lot 5 : la filière lait (4 novembre 2026). Trois archétypes.
+  - id: elevage-viande
+    nom: "L'élevage"
+    nom_court: "Élevage"
+    type: entreprise
+    echelon: prive
+    resume: "Une exploitation qui élève des bovins ou des porcs et les vend à l'abattoir ; l'Observatoire suit le prix qu'elle en reçoit."
+    liens: [ofpm-rapport-2026-viande]
+    verifie_le: 2026-11-12
+    confiance: variable_selon_organisation
+
+  - id: abattage-decoupe
+    nom: "L'abattoir et l'atelier de découpe"
+    nom_court: "Abattage-découpe"
+    type: entreprise
+    echelon: prive
+    resume: "L'industriel qui abat les animaux, découpe les carcasses et vend les morceaux : à la grande surface, ou à la charcuterie qui les transforme."
+    liens: [ofpm-rapport-2026-viande]
+    verifie_le: 2026-11-12
+    confiance: variable_selon_organisation
+
+  - id: charcuterie-salaison
+    nom: "L'industriel de la charcuterie"
+    nom_court: "Charcuterie-salaison"
+    type: entreprise
+    echelon: prive
+    resume: "Il achète les jambons à l'abattoir, les cuit et les conditionne, sous sa marque ou sous celle d'un distributeur."
+    liens: [ofpm-rapport-2026-viande]
+    verifie_le: 2026-11-12
+    confiance: variable_selon_organisation
+
   - id: exploitation-laitiere
     nom: "L'exploitation laitière"
     nom_court: "Exploitation laitière"
