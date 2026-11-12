@@ -915,6 +915,22 @@ abbr[title] {
   cursor: help;
 }
 .p-nom abbr, .p-relations abbr { text-decoration-color: var(--trait); }
+/* Au toucher, une bulle donne le développé (src/client/sigles.ts) : un écran tactile n'a pas de survol. */
+abbr[title][tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.bulle-sigle {
+  position: absolute;
+  z-index: 50;
+  max-width: min(32rem, calc(100vw - 32px));
+  padding: .5rem .7rem;
+  background: var(--fond-carte);
+  color: var(--encre);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--rayon);
+  box-shadow: 0 4px 14px rgb(0 0 0 / .12);
+  font-size: .88rem;
+  line-height: 1.4;
+}
+.bulle-sigle[hidden] { display: none; }
 
 /* ------------------------------------------------------------------ *
  * Pages de nœud — le repli sans JavaScript
