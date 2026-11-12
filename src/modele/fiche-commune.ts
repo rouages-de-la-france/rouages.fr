@@ -1137,6 +1137,24 @@ export function marchesCompletsDe(dep: string, acheteur: string): { objet: strin
 }
 
 /**
+ * Les marchés d'une intercommunalité à fiscalité propre, pour sa page : lus
+ * dans le fichier du premier de ses départements qui les porte.
+ */
+export function marchesIntercommunalite(e: { siren: string; nom: string; natureLibelle: string; deps: string[] }): {
+  liste: AcheteurMarches[];
+  depuis: string | null;
+  fenetre: [string, string] | null;
+  procedures: string[];
+} | null {
+  for (const dep of e.deps) {
+    const d = marchesDep.get(dep);
+    const a = d ? acheteurMarches(d, e.siren, e.nom, e.natureLibelle) : null;
+    if (d && a) return { liste: [a], depuis: d.depuis, fenetre: d.fenetre ?? null, procedures: d.procedures };
+  }
+  return null;
+}
+
+/**
  * Les marchés d'un département, d'une région ou de la collectivité qui en
  * tient lieu, lus dans le fichier du premier département qu'elle couvre.
  */

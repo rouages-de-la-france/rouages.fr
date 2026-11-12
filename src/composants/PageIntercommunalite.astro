@@ -22,9 +22,13 @@ import {
   collectivites,
   comptesCollectivite,
   lienCollectivite,
+  marchesIntercommunalite,
 } from '../modele/fiche-commune.ts';
+import Marches from './commune/Marches.astro';
+import { parTitulaire, rapprocher, type Rapprochement } from '../modele/recoupements.ts';
+import { personne, siegesCommunautaires } from '../modele/sieges-communautaires.ts';
 import { construireReseau } from '../modele/reseau.ts';
-import { metaTerritoires, type Intercommunalite } from '../modele/territoires.ts';
+import { ficheCommune, metaTerritoires, type Intercommunalite } from '../modele/territoires.ts';
 import { investissementCollectivite, petiteEnfanceCollectivite, zonagesGroupe } from '../modele/fiche-vie.ts';
 import ZonagesGroupe from './ZonagesGroupe.astro';
 import Investissement from './commune/Investissement.astro';
@@ -75,6 +79,24 @@ const zonages = zonagesGroupe(e.communes);
 const carte = carteDeCommunes(e.communes.map((c) => ({ code: c.code, nom: c.nom, groupe: e.siren })));
 const investissement = investissementCollectivite('intercommunalite', e.siren);
 const petiteEnfance = petiteEnfanceCollectivite('intercommunalite', e.siren);
+// Ses marchés, qui ne sont plus repris sur la page de chacune de ses communes.
+// Le rapprochement par le nom (`recoupements.ts`) : la déclaration de chaque
+// élu d'une de ses communes qui siège au conseil communautaire, comparée aux
+// titulaires de ses marchés — le même calcul que sous l'élu, sur sa commune.
+const marches = marchesIntercommunalite(e);
+const rapprochementsParElu = new Map<string, Rapprochement[]>();
+if (marches) {
+  for (const c of e.communes) {
+    const f = ficheCommune(c, []);
+    const sieges = siegesCommunautaires(f);
+    for (const d of f?.declarations ?? []) {
+      if (!sieges.has(personne(d.nom)) || rapprochementsParElu.has(d.page)) continue;
+      const r = rapprocher({ elu: d.nom, page: d.page, contenu: d.contenu }, [{ siren: e.siren, nom: e.nom, dep: c.dep }]);
+      if (r.length) rapprochementsParElu.set(d.page, r);
+    }
+  }
+}
+const rapprochementsMarches = parTitulaire([...rapprochementsParElu.values()].flat());
 ---
 <Base
   titre={e.nom}
@@ -150,6 +172,13 @@ const petiteEnfance = petiteEnfanceCollectivite('intercommunalite', e.siren);
       <section id="percu" class="p-finances p-flux-percus">
         <h2 class="badge">Ce qu’elle perçoit à la place des communes</h2>
         <FluxPercus liste={flux} annees={anneesFlux()} />
+      </section>
+    )}
+
+    {marches && (
+      <section id="marches" class="p-marches">
+        <h2 class="badge">Ses marchés publics</h2>
+        <Marches liste={marches.liste} depuis={marches.depuis} fenetre={marches.fenetre} procedures={marches.procedures} rapprochements={rapprochementsMarches} departement={e.deps.length === 1 ? e.deps[0] : undefined} />
       </section>
     )}
 
