@@ -1,0 +1,99 @@
+# De l'élevage à la viande en rayon : la troisième filière des rouages
+# économiques (docs/10-rouages-economiques.md), après le pain et le lait. Les
+# montants sont ceux de deux graphiques du rapport 2026 de l'Observatoire de la
+# formation des prix et des marges, pour 2025, en euros par kilo vendu en
+# grande surface : le jambon cuit (graphique 42, p. 156) et la viande de bœuf
+# hachée à 15 % de matière grasse (graphique 59, p. 187). Recoupés le
+# 12 novembre 2026, par un calcul à part : les composantes retombent sur le
+# prix à un centime près, les écarts que le rapport écrit en marge (− 73
+# centimes pour le jambon ; + 27 % pour la matière première du haché, − 13 %
+# pour chacune des deux marges, + 7 % pour le prix) se retrouvent, et les
+# 36 valeurs lues sur l'image figurent toutes dans le texte de leur page.
+# L'en-tête de la page 156 porte « rapport au Parlement / 2025 » ; c'est
+# pourtant bien le fichier de 2026, et la série va jusqu'à 2025.
+processus:
+  - id: de-l-elevage-a-la-viande-en-rayon
+    nom: "De l'élevage à la viande en rayon"
+    famille: economiques
+    resume: "De l'élevage au rayon : qui intervient entre l'animal et la barquette, et comment se décompose le prix du steak haché et du jambon cuit en grande surface, d'après l'Observatoire de la formation des prix et des marges."
+    declencheur: "La vente d'un animal à l'abattoir"
+    sortie: "Un kilo de viande hachée ou de jambon cuit vendu en grande surface"
+    decideur: grande-surface
+    liens: [ofpm-rapport-2026-viande, ofpm-rapports]
+    verifie_le: 2026-11-12
+    # Le prochain rapport paraît en principe l'été suivant : la fiche se relit alors.
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: elevage-viande
+        action: "Vente des animaux à l'abattoir"
+        note: "En 2025, le porc s'est payé en moyenne 1,94 € le kilo de carcasse à l'entrée de l'abattoir, d'après le rapport de l'Observatoire. Pour la viande hachée, l'Observatoire raisonne sur une carcasse de vache type, à 47 % allaitante et à 53 % laitière, composition fixée en 2019."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 2
+        acteur: abattage-decoupe
+        action: "Abattage, découpe et hachage"
+        note: "L'abattoir découpe la carcasse et vend les morceaux à part. Pour le haché, l'Observatoire ne compte donc pas en matière première le prix de toute la carcasse, mais ce qu'il en reste une fois déduite la valeur des pièces vendues entières. Pour le jambon, il compte la valeur du jambon dans la carcasse de porc."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 3
+        acteur: charcuterie-salaison
+        action: "Cuisson et conditionnement du jambon"
+        note: "Le jambon cuit passe par un deuxième industriel, qui le cuit et le conditionne, sous sa marque ou sous celle du distributeur. L'Observatoire suit le prix moyen des deux, pondéré par les volumes vendus."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 4
+        acteur: grande-surface
+        action: "Mise en rayon et vente au kilo"
+        note: "L'Observatoire décompose le prix au détail en hypermarchés et supermarchés, en moyenne sur l'année, du haché réfrigéré, et du jambon cuit en libre-service."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 5
+        acteur: citoyen
+        action: "Achat d'un kilo de viande de bœuf hachée, et ce que paie le prix"
+        note: "En 2025, un kilo de viande de bœuf hachée à 15 % de matière grasse coûte en moyenne 14,38 € en grande surface : 8,20 € de matière première, 2,48 € de marge brute de l'abattage-découpe, 2,94 € de marge brute de la grande surface et 0,75 € de TVA. Par rapport à 2024, la matière première augmente de 27 % et les deux marges baissent chacune de 13 % ; le prix monte de 7 %. Les montants sont arrondis au centime : leur somme s'écarte du prix d'un centime."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 6
+        acteur: citoyen
+        action: "Achat d'un kilo de jambon cuit, et ce que paie le prix"
+        note: "En 2025, un kilo de jambon cuit coûte en moyenne 13,60 € en grande surface : 4,40 € de matière première, 1,42 € de marge brute de l'abattage-découpe, 4,89 € de marge brute de la charcuterie, 2,18 € de marge brute de la grande surface et 0,71 € de TVA. Par rapport à 2024, le prix baisse de 73 centimes, dont 49 sur la matière première et 50 sur la marge de la grande surface, quand les marges de l'abattage-découpe et de la charcuterie montent de 17 et de 12 centimes."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 7
+        acteur: observatoire-prix-marges
+        action: "Publication annuelle de la décomposition, dans un rapport au Parlement"
+        note: "Le rapport 2026 est paru le 9 juillet 2026 et porte sur 2024 et 2025. Il suit aussi d'autres morceaux de porc, un panier de viande de bœuf et la viande de veau, et étudie la viande ovine ; cette fiche reprend le haché et le jambon cuit."
+        liens: [ofpm-rapports, ofpm-rapport-2026-viande]
+        confiance: etabli
+      - ordre: 8
+        acteur: mediateur-relations-agricoles
+        action: "Médiation d'un litige commercial entre professionnels de la filière"
+        conditionnelle: true
+        note: "De l'éleveur au distributeur, tout professionnel du secteur peut le saisir, gratuitement. Entre professionnels, la médiation est obligatoire avant de saisir le juge."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
+
+    leviers:
+      - id: lire-la-decomposition-du-prix-de-la-viande
+        quoi: "Lire la décomposition du prix de la viande dans le rapport de l'Observatoire"
+        quand: "Chaque année, à la parution du rapport au Parlement — le 9 juillet en 2026"
+        aupres_de: "L'Observatoire de la formation des prix et des marges, sur le site de FranceAgriMer"
+        difficulte: faible
+        ancre_etape: 7
+        piege: "Une marge brute n'est pas un bénéfice : elle doit couvrir les coûts d'abattage, de transformation et de vente. Et la baisse de la marge de la grande surface sur le haché n'est pas forcément une perte : le rapport y voit une péréquation, des prix tenus bas sur des produits d'appel et compensés ailleurs. La part de chaque morceau dans le haché, fixée en 2019, ne suit pas non plus les évolutions récentes."
+        liens: [ofpm-rapport-2026-viande]
+        confiance: etabli
+      - id: saisir-le-mediateur-agricole-viande
+        acteur: elevage-viande
+        quoi: "Saisir le médiateur des relations commerciales agricoles"
+        quand: "En cas de litige avec un acheteur sur le contrat de vente des animaux, avant de saisir le juge"
+        aupres_de: "Le médiateur des relations commerciales agricoles, gratuitement"
+        difficulte: moyenne
+        ancre_etape: 8
+        recours_si_refus: "Le juge, une fois la médiation tentée"
+        piege: "Entre professionnels, la médiation est obligatoire avant toute saisine du juge, sauf si le contrat prévoit une autre médiation ou un arbitrage."
+        liens: [agri-mediateur-relations-commerciales]
+        confiance: etabli
