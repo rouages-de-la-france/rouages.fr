@@ -961,6 +961,12 @@ async function principal() {
   );
   if (monuments) grise(`${ecrireMonuments(SORTIE, monuments)} départements de monuments écrits.`);
 
+  const { collecterCulture, ecrireCulture } = await import('./culture-emettre.ts');
+  const culture = await tenter('Lieux culturels', () =>
+    collecterCulture(lireJson as <T>(url: string) => Promise<T>, enCache('Basilic — lieux et équipements culturels (50 Mo)'), CACHE, grise),
+  );
+  if (culture) grise(`${ecrireCulture(SORTIE, culture)} départements de lieux culturels écrits.`);
+
   const { collecterLieux, ecrireLieux } = await import('./lieux-emettre.ts');
   const lieux = await tenter('Lieux à voir', () =>
     collecterLieux(lireJson, enCache('DATAtourisme — lieux, par région (400 Mo)'), CACHE, grise),

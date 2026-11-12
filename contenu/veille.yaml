@@ -588,6 +588,16 @@ surveillances:
     ressource: "datatourisme-reg-ara.csv"
     lien: od-datatourisme
 
+  - id: basilic
+    nom: "Basilic — lieux et équipements culturels"
+    alimente: "les bibliothèques, cinémas, musées, scènes, conservatoires et archives de la commune"
+    # Republiée sans calendrier, sous une adresse horodatée : on suit le jeu.
+    type: datagouv-ressource
+    licence: licence-ouverte-2.0
+    url: "61777ddaa9101d073e5506cd"
+    ressource: "base-des-lieux"
+    lien: od-basilic
+
   - id: merimee
     nom: "Mérimée — monuments historiques"
     alimente: "les monuments historiques de la commune"

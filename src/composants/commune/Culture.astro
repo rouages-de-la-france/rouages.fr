@@ -1,0 +1,56 @@
+---
+/**
+ * Les lieux culturels de la commune, d'après la base Basilic du ministère de
+ * la Culture. Ni monument historique — le bloc d'à côté —, ni librairie ou
+ * maison de la presse, qui sont des commerces : voir `scripts/culture-emettre.ts`.
+ */
+import type { Culture } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  c: Culture;
+}
+const { c } = Astro.props;
+const MONTRES = 15;
+const nf = (n: number) => n.toLocaleString('fr-FR');
+const sansNom = c.types.some((t) => t.lieux.some((l) => l.nom === null));
+const detail = (l: Culture['types'][number]['lieux'][number]) =>
+  [l.label, l.ecrans > 0 ? `${nf(l.ecrans)} écran${l.ecrans > 1 ? 's' : ''}` : null].filter(Boolean).join(', ');
+---
+{c.total === 0 ? (
+  <p class="mesure">
+    La base du ministère de la Culture ne recense dans la commune ni bibliothèque, ni cinéma, ni musée, ni salle de
+    spectacle, ni conservatoire. Un point lecture associatif ou une salle des fêtes qui accueille des spectacles peut y
+    manquer.
+  </p>
+) : (
+  <>
+    <p class="mesure">
+      {`${nf(c.total)} lieu${c.total > 1 ? 'x' : ''} culturel${c.total > 1 ? 's' : ''} recensé${c.total > 1 ? 's' : ''} dans la commune par le ministère de la Culture.`}
+    </p>
+    {c.types.map((t) => (
+      <>
+        <h3 class="p-titre-echelon">{`${t.type}${t.lieux.length > 1 ? ` (${nf(t.lieux.length)})` : ''}`}</h3>
+        <ul class="c-structures">
+          {t.lieux.slice(0, MONTRES).map((l) => (
+            <li>
+              {l.nom ?? <em>nom non repris</em>}
+              {detail(l) && <span class="p-strate">{` — ${detail(l)}`}</span>}
+            </li>
+          ))}
+        </ul>
+        {t.lieux.length > MONTRES && <p class="p-strate">{`Et ${nf(t.lieux.length - MONTRES)} autres.`}</p>}
+      </>
+    ))}
+  </>
+)}
+<p class="p-strate">
+  Les monuments historiques sont dans le bloc qui leur est consacré ; les librairies et les maisons de la presse, qui
+  sont des commerces, ne sont pas reprises. La base agrège les fichiers des services du ministère et de ses
+  établissements&nbsp;: elle peut contenir des oublis ou des erreurs d’adresse, à signaler au ministère
+  (atlasculture@culture.gouv.fr).
+  {sansNom &&
+    ' Un lieu est montré sans son nom quand ce nom pourrait être celui d’un particulier — un point lecture tenu chez l’habitant, par exemple.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après la base des lieux et équipements culturels (Basilic) du ministère de la Culture, version du ${c.base} (lue le ${c.maj}).`}
+</p>

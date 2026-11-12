@@ -140,6 +140,8 @@ type ProductionDep = { maj: string; au: string; filieres: string[]; c: Record<st
 const productionDep = parDepartement<ProductionDep>('production');
 type MonumentsDep = { maj: string; c: Record<string, [string, string, 0 | 1][]> };
 const monumentsDep = parDepartement<MonumentsDep>('monuments');
+type CultureDep = { maj: string; base: string; types: string[]; c: Record<string, [number, string, string, number][]> };
+const cultureDep = parDepartement<CultureDep>('culture');
 type InvestissementDep = { maj: string; exercices: number[]; c: Record<string, [number, string, string, number, number][]> };
 const investissementDep = parDepartement<InvestissementDep>('investissement');
 type LoyerBrut = [number, number, number, 0 | 1 | 2, number, number];
@@ -582,6 +584,19 @@ export interface Monuments {
 }
 
 /**
+ * Les lieux culturels recensés par le ministère de la Culture (base Basilic) ;
+ * aucun est une réponse, sur ce que la base recense. Un nom null : le lieu est
+ * montré sans son nom, qui aurait pu être celui d'un particulier
+ * (`scripts/culture-emettre.ts`).
+ */
+export interface Culture {
+  types: { type: string; lieux: { nom: string | null; label: string | null; ecrans: number }[] }[];
+  total: number;
+  maj: string;
+  base: string;
+}
+
+/**
  * Les sites et sols pollués (CASIAS, ex-BASOL, SIS) ; aucun est une réponse,
  * sur ce que l'inventaire a recensé.
  */
@@ -838,6 +853,7 @@ export interface ComplementsVie {
   acces: Acces | null;
   production: Production | null;
   monuments: Monuments | null;
+  culture: Culture | null;
   solsPollues: SolsPollues | null;
   mairies: Mairies | null;
   europe: Europe | null;
@@ -1200,6 +1216,19 @@ function monuments(c: CommuneFiche): Monuments | null {
   };
 }
 
+function culture(c: CommuneFiche): Culture | null {
+  const d = cultureDep.get(c.dep);
+  if (!d) return null;
+  const lieux = d.c[c.code] ?? [];
+  const types = d.types
+    .map((type, i) => ({
+      type,
+      lieux: lieux.filter(([t]) => t === i).map(([, nom, label, ecrans]) => ({ nom: nom || null, label: label || null, ecrans })),
+    }))
+    .filter((t) => t.lieux.length > 0);
+  return { types, total: lieux.length, maj: d.maj, base: d.base };
+}
+
 function europe(c: CommuneFiche): Europe | null {
   const periodes = [europe21Dep.get(c.dep), europeDep.get(c.dep)]
     .filter((d): d is EuropeDep => Boolean(d))
@@ -1537,6 +1566,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     acces: acces(c),
     production: production(c),
     monuments: monuments(c),
+    culture: culture(c),
     solsPollues: solsPollues(c),
     mairies: mairies(c),
     europe: europe(c),
