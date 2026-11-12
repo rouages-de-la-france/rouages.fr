@@ -3801,6 +3801,18 @@ médiane, dont 19 % de marchés — ceux de l'intercommunalité, repris sur la
 page de chacune de ses communes — et 28 % de SVG. À traiter pour le poids
 du déploiement.
 
+**Décision du mainteneur, 12 novembre 2026** : les marchés de
+l'intercommunalité quittent la page de ses communes pour la sienne
+(`/intercommunalite/<SIREN>#marches`), et la commune garde une phrase qui
+dit combien elle en a notifié, avec le lien. Le rapprochement par le nom
+suit : sous l'élu, sur la page de sa commune, comme avant ; sous le marché,
+sur la page de l'intercommunalité, pour chaque élu de ses communes qui siège
+au conseil communautaire — vérifié sur tout le pays, les 6 rapprochements
+concernés y sont, aucun ne se perd. Mesuré sur l'Allier : la page de commune
+passe de 393 à 383 Ko en médiane. Le reste des doublons vient des syndicats
+départementaux (énergie, déchets, eau), repris chacun sur 130 à 200 pages :
+non touché, faute de page à eux.
+
 **Qui finance la commune**, en tête de l'onglet de l'argent : les postes
 des comptes qui viennent d'autres que la commune, par habitant et face à la
 médiane, puis les subventions d'investissement de l'État et les fonds

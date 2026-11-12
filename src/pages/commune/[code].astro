@@ -44,6 +44,7 @@ import Echelons from '../../composants/commune/Echelons.astro';
 import Dmto from '../../composants/commune/Dmto.astro';
 import Sru from '../../composants/commune/Sru.astro';
 import Marches from '../../composants/commune/Marches.astro';
+import { personne, siegesCommunautaires } from '../../modele/sieges-communautaires.ts';
 import Representants from '../../composants/commune/Representants.astro';
 import Deliberations from '../../composants/commune/Deliberations.astro';
 import Distances from '../../composants/commune/Distances.astro';
@@ -142,16 +143,7 @@ const plus = complementsFiche(commune, commune.population, fiche?.structures ?? 
 // Le rapprochement par le nom (`src/modele/recoupements.ts`) : les marchés de
 // la commune, où siège chaque déclarant, et ceux de l'intercommunalité pour qui
 // a un siège au conseil communautaire, d'après le répertoire des élus.
-const personne = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
-const siegesCc = new Set(
-  fiche
-    ? [
-        ...(fiche.maire && fiche.maireCc ? [`${fiche.maire.prenom} ${fiche.maire.nom}`] : []),
-        ...fiche.adjoints.filter((x) => x.cc).map((x) => `${x.prenom} ${x.nom}`),
-        ...fiche.conseillers.filter((x) => x.cc).map((x) => `${x.prenom} ${x.nom}`),
-      ].map(personne)
-    : [],
-);
+const siegesCc = siegesCommunautaires(fiche);
 const acheteurCommune = plus.marches.find((a) => a.natureLibelle === 'la commune');
 const epciFp = fiche?.structures.find((x) => intercommunalite(x.siren));
 const acheteurEpci = epciFp ? plus.marches.find((a) => a.siren === epciFp.siren) : undefined;
@@ -165,6 +157,10 @@ for (const d of fiche?.declarations ?? []) {
   if (r.length) rapprochementsParElu.set(d.page, r);
 }
 const rapprochementsMarches = parTitulaire([...rapprochementsParElu.values()].flat());
+// Les marchés de l'intercommunalité sont sur sa page, une fois, plutôt que sur
+// celle de chacune de ses communes : la commune garde un renvoi (décision du
+// 12 novembre 2026). Le rapprochement sous l'élu, lui, les compte toujours.
+const marchesAffiches = plus.marches.filter((a) => a !== acheteurEpci);
 const vie = complementsVie(commune);
 const carte = carteDeSituation(commune);
 const espaces = espacesNaturels(commune);
@@ -997,7 +993,17 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
     {plus.marches.length > 0 && (
       <section id="marches" class="p-marches">
         <h2 class="badge">Ce qui est commandé</h2>
-        <Marches liste={plus.marches} depuis={plus.marchesDepuis} fenetre={plus.marchesFenetre} procedures={plus.marchesProcedures} rapprochements={rapprochementsMarches} departement={commune.dep} />
+        {marchesAffiches.length > 0 && (
+          <Marches liste={marchesAffiches} depuis={plus.marchesDepuis} fenetre={plus.marchesFenetre} procedures={plus.marchesProcedures} rapprochements={rapprochementsMarches} departement={commune.dep} />
+        )}
+        {acheteurEpci && epciFp && (
+          <p class="mesure p-marches-epci">
+            {`L’intercommunalité, ${acheteurEpci.nom}, a notifié ${acheteurEpci.total.toLocaleString('fr-FR')} marché${acheteurEpci.total > 1 ? 's' : ''}` +
+              (plus.marchesDepuis ? ` depuis ${plus.marchesDepuis.slice(0, 4)}` : '') +
+              ', pour ses communes. '}
+            <a href={`/intercommunalite/${epciFp.siren}#marches`}>Ils sont sur sa page</a>, avec ses échéances.
+          </p>
+        )}
         <Ailleurs sites={SITES_COMMANDE_PUBLIQUE} titre="Pour qui achète ou répond" />
         <Ailleurs sites={SITES_VERIFIER_ENTREPRISE} titre="Vérifier un titulaire ou un candidat" />
       </section>
