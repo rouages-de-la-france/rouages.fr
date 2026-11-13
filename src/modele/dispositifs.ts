@@ -44,10 +44,16 @@ export interface Dispositif {
   sans_evaluation?: string;
   sources: { id: string; titre: string; url: string; consulte_le: string }[];
   verifie_le: string;
+  /**
+   * Un zonage qui classe toutes les communes plutôt qu'il n'en retient
+   * certaines — le zonage ABC : les classes, dans l'ordre, telles que les
+   * fichiers de zonage les écrivent, et leur libellé.
+   */
+  classes?: { cle: string; libelle: string }[];
 }
 
 /** Les clés que `scripts/zonages-emettre.ts` sait rattacher aux communes. */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc']);
 
 let cache: Dispositif[] | undefined;
 
@@ -90,6 +96,7 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
     for (const p of phrases) if (!sources.has(p.source)) erreurs.push(`${ou} : source « ${p.source} » citée, non déclarée`);
     for (const e of d.evaluations ?? []) if (!sources.has(e.source)) erreurs.push(`${ou} : évaluation de source « ${e.source} » non déclarée`);
     if (!(d.evaluations?.length) && !d.sans_evaluation) erreurs.push(`${ou} : ni évaluation, ni phrase qui dit qu'il n'y en a pas`);
+    if (d.cle === 'abc' && !d.classes?.length) erreurs.push(`${ou} : un zonage par classes déclare ses classes`);
     for (const t of [d.resume, ...phrases.map((p) => p.texte), ...(d.evaluations ?? []).map((e) => e.conclusion)]) {
       if (nommeUnePersonne(t)) erreurs.push(`${ou} : un texte semble nommer une personne physique : « ${t.slice(0, 60)}… »`);
     }
@@ -97,7 +104,7 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
   return erreurs;
 }
 
-type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], ...unknown[]]> };
+type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, number, string, ...unknown[]]> };
 type LogementsDep = { annees: number[]; arrete: string; c: Record<string, [number[], number, number]> };
 type PopulationDep = { annees: number[]; c: Record<string, [number[], ...unknown[]]> };
 const zonagesDep = parDepartement<ZonagesDep>('zonages');
@@ -113,6 +120,9 @@ export interface SerieAnnuelle {
 
 export interface ChiffresDispositif {
   communes: CommuneIndex[];
+  /** Pour un zonage par classes : la classe de chaque commune, par son code. */
+  classeDe: Map<string, string>;
+  parClasse: { cle: string; libelle: string; n: number; population: number }[];
   population: number;
   medianePopulation: number | null;
   parDepartement: { dep: string; depNom: string; n: number }[];
@@ -144,9 +154,16 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   const logs: { annees: number[]; v: number[] }[] = [];
   const pops: { annees: number[]; v: number[] }[] = [];
   let arrete = '';
+  const classeDe = new Map<string, string>();
   for (const c of communes()) {
     const z = zonagesDep.get(c.dep);
-    if (!z?.c[c.code]?.[0]?.includes(d.cle)) continue;
+    const x = z?.c[c.code];
+    if (!z || !x) continue;
+    if (d.classes) {
+      const k = String(x[4] ?? '');
+      if (!d.classes.some((y) => y.cle === k)) continue;
+      classeDe.set(c.code, k);
+    } else if (!x[0]?.includes(d.cle)) continue;
     dateListe ??= z.dates?.[d.cle] ?? null;
     liste.push(c);
     const e = parDep.get(c.dep) ?? { depNom: c.depNom, n: 0 };
@@ -165,8 +182,14 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   liste.sort((a, b) => a.dep.localeCompare(b.dep, 'fr', { numeric: true }) || a.nom.localeCompare(b.nom, 'fr'));
   const logements = additionner(logs);
   const recensements = additionner(pops);
+  const parClasse = (d.classes ?? []).map((k) => {
+    const ici = liste.filter((c) => classeDe.get(c.code) === k.cle);
+    return { ...k, n: ici.length, population: ici.reduce((t, c) => t + c.population, 0) };
+  });
   return {
     communes: liste,
+    classeDe,
+    parClasse,
     population: liste.reduce((t, c) => t + c.population, 0),
     medianePopulation: mediane(liste.map((c) => c.population)),
     parDepartement: [...parDep].map(([dep, x]) => ({ dep, ...x })).sort((a, b) => b.n - a.n || a.dep.localeCompare(b.dep, 'fr', { numeric: true })),

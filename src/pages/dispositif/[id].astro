@@ -19,7 +19,7 @@ const nf = (v: number) => v.toLocaleString('fr-FR');
 const date = (s: string | null) => (s ? s.split('-').reverse().join('/') : '');
 const numero = new Map(d.sources.map((s, i) => [s.id, i + 1]));
 const renvoi = (p: PhraseSourcee) => numero.get(p.source) ?? 0;
-const MONTREES_PAR_DEP = 3;
+const SEUIL_LISTE = 1000;
 const n = x.communes.length;
 
 // Les séries, l'année de lancement repérée : avant, l'année du lancement, après.
@@ -56,7 +56,52 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
       {d.cout.map((p) => <p class="mesure"><Glose texte={p.texte} /> <a href={`#source-${renvoi(p)}`} class="p-renvoi">{`[${renvoi(p)}]`}</a></p>)}
     </section>
 
-    <section id="communes">
+    {d.classes ? (
+      <section id="communes">
+        <h2 class="badge">Les communes, zone par zone</h2>
+        <table class="cpt-tableau">
+          <caption>{`Les ${nf(n)} communes classées, par zone${x.dateListe ? `, d’après la liste du ${date(x.dateListe)}` : ''}.`}</caption>
+          <thead><tr><th scope="col">Zone</th><th scope="col">Communes</th><th scope="col">Habitants</th></tr></thead>
+          <tbody>
+            {x.parClasse.map((k) => (
+              <tr><th scope="row">{k.libelle}</th><td>{nf(k.n)}</td><td>{nf(k.population)}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        {x.parClasse.map((k) => {
+          const ici = x.communes.filter((c) => x.classeDe.get(c.code) === k.cle);
+          if (ici.length === 0) return null;
+          if (ici.length > SEUIL_LISTE) {
+            const parDep = new Map<string, { depNom: string; n: number }>();
+            for (const c of ici) parDep.set(c.dep, { depNom: c.depNom, n: (parDep.get(c.dep)?.n ?? 0) + 1 });
+            return (
+              <details class="p-dispositif-dep">
+                <summary>{`${k.libelle} — ${nf(ici.length)} communes, par département`}</summary>
+                <ul class="c-communes">
+                  {[...parDep].map(([dep, v]) => (
+                    <li><a href={`/communes/${dep}`}>{`${v.depNom} (${dep})`}</a><span class="c-departement-detail">{`${nf(v.n)} commune${v.n > 1 ? 's' : ''}`}</span></li>
+                  ))}
+                </ul>
+              </details>
+            );
+          }
+          return (
+            <details class="p-dispositif-dep">
+              <summary>{`${k.libelle} — ${nf(ici.length)} commune${ici.length > 1 ? 's' : ''}`}</summary>
+              <ul class="c-communes">
+                {ici.map((c) => (
+                  <li><a href={`/commune/${c.code}`}>{c.nom}</a><span class="c-departement-detail">{`${c.depNom}, ${nf(c.population)} hab.`}</span></li>
+                ))}
+              </ul>
+            </details>
+          );
+        })}
+        <p class="p-source-territoire">
+          {`D’après la liste des communes par zone du ministère chargé du logement${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Au-delà de ${nf(SEUIL_LISTE)} communes, une zone est donnée département par département ; chaque commune dit sa zone sur sa page.`}
+        </p>
+      </section>
+    ) : (
+      <section id="communes">
       <h2 class="badge">{`Ses ${nf(n)} communes`}</h2>
       <p class="mesure">
         {`${nf(n)} communes, ${nf(x.population)} habitants au total` +
@@ -83,6 +128,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
         {`D’après la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`}
       </p>
     </section>
+    )}
 
     <section id="evaluations" class="p-dispositif-evaluations">
       <h2 class="badge">Ce qu’en disent les évaluations publiées</h2>
@@ -102,7 +148,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
       <p class="p-strate">Ce sont les conclusions de ceux qui ont évalué le programme, citées telles qu’ils les écrivent. Rouages n’en tire pas d’autre jugement.</p>
     </section>
 
-    {(x.logements || x.population_recensements) && (
+    {d.nature === 'programme' && (x.logements || x.population_recensements) && (
       <section id="series" class="p-dispositif-series">
         <h2 class="badge">Ce que le site calcule : ses communes avant et après</h2>
         <p class="p-avertissement">
