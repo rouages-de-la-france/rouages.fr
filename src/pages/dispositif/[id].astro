@@ -102,13 +102,26 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
       </section>
     ) : (
       <section id="communes">
-      <h2 class="badge">{`Ses ${nf(n)} communes`}</h2>
+      <h2 class="badge">{n > 0 ? `Ses ${nf(n)} communes` : 'Ses communes'}</h2>
+      {n === 0 ? (
+        <p class="mesure">La liste de ses communes n’a pas encore été collectée : elle viendra avec la prochaine mise à jour des données territoriales.</p>
+      ) : (
+      <>
       <p class="mesure">
         {`${nf(n)} communes, ${nf(x.population)} habitants au total` +
           (x.medianePopulation !== null ? ` ; la moitié d’entre elles compte moins de ${nf(x.medianePopulation)} habitants` : '') +
           ` ; ${nf(x.parDepartement.length)} départements.`}
       </p>
-      {x.parDepartement.map((p) => {
+      {n > SEUIL_LISTE ? (
+        <details class="p-dispositif-dep">
+          <summary>{`Par département — ${nf(x.parDepartement.length)} départements`}</summary>
+          <ul class="c-communes">
+            {x.parDepartement.map((p) => (
+              <li><a href={`/communes/${p.dep}`}>{`${p.depNom} (${p.dep})`}</a><span class="c-departement-detail">{`${nf(p.n)} commune${p.n > 1 ? 's' : ''}`}</span></li>
+            ))}
+          </ul>
+        </details>
+      ) : x.parDepartement.map((p) => {
         const ici = x.communes.filter((c) => c.dep === p.dep);
         return (
           <details class="p-dispositif-dep">
@@ -125,8 +138,29 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
         );
       })}
       <p class="p-source-territoire">
-        {`D’après la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`}
+        {(d.cle === 'montagne'
+          ? `D’après la liste des communes en zone de montagne au sens de l’urbanisme de l’Observatoire des territoires de l’Agence nationale de la cohésion des territoires${x.dateListe ? `, lue le ${date(x.dateListe)}` : ''}, et les populations légales de l’INSEE.`
+          : `D’après la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`) +
+          (n > SEUIL_LISTE ? ` Au-delà de ${nf(SEUIL_LISTE)} communes, la liste est donnée département par département ; chaque commune dit sur sa page si elle en est.` : '')}
       </p>
+      </>
+      )}
+      {x.deuxMontagnes && (
+        <>
+          <h3 class="p-titre-echelon">Deux délimitations qui ne coïncident pas</h3>
+          <table class="cpt-tableau">
+            <caption>Les communes selon la zone de montagne de l’urbanisme et la zone agricole défavorisée de montagne.</caption>
+            <thead><tr><th scope="col">Situation</th><th scope="col">Communes</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">En montagne pour les deux, entièrement</th><td>{nf(x.deuxMontagnes.lesDeux)}</td></tr>
+              <tr><th scope="row">En montagne pour l’urbanisme seulement</th><td>{nf(x.deuxMontagnes.urbanismeSeul)}</td></tr>
+              <tr><th scope="row">En montagne pour l’agriculture seulement</th><td>{nf(x.deuxMontagnes.agricultureSeule)}</td></tr>
+              <tr><th scope="row">En partie en zone agricole de montagne</th><td>{nf(x.deuxMontagnes.agricultureEnPartie)}</td></tr>
+            </tbody>
+          </table>
+          <p class="p-source-territoire">D’après l’Observatoire des territoires pour l’urbanisme, et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (2017), reportée par Rouages sur les communes actuelles : une commune est « en partie » quand une partie seulement de son territoire est classée, ou certaines seulement de ses anciennes communes.</p>
+        </>
+      )}
     </section>
     )}
 

@@ -52,8 +52,12 @@ export interface Dispositif {
   classes?: { cle: string; libelle: string }[];
 }
 
-/** Les clés que `scripts/zonages-emettre.ts` sait rattacher aux communes. */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc']);
+/**
+ * Les clés que `scripts/zonages-emettre.ts` sait rattacher aux communes.
+ * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
+ * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
+ */
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne']);
 
 let cache: Dispositif[] | undefined;
 
@@ -104,7 +108,11 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
   return erreurs;
 }
 
-type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, number, string, ...unknown[]]> };
+type ZonagesDep = {
+  maj: string;
+  dates: Record<string, string>;
+  c: Record<string, [string[], string, string, number, string, string[]?, number?, number?]>;
+};
 type LogementsDep = { annees: number[]; arrete: string; c: Record<string, [number[], number, number]> };
 type PopulationDep = { annees: number[]; c: Record<string, [number[], ...unknown[]]> };
 const zonagesDep = parDepartement<ZonagesDep>('zonages');
@@ -130,6 +138,12 @@ export interface ChiffresDispositif {
   dateListe: string | null;
   logements: (SerieAnnuelle & { arrete: string }) | null;
   population_recensements: SerieAnnuelle | null;
+  /**
+   * Pour la zone de montagne : ses communes croisées avec la zone agricole
+   * défavorisée de montagne (entière ou en partie). Null tant que la collecte
+   * n'a pas lu la délimitation de l'urbanisme.
+   */
+  deuxMontagnes: { lesDeux: number; urbanismeSeul: number; agricultureSeule: number; agricultureEnPartie: number } | null;
 }
 
 const mediane = (v: number[]): number | null => {
@@ -155,16 +169,29 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   const pops: { annees: number[]; v: number[] }[] = [];
   let arrete = '';
   const classeDe = new Map<string, string>();
+  const montagne = d.cle === 'montagne';
+  let deuxMontagnes: ChiffresDispositif['deuxMontagnes'] = null;
   for (const c of communes()) {
     const z = zonagesDep.get(c.dep);
     const x = z?.c[c.code];
     if (!z || !x) continue;
-    if (d.classes) {
+    if (montagne) {
+      if (!z.dates?.montagneUrbanisme) continue;
+      deuxMontagnes ??= { lesDeux: 0, urbanismeSeul: 0, agricultureSeule: 0, agricultureEnPartie: 0 };
+      const u = x[7] === 1;
+      const a = x[3];
+      if (u && a === 1) deuxMontagnes.lesDeux++;
+      else if (u && a === 0) deuxMontagnes.urbanismeSeul++;
+      else if (!u && a === 1) deuxMontagnes.agricultureSeule++;
+      if (a === 2) deuxMontagnes.agricultureEnPartie++;
+      if (!u) continue;
+      dateListe ??= z.dates.montagneUrbanisme;
+    } else if (d.classes) {
       const k = String(x[4] ?? '');
       if (!d.classes.some((y) => y.cle === k)) continue;
       classeDe.set(c.code, k);
     } else if (!x[0]?.includes(d.cle)) continue;
-    dateListe ??= z.dates?.[d.cle] ?? null;
+    if (!montagne) dateListe ??= z.dates?.[d.cle] ?? null;
     liste.push(c);
     const e = parDep.get(c.dep) ?? { depNom: c.depNom, n: 0 };
     e.n++;
@@ -195,6 +222,7 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
     parDepartement: [...parDep].map(([dep, x]) => ({ dep, ...x })).sort((a, b) => b.n - a.n || a.dep.localeCompare(b.dep, 'fr', { numeric: true })),
     dateListe,
     logements: logements ? { ...logements, arrete } : null,
+    deuxMontagnes,
     // Les recensements depuis 2010 : plus loin, la série dit l'histoire longue, pas l'avant / après.
     population_recensements: recensements
       ? (() => {
