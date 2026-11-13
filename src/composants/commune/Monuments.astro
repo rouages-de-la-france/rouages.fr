@@ -8,8 +8,11 @@ import type { Monuments } from '../../modele/fiche-vie.ts';
 
 interface Props {
   m: Monuments;
+  code: string;
+  dep: string;
+  nom: string;
 }
-const { m } = Astro.props;
+const { m, code, dep, nom } = Astro.props;
 const MONTRES = 20;
 const n = m.liste.length;
 const classes = m.liste.filter((x) => x.classe).length;
@@ -62,6 +65,14 @@ const no = m.objets ? m.objets.classes + m.objets.inscrits : 0;
     {no > MONTRES && <p class="mesure">{`Et ${nf(no - MONTRES)} autres, dans la base Palissy.`}</p>}
   </>
 ))}
+{n + no > 0 && (
+  <>
+    <div class="photos-patrimoine-zone" data-photos-patrimoine data-code={code} data-dep={dep} data-nom={nom}></div>
+    <script>
+      import '../../client/photos-patrimoine.ts';
+    </script>
+  </>
+)}
 <p class="p-strate">
   Autour d’un monument, les travaux qui changent l’aspect extérieur d’un immeuble passent par
   <a href="/n/abf">l’architecte des Bâtiments de France</a>. Sauf périmètre délimité, ces abords couvrent ce qui est

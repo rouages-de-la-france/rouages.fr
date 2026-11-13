@@ -3913,6 +3913,21 @@ tableau sont fausses. 84 communes en tout. Seuls les biens de
 Nouvelle-Calédonie, de Polynésie et des Terres australes restent sans
 commune.
 
+**Des photos, au clic** (décision du 13 novembre 2026). La page de commune a
+deux boutons : « Voir en photo », en tête, pour l'image principale de la
+commune sur Wikidata (le même que dans « La commune mystère ») ; « Voir les
+monuments et les objets en photo », dans la section des monuments
+historiques, pour les images des éléments Wikidata qui portent leur
+identifiant Mérimée ou Palissy (`src/client/photos-patrimoine.ts`). Rien ne
+part vers Wikimedia sans clic ; l'auteur et la licence sont lus sur Commons
+à l'affichage et ne sont conservés nulle part ; `/mentions` le dit. Les
+photos de la base POP sont écartées : elles portent un droit de la RMN-GP,
+que POP exclut de sa licence ouverte. Couverture mesurée le 13 novembre
+sur Wikidata : 98,5 % des communes, 85 % des monuments historiques, 6 % des
+objets mobiliers. Les fichiers `dep/XX-monuments.json` et
+`dep/XX-objets.json` restent désormais dans le site (13 Mo), lus seulement
+au clic (`integrations/elaguer.mjs`).
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

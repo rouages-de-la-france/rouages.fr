@@ -1897,3 +1897,17 @@ a.p-sommaire-lien { text-decoration: none; }
 .p-avertissement { padding: .7rem .9rem; background: var(--alerte-doux); color: var(--encre); border-radius: var(--rayon); }
 .p-serie-lancement th, .p-serie-lancement td { font-weight: 600; }
 .p-dispositif-sources li { margin: .3rem 0; }
+
+/* Les photos chargées au clic depuis Wikimedia Commons : la commune en tête de page, ses monuments et objets. */
+.photo-village { margin: .2rem 0 .8rem; }
+.photo-village .photo-note, .photos-patrimoine-zone .photo-note { color: var(--encre-tres-douce); }
+.photo-village .photo-commune { margin: .4rem 0 1rem; }
+.photo-village .photo-commune img { display: block; width: 100%; max-height: 22rem; object-fit: cover; border-radius: var(--rayon); background: var(--fond-doux); }
+.photo-village .photo-commune figcaption { font-size: .76rem; color: var(--encre-tres-douce); margin-top: .3rem; }
+.photos-patrimoine-zone { margin: .6rem 0 1rem; }
+.photos-patrimoine { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: .7rem; margin: .6rem 0; }
+.photos-patrimoine figure { margin: 0; min-width: 0; }
+.photos-patrimoine img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--rayon); background: var(--fond-doux); }
+.photos-patrimoine figcaption { font-size: .78rem; margin-top: .3rem; overflow-wrap: anywhere; }
+.photos-patrimoine .photo-credit { display: block; color: var(--encre-tres-douce); font-size: .72rem; }
+.photos-patrimoine figure[hidden] { display: none; }

@@ -481,6 +481,10 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       code INSEE {commune.code} ·{' '}
       <a href={`/comparer?c=${commune.code}`}>la comparer à d’autres</a>
     </p>
+    <div class="photo-village" data-photo-commune={commune.code} data-nom={commune.nom}></div>
+    <script>
+      import '../../client/photo-village.ts';
+    </script>
     {!fiche && (
       <p class="c-vide">
         Les données territoriales de cette commune n’ont pas pu être assemblées.
@@ -1236,7 +1240,7 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
     {vie.monuments && (
       <section id="monuments">
         <h2 class="badge">Les monuments historiques</h2>
-        <Monuments m={vie.monuments} />
+        <Monuments m={vie.monuments} code={commune.code} dep={commune.dep} nom={commune.nom} />
       </section>
     )}
 
