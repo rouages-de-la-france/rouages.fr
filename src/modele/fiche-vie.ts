@@ -12,6 +12,7 @@
  */
 import { national, parDepartement, type CommuneFiche } from './fiche-commune.ts';
 import { communes, intercommunalites } from './territoires.ts';
+import { leaderDe } from './leader.ts';
 
 /* ------------------------------------------------------------------ *
  * Les fichiers, tels que les collecteurs les écrivent.
@@ -727,6 +728,8 @@ export interface Zonages {
   montagne: 'non' | 'oui' | 'en partie';
   /** La zone de montagne au sens de l'urbanisme ; null quand la collecte ne l'a pas encore lue. */
   montagneUrbanisme: 'non' | 'oui' | null;
+  /** Le groupe d'action locale LEADER ; null quand la région de la commune n'est pas couverte. */
+  leader: { gal: string | null; maj: string } | null;
   /** Le niveau de France ruralités revitalisation ; null quand la collecte ne l'a pas encore lu. */
   frr: 'non' | 'plus' | 'socle' | 'beneficiaire' | 'socle-partiel' | 'beneficiaire-partiel' | null;
   /** La zone du zonage ABC — A bis, A, B1, B2, C —, ou null si inconnue. */
@@ -1369,6 +1372,7 @@ function zonages(c: CommuneFiche): Zonages | null {
     quartiersPrioritaires: quartiers ?? [],
     montagneUrbanisme: !d.dates.montagneUrbanisme ? null : u === 1 ? 'oui' : 'non',
     frr: !d.dates.frr ? null : NIVEAUX_FRR[f ?? 0] ?? 'non',
+    leader: leaderDe(c.dep, c.code),
     tendue: !d.dates.tlv ? null : t === 1 ? 'tendue' : t === 2 ? 'touristique et tendue' : 'non',
     dates: d.dates,
     maj: d.maj,

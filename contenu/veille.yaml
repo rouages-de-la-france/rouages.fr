@@ -784,6 +784,26 @@ surveillances:
     url: "https://www.collectivites-locales.gouv.fr/files/files/3.%20Animer%20les%20territoires/5.%20La%20coh%C3%A9sion%20territoriale%20et%20l%27am%C3%A9nagement%20du%20territoire/Liste%20communes%20FRR_juillet2025.xlsx"
     lien: od-frr
 
+  # LEADER : aucune liste nationale ; chaque Région publie — ou non — ses
+  # GAL. Les Hauts-de-France, une liste de communes ; les Pays de la Loire, des
+  # contours sous ODbL, croisés avec ceux des communes.
+  - id: leader-hauts-de-france
+    nom: "Région Hauts-de-France — communes des GAL LEADER 2023-2027"
+    alimente: "le groupe d'action locale LEADER de la commune"
+    type: disponibilite
+    licence: non-precisee
+    url: "https://sig.hautsdefrance.fr/ext/opendata/Amenagement/gal/gal_com_2023.xlsx"
+    lien: od-leader-hdf
+
+  - id: leader-pays-de-la-loire
+    nom: "Région Pays de la Loire — périmètres des GAL"
+    alimente: "le groupe d'action locale LEADER de la commune"
+    type: disponibilite
+    licence: odbl
+    fichiers: ["dep/44-leader.json", "dep/49-leader.json", "dep/53-leader.json", "dep/72-leader.json", "dep/85-leader.json"]
+    url: "https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/groupements-dactions-locales-en-pays-de-la-loire/records?limit=1"
+    lien: od-leader-pdl
+
   - id: zonage-tlv
     nom: "Zonage de la taxe sur les logements vacants"
     alimente: "les zones tendues"

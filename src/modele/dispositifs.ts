@@ -21,6 +21,7 @@ import { parse } from 'yaml';
 import { nommeUnePersonne } from './civilites.ts';
 import { parDepartement } from './fiche-commune.ts';
 import { lienUnesco, patrimoineMondial } from './patrimoine-mondial.ts';
+import { communesLeader, couvertureLeader, regionsCouvertes } from './leader.ts';
 import { communes, type CommuneIndex } from './territoires.ts';
 
 export interface PhraseSourcee {
@@ -66,7 +67,7 @@ export interface Dispositif {
  * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
  * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
  */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv', 'ramsar', 'biosphere', 'mondial']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv', 'ramsar', 'biosphere', 'mondial', 'leader']);
 
 /**
  * Les désignations internationales ne sont pas dans les fichiers de zonage :
@@ -200,6 +201,8 @@ export interface ChiffresDispositif {
   groupes: { nom: string; n: number; lien?: string }[];
   /** Pour les quartiers prioritaires : les quartiers de chaque commune. */
   quartiersDe: Map<string, string[]>;
+  /** Pour une liste partielle (LEADER) : les régions couvertes, nommées. */
+  couverture: string[] | null;
 }
 
 const mediane = (v: number[]): number | null => {
@@ -233,6 +236,17 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   const mondial = d.cle === 'mondial' ? patrimoineMondial() : null;
   const liens = new Map<string, string>();
   for (const c of communes()) {
+    if (d.cle === 'leader') {
+      const gal = communesLeader(c.dep)[c.code]?.[0];
+      if (!gal) continue;
+      groupes.set(gal, (groupes.get(gal) ?? 0) + 1);
+      dateListe ??= couvertureLeader()?.maj ?? null;
+      liste.push(c);
+      const e = parDep.get(c.dep) ?? { depNom: c.depNom, n: 0 };
+      e.n++;
+      parDep.set(c.dep, e);
+      continue;
+    }
     if (nature !== undefined || d.cle === 'mondial') {
       // Une désignation : la commune en est si un périmètre la touche, même de moins de 1 %.
       const noms = new Set<string>();
@@ -318,6 +332,7 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
     deuxMontagnes,
     groupes: [...groupes].map(([nom, n]) => ({ nom, n, lien: liens.get(nom) })).sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
     quartiersDe,
+    couverture: d.cle === 'leader' ? regionsCouvertes() : null,
     // Les recensements depuis 2010 : plus loin, la série dit l'histoire longue, pas l'avant / après.
     population_recensements: recensements
       ? (() => {
