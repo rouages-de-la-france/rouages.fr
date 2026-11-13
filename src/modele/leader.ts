@@ -39,18 +39,31 @@ export function regionsCouvertes(): string[] {
   return [...noms].sort((a, b) => a.localeCompare(b, 'fr'));
 }
 
+export interface LeaderCommune {
+  /** Le nom du GAL, ou null. */
+  gal: string | null;
+  /** La région de la commune a-t-elle été lue ? Sinon, on ne sait pas si elle est dans un GAL. */
+  couvert: boolean;
+  /** Le nom de la région, pour dire laquelle manque. */
+  region: string | null;
+  maj: string;
+}
+
 /**
- * Le GAL de la commune ; `null` si sa région n'est pas couverte — on ne sait
- * pas —, `{ gal: null }` si elle l'est et que la commune n'est dans aucun GAL.
+ * Le GAL de la commune ; `couvert: false` si sa région n'a pas été lue — on ne
+ * sait pas, et la page le dit. `null` seulement quand aucune collecte n'a
+ * encore tourné.
  */
-export function leaderDe(dep: string, code: string): { gal: string | null; maj: string } | null {
+export function leaderDe(dep: string, code: string): LeaderCommune | null {
   const d = leaderDep.get(dep);
   const gal = d?.c[code]?.[0] ?? null;
   const c = couvertureLeader();
-  if (gal && d) return { gal, maj: d.maj };
-  const reg = metaTerritoires()?.codesRegion?.[dep];
-  if (!c || !reg || !c.regions[reg]) return null;
-  return { gal: null, maj: c.maj };
+  const meta = metaTerritoires();
+  const region = meta?.regions?.[dep] ?? null;
+  if (gal && d) return { gal, couvert: true, region, maj: d.maj };
+  if (!c) return null;
+  const reg = meta?.codesRegion?.[dep];
+  return { gal: null, couvert: Boolean(reg && c.regions[reg]), region, maj: c.maj };
 }
 
 /** Toutes les communes dans un GAL, par département : pour la page du dispositif. */

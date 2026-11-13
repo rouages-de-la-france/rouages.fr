@@ -479,7 +479,7 @@ dispositifs:
     pilote: "Le ministère de la Culture pour les biens culturels, le ministère de la Transition écologique pour les biens naturels"
     resume: "Les biens inscrits par l'UNESCO pour leur « valeur universelle exceptionnelle » : un périmètre, une zone tampon et un plan de gestion, que l'État et les collectivités s'engagent à préserver."
     groupes_nom: biens
-    liste: "la liste du patrimoine mondial de l'UNESCO et les périmètres publiés en France — une commune compte quand elle est dans le bien, dans sa zone tampon, ou quand l'UNESCO y situe un élément ; six biens n'ont pas de commune ici : ceux de Nouvelle-Calédonie, de Polynésie française et des Terres australes, le phare de Cordouan, en mer, et les sites funéraires et mémoriels de la Première Guerre mondiale, que les périmètres publiés ne situent pas"
+    liste: "la liste du patrimoine mondial de l'UNESCO et les périmètres publiés en France — une commune compte quand elle est dans le bien, dans sa zone tampon, ou quand l'UNESCO y situe un élément ; le phare de Cordouan, que l'UNESCO situe en mer, est rattaché au Verdon-sur-Mer comme dans la base Mérimée, et les sites funéraires et mémoriels de la Première Guerre mondiale aux communes que nomme le dossier d'inscription ; seuls les biens de Nouvelle-Calédonie, de Polynésie française et des Terres australes n'ont pas de commune ici"
     ce_que_cest:
       - texte: "L'inscription d'un bien sur la liste du patrimoine mondial reconnaît sa « valeur universelle exceptionnelle ». La convention de l'UNESCO pour la protection du patrimoine mondial culturel et naturel date de 1972 ; elle rassemble 195 pays."
         source: min-pm

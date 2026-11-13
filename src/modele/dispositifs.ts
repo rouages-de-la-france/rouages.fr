@@ -342,3 +342,20 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
       : null,
   };
 }
+
+/** Les familles de dispositifs, dans l'ordre où la page générale les présente. */
+export const FAMILLES = [
+  { id: 'programme', titre: 'Les programmes de l’État' },
+  { id: 'contrat', titre: 'Les contrats entre l’État et les collectivités' },
+  { id: 'europe', titre: 'Les programmes européens' },
+  { id: 'zonage', titre: 'Les zonages' },
+  { id: 'designation', titre: 'Les désignations internationales' },
+] as const;
+export type Famille = (typeof FAMILLES)[number]['id'];
+
+/** La famille d'un dispositif : sa nature, sauf le contrat (CRTE) et le programme européen (LEADER). */
+export function familleDe(d: Dispositif): Famille {
+  if (d.cle === 'crte') return 'contrat';
+  if (d.cle === 'leader') return 'europe';
+  return d.nature;
+}

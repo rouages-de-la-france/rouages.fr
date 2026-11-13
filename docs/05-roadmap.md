@@ -3888,6 +3888,31 @@ fichier des Hauts-de-France, à l'unité ; pour les Pays de la Loire, 953
 communes par le point intérieur contre 952 par le barycentre — un seul
 écart, une commune de la Sarthe en bordure de périmètre.
 
+**La page générale des dispositifs** (`/dispositif`) dit ce que le site
+appelle ainsi, range les dix-huit pages en cinq familles — programmes de
+l'État, contrats, programmes européens, zonages, désignations
+internationales —, explique comment chacune fonctionne, comment lire une
+page de dispositif (sources, communes, évaluations, séries descriptives) et
+ce que le site ne dit pas. Chaque page de dispositif et la section des
+programmes et zonages de la commune y renvoient.
+
+**LEADER ne se tait plus** dans les régions que la collecte n'a pas lues :
+la page de commune dit que le site ne sait pas, faute de liste nationale et
+de liste de sa région.
+
+**Cordouan et les sites de la Grande Guerre** ont leurs communes. Le phare,
+que l'UNESCO situe en mer, est rattaché au Verdon-sur-Mer comme dans la base
+Mérimée (PA00083858). Les 96 sites français du bien « Sites funéraires et
+mémoriels de la Première Guerre mondiale (Front Ouest) », que la liste
+ouverte de l'UNESCO ne détaille pas, viennent du résumé du dossier
+d'inscription publié par le ministère de la Culture
+(`scripts/patrimoine-mondial-complements.ts`) : 84 par le point central
+du tableau, recoupé avec la commune qu'il nomme ; 12 par les communes
+nommées, quand le site en couvre plusieurs ou que les coordonnées du
+tableau sont fausses. 84 communes en tout. Seuls les biens de
+Nouvelle-Calédonie, de Polynésie et des Terres australes restent sans
+commune.
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

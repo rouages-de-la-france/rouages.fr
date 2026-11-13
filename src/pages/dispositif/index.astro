@@ -1,0 +1,83 @@
+---
+/**
+ * La page générale des dispositifs : ce qu'on appelle ainsi sur le site, les
+ * familles et leur fonctionnement, comment lire une page de dispositif, et la
+ * liste des pages. Le détail de chaque dispositif, avec ses sources, est sur
+ * sa page ; celle-ci ne dit rien qu'une page de dispositif ne source.
+ */
+import Base from '../../layouts/Base.astro';
+import Glose from '../../composants/Glose.astro';
+import { chiffresDispositif, dispositifs, familleDe, FAMILLES } from '../../modele/dispositifs.ts';
+
+const nf = (v: number) => v.toLocaleString('fr-FR');
+const tous = dispositifs().map((d) => ({ d, n: chiffresDispositif(d).communes.length }));
+
+const FONCTIONNEMENT: Record<string, string> = {
+  programme:
+    'L’État retient des communes ou des territoires et les accompagne pendant une durée fixée : de l’ingénierie, un appui de ses services et de ses opérateurs, des crédits selon les programmes. La commune ou l’intercommunalité s’engage dans un projet. Être dans la liste dit qu’elle est accompagnée, pas ce qu’elle a reçu.',
+  contrat:
+    'L’État et les collectivités d’un territoire — le plus souvent une ou plusieurs intercommunalités — signent un contrat qui recense leurs projets et organise leur dialogue. Le contrat n’apporte pas d’argent par lui-même : il oriente les projets vers les financements existants.',
+  europe:
+    'Des fonds de l’Union européenne, gérés en France par les Régions, financent des projets choisis selon une stratégie locale. La liste des territoires dépend de ce que chaque Région publie.',
+  zonage:
+    'La loi ou le règlement fixe des critères ; un arrêté ou un décret constate la liste des communes. La commune ne candidate pas : elle est classée ou non. Le classement déclenche des règles — d’urbanisme, de fiscalité, de plafonds d’aides — dont certaines s’appliquent d’office et d’autres seulement si la commune ou l’intercommunalité les vote.',
+  designation:
+    'Une convention ou un programme international reconnaît un site, à la demande de l’État ou d’acteurs locaux. La désignation engage à préserver ou à gérer durablement le site ; ses effets concrets passent par les protections nationales existantes et, pour le patrimoine mondial, par un plan de gestion.',
+};
+---
+<Base
+  titre="Les dispositifs"
+  description="Programmes de l’État, contrats, programmes européens, zonages, désignations internationales : ce qu’ils sont, comment ils fonctionnent, et la page de chacun."
+  section="chez-moi"
+>
+  <div class="page page--etroite p-dispositif">
+    <p class="badge">Programmes · zonages · désignations</p>
+    <h1>Les dispositifs</h1>
+    <p class="resume">
+      Une commune relève de décisions publiques qui ne visent qu’une partie du territoire : un programme qui l’accompagne,
+      un zonage qui la classe, une désignation qui reconnaît un site. Le site les appelle ici des dispositifs, et leur donne
+      à chacun une page.
+    </p>
+
+    <section id="familles">
+      <h2 class="badge">Cinq familles, cinq manières de fonctionner</h2>
+      {FAMILLES.map((f) => {
+        const ici = tous.filter((x) => familleDe(x.d) === f.id);
+        if (ici.length === 0) return null;
+        return (
+          <>
+            <h3 class="p-titre-echelon">{f.titre}</h3>
+            <p class="mesure"><Glose texte={FONCTIONNEMENT[f.id]} /></p>
+            <ul class="c-communes">
+              {ici.map(({ d, n }) => (
+                <li>
+                  <a href={`/dispositif/${d.id}`}>{d.nom}</a>
+                  <span class="c-departement-detail">{n > 0 ? `${nf(n)} commune${n > 1 ? 's' : ''}` : 'communes à venir'}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        );
+      })}
+    </section>
+
+    <section id="lire">
+      <h2 class="badge">Comment lire la page d’un dispositif</h2>
+      <ul class="c-structures">
+        <li><strong>Ce que c’est, qui décide, ce que ça apporte, ce que ça coûte</strong> : chaque phrase renvoie à sa source, numérotée en bas de page. Quand aucune source ne chiffre le coût, la page le dit.</li>
+        <li><strong>Ses communes</strong> : d’après la liste officielle, à la date qu’elle porte. Au-delà de mille communes, la liste est donnée département par département ; chaque commune dit sur sa page ce qui la concerne. Quand la liste est partielle, la page le dit.</li>
+        <li><strong>Ce qu’en disent les évaluations publiées</strong> : les conclusions de ceux qui ont évalué le dispositif — Cour des comptes, Parlement, Commission européenne… —, citées telles qu’ils les écrivent. Sans évaluation trouvée, la page le dit.</li>
+        <li><strong>Ce que le site calcule</strong>, pour un programme : les logements autorisés et la population de ses communes, avant et après son lancement. C’est une description, pas une mesure de l’effet : les communes ont été choisies parce qu’elles différaient des autres, et bien d’autres choses changent dans la même période. Ces séries sont séparées des évaluations, qui seules jugent.</li>
+      </ul>
+    </section>
+
+    <section id="limites">
+      <h2 class="badge">Ce que le site ne dit pas</h2>
+      <ul class="c-structures">
+        <li>Il ne calcule pas de rendement : aucune page ne divise un coût par un résultat.</li>
+        <li>Être dans la liste d’un dispositif dit qu’une commune en relève, pas ce qu’elle en a reçu ni ce qu’elle en a fait.</li>
+        <li>Une commune absente d’une liste partielle — LEADER, certains périmètres du patrimoine mondial — n’en est pas forcément exclue : le site ne le sait pas, et sa page le dit.</li>
+      </ul>
+    </section>
+  </div>
+</Base>

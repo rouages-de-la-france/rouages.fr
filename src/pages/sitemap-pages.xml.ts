@@ -24,6 +24,6 @@ export const GET: APIRoute = ({ site }) => {
   const intercos = intercommunalites().map((e) => lienIntercommunalite(e.siren));
   // Les syndicats qui publient des marchés : les seuls à avoir une page (src/pages/syndicat/).
   const synd = syndicats().filter((s) => marchesGroupement(s)).map((s) => `/syndicat/${s.siren}`);
-  const disp = dispositifs().map((d) => `/dispositif/${d.id}`);
+  const disp = ['/dispositif', ...dispositifs().map((d) => `/dispositif/${d.id}`)];
   return plan(base, [...fixes, ...departements, ...echelons, ...intercos, ...synd, ...disp, ...noeuds]);
 };

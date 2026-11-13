@@ -28,6 +28,7 @@
  * Lancé seul — `npx tsx scripts/patrimoine-mondial-emettre.ts` —, il relit
  * les contours des communes déjà écrits.
  */
+import { COMPLEMENTS } from './patrimoine-mondial-complements.ts';
 import { existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -338,6 +339,20 @@ export async function collecterPatrimoineMondial(sortie: string, lireJson: LireJ
       situes++;
     }
   }
+
+  // Les biens que la liste ne situe dans aucune commune : Cordouan, les sites de la Grande Guerre.
+  let completes = 0;
+  for (const [id, elements] of Object.entries(COMPLEMENTS)) {
+    if (!biens[id]) continue;
+    for (const codes of Object.values(elements)) {
+      for (const code of codes) {
+        if (!communes.has(code)) continue;
+        rattacher(code, Number(id), 'element', null);
+        completes++;
+      }
+    }
+  }
+  dire(`Patrimoine mondial : ${completes} rattachements d’après le dossier d’inscription et la base Mérimée.`);
 
   // Les périmètres régionaux.
   const sources: PatrimoineMondial['sources'] = [];
