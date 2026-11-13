@@ -1,6 +1,7 @@
 # 13 — Une page par programme et par zonage : cadrage
 
-> Statut : **proposition du 12 novembre 2026, à valider par le mainteneur.**
+> Statut : **proposition du 12 novembre 2026, tranchée le 13 novembre** — voir
+> « Ce que le mainteneur a décidé » en fin de document.
 > Demandée le même jour, à partir de la page d'Ygrande : un programme
 > « Villages d'avenir » y est cité, sans dire ce qu'il est. Rien n'est
 > construit avant la décision. Aucun texte n'est cité ici de mémoire : chaque
@@ -29,8 +30,8 @@ par programme budgétaire).
 
 ## Ce que serait une page
 
-`/programme/<id>` — par exemple `/programme/villages-d-avenir` — et
-`/zonage/<id>`, sur un seul modèle :
+`/dispositif/<id>` — par exemple `/dispositif/villages-d-avenir` (décision du 13 novembre ; proposé d’abord : `/programme/…` et
+`/zonage/…`), sur un seul modèle :
 
 1. **Ce que c'est**, en une phrase, d'après le texte qui le crée (circulaire,
    décret, loi), lié.
@@ -94,3 +95,24 @@ tableau de croisement viendraient après, s'ils ont une source qui les décrit.
    ABC ?
 4. **L'adresse** : `/programme/…` et `/zonage/…`, ou une seule famille
    `/dispositif/…` ?
+
+## Ce que le mainteneur a décidé — 13 novembre 2026
+
+1. **Le principe** : une page par programme et par zonage, sur ce modèle.
+2. **Le retour sur investissement** : les évaluations publiées **et** les
+   séries descriptives avant / après, avec leur avertissement. Les deux sont
+   clairement séparés sur la page : d'un côté ce que disent les évaluations,
+   citées telles qu'elles concluent ; de l'autre des chiffres que le site
+   calcule, présentés comme des descriptions qui ne mesurent pas l'effet du
+   programme.
+3. **Le premier lot** : Petites villes de demain, Action cœur de ville,
+   Villages d'avenir ; puis la zone de montagne et le zonage ABC. D'autres
+   ensuite, dans cet ordre proposé : les zonages que le site rattache déjà
+   (quartiers prioritaires, zone tendue, Territoires d'industrie, CRTE) ;
+   les désignations internationales que le site a déjà par commune
+   (patrimoine mondial, Ramsar, biosphère), une page par type ; les
+   dispositifs européens quand une liste ouverte rattache les communes —
+   LEADER et ses groupes d'action locale à sonder. France ruralités
+   revitalisation reste en attente d'une liste nationale ouverte.
+4. **L'adresse** : une seule famille, `/dispositif/<id>`, tant que le nombre
+   de pages reste gérable.
