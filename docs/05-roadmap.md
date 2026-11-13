@@ -3849,6 +3849,29 @@ selon l'ANCT) couvrant 34 716 communes, 824 communes à quartier prioritaire,
 1 430 communes en zone tendue et 2 259 en zone touristique et tendue — les
 mêmes nombres que les pages.
 
+**Les désignations internationales** ont une page par type, pas par bien
+(décision du 13 novembre 2026) : les sites Ramsar, les réserves de
+biosphère et le patrimoine mondial, sous `/dispositif/`, avec la nature
+« désignation » (pas de séries avant / après). Les communes viennent des
+données que le site avait déjà : les périmètres de l'INPN pour Ramsar et la
+biosphère (les trois zones d'une réserve réunies sous son nom), la liste de
+l'UNESCO et les périmètres régionaux pour le patrimoine mondial ; chaque page
+donne la liste des sites, réserves ou biens, avec leur nombre de communes, et
+dit ce que les fichiers ne couvrent pas (50 sites Ramsar sur 58, 15 réserves
+sur 18, 50 biens sur 56). La section internationale de la page de commune y
+renvoie. Sources : ministère de la Transition écologique (milieux humides,
+patrimoine mondial), UNESCO et MAB France ; aucune évaluation publiée des
+effets de ces désignations n'a été trouvée, et les pages le disent.
+
+Recoupé par un calcul indépendant : 1 184 communes touchées par un site
+Ramsar, 2 247 par une réserve de biosphère, 1 167 par un bien du patrimoine
+mondial — les mêmes nombres que les pages.
+
+**LEADER attend une décision** : aucune liste nationale ouverte des
+communes des groupes d'action locale 2023-2027 n'a été trouvée. La carte de
+LEADER France ne donne qu'un point par groupe ; quelques régions publient
+leurs périmètres sur data.gouv (Pays de la Loire, Hauts-de-France…).
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

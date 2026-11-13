@@ -27,7 +27,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
 ---
 <Base titre={d.nom} description={d.resume} section="chez-moi">
   <div class="page page--etroite p-dispositif">
-    <p class="badge">{d.nature === 'programme' ? `Programme de l’État · depuis ${d.lancement}` : `Zonage · depuis ${d.lancement}`}</p>
+    <p class="badge">{d.nature === 'programme' ? `Programme de l’État · depuis ${d.lancement}` : d.nature === 'designation' ? `Désignation internationale · depuis ${d.lancement}` : `Zonage · depuis ${d.lancement}`}</p>
     <h1>{d.nom}</h1>
     <p class="resume"><Glose texte={d.resume} /></p>
 
@@ -150,7 +150,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
           <summary>{`Les ${nf(x.groupes.length)} ${d.groupes_nom ?? 'territoires'}, par nom`}</summary>
           <ul class="c-communes">
             {x.groupes.map((g) => (
-              <li>{g.nom}<span class="c-departement-detail">{`${nf(g.n)} commune${g.n > 1 ? 's' : ''}`}</span></li>
+              <li>{g.lien ? <a href={g.lien} target="_blank" rel="noopener">{g.nom}</a> : g.nom}<span class="c-departement-detail">{`${nf(g.n)} commune${g.n > 1 ? 's' : ''}`}</span></li>
             ))}
           </ul>
         </details>
