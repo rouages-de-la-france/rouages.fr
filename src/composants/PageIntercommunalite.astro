@@ -9,6 +9,7 @@
  * publie en données ouvertes, et le répertoire national des élus ne la refait
  * pas — suppléants et sièges vacants la faussent d'une commune à l'autre.
  */
+import PhotosCommunes from './PhotosCommunes.astro';
 import CarteCommunes from './CarteCommunes.astro';
 import { carteDeCommunes } from '../modele/carte.ts';
 import Base from '../layouts/Base.astro';
@@ -213,6 +214,7 @@ const rapprochementsMarches = parTitulaire([...rapprochementsParElu.values()].fl
           </li>
         ))}
       </ul>
+      <PhotosCommunes communes={e.communes} />
       <p class="p-source-territoire">
         D’après les populations légales de l’INSEE. Les montants par habitant des comptes sont ceux de l’OFGL, qui divise par la population totale de l’intercommunalité : les deux chiffres ne coïncident pas tout à fait.
       </p>
