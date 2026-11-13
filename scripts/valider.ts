@@ -500,6 +500,24 @@ if (!g.editeur) {
 // code d'un inconnu. Seule la réingestion, déclenchée à la main, peut le viser (docs/08-runner-auto-heberge.md,
 // « La sécurité »). Le contrôle ne remplace pas l'approbation des workflows venus d'un fork : il empêche
 // qu'on ouvre la porte par mégarde.
+// security.txt (RFC 9116) ne vaut plus rien après sa date d'expiration : la
+// validation le rappelle trois mois avant, et refuse de publier un fichier
+// expiré (issue #138). Le contact se vérifie en même temps.
+{
+  const chemin = 'public/.well-known/security.txt';
+  const texte = existsSync(chemin) ? readFileSync(chemin, 'utf8') : '';
+  const expire = /^Expires:\s*(\S+)/m.exec(texte)?.[1];
+  const date = expire ? new Date(expire) : null;
+  if (!texte) erreurs.push(`${chemin} absent`);
+  else if (!date || Number.isNaN(date.getTime())) erreurs.push(`${chemin} : champ Expires absent ou illisible`);
+  else {
+    const jours = Math.floor((date.getTime() - Date.now()) / 86_400_000);
+    if (jours < 0) erreurs.push(`${chemin} expiré depuis le ${expire.slice(0, 10)} : repousser Expires d'un an et revérifier le contact`);
+    else if (jours < 90) avertissements.push(`${chemin} expire dans ${jours} jours (${expire.slice(0, 10)}) : repousser Expires d'un an et revérifier le contact`);
+  }
+  if (texte && !/^Contact:/m.test(texte)) erreurs.push(`${chemin} : aucun champ Contact`);
+}
+
 if (existsSync('.github/workflows')) {
   for (const f of readdirSync('.github/workflows').filter((n) => /\.ya?ml$/.test(n))) {
     const code = readFileSync(`.github/workflows/${f}`, 'utf8')
