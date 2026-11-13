@@ -45,6 +45,23 @@
  * nationaux avec leur texte (1 Mo) ; et `donnees` seulement pour les avis
  * ouverts parus depuis la collecte précédente, moins deux jours. Le premier
  * passage lit les soixante jours.
+ *
+ * **Les procédures longues aussi, mais pas les fautes de frappe.** Le 13
+ * novembre 2026, 237 avis initiaux plus anciens que la fenêtre avaient encore
+ * une date limite à venir. Ils sont lus à part, avec les versions qui s'y
+ * rattachent (annulations, rectificatifs, republications eForms), quelle que
+ * soit leur date, et 232 restaient ouverts. Seuls deux groupes sont crédibles :
+ *
+ * - les systèmes d'acquisition dynamiques et de qualification (101), ouverts
+ *   des années par construction ;
+ * - les avis dont la date limite tombe au plus 120 jours après la parution
+ *   (23) : parus juste avant la fenêtre, ils sont encore en cours.
+ *
+ * Les 102 autres ont une date limite qu'aucune procédure ne justifie — un an
+ * jour pour jour après la date vraisemblable, ou 2055, 2108, 7017 : une faute
+ * de saisie, que Pro afficherait comme un avis ouvert. Ils restent dehors.
+ * Le `donnees` des avis retenus est lu tant qu'ils ne sont pas dans le
+ * fichier précédent.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -57,8 +74,18 @@ export const AVIS_JOURS = 60;
 /** Les jours relus en plus, d'une collecte à la suivante : une parution du soir arrive le lendemain. */
 const RECOUVREMENT_JOURS = 2;
 
+/** Au-delà, la date limite d'un avis paru avant la fenêtre est une faute de saisie, sauf procédure longue. */
+const LIMITE_PLAUSIBLE_JOURS = 120;
+
+/** Les procédures ouvertes des années par construction. */
+const PROCEDURE_LONGUE = /acquisition dynamique|\bSAD\b|syst[eè]me de qualification/i;
+
 /** Combien d'avis par demande de `donnees` : la liste des identifiants tient dans l'URL. */
 const PAR_LOT = 100;
+
+/** Les champs de la liste légère. */
+const CHAMPS =
+  'idweb,nature,etat,famille,dateparution,datelimitereponse,nomacheteur,code_departement,objet,type_marche,url_avis,annonce_lie,contractfolderid';
 
 /** Une version d'avis, telle que la liste légère la donne. */
 interface LigneBoamp {
@@ -95,7 +122,7 @@ export interface AvisOuvert {
 
 export interface AvisCollectes {
   maj: string;
-  /** Premier jour de parution couvert. */
+  /** Premier jour de la fenêtre de parution ; les procédures plus anciennes encore ouvertes s'y ajoutent. */
   depuis: string;
   /** Premier jour dont `donnees` a été lu cette fois-ci ; avant, on s'en remet au fichier précédent. */
   relu: string;
@@ -301,8 +328,8 @@ export function lireAvisPrecedents(sortie: string): { maj: string; avis: Avis[] 
 }
 
 /**
- * Les avis de marché ouverts parus depuis soixante jours, avec le SIRET et le
- * CPV de ceux qu'on n'a pas encore lus.
+ * Les avis de marché ouverts parus depuis soixante jours, et ceux d'avant qui
+ * restent ouverts, avec le SIRET et le CPV de ceux qu'on n'a pas encore lus.
  */
 export async function collecterAvis(
   json: <T>(url: string) => Promise<T>,
@@ -316,16 +343,54 @@ export async function collecterAvis(
 
   // 1. Toutes les versions de la fenêtre, sans `donnees`.
   const lignes = await json<LigneBoamp[]>(
-    `${BOAMP}/exports/json?select=idweb,nature,etat,famille,dateparution,datelimitereponse,nomacheteur,code_departement,objet,type_marche,url_avis,annonce_lie,contractfolderid` +
+    `${BOAMP}/exports/json?select=${CHAMPS}` +
       `&where=${encodeURIComponent(`nature in ("APPEL_OFFRE","RECTIFICATIF","ANNULATION") and dateparution>=date'${depuis}'`)}`,
   );
   if (lignes.length === 0) throw new Error('BOAMP : aucune ligne, le jeu a changé de forme');
+
+  // 1 bis. Les avis initiaux d'avant la fenêtre dont la date limite n'est pas passée, et
+  // toutes les versions qui s'y rattachent, par l'avis lié ou par la procédure eForms.
+  const anciens = await json<LigneBoamp[]>(
+    `${BOAMP}/exports/json?select=${CHAMPS}` +
+      `&where=${encodeURIComponent(`nature="APPEL_OFFRE" and etat="INITIAL" and dateparution<date'${depuis}' and datelimitereponse>=date'${maj}'`)}`,
+  );
+  const dejaLues = new Set(lignes.map((l) => l.idweb));
+  const ajouter = (ls: LigneBoamp[]) => {
+    for (const l of ls) {
+      if (dejaLues.has(l.idweb)) continue;
+      dejaLues.add(l.idweb);
+      lignes.push(l);
+    }
+  };
+  ajouter(anciens);
+  const dossiers = [...new Set(anciens.map((l) => l.contractfolderid).filter((d): d is string => !!d))];
+  for (let i = 0; i < anciens.length; i += PAR_LOT) {
+    const ids = anciens.slice(i, i + PAR_LOT).map((l) => `"${l.idweb}"`);
+    ajouter(await json<LigneBoamp[]>(`${BOAMP}/exports/json?select=${CHAMPS}&where=${encodeURIComponent(`annonce_lie in (${ids.join(',')})`)}`));
+  }
+  for (let i = 0; i < dossiers.length; i += PAR_LOT) {
+    const ids = dossiers.slice(i, i + PAR_LOT).map((d) => `"${d}"`);
+    ajouter(
+      await json<LigneBoamp[]>(
+        `${BOAMP}/exports/json?select=${CHAMPS}&where=${encodeURIComponent(`nature="APPEL_OFFRE" and contractfolderid in (${ids.join(',')})`)}`,
+      ),
+    );
+  }
 
   // 2. Le texte des rectificatifs nationaux : c'est là qu'est la nouvelle date limite.
   const rectifs = await json<{ idweb: string; donnees: string | null }[]>(
     `${BOAMP}/exports/json?select=idweb,donnees` +
       `&where=${encodeURIComponent(`nature="RECTIFICATIF" and dateparution>=date'${depuis}'`)}`,
   );
+  // Ceux des procédures longues, parus avant la fenêtre.
+  const rectifsAnciens = lignes.filter((l) => l.nature === 'RECTIFICATIF' && (l.dateparution ?? '') < depuis).map((l) => `"${l.idweb}"`);
+  for (let i = 0; i < rectifsAnciens.length; i += PAR_LOT) {
+    rectifs.push(
+      ...(await json<{ idweb: string; donnees: string | null }[]>(
+        `${BOAMP}/exports/json?select=idweb,donnees&where=${encodeURIComponent(`idweb in (${rectifsAnciens.slice(i, i + PAR_LOT).join(',')})`)}`,
+      )),
+    );
+  }
   const limitesRectifiees = new Map<string, string | null>();
   let octetsRectifs = 0;
   for (const r of rectifs) {
@@ -370,6 +435,7 @@ export async function collecterAvis(
   let annules = 0;
   let passes = 0;
   let rectifies = 0;
+  let invraisemblables = 0;
   for (const versions of groupes.values()) {
     if (versions.some((v) => v.nature === 'ANNULATION' || v.etat === 'ANNULATION')) {
       annules += versions.filter(initial).length;
@@ -396,6 +462,12 @@ export async function collecterAvis(
         continue;
       }
       const objet = desHtml(l.objet ?? '').replace(/\s+/g, ' ').trim();
+      if (l.dateparution < depuis && !PROCEDURE_LONGUE.test(objet)) {
+        if (limite === null || limite.slice(0, 10) > jours(l.dateparution.slice(0, 10), LIMITE_PLAUSIBLE_JOURS)) {
+          invraisemblables++;
+          continue;
+        }
+      }
       const type = liste(l.type_marche).find((t) => TYPES.has(t));
       ouverts.push({
         id: l.idweb,
@@ -410,8 +482,10 @@ export async function collecterAvis(
     }
   }
 
-  // 5. `donnees` pour les avis ouverts parus depuis la collecte précédente.
-  const aLire = ouverts.filter((a) => a.date >= relu);
+  // 5. `donnees` pour les avis ouverts parus depuis la collecte précédente, et pour les
+  // procédures longues que le fichier précédent n'a pas encore.
+  const connus = new Set((precedent?.avis ?? []).map((a) => a.id));
+  const aLire = ouverts.filter((a) => a.date >= relu || (a.date < depuis && !connus.has(a.id)));
   const parIdOuvert = new Map(aLire.map((a) => [a.id, a]));
   let octets = 0;
   for (let i = 0; i < aLire.length; i += PAR_LOT) {
@@ -430,7 +504,9 @@ export async function collecterAvis(
   }
   const mo = (n: number) => (n / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 1 });
   dire(
-    `  BOAMP : ${lignes.length.toLocaleString('fr-FR')} versions d'avis parues depuis le ${depuis} ; ` +
+    `  BOAMP : ${lignes.length.toLocaleString('fr-FR')} versions d'avis lues, parues depuis le ${depuis} ` +
+      `ou rattachées à ${anciens.length.toLocaleString('fr-FR')} avis plus anciens à date limite future ` +
+      `(${invraisemblables.toLocaleString('fr-FR')} écartés, date limite invraisemblable) ; ` +
       `${ouverts.length.toLocaleString('fr-FR')} avis de marché ouverts (${passes.toLocaleString('fr-FR')} clos, ` +
       `${annules.toLocaleString('fr-FR')} annulés, ${rectifies.toLocaleString('fr-FR')} dates limites rectifiées) ; ` +
       `donnees relues pour ${aLire.length.toLocaleString('fr-FR')} parus depuis le ${relu} (${mo(octets)} Mo, ` +
