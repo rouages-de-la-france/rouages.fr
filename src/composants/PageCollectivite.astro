@@ -6,6 +6,7 @@
  * Chaque page de commune y renvoie, là où elle montrait autrefois ces comptes
  * en entier.
  */
+import PhotosCommunes from './PhotosCommunes.astro';
 import Base from '../layouts/Base.astro';
 import ComptesCollectivite from './ComptesCollectivite.astro';
 import ChambreComptes from './ChambreComptes.astro';
@@ -159,6 +160,10 @@ const titre = c.echelon === 'departement' ? c.nom : `${c.nom}${unique ? '' : ' (
         thematiques={thematiques}
       />
     )}
+    {carte && (() => {
+      const ici = new Set(carte.communes.map((x) => x.code));
+      return <PhotosCommunes communes={communes().filter((x) => ici.has(x.code))} />;
+    })()}
     {c.code === '67A' && (
       <p class="p-strate">
         Depuis 2021, la Collectivité européenne d’Alsace exerce les compétences des départements du Bas-Rhin et du

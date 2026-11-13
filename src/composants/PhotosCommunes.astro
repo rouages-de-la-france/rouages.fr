@@ -1,0 +1,22 @@
+---
+/**
+ * Le bouton des photos des communes d'un groupement — intercommunalité,
+ * département —, au clic seulement (`src/client/photos-communes.ts`). Les
+ * plus peuplées d'abord, soixante au plus : la page ne porte que leurs codes
+ * et leurs noms.
+ */
+interface Props {
+  communes: { code: string; nom: string; population: number }[];
+}
+const PLAFOND = 60;
+const { communes } = Astro.props;
+const liste = [...communes].sort((a, b) => b.population - a.population).slice(0, PLAFOND).map((c) => [c.code, c.nom]);
+---
+{liste.length > 0 && (
+  <>
+    <div class="photos-patrimoine-zone" data-photos-communes={JSON.stringify(liste)} data-total={communes.length}></div>
+    <script>
+      import '../client/photos-communes.ts';
+    </script>
+  </>
+)}

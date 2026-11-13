@@ -3928,6 +3928,12 @@ objets mobiliers. Les fichiers `dep/XX-monuments.json` et
 `dep/XX-objets.json` restent désormais dans le site (13 Mo), lus seulement
 au clic (`integrations/elaguer.mjs`).
 
+**Les communes en photo** sur la page d'une intercommunalité et d'un
+département : le même bouton au clic, l'image principale de chaque commune
+sur Wikidata, les plus peuplées d'abord, soixante au plus
+(`PhotosCommunes.astro`, `src/client/photos-communes.ts`). Les galeries
+partagent désormais leur code (`src/client/commons.ts`).
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,
