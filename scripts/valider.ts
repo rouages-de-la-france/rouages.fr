@@ -512,8 +512,8 @@ if (!g.editeur) {
   else if (!date || Number.isNaN(date.getTime())) erreurs.push(`${chemin} : champ Expires absent ou illisible`);
   else {
     const jours = Math.floor((date.getTime() - Date.now()) / 86_400_000);
-    if (jours < 0) erreurs.push(`${chemin} expiré depuis le ${expire.slice(0, 10)} : repousser Expires d'un an et revérifier le contact`);
-    else if (jours < 90) avertissements.push(`${chemin} expire dans ${jours} jours (${expire.slice(0, 10)}) : repousser Expires d'un an et revérifier le contact`);
+    if (jours < 0) erreurs.push(`${chemin} expiré depuis le ${date.toISOString().slice(0, 10)} : repousser Expires d'un an et revérifier le contact`);
+    else if (jours < 90) avertissements.push(`${chemin} expire dans ${jours} jours (${date.toISOString().slice(0, 10)}) : repousser Expires d'un an et revérifier le contact`);
   }
   if (texte && !/^Contact:/m.test(texte)) erreurs.push(`${chemin} : aucun champ Contact`);
 }
