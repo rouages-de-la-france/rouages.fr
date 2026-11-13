@@ -26,6 +26,15 @@ const ordreAbc = ['A BIS', 'A', 'B1', 'B2', 'C'];
 const nommerTi = nommer || z.territoiresIndustrie.length < 7;
 const nommerCrte = nommer || z.crte.length < 7;
 const montagne = lienDispositif('montagne');
+const lienFrr = lienDispositif('frr');
+const NIVEAUX_FRR: [string, string][] = [
+  ['plus', 'en FRR « plus »'],
+  ['socle', 'en FRR « socle »'],
+  ['beneficiaire', '« bénéficiaires »'],
+  ['socle-partiel', 'classées en partie'],
+  ['beneficiaire-partiel', 'bénéficiaires en partie'],
+];
+const frrClassees = z.frr ? NIVEAUX_FRR.filter(([k]) => z.frr![k]) : [];
 const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
 ---
 <ul class="c-structures">
@@ -47,6 +56,14 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   {z.crte.length > 0 && (
     <li>
       <Glose texte={`Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique : ${nommerCrte ? z.crte.map((t) => `« ${t} »`).join(', ') : nf(z.crte.length)}.`} />
+    </li>
+  )}
+  {z.frr && (
+    <li>
+      {lienFrr ? <a href={lienFrr}>France ruralités revitalisation</a> : 'France ruralités revitalisation'}
+      {frrClassees.length === 0
+        ? ' : aucune commune.'
+        : ` : ${frrClassees.map(([k, l]) => `${nf(z.frr![k])} ${l}`).join(', ')}, sur ${nf(z.communes)} communes.`}
     </li>
   )}
   {z.montagneUrbanisme !== null && (
@@ -78,5 +95,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   deux communes compte dans chacune.
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)}) ${z.dates.montagneUrbanisme ? `, la zone de montagne au sens de l’urbanisme d’après l’Observatoire des territoires (${date(z.dates.montagneUrbanisme)})` : ''} et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)}) ${z.dates.frr ? `, France ruralités revitalisation d’après la direction générale des collectivités locales (${date(z.dates.frr)})` : ''}${z.dates.montagneUrbanisme ? `, la zone de montagne au sens de l’urbanisme d’après l’Observatoire des territoires (${date(z.dates.montagneUrbanisme)})` : ''} et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>

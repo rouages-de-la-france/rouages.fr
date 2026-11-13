@@ -3808,6 +3808,27 @@ Recoupé par un calcul indépendant sur le fichier de l'Observatoire :
 766 communes : 412 en montagne pour l'agriculture seulement, 82 pour
 l'urbanisme seulement, 272 « en partie » pour l'agriculture.
 
+**France ruralités revitalisation** a sa page, et la page de commune dit le
+niveau de chacune (« plus », « socle », « bénéficiaire », ou en partie),
+d'après la liste de la direction générale des collectivités locales du
+10 juillet 2025, lue par la collecte des zonages (neuvième champ de
+`dep/XX-zonages.json`, facultatif comme la montagne de l'urbanisme). La liste
+n'est pas sur data.gouv : la réutilisation « carte des ZRR » proposée
+s'arrêtait au jeu de l'ANCT de 2021, d'avant la réforme. La page s'appuie
+sur la foire aux questions de la DGCL (juillet 2025) et sur Service Public
+Entreprendre, qui donne le report à 2029 des communes « bénéficiaires » voté
+en loi de finances pour 2026 — la FAQ dit encore 2027. Coût : 10 millions
+d'euros prévus en 2025 pour l'exonération d'impôt sur les bénéfices
+(voies et moyens), plus de 40 millions par an pour les communes
+« bénéficiaires » (réponse ministérielle du 8 juillet 2025). Évaluation :
+celles des ZRR, que FRR remplace, citées par le rapport d'information de
+l'Assemblée de 2014.
+
+Recoupé par un calcul indépendant sur le fichier de la DGCL : 4 456 FRR
+« plus » (l'arrêté du 9 juillet 2025 en compte 4 466), 13 313 « socle »,
+2 134 « bénéficiaires », 20 classées en partie, 11 bénéficiaires en partie,
+à l'unité dans les fichiers écrits. Le Mayet-de-Montagne est « bénéficiaire ».
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

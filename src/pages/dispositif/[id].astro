@@ -58,16 +58,17 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
 
     {d.classes ? (
       <section id="communes">
-        <h2 class="badge">Les communes, zone par zone</h2>
-        <table class="cpt-tableau">
-          <caption>{`Les ${nf(n)} communes classées, par zone${x.dateListe ? `, d’après la liste du ${date(x.dateListe)}` : ''}.`}</caption>
-          <thead><tr><th scope="col">Zone</th><th scope="col">Communes</th><th scope="col">Habitants</th></tr></thead>
+        <h2 class="badge">{`Les communes, ${d.classes_nom ?? 'zone'} par ${d.classes_nom ?? 'zone'}`}</h2>
+        {n === 0 && <p class="mesure">La liste de ses communes n’a pas encore été collectée : elle viendra avec la prochaine mise à jour des données territoriales.</p>}
+        {n > 0 && <table class="cpt-tableau">
+          <caption>{`Les ${nf(n)} communes classées, par ${d.classes_nom ?? 'zone'}${x.dateListe ? `, d’après la liste du ${date(x.dateListe)}` : ''}.`}</caption>
+          <thead><tr><th scope="col">{(d.classes_nom ?? 'zone').replace(/^./, (l) => l.toUpperCase())}</th><th scope="col">Communes</th><th scope="col">Habitants</th></tr></thead>
           <tbody>
             {x.parClasse.map((k) => (
               <tr><th scope="row">{k.libelle}</th><td>{nf(k.n)}</td><td>{nf(k.population)}</td></tr>
             ))}
           </tbody>
-        </table>
+        </table>}
         {x.parClasse.map((k) => {
           const ici = x.communes.filter((c) => x.classeDe.get(c.code) === k.cle);
           if (ici.length === 0) return null;
@@ -97,7 +98,8 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
           );
         })}
         <p class="p-source-territoire">
-          {`D’après la liste des communes par zone du ministère chargé du logement${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Au-delà de ${nf(SEUIL_LISTE)} communes, une zone est donnée département par département ; chaque commune dit sa zone sur sa page.`}
+          {`D’après ${d.liste ?? 'la liste des communes par zone du ministère chargé du logement'}${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Au-delà de ${nf(SEUIL_LISTE)} communes, la liste est donnée département par département ; chaque commune dit sur sa page ce qui la concerne.` +
+            (d.classes!.some((k) => /en partie/.test(k.libelle)) ? ' Une commune classée en partie compte ici pour toute sa population.' : '')}
         </p>
       </section>
     ) : (
