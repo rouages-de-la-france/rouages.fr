@@ -116,7 +116,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
             <h3 class="p-titre-echelon">Logements autorisés chaque année</h3>
             <table class="cpt-tableau">
               <caption>{`Logements autorisés dans les ${nf(x.logements.couvertes)} communes du programme, par année ; lancement en ${d.lancement}.`}</caption>
-              <thead><tr><th scope="col">Année</th><th scope="col">Logements autorisés</th><th scope="col">Par rapport au lancement</th></tr></thead>
+              <thead><tr><th scope="col">Année</th><th scope="col">Logements autorisés</th><th scope="col">Période</th></tr></thead>
               <tbody>
                 {x.logements.annees.map((a, i) => (
                   <tr class={`p-serie-${situer(a)}`}>
@@ -135,7 +135,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
             <h3 class="p-titre-echelon">Population aux recensements</h3>
             <table class="cpt-tableau">
               <caption>{`Population totale des ${nf(x.population_recensements.couvertes)} communes du programme, à chaque recensement depuis 2010 ; lancement en ${d.lancement}.`}</caption>
-              <thead><tr><th scope="col">Année</th><th scope="col">Habitants</th><th scope="col">Par rapport au lancement</th></tr></thead>
+              <thead><tr><th scope="col">Année</th><th scope="col">Habitants</th><th scope="col">Période</th></tr></thead>
               <tbody>
                 {x.population_recensements.annees.map((a, i) => (
                   <tr class={`p-serie-${situer(a)}`}>
