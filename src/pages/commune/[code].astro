@@ -461,6 +461,10 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
 const familleDe = new Map(FAMILLES.flatMap((f) => f.blocs.map((b) => [b, f.id] as const)));
 const famillesPresentes = FAMILLES.map((f) => ({ ...f, n: entrees.filter(([id]) => familleDe.get(id) === f.id).length })).filter((f) => f.n > 0 || f.id === 'apercu');
 const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
+// Les départements dont Rouages Pro collecte les financements
+// (`scripts/financements-emettre.ts` du dépôt pro) : ailleurs, son accès
+// gratuit pour l'ESS refuserait la demande, et le lien n'est pas posé.
+const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58', '63', '71']);
 ---
 
 <Base
@@ -1059,6 +1063,12 @@ const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
         <p class="mesure">
           Pour une activité qui n’a pas d’association ici&nbsp;: <a href={`/le-plus-proche?c=${commune.code}`}>la plus proche</a>, domaine par domaine.
         </p>
+        {FINANCEMENTS_PRO.has(commune.dep) && (
+          <p class="mesure">
+            <a href="https://pro.rouages.fr/ess">{'Ce que votre association a reçu de l’État, ce qu’ont obtenu les associations comparables du département, et les appels du FDVA'}</a>
+            {' — Rouages Pro, le service de l’éditeur : gratuit pour les associations et les structures de l’économie sociale et solidaire'}
+          </p>
+        )}
       </section>
     )}
     {droitLocal && (
