@@ -46,8 +46,13 @@ const RACINE_GARDEE = new Set([
   'performance',
 ]);
 
-/** Par département : les groupements (`03.json`) et le prix de l'eau (`03-eau.json`). */
-const DEP_GARDE = /^[0-9AB]{2,3}(-eau)?\.json$/;
+/**
+ * Par département : les groupements (`03.json`), le prix de l'eau
+ * (`03-eau.json`), et les monuments et objets protégés (`03-monuments.json`,
+ * `03-objets.json`), que la galerie de photos lit au clic pour savoir quels
+ * éléments chercher sur Wikidata — 13 Mo en tout (2,3 Mo de monuments, 11 Mo d'objets), lus seulement à la demande.
+ */
+const DEP_GARDE = /^[0-9AB]{2,3}(-eau|-monuments|-objets)?\.json$/;
 
 export function elaguer() {
   return {
