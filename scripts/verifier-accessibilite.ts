@@ -40,6 +40,7 @@ const PAGES = [
   '/departement/03',
   '/region/84',
   '/intercommunalite/200071363',
+  '/dispositif/villages-d-avenir',
   '/n/eau-potable',
   '/trouver-des-communes?dep=03&pmax=2000&c=ifb:min40',
   '/comparer?c=03165,03310',
