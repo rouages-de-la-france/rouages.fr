@@ -406,22 +406,34 @@ export async function imageRecit(d: DonneesRecit, resultat?: { cases: Case[]; sc
   g.beginPath();
   for (const r of formes) r.forEach(([x, y], i) => (i ? g.lineTo : g.moveTo).call(g, ox + (x * k - x0) * e, oy + (-y - y0) * e));
   g.fill('evenodd');
-  const resumes = d.cartes.filter((c) => c.resume).slice(0, 4);
-  resumes.forEach((c, i) => {
-    const y = 1060 + i * 170;
-    texte(c.resume![0], y, 84, '#ffffff', 700, titre);
-    texte(c.resume![1], y + 52, 38, '#cfe3ea');
-  });
+  // Sous la silhouette : en jeu, le score et ses cases, puis trois chiffres ; sinon, quatre chiffres. Chaque bloc a
+  // sa place, du haut vers le bas, sans chevaucher le suivant ni l'adresse du bas.
+  let y = 1040;
   if (resultat) {
+    texte(resultat.score, y + 40, 72, '#ffffff', 700, titre);
+    texte('bonnes réponses', y + 88, 36, '#cfe3ea');
     const couleurs: Record<Case, string> = { vert: '#2e9e5b', jaune: '#e6b422', orange: '#e8762c', rouge: '#cf3b2f' };
+    const n = resultat.cases.length;
+    // Des cases de 64 px, plus étroites s'il y en a beaucoup, pour tenir entre les marges.
+    const pas = Math.min(84, (L - 160) / Math.max(1, n));
+    const cote = Math.min(64, pas - 12);
     resultat.cases.forEach((c, i) => {
       g.fillStyle = couleurs[c];
       g.beginPath();
-      g.roundRect(80 + i * 100, 1730 - 140, 80, 80, 12);
+      g.roundRect(80 + i * pas, y + 118, cote, cote, 10);
       g.fill();
     });
-    texte(resultat.score, 1730 - 160, 60, '#ffffff', 700, titre);
+    y += 118 + cote + 130;
+  } else {
+    y += 20;
   }
+  const resumes = d.cartes.filter((c) => c.resume).slice(0, resultat ? 3 : 4);
+  const ecart = resultat ? 160 : 170;
+  resumes.forEach((c, i) => {
+    const yi = y + i * ecart;
+    texte(c.resume![0], yi, 80, '#ffffff', 700, titre);
+    texte(c.resume![1], yi + 50, 36, '#cfe3ea');
+  });
   texte(`rouages.fr/commune/${d.code}`, 1820, 38, '#ffffff', 600);
   return new Promise((ok, ko) => t.toBlob((b) => (b ? ok(b) : ko(new Error('image'))), 'image/png'));
 }
