@@ -12,7 +12,7 @@
  */
 import { national, parDepartement, type CommuneFiche } from './fiche-commune.ts';
 import { communes, intercommunalites } from './territoires.ts';
-import { leaderDe } from './leader.ts';
+import { leaderDe, type LeaderCommune } from './leader.ts';
 
 /* ------------------------------------------------------------------ *
  * Les fichiers, tels que les collecteurs les écrivent.
@@ -729,7 +729,7 @@ export interface Zonages {
   /** La zone de montagne au sens de l'urbanisme ; null quand la collecte ne l'a pas encore lue. */
   montagneUrbanisme: 'non' | 'oui' | null;
   /** Le groupe d'action locale LEADER ; null quand la région de la commune n'est pas couverte. */
-  leader: { gal: string | null; maj: string } | null;
+  leader: LeaderCommune | null;
   /** Le niveau de France ruralités revitalisation ; null quand la collecte ne l'a pas encore lu. */
   frr: 'non' | 'plus' | 'socle' | 'beneficiaire' | 'socle-partiel' | 'beneficiaire-partiel' | null;
   /** La zone du zonage ABC — A bis, A, B1, B2, C —, ou null si inconnue. */

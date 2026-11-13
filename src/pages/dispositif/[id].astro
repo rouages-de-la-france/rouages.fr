@@ -27,6 +27,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
 ---
 <Base titre={d.nom} description={d.resume} section="chez-moi">
   <div class="page page--etroite p-dispositif">
+    <p class="p-source-territoire"><a href="/dispositif">Tous les dispositifs</a></p>
     <p class="badge">{d.nature === 'programme' ? `Programme de l’État · depuis ${d.lancement}` : d.nature === 'designation' ? `Désignation internationale · depuis ${d.lancement}` : `Zonage · depuis ${d.lancement}`}</p>
     <h1>{d.nom}</h1>
     <p class="resume"><Glose texte={d.resume} /></p>

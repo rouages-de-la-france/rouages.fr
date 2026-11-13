@@ -1,0 +1,126 @@
+/**
+ * Les biens du patrimoine mondial que la liste ouverte de l'UNESCO ne situe
+ * dans aucune commune, et la source qui les y rattache.
+ *
+ * **Le phare de Cordouan** (bien 1625) : l'UNESCO en donne le point, en mer,
+ * dans aucun contour de commune. La base Mérimée rattache le monument
+ * historique (PA00083858) au Verdon-sur-Mer.
+ *
+ * **Les sites funéraires et mémoriels de la Première Guerre mondiale (Front
+ * Ouest)** (bien 1567) : la liste ouverte n'en donne aucun élément. Le
+ * résumé exécutif du dossier d'inscription, publié par le ministère de la
+ * Culture, donne pour chacun des 96 sites français sa commune, son
+ * département et les coordonnées de son point central. Chaque site est
+ * rattaché à la commune où tombe ce point, quand elle est bien celle que le
+ * tableau nomme (84 sites) ; sinon — un site sur plusieurs communes, ou des
+ * coordonnées fausses dans le tableau (Vouziers, Saint-Mihiel, Mondement,
+ * Wisches) — aux communes que le tableau nomme, cherchées par leur nom dans
+ * leur département. Relu le 13 novembre 2026.
+ */
+export const SOURCES_COMPLEMENTS = {
+  1625: 'https://www.pop.culture.gouv.fr/notice/merimee/PA00083858',
+  1567: 'https://www.culture.gouv.fr/fr/Thematiques/Monuments-Sites/Monuments-historiques-sites-patrimoniaux/Liste-des-139-sites-memoriels-et-funeraires-en-France-et-en-Belgique-de-la-Grande-Guerre-inscrits-sur-la-liste-du-patrimoine-mondial-de-l-UNESCO',
+} as const;
+
+/** Par bien : chaque élément, par son numéro dans le dossier, et ses communes. */
+export const COMPLEMENTS: Record<number, Record<string, string[]>> = {
+  1625: { Cordouan: ['33544'] },
+  1567: {
+    AI01: ["02062"],
+    AI02: ["02691"],
+    AI03: ["02791"],
+    AI04: ["02416"],
+    AI05: ["02275"],
+    AI06: ["02110"],
+    AI07: ["02150"],
+    AI08: ["02235"],
+    AI09: ["02580"],
+    AR01: ["08490"],
+    AR02: ["08409"],
+    AR03: ["08492"],
+    AR04: ["08017"],
+    BR01: ["67543", "67165"],
+    HR01: ["68249"],
+    HR02: ["68249", "68142"],
+    HR03: ["68175"],
+    HR04: ["68249", "68044"],
+    HR05: ["68122", "68359", "68381", "68315"],
+    HR06: ["68122"],
+    HR07: ["68318"],
+    HR08: ["68329"],
+    HR09: ["68217"],
+    MA01: ["51217"],
+    MA02: ["51111"],
+    MA03: ["51486"],
+    MA04: ["51019"],
+    MA05: ["51374"],
+    MA06: ["51553"],
+    MA07: ["51553"],
+    MA08: ["51553"],
+    MA09: ["51553"],
+    MA10: ["51553"],
+    MA11: ["51621", "51519"],
+    MA12: ["51621"],
+    ME01: ["55266"],
+    ME02: ["55266"],
+    ME03: ["55438"],
+    ME04: ["55536"],
+    ME05: ["55537", "55189"],
+    ME06: ["55537"],
+    ME07: ["55189"],
+    ME08: ["55537"],
+    ME09: ["55545"],
+    ME10: ["55124"],
+    ME11: ["55172"],
+    ME12: ["55463"],
+    MM01: ["54518"],
+    MM02: ["54222"],
+    MM03: ["54428"],
+    MM04: ["54428"],
+    MS01: ["57580"],
+    MS02: ["57483"],
+    MS03: ["57161"],
+    MS04: ["57630"],
+    MS05: ["57463"],
+    MS06: ["57375"],
+    MS07: ["57375"],
+    ND01: ["59257"],
+    ND02: ["59257"],
+    ND03: ["59176"],
+    ND04: ["59122"],
+    ND05: ["59021"],
+    ND06: ["59481"],
+    OI01: ["60189"],
+    OI02: ["60632"],
+    OI03: ["60159"],
+    PC01: ["62706"],
+    PC02: ["62706"],
+    PC03: ["62371"],
+    PC04: ["62609"],
+    PC05: ["62609"],
+    PC06: ["62810"],
+    PC07: ["62609"],
+    PC08: ["62609"],
+    PC09: ["62609"],
+    PC10: ["62001"],
+    PC11: ["62041"],
+    PC12: ["62528"],
+    PC13: ["62318"],
+    PC14: ["62893"],
+    SE01: ["80069", "80038"],
+    SE02: ["80753"],
+    SE03: ["80753", "80045"],
+    SE04: ["80615"],
+    SE05: ["80490"],
+    SE06: ["80664", "80115"],
+    SE07: ["80115"],
+    SE08: ["80664"],
+    SE09: ["80338"],
+    SE10: ["80600"],
+    SE11: ["80493"],
+    SM01: ["77335"],
+    VS01: ["88033"],
+    VS02: ["88412"],
+    VS03: ["88413"],
+  },
+};
