@@ -25,6 +25,7 @@ const ordreAbc = ['A BIS', 'A', 'B1', 'B2', 'C'];
 // Au-delà de six, une région en compterait des dizaines : le nombre suffit.
 const nommerTi = nommer || z.territoiresIndustrie.length < 7;
 const nommerCrte = nommer || z.crte.length < 7;
+const montagne = lienDispositif('montagne');
 const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
 ---
 <ul class="c-structures">
@@ -48,10 +49,16 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
       <Glose texte={`Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique : ${nommerCrte ? z.crte.map((t) => `« ${t} »`).join(', ') : nf(z.crte.length)}.`} />
     </li>
   )}
+  {z.montagneUrbanisme !== null && (
+    <li>
+      {montagne ? <a href={montagne}>Zone de montagne</a> : 'Zone de montagne'}
+      {z.montagneUrbanisme === 0 ? ' au sens de l’urbanisme : aucune commune.' : ` au sens de l’urbanisme : ${sur(z.montagneUrbanisme)}.`}
+    </li>
+  )}
   <li>
     {z.montagne + z.partieMontagne === 0
-      ? 'Aucune commune en zone de montagne.'
-      : `Zone de montagne : ${sur(z.montagne)}` + (z.partieMontagne > 0 ? `, et ${nf(z.partieMontagne)} en partie.` : '.')}
+      ? 'Aucune commune en zone agricole défavorisée de montagne.'
+      : `Zone agricole défavorisée de montagne : ${sur(z.montagne)}` + (z.partieMontagne > 0 ? `, et ${nf(z.partieMontagne)} en partie.` : '.')}
   </li>
   {Object.keys(z.abc).length > 0 && (
     <li>
@@ -71,5 +78,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   deux communes compte dans chacune.
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)}) et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)}) ${z.dates.montagneUrbanisme ? `, la zone de montagne au sens de l’urbanisme d’après l’Observatoire des territoires (${date(z.dates.montagneUrbanisme)})` : ''} et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>

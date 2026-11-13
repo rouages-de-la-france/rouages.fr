@@ -156,3 +156,51 @@ dispositifs:
     sources:
       - { id: min-abc, titre: "Ministère chargé du logement — « Zonage A, B, C », mis à jour le 3 juillet 2026", url: "https://www.ecologie.gouv.fr/politiques-publiques/zonage-b-c", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: zone-de-montagne
+    cle: montagne
+    nom: "La zone de montagne"
+    nature: zonage
+    lancement: 1985
+    pilote: "L'État, par arrêtés ministériels"
+    resume: "La montagne a plusieurs délimitations officielles, qui ne coïncident pas : celle de l'urbanisme, où s'appliquent les règles de construction de la loi Montagne de 1985, et celle des zones agricoles défavorisées, qui ouvre droit à des aides aux agriculteurs."
+    ce_que_cest:
+      - texte: "Trois délimitations officielles de la montagne se superposent : les zones de montagne au titre du droit de l'urbanisme, soumises à la partie du code de l'urbanisme propre à la montagne ; les zones agricoles défavorisées de montagne, qui ouvrent droit à des aides ; et les massifs, base des comités de massif et de financements propres."
+        source: ot-montagne
+      - texte: "La loi Montagne du 9 janvier 1985 définit la zone de montagne comme des communes ou parties de communes caractérisées par « une limitation considérable des possibilités d'utilisation des terres et un accroissement important des coûts des travaux », dus à l'altitude, à la pente, ou aux deux. Ses règles d'urbanisme sont codifiées aux articles L. 122-1 et suivants du code de l'urbanisme."
+        source: notaires-montagne
+      - texte: "Cette page suit la première délimitation, celle de l'urbanisme ; chaque commune dit aussi sur sa page si elle est en zone agricole défavorisée de montagne."
+        source: ot-montagne
+    qui_decide:
+      - texte: "Les communes en zone de montagne sont énumérées, de façon limitative, par l'arrêté interministériel du 6 septembre 1985 : environ 5 500 communes. Le décret du 16 janvier 2004 rattache chaque zone à un massif : Alpes, Corse, Massif central, Massif jurassien, Pyrénées, Massif vosgien."
+        source: notaires-montagne
+      - texte: "Le zonage agricole est constaté par des arrêtés conjoints du ministère de l'Agriculture et du ministère du Budget."
+        source: ot-montagne
+      - texte: "La loi fixe les règles, et le Parlement les révise : la loi de 2026 sur laquelle le Conseil constitutionnel s'est prononcé le 14 août 2026 a assoupli le principe de continuité, jugé conforme à la Constitution."
+        source: cc-2026-912
+    apporte:
+      - texte: "Des règles d'urbanisme : l'extension de l'urbanisation doit, sauf exception, être réalisée en continuité des bourgs, villages, hameaux ou groupes de constructions existants."
+        source: cc-2026-912
+      - texte: "Depuis la loi de 2026, l'urbanisation peut se faire en continuité de groupes de constructions existants quelle que soit leur destination, et le principe de continuité intègre les coupures physiques — une voie, un cours d'eau, un talus — de faible importance."
+        source: cc-2026-912
+      - texte: "La capacité d'accueil des espaces destinés à l'urbanisation doit rester compatible avec la préservation des espaces, paysages et milieux caractéristiques du patrimoine naturel et culturel montagnard."
+        source: cc-2026-912
+      - texte: "Le code protège aussi les terres agricoles, pastorales et forestières, notamment dans les fonds de vallée, et encadre les unités touristiques nouvelles."
+        source: notaires-montagne
+      - texte: "En zone agricole défavorisée, les indemnités compensatoires de handicaps naturels sont versées aux agriculteurs qui y exploitent des surfaces ; en zone de montagne, les surfaces en production végétale doivent être commercialisées pour y ouvrir droit."
+        source: telepac-ichn-2025
+    cout:
+      - texte: "La zone de montagne de l'urbanisme n'a pas de budget : elle fixe des règles."
+        source: ot-montagne
+      - texte: "Les indemnités compensatoires de handicaps naturels sont calculées par hectare de surfaces fourragères ou de cultures ; leurs montants varient selon la sous-zone défavorisée et sont définis par arrêté préfectoral."
+        source: telepac-ichn-2025
+    evaluations:
+      - source: senat-montagne-2026
+        conclusion: "La loi Montagne du 9 janvier 1985 et la loi Littoral du 3 janvier 1986 sont deux lois « cathédrales », dont le bilan est globalement très positif. […] La mission met en revanche deux bémols à ce bilan : d'une part, ces textes sont insuffisamment adaptés aux spécificités des territoires ; d'autre part, les difficultés d'application des règles d'urbanisme demeurent un irritant pour les acteurs locaux."
+    sources:
+      - { id: ot-montagne, titre: "Observatoire des territoires (ANCT) — « Montagne - zonage urbanisme »", url: "https://www.observatoire-des-territoires.gouv.fr/index.php/montagne-zonage-urbanisme", consulte_le: 2026-11-13 }
+      - { id: notaires-montagne, titre: "Rapport du 120e congrès des notaires de France (2024) — « La montagne »", url: "https://www.rapport-congresdesnotaires.fr/2024-rapport-du-120e-congres/la-montagne", consulte_le: 2026-11-13 }
+      - { id: cc-2026-912, titre: "Conseil constitutionnel — décision n° 2026-912 DC du 14 août 2026, considérants 13 à 20", url: "https://www.conseil-constitutionnel.fr/decision/2026/2026912DC.htm", consulte_le: 2026-11-13 }
+      - { id: telepac-ichn-2025, titre: "Ministère de l'Agriculture — notice des indemnités compensatoires de handicaps naturels, dossier PAC 2025", url: "https://isis.telepac.agriculture.gouv.fr/telepac/pdf/tas/2025/Dossier-PAC-2025_notice_ICHN.pdf", consulte_le: 2026-11-13 }
+      - { id: senat-montagne-2026, titre: "Sénat — rapport d'information n° 858 (2025-2026), « Loi Montagne, loi Littoral : face aux nouveaux enjeux, conforter, adapter et différencier », synthèse, 7 juillet 2026", url: "https://www.senat.fr/rap/r25-858/r25-858-syn.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

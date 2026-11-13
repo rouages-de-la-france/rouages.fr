@@ -3787,12 +3787,26 @@ département au-delà —, sans séries avant / après, qui n'ont de sens que
 pour un programme lancé à une date. Recoupé avec la liste du ministère du
 26 juin 2026 : 134, 870, 2 383, 3 162 et 28 326 communes, à l'unité.
 
-**La zone de montagne attend une décision** : la liste que le site affiche
-est celle des zones agricoles défavorisées de montagne (ministère de
-l'Agriculture), et l'Observatoire des territoires publie celle de la zone
-de montagne au sens du code de l'urbanisme. Elles diffèrent pour 766
-communes (412 en montagne pour l'une et pas pour l'autre, 82 en sens
-inverse, 272 communes nouvelles « en partie »).
+**La zone de montagne** a sa page (décision du 13 novembre 2026 : les deux
+délimitations, chacune pour ce qu'elle règle). La collecte des zonages lit
+désormais aussi la zone de montagne au sens de l'urbanisme, publiée par
+l'Observatoire des territoires de l'ANCT (huitième champ de
+`dep/XX-zonages.json`) ; une panne de l'Observatoire laisse le champ absent
+sans emporter le reste. La page de commune dit les deux : l'urbanisme (les
+règles de la loi Montagne, dont la continuité de l'urbanisation) et la zone
+agricole défavorisée de montagne (les indemnités compensatoires de handicaps
+naturels) ; l'intercommunalité et le département les comptent séparément. La
+page `/dispositif/zone-de-montagne` s'appuie sur l'Observatoire, le rapport du
+120e congrès des notaires, la décision n° 2026-912 DC du Conseil
+constitutionnel, la notice ICHN 2025 et, pour l'évaluation, le rapport
+d'information du Sénat du 7 juillet 2026. Avant la réingestion, elle dit que
+la liste n'est pas encore collectée.
+
+Recoupé par un calcul indépendant sur le fichier de l'Observatoire :
+5 577 communes en zone de montagne pour l'urbanisme, dont Le Mayet-de-Montagne
+(Mayet, dans la Sarthe, n'en est pas). Les deux délimitations diffèrent pour
+766 communes : 412 en montagne pour l'agriculture seulement, 82 pour
+l'urbanisme seulement, 272 « en partie » pour l'agriculture.
 
 ## Phase 3 — Élargir
 

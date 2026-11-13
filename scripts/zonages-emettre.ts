@@ -24,6 +24,16 @@
  * nouvelle formée depuis est en zone de montagne si l'une de ses anciennes
  * communes l'était, « en partie » si toutes ne l'étaient pas.
  *
+ * Cette liste, celle des zones agricoles défavorisées, n'est pas la seule :
+ * la France a trois délimitations de la montagne. **La zone de montagne au
+ * sens de l'urbanisme** — les communes soumises aux règles d'urbanisme de la
+ * loi Montagne — est publiée à part par l'Observatoire des territoires de
+ * l'ANCT, sur la géographie communale de l'année ; elles ne coïncident pas
+ * (quelque 400 communes de montagne pour l'agriculture ne le sont pas pour
+ * l'urbanisme, et l'inverse pour 80). Les deux sont gardées, chacune pour ce
+ * qu'elle règle. Une panne de l'Observatoire n'emporte pas le reste : le
+ * champ reste absent, et la date avec lui.
+ *
  * **Le zonage ABC** classe les communes selon le déséquilibre entre l'offre et
  * la demande de logements — A bis, A, B1, B2, C, par tension décroissante —,
  * d'après la liste du ministère chargé du logement ; il règle l'accès au prêt
@@ -52,6 +62,9 @@ export const JEUX = {
   qpv: '5a561801c751df42d7fca9b6',
   tlv: '657c88da2947e13be0597058',
 } as const;
+/** La zone de montagne au sens de l'urbanisme, par commune : « in » ou « out ». */
+export const MONTAGNE_URBANISME =
+  'https://www.observatoire-des-territoires.gouv.fr/outils/cartographie-interactive/api/v1/functions/GC_API_download.php?type=stat&nivgeo=com2026&dataset=zonages&indic=mont_urb_zpp';
 export const MONTAGNE =
   'https://agriculture.gouv.fr/telecharger/119649?token=546df48fb3ab2cf098f40d87928c6013edeaa8116e31dfa6be1e582ec0032c85';
 
@@ -60,16 +73,14 @@ const DU_CROISEMENT = { ami: 'id_ami', amm: 'id_amm', cite: 'id_cite', cde: 'id_
 export type Programme = 'pvd' | 'acv' | 'va' | keyof typeof DU_CROISEMENT;
 
 /**
- * Par commune : ses programmes, le nom de son Territoire d'industrie et de son
- * CRTE (vides s'il n'y en a pas), la montagne — 0 non, 1 oui, 2 en partie —,
- * sa zone ABC (vide si inconnue) et le nom de ses quartiers prioritaires.
+ * Programmes, territoire d'industrie, CRTE, montagne au sens des zones
+ * agricoles défavorisées (0 non, 1 oui, 2 en partie), zone ABC, quartiers
+ * prioritaires, le zonage de la taxe sur les logements vacants (0 non tendue,
+ * 1 zone tendue, 2 zone touristique et tendue), puis la zone de montagne au
+ * sens de l'urbanisme (0 non, 1 oui) — absente des fichiers d'avant le
+ * 13 novembre 2026, ou quand l'Observatoire n'a pas répondu.
  */
-/**
- * Programmes, territoire d'industrie, CRTE, montagne (0 non, 1 oui, 2 en
- * partie), zone ABC, quartiers prioritaires, puis le zonage de la taxe sur les
- * logements vacants : 0 non tendue, 1 zone tendue, 2 zone touristique et tendue.
- */
-export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2];
+export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2, (0 | 1)?];
 
 export interface Zonages {
   maj: string;
@@ -272,6 +283,32 @@ export async function collecterZonages(
     }
   }
 
+  // La zone de montagne au sens de l'urbanisme, d'après l'Observatoire des territoires : facultative.
+  let montagneUrbanisme: Set<string> | null = null;
+  try {
+    const jour = new Date().toISOString().slice(0, 10);
+    const vers = join(cache, `observatoire-montagne-urbanisme-${jour}.xlsx`);
+    await telecharger(MONTAGNE_URBANISME, vers);
+    const f = XLSX.read(readFileSync(vers)).Sheets;
+    const l = XLSX.utils.sheet_to_json<unknown[]>(Object.values(f)[0], { header: 1 });
+    const e = l.findIndex((x) => Array.isArray(x) && x[0] === 'codgeo');
+    const i = e < 0 ? -1 : (l[e] as string[]).indexOf('mont_urb_zpp');
+    if (i < 0) throw new Error('en-tête « codgeo … mont_urb_zpp » introuvable');
+    const dedans = new Set<string>();
+    let n = 0;
+    for (const x of l.slice(e + 1)) {
+      const code = actuelle(String(x[0] ?? '').trim());
+      const v = String(x[i] ?? '').trim();
+      if (v === 'in' || v === 'out') n++;
+      if (code && v === 'in') dedans.add(code);
+    }
+    if (n < 30000 || dedans.size < 4000) throw new Error(`${n} communes lues, ${dedans.size} en zone de montagne`);
+    montagneUrbanisme = dedans;
+    dates.montagneUrbanisme = jour;
+  } catch (e) {
+    dire(`Zonages : la zone de montagne au sens de l’urbanisme n’est pas lue (${(e as Error).message}) ; le reste est écrit sans elle.`);
+  }
+
   const communes = new Map<string, ZonagesCommune>();
   const ordre: Programme[] = ['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus'];
   for (const code of actuelles) {
@@ -281,14 +318,18 @@ export async function collecterZonages(
     const zone = abc.get(code) ?? '';
     const quartiers = (qpv.get(code) ?? []).sort((x, y) => x.localeCompare(y, 'fr'));
     const t = tlv.get(code) ?? 0;
-    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t) continue;
-    communes.set(code, [ordre.filter((x) => p?.has(x)), nomTi, nomCrte, m, zone, quartiers, t]);
+    const u = montagneUrbanisme?.has(code) ? 1 : 0;
+    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t && !u) continue;
+    const ligne: ZonagesCommune = [ordre.filter((x) => p?.has(x)), nomTi, nomCrte, m, zone, quartiers, t];
+    if (montagneUrbanisme) ligne.push(u);
+    communes.set(code, ligne);
   }
   const compte = (p: Programme) => [...communes.values()].filter((x) => x[0].includes(p)).length;
   dire(
     `Zonages : ${communes.size.toLocaleString('fr-FR')} communes ; Petites villes de demain ${compte('pvd')}, ` +
       `Action cœur de ville ${compte('acv')}, Villages d’avenir ${compte('va')}, ` +
-      `zone de montagne ${montagne.size.toLocaleString('fr-FR')}, zonage ABC ${abc.size.toLocaleString('fr-FR')}, ` +
+      `zone agricole défavorisée de montagne ${montagne.size.toLocaleString('fr-FR')}, ` +
+      `zone de montagne pour l’urbanisme ${montagneUrbanisme ? montagneUrbanisme.size.toLocaleString('fr-FR') : 'non lue'}, zonage ABC ${abc.size.toLocaleString('fr-FR')}, ` +
       `communes à quartier prioritaire ${qpv.size.toLocaleString('fr-FR')}, ` +
       `zone tendue ${[...tlv.values()].filter((x) => x === 1).length.toLocaleString('fr-FR')}, ` +
       `touristique et tendue ${[...tlv.values()].filter((x) => x === 2).length.toLocaleString('fr-FR')}.`,

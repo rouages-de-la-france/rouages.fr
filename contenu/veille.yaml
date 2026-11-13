@@ -763,6 +763,16 @@ surveillances:
     url: "https://www.data.gouv.fr/api/2/datasets/5a561801c751df42d7fca9b6/resources/?page_size=5"
     lien: od-qpv
 
+  # Le fichier est servi par l'outil de cartographie de l'Observatoire, sans
+  # jeu sur data.gouv ; ses conditions d'utilisation ne nomment pas de licence.
+  - id: montagne-urbanisme
+    nom: "Observatoire des territoires — zone de montagne au sens de l'urbanisme"
+    alimente: "la zone de montagne de la commune, au sens de l'urbanisme"
+    type: disponibilite
+    licence: non-precisee
+    url: "https://www.observatoire-des-territoires.gouv.fr/outils/cartographie-interactive/api/v1/functions/GC_API_download.php?type=stat&nivgeo=com2026&dataset=zonages&indic=mont_urb_zpp"
+    lien: od-montagne-urbanisme
+
   - id: zonage-tlv
     nom: "Zonage de la taxe sur les logements vacants"
     alimente: "les zones tendues"
