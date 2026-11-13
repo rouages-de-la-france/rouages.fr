@@ -132,7 +132,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
               {ici.map((c) => (
                 <li>
                   <a href={`/commune/${c.code}`}>{c.nom}</a>
-                  <span class="c-departement-detail">{`${nf(c.population)} hab.`}</span>
+                  <span class="c-departement-detail">{x.quartiersDe.has(c.code) ? `${nf(c.population)} hab. — ${x.quartiersDe.get(c.code)!.join(', ')}` : `${nf(c.population)} hab.`}</span>
                 </li>
               ))}
             </ul>
@@ -142,9 +142,19 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
       <p class="p-source-territoire">
         {(d.cle === 'montagne'
           ? `D’après la liste des communes en zone de montagne au sens de l’urbanisme de l’Observatoire des territoires de l’Agence nationale de la cohésion des territoires${x.dateListe ? `, lue le ${date(x.dateListe)}` : ''}, et les populations légales de l’INSEE.`
-          : `D’après la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`) +
+          : `D’après ${d.liste ?? 'la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires'}${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`) +
           (n > SEUIL_LISTE ? ` Au-delà de ${nf(SEUIL_LISTE)} communes, la liste est donnée département par département ; chaque commune dit sur sa page si elle en est.` : '')}
       </p>
+      {x.groupes.length > 0 && (
+        <details class="p-dispositif-dep">
+          <summary>{`Les ${nf(x.groupes.length)} ${d.groupes_nom ?? 'territoires'}, par nom`}</summary>
+          <ul class="c-communes">
+            {x.groupes.map((g) => (
+              <li>{g.nom}<span class="c-departement-detail">{`${nf(g.n)} commune${g.n > 1 ? 's' : ''}`}</span></li>
+            ))}
+          </ul>
+        </details>
+      )}
       </>
       )}
       {x.deuxMontagnes && (
@@ -184,7 +194,7 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
       <p class="p-strate">Ce sont les conclusions de ceux qui ont évalué le programme, citées telles qu’ils les écrivent. Rouages n’en tire pas d’autre jugement.</p>
     </section>
 
-    {d.nature === 'programme' && (x.logements || x.population_recensements) && (
+    {d.nature === 'programme' && d.series !== false && (x.logements || x.population_recensements) && (
       <section id="series" class="p-dispositif-series">
         <h2 class="badge">Ce que le site calcule : ses communes avant et après</h2>
         <p class="p-avertissement">
