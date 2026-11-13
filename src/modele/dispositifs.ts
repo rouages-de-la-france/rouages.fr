@@ -50,6 +50,10 @@ export interface Dispositif {
    * fichiers de zonage les écrivent, et leur libellé.
    */
   classes?: { cle: string; libelle: string }[];
+  /** Le nom d'une classe, au singulier : « zone » par défaut, « niveau » pour FRR. */
+  classes_nom?: string;
+  /** D'où vient la liste des communes, dit sur la page : « la liste des communes de … ». */
+  liste?: string;
 }
 
 /**
@@ -57,7 +61,20 @@ export interface Dispositif {
  * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
  * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
  */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr']);
+
+/**
+ * Pour un zonage par classes, la classe d'une commune telle que la ligne du
+ * fichier de zonage la porte — la zone ABC, le niveau de France ruralités
+ * revitalisation —, ou null quand le fichier ne la porte pas.
+ */
+function classeDans(cle: string, x: unknown[]): string | null {
+  if (cle === 'abc') return x[4] ? String(x[4]) : null;
+  if (cle === 'frr') return x[8] === undefined ? null : String(x[8]);
+  return null;
+}
+/** Le fichier de zonage porte-t-il la classe ? Une date manquante dit que la collecte ne l'a pas encore lue. */
+const DATE_DE_LA_CLASSE: Record<string, string> = { frr: 'frr' };
 
 let cache: Dispositif[] | undefined;
 
@@ -100,7 +117,7 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
     for (const p of phrases) if (!sources.has(p.source)) erreurs.push(`${ou} : source « ${p.source} » citée, non déclarée`);
     for (const e of d.evaluations ?? []) if (!sources.has(e.source)) erreurs.push(`${ou} : évaluation de source « ${e.source} » non déclarée`);
     if (!(d.evaluations?.length) && !d.sans_evaluation) erreurs.push(`${ou} : ni évaluation, ni phrase qui dit qu'il n'y en a pas`);
-    if (d.cle === 'abc' && !d.classes?.length) erreurs.push(`${ou} : un zonage par classes déclare ses classes`);
+    if ((d.cle === 'abc' || d.cle === 'frr') && !d.classes?.length) erreurs.push(`${ou} : un zonage par classes déclare ses classes`);
     for (const t of [d.resume, ...phrases.map((p) => p.texte), ...(d.evaluations ?? []).map((e) => e.conclusion)]) {
       if (nommeUnePersonne(t)) erreurs.push(`${ou} : un texte semble nommer une personne physique : « ${t.slice(0, 60)}… »`);
     }
@@ -111,7 +128,7 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
 type ZonagesDep = {
   maj: string;
   dates: Record<string, string>;
-  c: Record<string, [string[], string, string, number, string, string[]?, number?, number?]>;
+  c: Record<string, [string[], string, string, number, string, string[]?, number?, number?, number?]>;
 };
 type LogementsDep = { annees: number[]; arrete: string; c: Record<string, [number[], number, number]> };
 type PopulationDep = { annees: number[]; c: Record<string, [number[], ...unknown[]]> };
@@ -187,8 +204,10 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
       if (!u) continue;
       dateListe ??= z.dates.montagneUrbanisme;
     } else if (d.classes) {
-      const k = String(x[4] ?? '');
-      if (!d.classes.some((y) => y.cle === k)) continue;
+      const date = DATE_DE_LA_CLASSE[d.cle];
+      if (date && !z.dates?.[date]) continue;
+      const k = classeDans(d.cle, x);
+      if (k === null || !d.classes.some((y) => y.cle === k)) continue;
       classeDe.set(c.code, k);
     } else if (!x[0]?.includes(d.cle)) continue;
     if (!montagne) dateListe ??= z.dates?.[d.cle] ?? null;

@@ -13,9 +13,15 @@
  * version, cherchée dans le jeu de données.
  *
  * France services est exclu : le bloc des services publics situe déjà la
- * structure. France ruralités revitalisation (l'ancien zonage de
- * revitalisation rurale) aussi : aucune liste nationale ouverte, seulement des
- * listes départementales.
+ * structure.
+ *
+ * **France ruralités revitalisation** (FRR), qui remplace depuis le
+ * 1er juillet 2024 les zones de revitalisation rurale : la liste des communes
+ * de la direction générale des collectivités locales, publiée sur
+ * collectivites-locales.gouv.fr (pas sur data.gouv), avec le niveau de chaque
+ * commune — FRR « plus », FRR « socle », FRR « bénéficiaire » (une ancienne
+ * ZRR qui en garde les effets), ou en partie. Facultative comme la montagne de
+ * l'urbanisme : son absence n'emporte pas le reste.
  *
  * **La zone de montagne.** La loi Montagne (loi n° 85-30 du 9 janvier 1985,
  * article 3) délimite la zone par arrêté, en renvoyant aux arrêtés pris pour
@@ -62,6 +68,18 @@ export const JEUX = {
   qpv: '5a561801c751df42d7fca9b6',
   tlv: '657c88da2947e13be0597058',
 } as const;
+/** La liste des communes de France ruralités revitalisation, par la DGCL. */
+export const FRR =
+  "https://www.collectivites-locales.gouv.fr/files/files/3.%20Animer%20les%20territoires/5.%20La%20coh%C3%A9sion%20territoriale%20et%20l%27am%C3%A9nagement%20du%20territoire/Liste%20communes%20FRR_juillet2025.xlsx";
+/** Les niveaux de FRR tels que la liste les écrit, et leur code dans les fichiers. */
+export const NIVEAUX_FRR: Record<string, 1 | 2 | 3 | 4 | 5> = {
+  'frr+': 1,
+  'frr socle': 2,
+  'frr bénéficiaire': 3,
+  'classée frr partiellement': 4,
+  'frr bénéficiaire partiellement': 5,
+};
+
 /** La zone de montagne au sens de l'urbanisme, par commune : « in » ou « out ». */
 export const MONTAGNE_URBANISME =
   'https://www.observatoire-des-territoires.gouv.fr/outils/cartographie-interactive/api/v1/functions/GC_API_download.php?type=stat&nivgeo=com2026&dataset=zonages&indic=mont_urb_zpp';
@@ -78,9 +96,12 @@ export type Programme = 'pvd' | 'acv' | 'va' | keyof typeof DU_CROISEMENT;
  * prioritaires, le zonage de la taxe sur les logements vacants (0 non tendue,
  * 1 zone tendue, 2 zone touristique et tendue), puis la zone de montagne au
  * sens de l'urbanisme (0 non, 1 oui) — absente des fichiers d'avant le
- * 13 novembre 2026, ou quand l'Observatoire n'a pas répondu.
+ * 13 novembre 2026, ou quand l'Observatoire n'a pas répondu —, puis le niveau
+ * de France ruralités revitalisation : 0 non classée, 1 FRR plus, 2 FRR
+ * socle, 3 FRR bénéficiaire, 4 classée en partie, 5 bénéficiaire en partie —
+ * absent quand la liste n'a pas été lue.
  */
-export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2, (0 | 1)?];
+export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2, (0 | 1)?, (0 | 1 | 2 | 3 | 4 | 5)?];
 
 export interface Zonages {
   maj: string;
@@ -309,6 +330,41 @@ export async function collecterZonages(
     dire(`Zonages : la zone de montagne au sens de l’urbanisme n’est pas lue (${(e as Error).message}) ; le reste est écrit sans elle.`);
   }
 
+  // France ruralités revitalisation, d'après la liste de la DGCL : facultative.
+  let frr: Map<string, 1 | 2 | 3 | 4 | 5> | null = null;
+  try {
+    const jour = new Date().toISOString().slice(0, 10);
+    const vers = join(cache, `dgcl-frr-${jour}.xlsx`);
+    await telecharger(FRR, vers);
+    const f = XLSX.read(readFileSync(vers)).Sheets;
+    const l = XLSX.utils.sheet_to_json<unknown[]>(Object.values(f)[0], { header: 1 });
+    const e = l.findIndex((x) => Array.isArray(x) && String(x[0] ?? '').trim().toLowerCase() === 'code_insee');
+    const entete = e < 0 ? [] : (l[e] as unknown[]).map((x) => String(x ?? ''));
+    const i = entete.findIndex((x) => /^classement frr/i.test(x.trim()));
+    if (i < 0) throw new Error('colonne « Classement FRR … » introuvable');
+    // « Classement FRR et FRR+ au 10 juillet 2025 » : la date de la liste.
+    const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const d = /au (\d{1,2})(?:er)? (\p{L}+) (\d{4})/u.exec(entete[i]);
+    const m = d ? MOIS.indexOf(d[2].toLowerCase()) : -1;
+    const lus = new Map<string, 1 | 2 | 3 | 4 | 5>();
+    let n = 0;
+    for (const x of l.slice(e + 1)) {
+      const v = String(x[i] ?? '').trim().toLowerCase();
+      if (!v) continue;
+      n++;
+      const code = actuelle(String(x[0] ?? '').trim());
+      const niveau = NIVEAUX_FRR[v];
+      if (niveau === undefined && v !== 'non classée') throw new Error(`niveau inconnu « ${v} »`);
+      // Une commune nouvelle qui réunit des niveaux différents garde le plus favorable, à défaut de mieux.
+      if (code && niveau && (!lus.has(code) || niveau < lus.get(code)!)) lus.set(code, niveau);
+    }
+    if (n < 30000 || lus.size < 15000) throw new Error(`${n} communes lues, ${lus.size} classées`);
+    frr = lus;
+    dates.frr = d && m >= 0 ? `${d[3]}-${String(m + 1).padStart(2, '0')}-${d[1].padStart(2, '0')}` : jour;
+  } catch (e) {
+    dire(`Zonages : France ruralités revitalisation n’est pas lue (${(e as Error).message}) ; le reste est écrit sans elle.`);
+  }
+
   const communes = new Map<string, ZonagesCommune>();
   const ordre: Programme[] = ['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus'];
   for (const code of actuelles) {
@@ -319,9 +375,12 @@ export async function collecterZonages(
     const quartiers = (qpv.get(code) ?? []).sort((x, y) => x.localeCompare(y, 'fr'));
     const t = tlv.get(code) ?? 0;
     const u = montagneUrbanisme?.has(code) ? 1 : 0;
-    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t && !u) continue;
+    const f = frr?.get(code) ?? 0;
+    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t && !u && !f) continue;
     const ligne: ZonagesCommune = [ordre.filter((x) => p?.has(x)), nomTi, nomCrte, m, zone, quartiers, t];
-    if (montagneUrbanisme) ligne.push(u);
+    // Les champs facultatifs sont positionnels : la montagne de l'urbanisme garde sa place même absente.
+    if (montagneUrbanisme || frr) ligne.push(montagneUrbanisme ? u : 0);
+    if (frr) ligne.push(f);
     communes.set(code, ligne);
   }
   const compte = (p: Programme) => [...communes.values()].filter((x) => x[0].includes(p)).length;
@@ -329,7 +388,8 @@ export async function collecterZonages(
     `Zonages : ${communes.size.toLocaleString('fr-FR')} communes ; Petites villes de demain ${compte('pvd')}, ` +
       `Action cœur de ville ${compte('acv')}, Villages d’avenir ${compte('va')}, ` +
       `zone agricole défavorisée de montagne ${montagne.size.toLocaleString('fr-FR')}, ` +
-      `zone de montagne pour l’urbanisme ${montagneUrbanisme ? montagneUrbanisme.size.toLocaleString('fr-FR') : 'non lue'}, zonage ABC ${abc.size.toLocaleString('fr-FR')}, ` +
+      `zone de montagne pour l’urbanisme ${montagneUrbanisme ? montagneUrbanisme.size.toLocaleString('fr-FR') : 'non lue'}, ` +
+      `France ruralités revitalisation ${frr ? frr.size.toLocaleString('fr-FR') : 'non lue'}, zonage ABC ${abc.size.toLocaleString('fr-FR')}, ` +
       `communes à quartier prioritaire ${qpv.size.toLocaleString('fr-FR')}, ` +
       `zone tendue ${[...tlv.values()].filter((x) => x === 1).length.toLocaleString('fr-FR')}, ` +
       `touristique et tendue ${[...tlv.values()].filter((x) => x === 2).length.toLocaleString('fr-FR')}.`,

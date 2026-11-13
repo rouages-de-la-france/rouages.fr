@@ -773,6 +773,17 @@ surveillances:
     url: "https://www.observatoire-des-territoires.gouv.fr/outils/cartographie-interactive/api/v1/functions/GC_API_download.php?type=stat&nivgeo=com2026&dataset=zonages&indic=mont_urb_zpp"
     lien: od-montagne-urbanisme
 
+  # Un fichier déposé sur collectivites-locales.gouv.fr, dont le nom porte le
+  # mois : une nouvelle liste viendra sous une autre adresse, et celle-ci
+  # tombera peut-être. La page ne nomme pas de licence.
+  - id: frr-dgcl
+    nom: "DGCL — communes de France ruralités revitalisation"
+    alimente: "le classement de la commune en France ruralités revitalisation"
+    type: disponibilite
+    licence: non-precisee
+    url: "https://www.collectivites-locales.gouv.fr/files/files/3.%20Animer%20les%20territoires/5.%20La%20coh%C3%A9sion%20territoriale%20et%20l%27am%C3%A9nagement%20du%20territoire/Liste%20communes%20FRR_juillet2025.xlsx"
+    lien: od-frr
+
   - id: zonage-tlv
     nom: "Zonage de la taxe sur les logements vacants"
     alimente: "les zones tendues"

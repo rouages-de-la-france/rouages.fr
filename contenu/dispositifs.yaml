@@ -204,3 +204,63 @@ dispositifs:
       - { id: telepac-ichn-2025, titre: "Ministère de l'Agriculture — notice des indemnités compensatoires de handicaps naturels, dossier PAC 2025", url: "https://isis.telepac.agriculture.gouv.fr/telepac/pdf/tas/2025/Dossier-PAC-2025_notice_ICHN.pdf", consulte_le: 2026-11-13 }
       - { id: senat-montagne-2026, titre: "Sénat — rapport d'information n° 858 (2025-2026), « Loi Montagne, loi Littoral : face aux nouveaux enjeux, conforter, adapter et différencier », synthèse, 7 juillet 2026", url: "https://www.senat.fr/rap/r25-858/r25-858-syn.pdf", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: france-ruralites-revitalisation
+    cle: frr
+    nom: "France ruralités revitalisation"
+    nature: zonage
+    lancement: 2024
+    pilote: "La direction générale des collectivités locales, pour les ministères chargés de l'aménagement du territoire et du budget"
+    resume: "Le zonage qui remplace depuis le 1er juillet 2024 les zones de revitalisation rurale : dans les communes rurales les plus fragiles, des exonérations d'impôts pour les entreprises qui s'y créent ou s'y reprennent, et d'autres avantages pour la commune."
+    classes_nom: niveau
+    liste: "la liste des communes de France ruralités revitalisation de la direction générale des collectivités locales"
+    classes:
+      - { cle: "1", libelle: "FRR « plus »" }
+      - { cle: "2", libelle: "FRR « socle »" }
+      - { cle: "3", libelle: "FRR « bénéficiaire »" }
+      - { cle: "4", libelle: "Classée en partie" }
+      - { cle: "5", libelle: "Bénéficiaire en partie" }
+    ce_que_cest:
+      - texte: "Créé par la loi de finances pour 2024 (article 73, qui crée l'article 44 quindecies A du code général des impôts), le zonage remplace les zones de revitalisation rurale (ZRR), instituées en 1995, et les zones de revitalisation des commerces en milieu rural."
+        source: dgcl-faq-frr
+      - texte: "Il a deux niveaux. Le « socle » concerne près de 20 000 communes : près de 17 800 classées, et près de 2 200 communes « bénéficiaires », anciennes ZRR non retenues qui en gardent les effets. Le niveau « plus », renforcé, réunit le quart des communes classées : 4 466 communes selon l'arrêté du 9 juillet 2025."
+        source: dgcl-faq-frr
+      - texte: "Les communes « bénéficiaires » devaient garder ces effets jusqu'au 31 décembre 2027 ; la loi de finances pour 2026 a reporté l'échéance au 31 décembre 2029."
+        source: sp-frr-2026
+    qui_decide:
+      - texte: "Le Parlement fixe les critères, la densité de population et le revenu disponible par habitant, mesurés à l'échelle de l'intercommunalité, du bassin de vie ou du département ; une commune doit compter moins de 30 000 habitants. Dans treize départements peu denses et modestes, toutes les communes de moins de 30 000 habitants sont classées."
+        source: dgcl-faq-frr
+      - texte: "Le classement est constaté par arrêté : celui du 19 juin 2024, modifié le 14 avril 2025, pour le niveau « socle » et les communes « bénéficiaires » ; celui du 9 juillet 2025 pour le niveau « plus »."
+        source: dgcl-faq-frr
+      - texte: "Le niveau « plus » retient les communes rurales classées dont l'intercommunalité ou le bassin de vie a connu, de 2009 à 2020, l'évolution la plus défavorable du revenu, de la population et du taux d'emploi des 25-54 ans, d'après un indice fixé par le décret du 9 juillet 2025."
+        source: dgcl-faq-frr
+      - texte: "Les exonérations d'impôts locaux ne valent que si la commune et l'intercommunalité les délibèrent, chacune pour sa part."
+        source: dgcl-faq-frr
+    apporte:
+      - texte: "Aux entreprises de moins de onze salariés créées ou reprises dans la zone, au régime réel d'imposition : une exonération d'impôt sur les bénéfices, et, sur délibération, de cotisation foncière des entreprises et de taxe foncière, totale pendant cinq ans puis dégressive pendant trois (75 %, 50 %, 25 %). En FRR « plus », plus d'entreprises et d'opérations y ont droit."
+        source: dgcl-faq-frr
+      - texte: "Aux employeurs de moins de cinquante salariés : une exonération de cotisations patronales pendant douze mois, pour l'embauche du premier au cinquantième salarié, totale jusqu'à 150 % du Smic."
+        source: dgcl-faq-frr
+      - texte: "À la commune : une majoration de 30 % de la fraction « bourg-centre » et de 20 % de la fraction « péréquation » de sa dotation de solidarité rurale, y compris pour les communes « bénéficiaires »."
+        source: dgcl-faq-frr
+      - texte: "Aux habitants, entre autres : l'ouverture d'une pharmacie par création possible, sous conditions, au-delà de 2 500 habitants, une concertation obligatoire avant de réviser la carte des formations du second degré, la prise en compte du classement dans la présence postale, et pas de surloyer dans les logements sociaux."
+        source: dgcl-faq-frr
+    cout:
+      - texte: "L'exonération d'impôt sur les bénéfices était estimée à 10 millions d'euros pour 2025 dans l'évaluation des voies et moyens annexée au projet de loi de finances."
+        source: vm-2025
+      - texte: "Le maintien des communes « bénéficiaires » est estimé par le Gouvernement à plus de 40 millions d'euros par an pour le budget de l'État, jusqu'en 2035."
+        source: an-qe-2635
+      - texte: "Les exonérations d'impôts locaux sont payées par les collectivités qui les votent : elles renoncent à une recette."
+        source: dgcl-faq-frr
+    evaluations:
+      - source: an-zrr-2014
+        conclusion: "Sur les zones de revitalisation rurale, que France ruralités revitalisation remplace : le Conseil des prélèvements obligatoires conclut en 2010 que l'impact des dispositifs sur l'emploi « ne peut être établi de façon robuste » et que « les divers avantages ouverts dans les ZRR n'ont pas eu d'effet important sur l'emploi ou la création d'établissements »."
+      - source: dgcl-faq-frr
+        conclusion: "Les études et rapports parlementaires sur les ZRR partagent « le constat d'un dispositif perçu comme un signal positif de l'État et une reconnaissance de la vulnérabilité des territoires ruraux, tout en relevant son faible taux de recours par les entreprises, notamment en raison de la complexité des règles applicables »."
+    sources:
+      - { id: dgcl-faq-frr, titre: "Direction générale des collectivités locales — « France ruralités revitalisation », foire aux questions mise à jour en juillet 2025", url: "https://www.collectivites-locales.gouv.fr/files/files/3.%20Animer%20les%20territoires/5.%20La%20coh%C3%A9sion%20territoriale%20et%20l%27am%C3%A9nagement%20du%20territoire/FAQ%20FRR_MAJ%20juillet2025.pdf", consulte_le: 2026-11-13 }
+      - { id: sp-frr-2026, titre: "Service Public Entreprendre — « Territoires ruraux (ZFRR, ZRR) et activités sédentaires : les nouveautés 2026 », 24 février 2026", url: "https://entreprendre.service-public.gouv.fr/actualites/A18076", consulte_le: 2026-11-13 }
+      - { id: vm-2025, titre: "Évaluation des voies et moyens, tome 2 : dépenses fiscales, annexe au projet de loi de finances pour 2025 — mesure 220109", url: "https://www2.assemblee-nationale.fr/static/17/Annexes-DL/PLF-2025/Voies_et_moyens_Tome_2_2025.pdf", consulte_le: 2026-11-13 }
+      - { id: an-qe-2635, titre: "Assemblée nationale — question écrite n° 2635, « France ruralités revitalisation en Saône-et-Loire », réponse publiée le 8 juillet 2025", url: "https://www.assemblee-nationale.fr/dyn/17/questions/QANR5L17QE2635", consulte_le: 2026-11-13 }
+      - { id: an-zrr-2014, titre: "Assemblée nationale — rapport d'information n° 2251 sur les zones de revitalisation rurale, 8 octobre 2014", url: "https://www.assemblee-nationale.fr/14/pdf/rap-info/i2251.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

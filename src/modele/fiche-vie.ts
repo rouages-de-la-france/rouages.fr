@@ -210,7 +210,7 @@ type AppellationsDep = { maj: string; dates: { ao: string; ig: string }; c: Reco
 const appellationsDep = parDepartement<AppellationsDep>('appellations');
 type SecheresseDep = { maj: string; annee: number; du: string; au: string; debut: number; c: Record<string, [number, number, number, number, number, number[]]> };
 const secheresseDep = parDepartement<SecheresseDep>('secheresse');
-type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, 0 | 1 | 2, string?, string[]?, (0 | 1 | 2)?, (0 | 1)?]> };
+type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, 0 | 1 | 2, string?, string[]?, (0 | 1 | 2)?, (0 | 1)?, number?]> };
 const zonagesDep = parDepartement<ZonagesDep>('zonages');
 type LieuDep = string | [string, string];
 type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[]]> };
@@ -727,6 +727,8 @@ export interface Zonages {
   montagne: 'non' | 'oui' | 'en partie';
   /** La zone de montagne au sens de l'urbanisme ; null quand la collecte ne l'a pas encore lue. */
   montagneUrbanisme: 'non' | 'oui' | null;
+  /** Le niveau de France ruralités revitalisation ; null quand la collecte ne l'a pas encore lu. */
+  frr: 'non' | 'plus' | 'socle' | 'beneficiaire' | 'socle-partiel' | 'beneficiaire-partiel' | null;
   /** La zone du zonage ABC — A bis, A, B1, B2, C —, ou null si inconnue. */
   abc: string | null;
   quartiersPrioritaires: string[];
@@ -1357,7 +1359,7 @@ function lieux(c: CommuneFiche): Lieux | null {
 function zonages(c: CommuneFiche): Zonages | null {
   const d = zonagesDep.get(c.dep);
   if (!d) return null;
-  const [programmes, ti, crte, m, abc, quartiers, t, u] = d.c[c.code] ?? [[], '', '', 0];
+  const [programmes, ti, crte, m, abc, quartiers, t, u, f] = d.c[c.code] ?? [[], '', '', 0];
   return {
     programmes,
     territoireIndustrie: ti || null,
@@ -1366,6 +1368,7 @@ function zonages(c: CommuneFiche): Zonages | null {
     abc: abc || null,
     quartiersPrioritaires: quartiers ?? [],
     montagneUrbanisme: !d.dates.montagneUrbanisme ? null : u === 1 ? 'oui' : 'non',
+    frr: !d.dates.frr ? null : NIVEAUX_FRR[f ?? 0] ?? 'non',
     tendue: !d.dates.tlv ? null : t === 1 ? 'tendue' : t === 2 ? 'touristique et tendue' : 'non',
     dates: d.dates,
     maj: d.maj,
@@ -1463,6 +1466,16 @@ export function petiteEnfanceCollectivite(echelon: 'intercommunalite' | 'departe
   };
 }
 
+/** Les niveaux de France ruralités revitalisation, par leur code dans les fichiers de zonage. */
+export const NIVEAUX_FRR: Record<number, NonNullable<Zonages['frr']>> = {
+  0: 'non',
+  1: 'plus',
+  2: 'socle',
+  3: 'beneficiaire',
+  4: 'socle-partiel',
+  5: 'beneficiaire-partiel',
+};
+
 /** Les programmes et zonages d'un groupe de communes, réunis : pour les pages d'intercommunalité et de département. */
 export interface ZonagesGroupe {
   communes: number;
@@ -1470,6 +1483,8 @@ export interface ZonagesGroupe {
   partieMontagne: number;
   /** Les communes en zone de montagne au sens de l'urbanisme ; null quand la collecte ne l'a pas encore lue. */
   montagneUrbanisme: number | null;
+  /** Les communes par niveau de France ruralités revitalisation ; null quand la collecte ne l'a pas encore lu. */
+  frr: Record<string, number> | null;
   programmes: Record<string, string[]>;
   territoiresIndustrie: string[];
   crte: string[];
@@ -1482,7 +1497,7 @@ export interface ZonagesGroupe {
 export function zonagesGroupe(liste: { code: string; dep: string; nom: string }[]): ZonagesGroupe | null {
   let dates: Record<string, string> | null = null;
   let maj = '';
-  const g: ZonagesGroupe = { communes: 0, montagne: 0, partieMontagne: 0, montagneUrbanisme: null, programmes: {}, territoiresIndustrie: [], crte: [], abc: {}, quartiers: [], dates: {}, maj: '' };
+  const g: ZonagesGroupe = { communes: 0, montagne: 0, partieMontagne: 0, montagneUrbanisme: null, frr: null, programmes: {}, territoiresIndustrie: [], crte: [], abc: {}, quartiers: [], dates: {}, maj: '' };
   const ti = new Set<string>();
   const crte = new Set<string>();
   for (const c of liste) {
@@ -1491,7 +1506,12 @@ export function zonagesGroupe(liste: { code: string; dep: string; nom: string }[
     dates ??= d.dates;
     maj = d.maj;
     g.communes++;
-    const [programmes, nomTi, nomCrte, m, abc, quartiers, , u] = d.c[c.code] ?? [[], '', '', 0];
+    const [programmes, nomTi, nomCrte, m, abc, quartiers, , u, f] = d.c[c.code] ?? [[], '', '', 0];
+    if (d.dates.frr) {
+      g.frr ??= {};
+      const k = NIVEAUX_FRR[f ?? 0] ?? 'non';
+      g.frr[k] = (g.frr[k] ?? 0) + 1;
+    }
     if (m === 1) g.montagne++;
     if (d.dates.montagneUrbanisme) g.montagneUrbanisme = (g.montagneUrbanisme ?? 0) + (u === 1 ? 1 : 0);
     if (m === 2) g.partieMontagne++;

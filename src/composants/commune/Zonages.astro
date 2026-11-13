@@ -26,6 +26,14 @@ const NOMS: Record<string, string> = {
 };
 const programmes = z.programmes.map((p) => NOMS[p]).filter(Boolean);
 const montagne = lienDispositif('montagne');
+const frr = lienDispositif('frr');
+const FRR: Record<string, string> = {
+  plus: ' « plus », le niveau renforcé, réservé au quart des communes classées, rurales, dont l’intercommunalité ou le bassin de vie a connu de 2009 à 2020 l’évolution la plus défavorable du revenu, de la population et de l’emploi : les exonérations d’impôts des entreprises qui s’y créent ou s’y reprennent y valent pour plus d’entreprises et d’opérations qu’au niveau « socle ».',
+  socle: ' « socle » : une entreprise qui s’y crée ou s’y reprend d’ici le 31 décembre 2029 peut être exonérée d’impôt sur les bénéfices, et de cotisation foncière et de taxe foncière si la commune et l’intercommunalité l’ont délibéré ; les fractions « bourg-centre » et « péréquation » de la dotation de solidarité rurale de la commune sont majorées.',
+  beneficiaire: ' en tant que commune « bénéficiaire » : ancienne zone de revitalisation rurale non retenue par le nouveau classement, elle en garde les effets — mêmes exonérations, même majoration de la dotation de solidarité rurale — jusqu’au 31 décembre 2029.',
+  'socle-partiel': ' pour une partie de son territoire seulement — celui d’une ancienne commune classée.',
+  'beneficiaire-partiel': ' en tant que commune « bénéficiaire », pour une partie de son territoire seulement — celui d’une ancienne commune en zone de revitalisation rurale.',
+};
 const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
 ---
 <ul class="c-structures">
@@ -70,6 +78,13 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
       {`${z.quartiersPrioritaires.length === 1 ? 'Un quartier prioritaire' : `${z.quartiersPrioritaires.length} quartiers prioritaires`} de la politique de la ville : ${z.quartiersPrioritaires.join(', ')}.`}
     </li>
   )}
+  {z.frr && (
+    <li>
+      {z.frr === 'non' ? 'Elle n’est pas en zone ' : 'Elle est en zone '}
+      {frr ? <a href={frr}>France ruralités revitalisation</a> : 'France ruralités revitalisation'}
+      {z.frr === 'non' ? ', qui remplace depuis 2024 les zones de revitalisation rurale.' : FRR[z.frr]}
+    </li>
+  )}
   {z.montagneUrbanisme && (
     <li>
       {z.montagneUrbanisme === 'oui' ? 'Elle est en ' : 'Elle n’est pas en '}
@@ -96,5 +111,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
     'La montagne a plusieurs délimitations officielles, qui ne coïncident pas : celle de l’urbanisme dit où s’appliquent les règles de construction de la loi Montagne ; celle des zones agricoles défavorisées dit quelles terres relèvent de la montagne pour les indemnités compensatoires de handicaps naturels versées aux agriculteurs. La liste agricole publiée date de 2017, reportée ici sur les communes actuelles.'} />
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.dates.frr ? ` France ruralités revitalisation, d’après la liste des communes de la direction générale des collectivités locales (${date(z.dates.frr)}) ;` : ''}${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>
