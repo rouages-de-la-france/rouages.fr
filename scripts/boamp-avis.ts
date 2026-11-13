@@ -52,12 +52,12 @@
  * rattachent (annulations, rectificatifs, republications eForms), quelle que
  * soit leur date, et 232 restaient ouverts. Seuls deux groupes sont crédibles :
  *
- * - les systèmes d'acquisition dynamiques et de qualification (101), ouverts
+ * - les systèmes d'acquisition dynamiques et de qualification (100), ouverts
  *   des années par construction ;
  * - les avis dont la date limite tombe au plus 120 jours après la parution
  *   (23) : parus juste avant la fenêtre, ils sont encore en cours.
  *
- * Les 102 autres ont une date limite qu'aucune procédure ne justifie — un an
+ * Les 109 autres ont une date limite qu'aucune procédure ne justifie — un an
  * jour pour jour après la date vraisemblable, ou 2055, 2108, 7017 : une faute
  * de saisie, que Pro afficherait comme un avis ouvert. Ils restent dehors.
  * Le `donnees` des avis retenus est lu tant qu'ils ne sont pas dans le
