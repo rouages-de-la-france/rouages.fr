@@ -502,3 +502,40 @@ dispositifs:
     sources:
       - { id: min-pm, titre: "Ministère de la Transition écologique — « Patrimoine mondial »", url: "https://www.ecologie.gouv.fr/politiques-publiques/patrimoine-mondial", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: leader
+    cle: leader
+    nom: "LEADER et les groupes d'action locale"
+    nature: programme
+    lancement: 2023
+    pilote: "Les conseils régionaux, autorités de gestion du FEADER ; le Réseau national Agricultures et Ruralités en assure l'animation nationale"
+    resume: "Une intervention européenne de développement rural : des groupes d'action locale, publics et privés, portent une stratégie pour leur territoire et choisissent les projets que le FEADER finance. La liste des communes n'est publiée que par certaines Régions."
+    groupes_nom: groupes d'action locale
+    series: false
+    liste: "les périmètres des groupes d'action locale 2023-2027 publiés par les Régions qui le font"
+    ce_que_cest:
+      - texte: "LEADER — « Liaison entre actions de développement de l'économie rurale » — s'inscrit dans le fonds européen agricole pour le développement rural (FEADER). Un groupe d'action locale (GAL) réunit, sur un territoire rural ou périurbain, des acteurs publics et privés qui portent une stratégie locale de développement, pour laquelle la Région les a retenus."
+        source: hdf-gal
+      - texte: "Plus de 2 600 groupes d'action locale devaient devenir opérationnels en 2023 dans l'Union européenne pour la programmation 2023-2027."
+        source: eu-gal-2023
+    qui_decide:
+      - texte: "L'intervention est gérée par les conseils régionaux ; le Réseau national Agricultures et Ruralités en assure l'animation nationale."
+        source: rnar-gal
+      - texte: "Chaque Région retient les groupes et leur stratégie locale de développement. Les Hauts-de-France en comptent 20 pour 2023-2027, contre 17 pour 2014-2022."
+        source: hdf-gal
+    apporte:
+      - texte: "Des crédits du FEADER, que la stratégie locale du groupe oriente vers des processus de développement « ascendants », y compris l'innovation, la mise en réseau et la coopération."
+        source: eu-gal-2023
+    cout:
+      - texte: "LEADER est financé par le FEADER, dont les Régions sont les autorités de gestion. Le site n'a pas trouvé de montant national vérifié pour 2023-2027 : les enveloppes sont fixées région par région."
+        source: hdf-gal
+    evaluations:
+      - source: eu-eval-leader
+        conclusion: "Les conclusions reconnaissent que LEADER « rapproche l'UE des citoyens » et que l'approche ascendante y garantit que leurs stratégies et projets répondent aux besoins locaux prioritaires. LEADER s'avère avoir ciblé des zones économiquement défavorisées, périphériques ou éloignées, créant près de 60 000 emplois au cours de la période de financement précédente."
+    sources:
+      - { id: hdf-gal, titre: "Région Hauts-de-France — « Groupes d'action locale (GAL) en Hauts-de-France », présentation du jeu sur data.gouv.fr", url: "https://www.data.gouv.fr/datasets/6712f7222432948efa2feb19/", consulte_le: 2026-11-13 }
+      - { id: rnar-gal, titre: "Réseau national Agricultures et Ruralités — « Découvrez la localisation des GAL »", url: "https://reseau-pac.agriculture.gouv.fr/gal-en-region", consulte_le: 2026-11-13 }
+      - { id: eu-gal-2023, titre: "Réseau européen de la PAC — « Faits et chiffres de LEADER : nouveaux GAL pour 2023-2027 », 13 juin 2023", url: "https://eu-cap-network.ec.europa.eu/news/leader-facts-and-figures-new-lags-2023-2027_fr", consulte_le: 2026-11-13 }
+      - { id: eu-eval-leader, titre: "Réseau européen de la PAC — « Rapport d'impact LEADER sur le développement territorial équilibré », sur l'évaluation de la Commission européenne (programmation 2014-2022)", url: "https://eu-cap-network.ec.europa.eu/news/leader-impact-report-balanced-territorial-development_fr", consulte_le: 2026-11-13 }
+      - { id: pdl-gal, titre: "Région Pays de la Loire — « Groupements d'actions locales en Pays de la Loire (GAL) » (ODbL)", url: "https://www.data.gouv.fr/datasets/5e322382dee7e71547f5c8fc/", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

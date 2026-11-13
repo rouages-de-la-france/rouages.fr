@@ -105,6 +105,14 @@ const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.l
     ) : (
       <section id="communes">
       <h2 class="badge">{n > 0 ? `Ses ${nf(n)} communes` : 'Ses communes'}</h2>
+      {x.couverture && (
+        <p class="p-avertissement">
+          <strong>Une liste partielle.</strong>
+          {x.couverture.length > 0
+            ? ` Aucune liste nationale n’est publiée : le site lit les périmètres que chaque Région publie. Régions couvertes : ${x.couverture.join(', ')}. Ailleurs, une commune peut faire partie d’un groupe sans que le site le sache.`
+            : ' Aucune liste nationale n’est publiée, et aucune région n’a encore été lue.'}
+        </p>
+      )}
       {n === 0 ? (
         <p class="mesure">La liste de ses communes n’a pas encore été collectée : elle viendra avec la prochaine mise à jour des données territoriales.</p>
       ) : (

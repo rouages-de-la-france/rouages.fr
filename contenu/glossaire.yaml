@@ -228,6 +228,12 @@ sigles:
     definition: "La part du FEADER confiée à des groupes d'action locale, qui choisissent eux-mêmes les projets de leur territoire."
     liens: [psn-feader-regions]
 
+  - id: sigle-gal
+    sigle: GAL
+    developpe: "Groupe d'action locale"
+    definition: "Le groupement d'acteurs publics et privés d'un territoire rural ou périurbain qui porte une stratégie LEADER, retenue par la Région."
+    liens: [psn-feader-regions]
+
   - id: sigle-iej
     sigle: IEJ
     developpe: "Initiative pour l'emploi des jeunes"

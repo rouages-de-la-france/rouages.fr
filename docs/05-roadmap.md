@@ -3867,10 +3867,26 @@ Recoupé par un calcul indépendant : 1 184 communes touchées par un site
 Ramsar, 2 247 par une réserve de biosphère, 1 167 par un bien du patrimoine
 mondial — les mêmes nombres que les pages.
 
-**LEADER attend une décision** : aucune liste nationale ouverte des
-communes des groupes d'action locale 2023-2027 n'a été trouvée. La carte de
-LEADER France ne donne qu'un point par groupe ; quelques régions publient
-leurs périmètres sur data.gouv (Pays de la Loire, Hauts-de-France…).
+**LEADER** a sa page (décision du 13 novembre 2026 : collecter région par
+région, et préparer la demande d'un fichier national — brouillon dans le
+dépôt privé). Aucune liste nationale ouverte des communes des groupes
+d'action locale 2023-2027 n'existe. `scripts/leader-emettre.ts` lit ce que
+publient les Régions : les Hauts-de-France (la liste des communes, y compris
+25 communes du Val-d'Oise que compte le GAL du PNR Oise-Pays de France) et
+les Pays de la Loire (les contours des 23 GAL, sous ODbL, croisés avec ceux
+des communes par un point intérieur ; le contact nominatif du fichier n'est
+pas lu). Chaque fichier `dep/XX-leader.json` porte la liste des régions
+lues : la page de commune dit le GAL, ou « dans aucun GAL » dans une région
+couverte, et rien ailleurs. La page du dispositif dit en tête que la liste
+est partielle et nomme les régions couvertes. Pas encore lus : le Grand
+Est (seule la partie lorraine de la Grande Région est publiée, dans la
+projection luxembourgeoise) et la Normandie (son SIG refuse
+l'environnement de développement).
+
+Recoupé par un calcul indépendant : les 2 346 communes actuelles du
+fichier des Hauts-de-France, à l'unité ; pour les Pays de la Loire, 953
+communes par le point intérieur contre 952 par le barycentre — un seul
+écart, une commune de la Sarthe en bordure de périmètre.
 
 ## Phase 3 — Élargir
 

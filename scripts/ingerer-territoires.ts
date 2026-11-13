@@ -1019,6 +1019,13 @@ async function principal() {
   const contours = await tenter('Contours des communes', () => collecterContours(CACHE, grise));
   if (contours) grise(`${ecrireContours(SORTIE, contours)} départements de contours écrits.`);
 
+  // LEADER : les périmètres des Régions qui en publient, croisés avec les contours que la collecte précédente vient d'écrire.
+  const { collecterLeader, ecrireLeader } = await import('./leader-emettre.ts');
+  const leader = await tenter('Groupes d’action locale LEADER', () =>
+    collecterLeader(enCache('LEADER — périmètres régionaux (5 Mo)'), CACHE, SORTIE, grise),
+  );
+  if (leader) grise(`${ecrireLeader(SORTIE, leader)} départements de groupes d’action locale écrits.`);
+
   // Les espaces naturels se croisent avec les contours que la collecte précédente vient d'écrire.
   const { collecterEspaces, ecrireEspaces } = await import('./espaces-emettre.ts');
   const espaces = await tenter('Espaces naturels', () => collecterEspaces(SORTIE, CACHE, grise));

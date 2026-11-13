@@ -27,6 +27,7 @@ const NOMS: Record<string, string> = {
 const programmes = z.programmes.map((p) => NOMS[p]).filter(Boolean);
 const montagne = lienDispositif('montagne');
 const frr = lienDispositif('frr');
+const leader = lienDispositif('leader');
 const lien = (cle: string, texte: string) => ({ href: lienDispositif(cle), texte });
 const ti = lien('ti', 'Territoire d’industrie');
 const crte = lien('crte', 'contrat pour la réussite de la transition écologique');
@@ -87,6 +88,15 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
       {` : ${z.quartiersPrioritaires.join(', ')}.`}
     </li>
   )}
+  {z.leader && (
+    <li>
+      {z.leader.gal ? 'Elle fait partie d’un groupe d’action locale ' : 'Elle n’est dans aucun groupe d’action locale '}
+      {leader ? <a href={leader}>LEADER</a> : 'LEADER'}
+      {z.leader.gal
+        ? ` : « ${z.leader.gal} », qui porte une stratégie locale de développement pour 2023-2027, financée par le fonds européen agricole pour le développement rural.`
+        : ' pour 2023-2027, d’après le périmètre que publie sa Région.'}
+    </li>
+  )}
   {z.frr && (
     <li>
       {z.frr === 'non' ? 'Elle n’est pas en zone ' : 'Elle est en zone '}
@@ -120,5 +130,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
     'La montagne a plusieurs délimitations officielles, qui ne coïncident pas : celle de l’urbanisme dit où s’appliquent les règles de construction de la loi Montagne ; celle des zones agricoles défavorisées dit quelles terres relèvent de la montagne pour les indemnités compensatoires de handicaps naturels versées aux agriculteurs. La liste agricole publiée date de 2017, reportée ici sur les communes actuelles.'} />
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.dates.frr ? ` France ruralités revitalisation, d’après la liste des communes de la direction générale des collectivités locales (${date(z.dates.frr)}) ;` : ''}${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.leader ? ` LEADER, d’après les groupes d’action locale publiés par la Région (lus le ${date(z.leader.maj)}) ;` : ''}${z.dates.frr ? ` France ruralités revitalisation, d’après la liste des communes de la direction générale des collectivités locales (${date(z.dates.frr)}) ;` : ''}${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>
