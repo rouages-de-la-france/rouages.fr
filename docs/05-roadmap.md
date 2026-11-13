@@ -3751,6 +3751,34 @@ Mayet-de-Montagne, la bibliothèque, place de l'Église, seule ; la base des
 compte une aussi. À Vichy, huit lieux, dont l'Étoile Palace (Art et essai,
 sept écrans) et le site patrimonial remarquable.
 
+### Une page par dispositif, premier lot (13 novembre 2026)
+
+`/dispositif/<id>`, d'après le cadrage `docs/13-programmes-et-zonages.md`
+et les décisions du mainteneur du 13 novembre. Petites villes de demain,
+Action cœur de ville et Villages d'avenir ont chacun leur page : ce que
+c'est, qui décide, ce que ça apporte, ce que ça coûte, chaque phrase
+renvoyant à sa source ; ses communes, par département ; puis, nettement
+séparés, ce qu'en disent les évaluations publiées — le Sénat (2025) pour
+le premier, la Cour des comptes (2022) pour le deuxième, aucune encore pour
+le troisième — et ce que le site calcule sur ses communes, les logements
+autorisés par an et la population aux recensements, sous un avertissement
+qui dit que ces séries décrivent et ne mesurent pas l'effet du programme.
+
+Le texte est dans `contenu/dispositifs.yaml`, contrôlé par la validation
+(`src/modele/dispositifs.ts`) : chaque phrase a une source déclarée, chaque
+dispositif une évaluation ou la phrase qui dit qu'il n'y en a pas, aucune
+personne nommée. Les pages de commune, d'intercommunalité et de département
+lient le nom du programme à sa page.
+
+Recoupé par un calcul indépendant : 1 642 communes pour Petites villes de
+demain (le Sénat en compte 1 646 en 2025), 244 pour Action cœur de ville,
+3 152 pour Villages d'avenir (3 081 annoncées en juillet 2026) — les listes
+n'ont pas la même date. Les sources se contredisent sur le coût de Petites
+villes de demain : 4 milliards d'euros engagés selon l'ANCT, une enveloppe
+de 3 milliards annoncée qui n'était pas de l'argent nouveau selon le Sénat ;
+la page donne les deux. Reste au premier lot : la zone de montagne et le
+zonage ABC.
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

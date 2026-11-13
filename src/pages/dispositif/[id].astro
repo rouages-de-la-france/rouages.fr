@@ -1,0 +1,165 @@
+---
+/**
+ * La page d'un dispositif : ce qu'il est, qui décide, ce qu'il apporte, ce
+ * qu'il coûte, ses communes ; puis, nettement séparés, ce qu'en disent les
+ * évaluations publiées et ce que le site calcule sur ses communes
+ * (décisions du 13 novembre 2026, docs/13-programmes-et-zonages.md).
+ */
+import Base from '../../layouts/Base.astro';
+import Glose from '../../composants/Glose.astro';
+import { chiffresDispositif, dispositifs, type Dispositif, type PhraseSourcee } from '../../modele/dispositifs.ts';
+
+export function getStaticPaths() {
+  return dispositifs().map((d) => ({ params: { id: d.id }, props: { d } }));
+}
+
+const { d } = Astro.props as { d: Dispositif };
+const x = chiffresDispositif(d);
+const nf = (v: number) => v.toLocaleString('fr-FR');
+const date = (s: string | null) => (s ? s.split('-').reverse().join('/') : '');
+const numero = new Map(d.sources.map((s, i) => [s.id, i + 1]));
+const renvoi = (p: PhraseSourcee) => numero.get(p.source) ?? 0;
+const MONTREES_PAR_DEP = 3;
+const n = x.communes.length;
+
+// Les séries, l'année de lancement repérée : avant, l'année du lancement, après.
+const situer = (annee: number) => (annee < d.lancement ? 'avant' : annee === d.lancement ? 'lancement' : 'après');
+---
+<Base titre={d.nom} description={d.resume} section="chez-moi">
+  <div class="page page--etroite p-dispositif">
+    <p class="badge">{d.nature === 'programme' ? `Programme de l’État · depuis ${d.lancement}` : `Zonage · depuis ${d.lancement}`}</p>
+    <h1>{d.nom}</h1>
+    <p class="resume"><Glose texte={d.resume} /></p>
+
+    <section id="ce-que-c-est">
+      <h2 class="badge">Ce que c’est</h2>
+      {d.ce_que_cest.map((p) => <p class="mesure"><Glose texte={p.texte} /> <a href={`#source-${renvoi(p)}`} class="p-renvoi">{`[${renvoi(p)}]`}</a></p>)}
+      <p class="mesure">{`Piloté par ${d.pilote.charAt(0).toLowerCase()}${d.pilote.slice(1)}.`}</p>
+    </section>
+
+    <section id="qui-decide">
+      <h2 class="badge">Qui décide</h2>
+      <ul class="c-structures">
+        {d.qui_decide.map((p) => <li><Glose texte={p.texte} /> <a href={`#source-${renvoi(p)}`} class="p-renvoi">{`[${renvoi(p)}]`}</a></li>)}
+      </ul>
+    </section>
+
+    <section id="ce-que-ca-apporte">
+      <h2 class="badge">Ce que ça apporte à une commune</h2>
+      <ul class="c-structures">
+        {d.apporte.map((p) => <li><Glose texte={p.texte} /> <a href={`#source-${renvoi(p)}`} class="p-renvoi">{`[${renvoi(p)}]`}</a></li>)}
+      </ul>
+    </section>
+
+    <section id="ce-que-ca-coute">
+      <h2 class="badge">Ce que ça coûte</h2>
+      {d.cout.map((p) => <p class="mesure"><Glose texte={p.texte} /> <a href={`#source-${renvoi(p)}`} class="p-renvoi">{`[${renvoi(p)}]`}</a></p>)}
+    </section>
+
+    <section id="communes">
+      <h2 class="badge">{`Ses ${nf(n)} communes`}</h2>
+      <p class="mesure">
+        {`${nf(n)} communes, ${nf(x.population)} habitants au total` +
+          (x.medianePopulation !== null ? ` ; la moitié d’entre elles compte moins de ${nf(x.medianePopulation)} habitants` : '') +
+          ` ; ${nf(x.parDepartement.length)} départements.`}
+      </p>
+      {x.parDepartement.map((p) => {
+        const ici = x.communes.filter((c) => c.dep === p.dep);
+        return (
+          <details class="p-dispositif-dep">
+            <summary>{`${p.depNom} (${p.dep}) — ${nf(p.n)} commune${p.n > 1 ? 's' : ''}`}</summary>
+            <ul class="c-communes">
+              {ici.map((c) => (
+                <li>
+                  <a href={`/commune/${c.code}`}>{c.nom}</a>
+                  <span class="c-departement-detail">{`${nf(c.population)} hab.`}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        );
+      })}
+      <p class="p-source-territoire">
+        {`D’après la liste des communes du programme publiée par l’Agence nationale de la cohésion des territoires${x.dateListe ? ` (${date(x.dateListe)})` : ''}, et les populations légales de l’INSEE. Le nombre de communes peut différer de celui qu’annoncent les sources ci-dessous, publiées à d’autres dates.`}
+      </p>
+    </section>
+
+    <section id="evaluations" class="p-dispositif-evaluations">
+      <h2 class="badge">Ce qu’en disent les évaluations publiées</h2>
+      {d.evaluations?.length ? (
+        d.evaluations.map((e) => {
+          const s = d.sources.find((y) => y.id === e.source)!;
+          return (
+            <figure class="p-dispositif-citation">
+              <blockquote><p><Glose texte={e.conclusion} /></p></blockquote>
+              <figcaption><a href={s.url} target="_blank" rel="noopener">{s.titre}</a></figcaption>
+            </figure>
+          );
+        })
+      ) : (
+        <p class="mesure">{d.sans_evaluation}</p>
+      )}
+      <p class="p-strate">Ce sont les conclusions de ceux qui ont évalué le programme, citées telles qu’ils les écrivent. Rouages n’en tire pas d’autre jugement.</p>
+    </section>
+
+    {(x.logements || x.population_recensements) && (
+      <section id="series" class="p-dispositif-series">
+        <h2 class="badge">Ce que le site calcule : ses communes avant et après</h2>
+        <p class="p-avertissement">
+          <strong>Une description, pas une mesure de l’effet.</strong> Ces chiffres additionnent ce qui s’est passé dans les
+          communes du programme. Ils ne disent pas ce que le programme y a changé : les communes ont été choisies parce
+          qu’elles différaient des autres, et bien d’autres choses changent dans la même période. Pour juger du programme, voir
+          les évaluations ci-dessus.
+        </p>
+        {x.logements && (
+          <>
+            <h3 class="p-titre-echelon">Logements autorisés chaque année</h3>
+            <table class="cpt-tableau">
+              <caption>{`Logements autorisés dans les ${nf(x.logements.couvertes)} communes du programme, par année ; lancement en ${d.lancement}.`}</caption>
+              <thead><tr><th scope="col">Année</th><th scope="col">Logements autorisés</th><th scope="col">Période</th></tr></thead>
+              <tbody>
+                {x.logements.annees.map((a, i) => (
+                  <tr class={`p-serie-${situer(a)}`}>
+                    <th scope="row">{a === d.lancement ? `${a} (lancement)` : String(a)}</th>
+                    <td>{nf(x.logements!.valeurs[i])}</td>
+                    <td>{situer(a)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="p-source-territoire">{`D’après Sitadel (ministère chargé du logement), séries communales arrêtées à ${x.logements.arrete}, additionnées par Rouages.`}</p>
+          </>
+        )}
+        {x.population_recensements && (
+          <>
+            <h3 class="p-titre-echelon">Population aux recensements</h3>
+            <table class="cpt-tableau">
+              <caption>{`Population totale des ${nf(x.population_recensements.couvertes)} communes du programme, à chaque recensement depuis 2010 ; lancement en ${d.lancement}.`}</caption>
+              <thead><tr><th scope="col">Année</th><th scope="col">Habitants</th><th scope="col">Période</th></tr></thead>
+              <tbody>
+                {x.population_recensements.annees.map((a, i) => (
+                  <tr class={`p-serie-${situer(a)}`}>
+                    <th scope="row">{String(a)}</th>
+                    <td>{nf(x.population_recensements!.valeurs[i])}</td>
+                    <td>{situer(a)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="p-source-territoire">D’après les séries historiques de population de l’INSEE, additionnées par Rouages.</p>
+          </>
+        )}
+      </section>
+    )}
+
+    <section id="sources">
+      <h2 class="badge">Sources</h2>
+      <ol class="p-dispositif-sources">
+        {d.sources.map((s, i) => (
+          <li id={`source-${i + 1}`}><a href={s.url} target="_blank" rel="noopener">{s.titre}</a>{`, consultée le ${date(s.consulte_le)}.`}</li>
+        ))}
+      </ol>
+      <p class="p-source-territoire">{`Page vérifiée le ${date(d.verifie_le)}.`}</p>
+    </section>
+  </div>
+</Base>

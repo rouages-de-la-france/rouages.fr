@@ -1,0 +1,122 @@
+# Les dispositifs — programmes de l'État et zonages —, une page chacun sous
+# /dispositif/<id> (docs/13-programmes-et-zonages.md, décisions du
+# 13 novembre 2026).
+#
+# Écrit à la main, d'après les sources citées, lues à la date de
+# `consulte_le`. Chaque phrase porte la source d'où elle vient (`source:`).
+# La liste des communes n'est pas ici : elle vient des fichiers de zonage
+# (`scripts/zonages-emettre.ts`), par la clé `cle`.
+#
+# Deux choses à ne pas mêler, et que la page sépare :
+#   — `evaluations` : ce que concluent les évaluations publiées, citées
+#     telles qu'elles l'écrivent ;
+#   — les séries que le site calcule sur les communes du dispositif, qui
+#     décrivent et ne mesurent pas l'effet (src/modele/dispositifs.ts).
+#
+# Aucune personne physique n'est nommée : un rapport se cite par
+# l'institution qui l'a adopté, pas par ses rapporteurs.
+dispositifs:
+  - id: petites-villes-de-demain
+    cle: pvd
+    nom: "Petites villes de demain"
+    nature: programme
+    lancement: 2020
+    pilote: "L'Agence nationale de la cohésion des territoires (ANCT)"
+    resume: "Un programme de l'État, lancé en 2020, pour aider des communes de moins de 20 000 habitants qui jouent un rôle de centralité à revitaliser leur centre : surtout de l'ingénierie, autour d'un chef de projet."
+    ce_que_cest:
+      - texte: "Lancé en octobre 2020 et piloté par l'ANCT, le programme soutient des communes de moins de 20 000 habitants ayant un rôle clé pour la dynamique locale, pour revitaliser leur centre-ville, améliorer leur attractivité et renforcer les services aux habitants. L'ANCT l'annonce pensé jusqu'en décembre 2026."
+        source: anct-pvd
+      - texte: "Il est né en 2020 comme volet de l'Agenda rural, sur le modèle d'Action cœur de ville, qui s'adresse aux villes moyennes."
+        source: senat-pvd-2025
+    qui_decide:
+      - texte: "1 646 communes ont été retenues sur proposition des préfets de département."
+        source: senat-pvd-2025
+      - texte: "Le programme soutient ces communes et leurs intercommunalités."
+        source: anct-pvd
+      - texte: "Le programme repose sur une démarche ascendante : chaque commune élabore son propre projet de revitalisation, plutôt que de répondre à un appel à projets."
+        source: senat-pvd-2025
+    apporte:
+      - texte: "Un chef de projet, chargé de piloter l'élaboration et la mise en œuvre du projet de revitalisation, dont l'État finance le poste dans la limite de 75 % de son coût annuel."
+        source: senat-pvd-2025
+      - texte: "Un appui en ingénierie et la mobilisation de partenaires nationaux — la Banque des Territoires, l'Agence nationale de l'habitat, le Cerema, l'Ademe —, et l'animation d'un club des communes du programme."
+        source: anct-pvd
+      - texte: "Pas d'enveloppe propre pour l'investissement : le Sénat relève « l'absence d'enveloppe financière consacrée à l'investissement dans les projets ayant émergé du programme »."
+        source: senat-pvd-2025
+    cout:
+      - texte: "L'ANCT écrit que 4 milliards d'euros sont engagés jusqu'en 2026 pour soutenir la revitalisation des petites centralités."
+        source: anct-pvd
+      - texte: "Le Sénat relève qu'à son lancement, une enveloppe de trois milliards d'euros sur six ans avait été annoncée, qui ne correspondait pas à des moyens supplémentaires mais à des dotations et fonds de droit commun lissés sur six ans — dont 1,47 milliard d'euros de crédits engagés par l'État —, et seulement à un soutien en ingénierie, pas à l'investissement des communes."
+        source: senat-pvd-2025
+    evaluations:
+      - source: senat-pvd-2025
+        conclusion: "« Le programme PVD a produit des résultats incontestablement positifs : il a permis d'outiller les communes dans la conception de projets structurants de territoire. » Ce bilan est « tempéré par quelques bémols, à commencer par l'absence d'enveloppe financière consacrée à l'investissement »."
+    sources:
+      - { id: anct-pvd, titre: "ANCT — Petites villes de demain, présentation du programme", url: "https://anct.gouv.fr/programmes-dispositifs/petites-villes-de-demain", consulte_le: 2026-11-13 }
+      - { id: senat-pvd-2025, titre: "Sénat, commission de l'aménagement du territoire et du développement durable — rapport d'information « Petites villes de demain : mettre l'avenir au centre », adopté le 15 octobre 2025 (synthèse)", url: "https://www.senat.fr/rap/r25-040/r25-040-syn.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: action-coeur-de-ville
+    cle: acv
+    nom: "Action cœur de ville"
+    nature: programme
+    lancement: 2018
+    pilote: "L'Agence nationale de la cohésion des territoires (ANCT)"
+    resume: "Un programme de l'État, lancé en 2018, pour les villes moyennes : améliorer la vie de leurs habitants et redonner de l'élan à leur centre, avec l'argent de l'État, de la Banque des territoires, de l'Anah et d'Action Logement."
+    ce_que_cest:
+      - texte: "Lancé en 2018 et piloté par l'ANCT, le programme veut améliorer les conditions de vie des habitants des villes moyennes et conforter leur rôle de moteur du développement de leur territoire."
+        source: anct-acv
+      - texte: "Il cible des centres-villes confrontés à une dégradation des conditions de logement, au départ des commerces et des équipements, et à celui de leurs habitants vers la périphérie."
+        source: cc-acv-2022
+    qui_decide:
+      - texte: "222 villes ou binômes de villes ont été sélectionnés le 26 mars 2018, sur proposition du ministère de l'Aménagement du territoire, avec l'accord d'un comité national. L'ANCT compte 244 communes lauréates en 2025, dont une dizaine en outre-mer."
+        source: anct-acv
+      - texte: "Une deuxième phase, de 2023 à 2026, élargit le programme aux entrées de ville et aux quartiers de gare."
+        source: anct-acv
+    apporte:
+      - texte: "Cinq axes : l'habitat ; un développement économique et commercial équilibré ; l'accessibilité et les mobilités ; l'aménagement de l'espace urbain et la mise en valeur du patrimoine ; un socle de services dans chaque ville."
+        source: anct-acv
+      - texte: "Des financements de partenaires : la Caisse des dépôts, l'Agence nationale de l'habitat, qui aide à rénover les logements anciens, et Action Logement, qui finance la rénovation et la construction de logements dans les centres."
+        source: anct-acv
+    cout:
+      - texte: "Selon la Cour des comptes, l'État et ses trois partenaires se sont engagés à consacrer au programme 5 milliards d'euros, dont 600 millions d'effort budgétaire de l'État : c'est la mobilisation de la Banque des territoires, d'Action Logement et de l'Anah, 4,4 milliards, qui en constitue le cœur."
+        source: cc-acv-2022
+      - texte: "La Cour ajoute qu'une partie des 5 milliards annoncés ne sera pas engagée à l'échéance prévue, que les opérateurs ont pu consacrer au programme d'autres moyens non spécifiquement fléchés, et qu'il n'existe pas d'état précis des autres financements, ceux des collectivités notamment."
+        source: cc-acv-2022
+    evaluations:
+      - source: cc-acv-2022
+        conclusion: "Le programme « s'avère ambitieux et innovant » et « a créé une réelle dynamique, en facilitant le développement de projets structurants soutenus par les maires ». Mais « les indicateurs actuels ne permettent cependant pas d'établir précisément l'impact du programme » : il « demeure difficile de faire la part entre les effets d'ACV et le produit d'évolutions sociétales plus profondes entraînant un regain d'attrait pour les villes moyennes »."
+    sources:
+      - { id: anct-acv, titre: "ANCT — Action cœur de ville, présentation du programme", url: "https://anct.gouv.fr/programmes-dispositifs/action-coeur-de-ville", consulte_le: 2026-11-13 }
+      - { id: cc-acv-2022, titre: "Cour des comptes — Le programme Action cœur de ville, 29 septembre 2022", url: "https://www.ccomptes.fr/fr/publications/le-programme-action-coeur-de-ville", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: villages-d-avenir
+    cle: va
+    nom: "Villages d'avenir"
+    nature: programme
+    lancement: 2023
+    pilote: "L'Agence nationale de la cohésion des territoires (ANCT)"
+    resume: "Un programme de l'État, lancé fin 2023, qui accompagne des communes rurales de moins de 3 500 habitants dans leurs projets : un chef de projet de l'État, et l'orientation vers les aides existantes."
+    ce_que_cest:
+      - texte: "Lancé en décembre 2023 dans le cadre du plan France ruralités et piloté par l'ANCT, le programme accompagne des communes rurales au sens de l'INSEE, de moins de 3 500 habitants, dans leurs projets de développement. Il complète les autres programmes d'ingénierie de l'État, dont Petites villes de demain et Action cœur de ville."
+        source: anct-va
+      - texte: "Le Gouvernement a annoncé le 10 juillet 2026 sa poursuite sur l'ensemble du mandat municipal commencé en 2026."
+        source: gouv-va-2026
+    qui_decide:
+      - texte: "Le corps préfectoral identifie les communes, avec les conseils départementaux et régionaux."
+        source: anct-va
+      - texte: "Depuis la troisième phase, annoncée en 2026, le préfet devient le guichet unique d'orientation des collectivités."
+        source: gouv-va-2026
+    apporte:
+      - texte: "Un accompagnement en ingénierie par 120 chefs de projet recrutés depuis 2024, placés en préfecture, en sous-préfecture et dans les directions départementales des territoires, dont des binômes dans les 25 départements les plus ruraux et 20 directeurs de projet financés par le Cerema."
+        source: anct-va
+      - texte: "Une orientation vers les dispositifs et aides existants de l'État et des autres financeurs, pour des projets de services de proximité, de réhabilitation de bâtiments, de réaménagement de centre-bourg, culturels ou touristiques."
+        source: anct-va
+    cout:
+      - texte: "Aucune des sources lues ne chiffre son coût : le programme finance de l'ingénierie, et les projets passent par les aides existantes."
+        source: anct-va
+    sans_evaluation: "Aucune évaluation publiée trouvée le 13 novembre 2026 : le programme a moins de trois ans."
+    sources:
+      - { id: anct-va, titre: "ANCT — Villages d'avenir, présentation du programme", url: "https://anct.gouv.fr/programmes-dispositifs/villages-d-avenir", consulte_le: 2026-11-13 }
+      - { id: gouv-va-2026, titre: "Ministères de l'Aménagement du territoire — « Le programme Villages d'avenir pérennisé », 21 juillet 2026", url: "https://www.ecologie.gouv.fr/actualites/programme-villages-davenir-perennise", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

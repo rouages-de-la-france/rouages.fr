@@ -6,6 +6,7 @@
  */
 import type { ZonagesGroupe } from '../modele/fiche-vie.ts';
 import Glose from './Glose.astro';
+import { lienDispositif } from '../modele/dispositifs.ts';
 
 interface Props {
   z: ZonagesGroupe;
@@ -30,7 +31,10 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   {Object.entries(NOMS).map(([p, nom]) => {
     const liste = z.programmes[p] ?? [];
     return liste.length > 0 ? (
-      <li>{`${nom} : ${sur(liste.length)}` + (nommer ? ` — ${liste.join(', ')}.` : '.')}</li>
+      <li>
+        {lienDispositif(p) ? <a href={lienDispositif(p)!}>{nom}</a> : nom}
+        {` : ${sur(liste.length)}` + (nommer ? ` — ${liste.join(', ')}.` : '.')}
+      </li>
     ) : null;
   })}
   {z.territoiresIndustrie.length > 0 && (

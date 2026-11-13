@@ -14,6 +14,7 @@ import { construireReseau } from '../src/modele/reseau.ts';
 import { ATTENTE_EDITEUR } from '../src/modele/schemas.ts';
 import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { aidesDeCommune, aidesLocales, controlerAidesLocales } from '../src/modele/aides-locales.ts';
+import { controlerDispositifs } from '../src/modele/dispositifs.ts';
 import { controlerJeuxClasse } from '../src/modele/jeux-classe.ts';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
@@ -428,6 +429,14 @@ if (existsSync(META)) {
     }
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Les dispositifs (`contenu/dispositifs.yaml`) : chaque phrase porte une
+ * source déclarée, une évaluation ou la phrase qui dit qu'il n'y en a pas,
+ * aucune personne nommée.
+ * ------------------------------------------------------------------ */
+
+erreurs.push(...controlerDispositifs());
 
 // Les jeux pour les plus jeunes : chaque bonne réponse est celle de sa fiche.
 erreurs.push(...controlerJeuxClasse());

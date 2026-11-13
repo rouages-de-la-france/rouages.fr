@@ -1886,3 +1886,14 @@ a.p-sommaire-lien { text-decoration: none; }
 .mp-page-numero { font-size: .88rem; color: var(--encre-douce); }
 .mp-page-toile { display: block; max-width: 100%; height: auto; border: 1px solid var(--trait); background: #fff; }
 .mp-page-etat { color: var(--encre-douce); font-size: .92rem; }
+
+/* --- pages de dispositif (src/pages/dispositif/) --- */
+.p-renvoi { font-size: .78rem; text-decoration: none; vertical-align: super; }
+.p-dispositif-dep summary { cursor: pointer; padding: .2rem 0; }
+.p-dispositif-citation { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 3px solid var(--accent); }
+.p-dispositif-citation blockquote { margin: 0; }
+.p-dispositif-citation figcaption { font-size: .85rem; color: var(--encre-douce); }
+.p-dispositif-series { border-top: 2px dashed var(--trait-fort); margin-top: 2rem; padding-top: 1rem; }
+.p-avertissement { padding: .7rem .9rem; background: var(--alerte-doux); color: var(--encre); border-radius: var(--rayon); }
+.p-serie-lancement th, .p-serie-lancement td { font-weight: 600; }
+.p-dispositif-sources li { margin: .3rem 0; }
