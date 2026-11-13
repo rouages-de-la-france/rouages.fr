@@ -407,3 +407,98 @@ dispositifs:
       - { id: anct-crte, titre: "Agence nationale de la cohésion des territoires — « Contrats pour la réussite de la transition écologique »", url: "https://anct.gouv.fr/programmes-dispositifs/contrats-pour-la-reussite-de-la-transition-ecologique", consulte_le: 2026-11-13 }
       - { id: cc-te-2025, titre: "Cour des comptes — « La transition écologique », rapport public thématique, septembre 2025", url: "https://www.ccomptes.fr/sites/default/files/2025-10/20250916-Transition-ecologique.pdf", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: sites-ramsar
+    cle: ramsar
+    nom: "Les sites Ramsar"
+    nature: designation
+    lancement: 1986
+    pilote: "La direction de l'eau et de la biodiversité du ministère chargé de l'environnement"
+    resume: "Les zones humides d'importance internationale, désignées au titre de la convention de Ramsar de 1971 : un label qui récompense et valorise leur gestion durable. La France en compte 58."
+    groupes_nom: sites
+    liste: "les périmètres des sites Ramsar publiés par l'Inventaire national du patrimoine naturel (INPN) — une commune compte dès qu'un site la touche ; 50 des 58 sites touchent une commune de ces fichiers, les autres sont en mer, hors des départements, ou pas encore dans la couche"
+    ce_que_cest:
+      - texte: "La convention de Ramsar sur les milieux humides est un traité intergouvernemental adopté le 2 février 1971 à Ramsar, en Iran, entré en vigueur en 1975 ; elle regroupe 172 pays. Elle engage les États à conserver et à utiliser durablement leurs milieux humides, et prévoit un réseau mondial de zones humides d'importance internationale : les sites Ramsar."
+        source: min-milieux-humides
+      - texte: "La France est partie à la convention depuis 1986, avec un premier site, la Camargue. Au 2 septembre 2026, elle a désigné 58 sites Ramsar, dont 12 en outre-mer, pour plus de 4 millions d'hectares."
+        source: min-milieux-humides
+    qui_decide:
+      - texte: "La direction de l'eau et de la biodiversité du ministère chargé de l'environnement désigne les zones humides sur la liste des sites Ramsar, et doit en assurer une gestion appropriée. Un groupe national pour les milieux humides l'appuie."
+        source: min-milieux-humides
+    apporte:
+      - texte: "La désignation est un label international qui récompense et valorise les actions de gestion durable de ces zones et encourage ceux qui les mettent en œuvre. L'association Ramsar France réunit les gestionnaires des sites."
+        source: min-milieux-humides
+      - texte: "Depuis 2012, la convention accorde aussi le label « Ville Ramsar » aux collectivités qui ont une zone humide importante et des politiques exemplaires pour la gérer."
+        source: min-milieux-humides
+    cout:
+      - texte: "Le ministère présente la désignation comme un label ; sa page ne mentionne aucun financement qui y soit attaché. La gestion des sites relève de leurs gestionnaires."
+        source: min-milieux-humides
+    sans_evaluation: "Le site n'a pas trouvé d'évaluation publiée des effets de la désignation Ramsar en France le 13 novembre 2026 ; le ministère publie une enquête de 2016 sur le réseau des sites, qui décrit leur gestion."
+    sources:
+      - { id: min-milieux-humides, titre: "Ministère de la Transition écologique — « Protection des milieux humides »", url: "https://www.ecologie.gouv.fr/politiques-publiques/protection-milieux-humides", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: reserves-de-biosphere
+    cle: biosphere
+    nom: "Les réserves de biosphère"
+    nature: designation
+    lancement: 1971
+    pilote: "Le comité MAB France, pour le programme sur l'Homme et la biosphère de l'UNESCO"
+    resume: "Des territoires désignés par l'UNESCO pour expérimenter le développement durable : concilier la vie économique et sociale des habitants avec la conservation de la biodiversité. La France en compte 18."
+    groupes_nom: réserves
+    liste: "les périmètres des réserves de biosphère publiés par l'Inventaire national du patrimoine naturel (INPN), toutes zones confondues — une commune compte dès qu'une réserve la touche ; trois des 18 réserves n'y ont pas encore de périmètre : Entre Loire et Vilaine, le lac du Bourget et Fakarava, en Polynésie française"
+    ce_que_cest:
+      - texte: "Les réserves de biosphère sont des lieux désignés par l'UNESCO pour expérimenter et illustrer des pratiques de développement durable à l'échelle régionale, en conciliant le développement social et économique des populations avec la conservation de la diversité biologique, dans le respect des valeurs culturelles."
+        source: mab-rb
+      - texte: "Elles relèvent du programme sur l'Homme et la biosphère (MAB) de l'UNESCO, lancé en 1971. Elles ont trois zones : une ou des aires centrales strictement protégées ; des zones tampons, pour des activités écologiquement viables ; une aire de transition, où les communautés développent des activités économiques et humaines durables."
+        source: unesco-rb
+      - texte: "On compte 18 réserves de biosphère françaises, dont trois en outre-mer (la Martinique, l'archipel de Guadeloupe et la commune de Fakarava en Polynésie française) et deux transfrontières : les Vosges du Nord-Pfälzerwald, avec l'Allemagne, et le Mont Viso, avec l'Italie."
+        source: mab-francaises
+    qui_decide:
+      - texte: "Un territoire doit répondre aux critères du cadre statutaire du réseau mondial et de la stratégie de Séville (UNESCO, 1996). La candidature suppose un examen préalable par le MAB France et un engagement formel des autorités locales, par délibération ; le MAB France transmet le dossier à l'UNESCO par la délégation de la France. Il faut compter de 2 à 10 ans."
+        source: mab-etablir
+    apporte:
+      - texte: "Une reconnaissance internationale et l'entrée dans le réseau mondial des réserves de biosphère, qui partage connaissances et expériences ; le dialogue entre les acteurs du territoire y est privilégié, avec l'appui de la recherche, du suivi scientifique, de la formation et de l'éducation."
+        source: mab-rb
+    cout:
+      - texte: "La page du MAB France sur la désignation ne mentionne aucun financement qui y soit attaché. Les candidatures viennent de structures locales — parcs, organismes de gestion, associations —, avec l'engagement des autorités locales."
+        source: mab-etablir
+    sans_evaluation: "Le site n'a pas trouvé d'évaluation publiée des effets des réserves de biosphère en France le 13 novembre 2026. L'UNESCO prévoit une révision périodique de chaque réserve."
+    sources:
+      - { id: mab-rb, titre: "MAB France — « Vous avez dit réserve de biosphère ? »", url: "https://www.mab-france.org/fr/les-reserves-de-biosphere/vous-avez-dit-reserve-de-biosphere/", consulte_le: 2026-11-13 }
+      - { id: mab-francaises, titre: "MAB France — « Les réserves de biosphère françaises »", url: "https://www.mab-france.org/fr/les-reserves-de-biosphere/les-reserves-de-biosphere-francaises/", consulte_le: 2026-11-13 }
+      - { id: mab-etablir, titre: "MAB France — « Établir une réserve de biosphère »", url: "https://www.mab-france.org/fr/les-reserves-de-biosphere/etablir-une-reserve-de-biosphere/", consulte_le: 2026-11-13 }
+      - { id: unesco-rb, titre: "UNESCO — « Qu'est-ce qu'une réserve de biosphère ? »", url: "https://www.unesco.org/fr/mab/wnbr/about", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: patrimoine-mondial
+    cle: mondial
+    nom: "Le patrimoine mondial de l'UNESCO"
+    nature: designation
+    lancement: 1972
+    pilote: "Le ministère de la Culture pour les biens culturels, le ministère de la Transition écologique pour les biens naturels"
+    resume: "Les biens inscrits par l'UNESCO pour leur « valeur universelle exceptionnelle » : un périmètre, une zone tampon et un plan de gestion, que l'État et les collectivités s'engagent à préserver."
+    groupes_nom: biens
+    liste: "la liste du patrimoine mondial de l'UNESCO et les périmètres publiés en France — une commune compte quand elle est dans le bien, dans sa zone tampon, ou quand l'UNESCO y situe un élément ; six biens n'ont pas de commune ici : ceux de Nouvelle-Calédonie, de Polynésie française et des Terres australes, le phare de Cordouan, en mer, et les sites funéraires et mémoriels de la Première Guerre mondiale, que les périmètres publiés ne situent pas"
+    ce_que_cest:
+      - texte: "L'inscription d'un bien sur la liste du patrimoine mondial reconnaît sa « valeur universelle exceptionnelle ». La convention de l'UNESCO pour la protection du patrimoine mondial culturel et naturel date de 1972 ; elle rassemble 195 pays."
+        source: min-pm
+      - texte: "Chaque bien doit satisfaire à au moins un des dix critères de la liste. Les biens sont culturels, naturels ou mixtes. La France compte 52 biens inscrits, dont sept naturels et un mixte, selon le ministère de la Transition écologique."
+        source: min-pm
+    qui_decide:
+      - texte: "Le Comité du patrimoine mondial inscrit les biens et évalue chaque année l'état de conservation de dizaines de sites. En France, la direction générale de l'aménagement, du logement et de la nature met en œuvre la convention pour les biens naturels ; le ministère de la Culture pilote la gestion des biens culturels."
+        source: min-pm
+      - texte: "Le respect des engagements devant la communauté internationale incombe à l'État, mais il est partagé avec les collectivités et les structures gestionnaires selon leurs compétences."
+        source: min-pm
+    apporte:
+      - texte: "La loi consacre trois éléments : le périmètre du bien, sa zone tampon et le plan de gestion qui s'applique sur les deux. Ils sont élaborés conjointement par l'État et les collectivités, et validés par le préfet. Le plan de gestion fixe des objectifs de préservation de long terme, un plan d'action, une gouvernance et des indicateurs de suivi."
+        source: min-pm
+      - texte: "L'inscription s'appuie sur les protections nationales existantes — parcs nationaux, réserves naturelles, sites classés… — et le plan de gestion peut demander de les compléter."
+        source: min-pm
+    cout:
+      - texte: "Le financement des dispositifs de gestion est assuré conjointement par les collectivités, les associations, l'État et ses opérateurs, et par des programmes européens."
+        source: min-pm
+    sans_evaluation: "Le site n'a pas trouvé d'évaluation publiée des effets de l'inscription en France le 13 novembre 2026. Le Comité du patrimoine mondial suit l'état de conservation des biens, bien par bien."
+    sources:
+      - { id: min-pm, titre: "Ministère de la Transition écologique — « Patrimoine mondial »", url: "https://www.ecologie.gouv.fr/politiques-publiques/patrimoine-mondial", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

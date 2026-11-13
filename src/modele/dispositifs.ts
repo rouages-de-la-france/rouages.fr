@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import { parse } from 'yaml';
 import { nommeUnePersonne } from './civilites.ts';
 import { parDepartement } from './fiche-commune.ts';
+import { lienUnesco, patrimoineMondial } from './patrimoine-mondial.ts';
 import { communes, type CommuneIndex } from './territoires.ts';
 
 export interface PhraseSourcee {
@@ -32,7 +33,7 @@ export interface Dispositif {
   /** La clé du dispositif dans les fichiers de zonage (`pvd`, `acv`, `va`…). */
   cle: string;
   nom: string;
-  nature: 'programme' | 'zonage';
+  nature: 'programme' | 'zonage' | 'designation';
   lancement: number;
   pilote: string;
   resume: string;
@@ -65,7 +66,17 @@ export interface Dispositif {
  * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
  * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
  */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv', 'ramsar', 'biosphere', 'mondial']);
+
+/**
+ * Les désignations internationales ne sont pas dans les fichiers de zonage :
+ * Ramsar et la biosphère viennent des périmètres de l'INPN
+ * (`dep/XX-espaces.json`, natures 10 et 11), le patrimoine mondial de la
+ * liste de l'UNESCO (`patrimoine-mondial.json`).
+ */
+const NATURE_INPN: Record<string, number> = { ramsar: 10, biosphere: 11 };
+// L'INPN nomme chaque zone de certaines réserves : « Archipel De Guadeloupe (Zone Tampon) ».
+const sansZone = (nom: string) => nom.replace(/\s*\((zone|aire)[^)]*\)\s*$/i, '');
 
 /**
  * Les dispositifs qui ne sont pas une liste de programmes : où la ligne du
@@ -155,6 +166,8 @@ type ZonagesDep = {
 type LogementsDep = { annees: number[]; arrete: string; c: Record<string, [number[], number, number]> };
 type PopulationDep = { annees: number[]; c: Record<string, [number[], ...unknown[]]> };
 const zonagesDep = parDepartement<ZonagesDep>('zonages');
+type EspacesDep = { maj: string; z: Record<string, [string, string, number, unknown]>; c: Record<string, [number, string, number][]> };
+const espacesDep = parDepartement<EspacesDep>('espaces');
 const logementsDep = parDepartement<LogementsDep>('logements');
 const populationDep = parDepartement<PopulationDep>('population');
 
@@ -184,7 +197,7 @@ export interface ChiffresDispositif {
    */
   deuxMontagnes: { lesDeux: number; urbanismeSeul: number; agricultureSeule: number; agricultureEnPartie: number } | null;
   /** Pour un dispositif signé par territoire — Territoires d'industrie, CRTE — : chaque territoire et son nombre de communes. */
-  groupes: { nom: string; n: number }[];
+  groupes: { nom: string; n: number; lien?: string }[];
   /** Pour les quartiers prioritaires : les quartiers de chaque commune. */
   quartiersDe: Map<string, string[]>;
 }
@@ -216,7 +229,35 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   const groupes = new Map<string, number>();
   const quartiersDe = new Map<string, string[]>();
   let deuxMontagnes: ChiffresDispositif['deuxMontagnes'] = null;
+  const nature = NATURE_INPN[d.cle];
+  const mondial = d.cle === 'mondial' ? patrimoineMondial() : null;
+  const liens = new Map<string, string>();
   for (const c of communes()) {
+    if (nature !== undefined || d.cle === 'mondial') {
+      // Une désignation : la commune en est si un périmètre la touche, même de moins de 1 %.
+      const noms = new Set<string>();
+      if (d.cle === 'mondial') {
+        if (!mondial) break;
+        for (const [id] of mondial.c[c.code] ?? []) {
+          const b = mondial.biens[String(id)];
+          if (!b) continue;
+          noms.add(b.nom);
+          liens.set(b.nom, lienUnesco(id));
+        }
+        dateListe ??= mondial.version ?? mondial.maj;
+      } else {
+        const e = espacesDep.get(c.dep);
+        for (const [n, cle] of e?.c[c.code] ?? []) if (n === nature && e!.z[cle]) noms.add(sansZone(e!.z[cle][0]));
+        if (e) dateListe ??= e.maj;
+      }
+      if (noms.size === 0) continue;
+      for (const nom of noms) groupes.set(nom, (groupes.get(nom) ?? 0) + 1);
+      liste.push(c);
+      const e = parDep.get(c.dep) ?? { depNom: c.depNom, n: 0 };
+      e.n++;
+      parDep.set(c.dep, e);
+      continue;
+    }
     const z = zonagesDep.get(c.dep);
     const x = z?.c[c.code];
     if (!z || !x) continue;
@@ -275,7 +316,7 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
     dateListe,
     logements: logements ? { ...logements, arrete } : null,
     deuxMontagnes,
-    groupes: [...groupes].map(([nom, n]) => ({ nom, n })).sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
+    groupes: [...groupes].map(([nom, n]) => ({ nom, n, lien: liens.get(nom) })).sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
     quartiersDe,
     // Les recensements depuis 2010 : plus loin, la série dit l'histoire longue, pas l'avant / après.
     population_recensements: recensements

@@ -20,6 +20,7 @@
 import type { DemarchePcaet } from '../../modele/pcaet.ts';
 import { cadrerSurCommune, type Anneau, type ZoneNaturelle } from '../../modele/carte.ts';
 import { lienUnesco, type BienMondial, type RattachementMondial } from '../../modele/patrimoine-mondial.ts';
+import { lienDispositif } from '../../modele/dispositifs.ts';
 
 interface Props {
   nom: string;
@@ -82,6 +83,8 @@ const etat = (e: string) => e.replace('Mise en oeuvre', 'mise en œuvre').replac
 const uniques = [...new Map(designations.map((z) => [`${z.rang}|${z.nom}`, z])).values()].filter(
   (z) => z.rang !== 12 || !dejaDits.some((d) => plier(z.nom).includes(d) || d.includes(plier(z.nom).slice(0, 18))),
 );
+// La page de chaque désignation, sous /dispositif/ : ce qu'elle est, qui décide, ses communes.
+const PAGE_RANG: Record<number, string | null> = { 10: lienDispositif('ramsar'), 11: lienDispositif('biosphere'), 12: lienDispositif('mondial') };
 const LIEN_NOEUD: Record<number, { id: string; texte: string }> = {
   10: { id: 'convention-ramsar', texte: 'la convention de Ramsar' },
   11: { id: 'unesco', texte: 'l’UNESCO' },
@@ -150,7 +153,7 @@ const LIEN_NOEUD: Record<number, { id: string; texte: string }> = {
   )}
   {biens.map((b) => ({ ...b, elements: b.elements.filter((e) => plier(e) !== plier(nom)) })).map((b) => (
     <li>
-      <strong>Patrimoine mondial.</strong>
+      <strong>{PAGE_RANG[12] ? <a href={PAGE_RANG[12]}>Patrimoine mondial</a> : 'Patrimoine mondial'}.</strong>
       {b.mode === 'perimetre'
         ? ` ${nom} est dans le périmètre de `
         : b.mode === 'tampon'
@@ -169,7 +172,7 @@ const LIEN_NOEUD: Record<number, { id: string; texte: string }> = {
   ))}
   {uniques.map((z) => (
     <li>
-      <strong>{z.nature}.</strong>
+      <strong>{PAGE_RANG[z.rang] ? <a href={PAGE_RANG[z.rang]!}>{z.nature}</a> : z.nature}.</strong>
       {` ${nom} est concernée par « ${z.nom} »`}{LIEN_NOEUD[z.rang] ? <>{', au titre de '}<a href={`/n/${LIEN_NOEUD[z.rang].id}`}>{LIEN_NOEUD[z.rang].texte}</a>{'.'}</> : '.'}
     </li>
   ))}
