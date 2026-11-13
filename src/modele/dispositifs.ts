@@ -54,6 +54,10 @@ export interface Dispositif {
   classes_nom?: string;
   /** D'où vient la liste des communes, dit sur la page : « la liste des communes de … ». */
   liste?: string;
+  /** Pour un dispositif signé par territoire : comment se nomment ces territoires (« contrats »…). */
+  groupes_nom?: string;
+  /** false quand les séries avant / après n'auraient pas de sens — un contrat qui couvre tout le pays. */
+  series?: boolean;
 }
 
 /**
@@ -61,7 +65,24 @@ export interface Dispositif {
  * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
  * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
  */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv']);
+
+/**
+ * Les dispositifs qui ne sont pas une liste de programmes : où la ligne du
+ * fichier de zonage dit qu'une commune en est. Territoire d'industrie et CRTE
+ * portent le nom du territoire ou du contrat ; les quartiers prioritaires,
+ * la liste des quartiers de la commune.
+ */
+const PAR_CHAMP: Record<string, (x: unknown[]) => boolean> = {
+  ti: (x) => Boolean(x[1]),
+  crte: (x) => Boolean(x[2]),
+  qpv: (x) => Array.isArray(x[5]) && x[5].length > 0,
+};
+/** Le nom du groupe — territoire, contrat — auquel la commune appartient. */
+const GROUPE: Record<string, (x: unknown[]) => string> = {
+  ti: (x) => String(x[1] ?? ''),
+  crte: (x) => String(x[2] ?? ''),
+};
 
 /**
  * Pour un zonage par classes, la classe d'une commune telle que la ligne du
@@ -71,10 +92,11 @@ const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', '
 function classeDans(cle: string, x: unknown[]): string | null {
   if (cle === 'abc') return x[4] ? String(x[4]) : null;
   if (cle === 'frr') return x[8] === undefined ? null : String(x[8]);
+  if (cle === 'tlv') return x[6] === undefined ? null : String(x[6]);
   return null;
 }
 /** Le fichier de zonage porte-t-il la classe ? Une date manquante dit que la collecte ne l'a pas encore lue. */
-const DATE_DE_LA_CLASSE: Record<string, string> = { frr: 'frr' };
+const DATE_DE_LA_CLASSE: Record<string, string> = { frr: 'frr', tlv: 'tlv' };
 
 let cache: Dispositif[] | undefined;
 
@@ -117,7 +139,7 @@ export function controlerDispositifs(liste = dispositifs()): string[] {
     for (const p of phrases) if (!sources.has(p.source)) erreurs.push(`${ou} : source « ${p.source} » citée, non déclarée`);
     for (const e of d.evaluations ?? []) if (!sources.has(e.source)) erreurs.push(`${ou} : évaluation de source « ${e.source} » non déclarée`);
     if (!(d.evaluations?.length) && !d.sans_evaluation) erreurs.push(`${ou} : ni évaluation, ni phrase qui dit qu'il n'y en a pas`);
-    if ((d.cle === 'abc' || d.cle === 'frr') && !d.classes?.length) erreurs.push(`${ou} : un zonage par classes déclare ses classes`);
+    if ((d.cle === 'abc' || d.cle === 'frr' || d.cle === 'tlv') && !d.classes?.length) erreurs.push(`${ou} : un zonage par classes déclare ses classes`);
     for (const t of [d.resume, ...phrases.map((p) => p.texte), ...(d.evaluations ?? []).map((e) => e.conclusion)]) {
       if (nommeUnePersonne(t)) erreurs.push(`${ou} : un texte semble nommer une personne physique : « ${t.slice(0, 60)}… »`);
     }
@@ -161,6 +183,10 @@ export interface ChiffresDispositif {
    * n'a pas lu la délimitation de l'urbanisme.
    */
   deuxMontagnes: { lesDeux: number; urbanismeSeul: number; agricultureSeule: number; agricultureEnPartie: number } | null;
+  /** Pour un dispositif signé par territoire — Territoires d'industrie, CRTE — : chaque territoire et son nombre de communes. */
+  groupes: { nom: string; n: number }[];
+  /** Pour les quartiers prioritaires : les quartiers de chaque commune. */
+  quartiersDe: Map<string, string[]>;
 }
 
 const mediane = (v: number[]): number | null => {
@@ -187,6 +213,8 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
   let arrete = '';
   const classeDe = new Map<string, string>();
   const montagne = d.cle === 'montagne';
+  const groupes = new Map<string, number>();
+  const quartiersDe = new Map<string, string[]>();
   let deuxMontagnes: ChiffresDispositif['deuxMontagnes'] = null;
   for (const c of communes()) {
     const z = zonagesDep.get(c.dep);
@@ -203,6 +231,11 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
       if (a === 2) deuxMontagnes.agricultureEnPartie++;
       if (!u) continue;
       dateListe ??= z.dates.montagneUrbanisme;
+    } else if (PAR_CHAMP[d.cle]) {
+      if (!PAR_CHAMP[d.cle](x)) continue;
+      const g = GROUPE[d.cle]?.(x);
+      if (g) groupes.set(g, (groupes.get(g) ?? 0) + 1);
+      if (d.cle === 'qpv') quartiersDe.set(c.code, x[5] as string[]);
     } else if (d.classes) {
       const date = DATE_DE_LA_CLASSE[d.cle];
       if (date && !z.dates?.[date]) continue;
@@ -242,6 +275,8 @@ export function chiffresDispositif(d: Dispositif): ChiffresDispositif {
     dateListe,
     logements: logements ? { ...logements, arrete } : null,
     deuxMontagnes,
+    groupes: [...groupes].map(([nom, n]) => ({ nom, n })).sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
+    quartiersDe,
     // Les recensements depuis 2010 : plus loin, la série dit l'histoire longue, pas l'avant / après.
     population_recensements: recensements
       ? (() => {

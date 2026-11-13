@@ -27,6 +27,11 @@ const NOMS: Record<string, string> = {
 const programmes = z.programmes.map((p) => NOMS[p]).filter(Boolean);
 const montagne = lienDispositif('montagne');
 const frr = lienDispositif('frr');
+const lien = (cle: string, texte: string) => ({ href: lienDispositif(cle), texte });
+const ti = lien('ti', 'Territoire d’industrie');
+const crte = lien('crte', 'contrat pour la réussite de la transition écologique');
+const qpv = lien('qpv', 'de la politique de la ville');
+const tlv = lien('tlv', z.tendue === 'touristique et tendue' ? 'zone touristique et tendue' : 'zone tendue');
 const FRR: Record<string, string> = {
   plus: ' « plus », le niveau renforcé, réservé au quart des communes classées, rurales, dont l’intercommunalité ou le bassin de vie a connu de 2009 à 2020 l’évolution la plus défavorable du revenu, de la population et de l’emploi : les exonérations d’impôts des entreprises qui s’y créent ou s’y reprennent y valent pour plus d’entreprises et d’opérations qu’au niveau « socle ».',
   socle: ' « socle » : une entreprise qui s’y crée ou s’y reprend d’ici le 31 décembre 2029 peut être exonérée d’impôt sur les bénéfices, et de cotisation foncière et de taxe foncière si la commune et l’intercommunalité l’ont délibéré ; les fractions « bourg-centre » et « péréquation » de la dotation de solidarité rurale de la commune sont majorées.',
@@ -52,8 +57,8 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   ) : (
     <li><Glose texte="La commune ne figure dans aucun des programmes de commune de l’ANCT : ni Petites villes de demain, ni Action cœur de ville, ni Villages d’avenir." /></li>
   )}
-  {z.territoireIndustrie && <li>{`Elle est dans le Territoire d’industrie « ${z.territoireIndustrie} ».`}</li>}
-  {z.crte && <li><Glose texte={`Elle est couverte par le contrat pour la réussite de la transition écologique « ${z.crte} ».`} /></li>}
+  {z.territoireIndustrie && <li>{'Elle est dans le '}{ti.href ? <a href={ti.href}>{ti.texte}</a> : ti.texte}{` « ${z.territoireIndustrie} ».`}</li>}
+  {z.crte && <li>{'Elle est couverte par le '}{crte.href ? <a href={crte.href}>{crte.texte}</a> : crte.texte}{` « ${z.crte} ».`}</li>}
   {z.abc && (
     <li>
       {lienDispositif('abc') ? <a href={lienDispositif('abc')!}>Zonage ABC</a> : 'Zonage ABC'}
@@ -68,14 +73,18 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   )}
   {z.tendue && (
     <li>
+      {z.tendue === 'non' ? 'Elle n’est pas en ' : 'Elle est classée en '}
+      {tlv.href ? <a href={tlv.href}>{tlv.texte}</a> : tlv.texte}
       {z.tendue === 'non'
-        ? 'Elle n’est pas en zone tendue : la taxe sur les logements vacants de l’État ne s’y applique pas ; la commune peut en revanche instituer, par délibération, une taxe d’habitation sur les logements vacants.'
-        : `Elle est classée « ${z.tendue === 'tendue' ? 'zone tendue' : 'zone touristique et tendue'} » : un logement vide depuis plus d’un an y est soumis à la taxe sur les logements vacants, et la commune peut majorer de 5 à 60 % la taxe d’habitation sur les résidences secondaires.`}
+        ? ' : la taxe sur les logements vacants de l’État ne s’y applique pas ; la commune peut en revanche instituer, par délibération, une taxe d’habitation sur les logements vacants.'
+        : ' : un logement vide depuis plus d’un an y est soumis à la taxe sur les logements vacants, et la commune peut majorer de 5 à 60 % la taxe d’habitation sur les résidences secondaires.'}
     </li>
   )}
   {z.quartiersPrioritaires.length > 0 && (
     <li>
-      {`${z.quartiersPrioritaires.length === 1 ? 'Un quartier prioritaire' : `${z.quartiersPrioritaires.length} quartiers prioritaires`} de la politique de la ville : ${z.quartiersPrioritaires.join(', ')}.`}
+      {z.quartiersPrioritaires.length === 1 ? 'Un quartier prioritaire ' : `${z.quartiersPrioritaires.length} quartiers prioritaires `}
+      {qpv.href ? <a href={qpv.href}>{qpv.texte}</a> : qpv.texte}
+      {` : ${z.quartiersPrioritaires.join(', ')}.`}
     </li>
   )}
   {z.frr && (
@@ -107,7 +116,7 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
     'Un Territoire d’industrie et un contrat pour la réussite de la transition écologique se signent à l’échelle d’un groupement de communes, le plus souvent l’intercommunalité. ' +
     'Le zonage ABC classe les communes en cinq zones, de A bis à C, par tension décroissante du marché du logement ; A bis, A et B1 sont dites en déséquilibre important. ' +
     'Les quartiers prioritaires sont la géographie de la politique de la ville : ses crédits et ses dispositifs leur sont destinés. ' +
-    'Les zones tendues sont fixées par décret, en dernier lieu celui du 22 décembre 2025 : depuis 2023, des communes touristiques où les résidences secondaires rendent le logement difficile d’accès s’ajoutent à celles des grandes agglomérations. La majoration de la taxe d’habitation se vote par délibération : la liste dit qu’elle est possible, pas qu’elle a été votée. ' +
+    'Les zones tendues sont fixées par décret, en dernier lieu celui du 22 décembre 2025 : depuis 2023, des communes touristiques où les résidences secondaires rendent le logement difficile d’accès s’ajoutent à celles des grandes agglomérations. La majoration de la taxe d’habitation se vote par délibération : la liste dit qu’elle est possible, pas qu’elle a été votée. Au 1er janvier 2027, la taxe sur les logements vacants et la taxe d’habitation sur les logements vacants seront fusionnées en une taxe sur la vacance des locaux d’habitation, perçue par le bloc communal : de plein droit en zone tendue, sur délibération ailleurs. ' +
     'La montagne a plusieurs délimitations officielles, qui ne coïncident pas : celle de l’urbanisme dit où s’appliquent les règles de construction de la loi Montagne ; celle des zones agricoles défavorisées dit quelles terres relèvent de la montagne pour les indemnités compensatoires de handicaps naturels versées aux agriculteurs. La liste agricole publiée date de 2017, reportée ici sur les communes actuelles.'} />
 </p>
 <p class="p-source-territoire">

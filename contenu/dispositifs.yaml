@@ -264,3 +264,146 @@ dispositifs:
       - { id: an-qe-2635, titre: "Assemblée nationale — question écrite n° 2635, « France ruralités revitalisation en Saône-et-Loire », réponse publiée le 8 juillet 2025", url: "https://www.assemblee-nationale.fr/dyn/17/questions/QANR5L17QE2635", consulte_le: 2026-11-13 }
       - { id: an-zrr-2014, titre: "Assemblée nationale — rapport d'information n° 2251 sur les zones de revitalisation rurale, 8 octobre 2014", url: "https://www.assemblee-nationale.fr/14/pdf/rap-info/i2251.pdf", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: quartiers-prioritaires
+    cle: qpv
+    nom: "Les quartiers prioritaires de la politique de la ville"
+    nature: zonage
+    lancement: 2015
+    pilote: "L'Agence nationale de la cohésion des territoires, pour le ministère chargé de la ville"
+    resume: "Les quartiers urbains aux revenus les plus bas, par rapport au pays et à leur agglomération : la géographie de la politique de la ville, dont les crédits et les dispositifs leur sont réservés. La liste a été refaite en 2024."
+    liste: "la liste des quartiers prioritaires de 2024 de l'Agence nationale de la cohésion des territoires, rapportée aux communes"
+    ce_que_cest:
+      - texte: "Prévue par l'article 5 de la loi de programmation pour la ville et la cohésion urbaine du 21 février 2014, la géographie prioritaire a remplacé au 1er janvier 2015 les zones urbaines sensibles et les quartiers en contrat urbain de cohésion sociale. Une nouvelle génération est entrée en vigueur le 1er janvier 2024 dans l'Hexagone, par le décret n° 2023-1314 du 28 décembre 2023, et le 1er janvier 2025 en outre-mer."
+        source: dg-qpv
+      - texte: "1 609 quartiers prioritaires sont répertoriés dans l'Hexagone et l'outre-mer, où vivent 6 millions de personnes. Le taux de pauvreté y est de 44,3 %, contre 14,9 % dans l'ensemble du pays."
+        source: anct-pv
+    qui_decide:
+      - texte: "Les critères sont fixés en application de la loi de 2014 : le nombre d'habitants, au moins 1 000, dans une unité urbaine de plus de 10 000 habitants, et un revenu médian par unité de consommation inférieur à la fois à celui du pays et à celui de l'unité urbaine. Pour la liste de 2024, l'INSEE et l'ANCT les ont appliqués aux données de 2019."
+        source: an-qe-11864
+      - texte: "Les contours ont été ajustés après les consultations des élus locaux par les préfets de département, puis la liste a été fixée par décret."
+        source: an-qe-11864
+    apporte:
+      - texte: "Un contrat de ville, à l'échelle de l'intercommunalité ou de la commune, qui définit les besoins prioritaires des quartiers et la manière dont les politiques publiques y répondent."
+        source: anct-pv
+      - texte: "Les crédits de la politique de la ville (programme 147 du budget de l'État) pour des actions de proximité, et des programmes territorialisés comme les cités éducatives ou Entrepreneuriat Quartiers 2030."
+        source: anct-pv
+      - texte: "Le nouveau programme national de renouvellement urbain (2016-2034) prévoit de mobiliser 9 milliards d'euros de fonds publics, dont 1 milliard de crédits d'État."
+        source: cc-qpv-2020
+    cout:
+      - texte: "Selon la Cour des comptes en 2020, l'État consacre environ 10 milliards d'euros par an à la politique de la ville, auxquels s'ajoutent la rénovation urbaine et les dépenses des collectivités, difficiles à mesurer."
+        source: cc-qpv-2020
+      - texte: "Le premier programme national de rénovation urbaine a mobilisé 12 milliards d'euros de fonds publics de 2003 à 2012, pour un investissement total de 46,1 milliards."
+        source: cc-qpv-2020
+    evaluations:
+      - source: cc-qpv-2020
+        conclusion: "La politique de la ville, qui suscite de très fortes attentes et mobilise des dépenses importantes, ne peut pas être évaluée dans sa globalité. […] En dix ans, l'attractivité résidentielle des quartiers prioritaires appréhendée de façon globale n'a pas réellement progressé. […] Dans les quartiers qui ont bénéficié du programme national de rénovation urbaine (PNRU), le cadre et les conditions de vie de leurs habitants se sont améliorés, parfois très sensiblement […], sans toutefois que l'image extérieure des quartiers ne se transforme."
+    sources:
+      - { id: dg-qpv, titre: "data.gouv.fr — « Quartiers prioritaires de la politique de la ville (QPV) », présentation du jeu de l'ANCT", url: "https://www.data.gouv.fr/datasets/5a561801c751df42d7fca9b6/", consulte_le: 2026-11-13 }
+      - { id: anct-pv, titre: "Agence nationale de la cohésion des territoires — « Politique de la ville »", url: "https://anct.gouv.fr/programmes-dispositifs/politique-de-la-ville", consulte_le: 2026-11-13 }
+      - { id: an-qe-11864, titre: "Assemblée nationale — question écrite n° 11864, « Moyens pour la politique de la ville à Paris », réponse du Gouvernement", url: "https://www.assemblee-nationale.fr/dyn/16/questions/QANR5L16QE11864", consulte_le: 2026-11-13 }
+      - { id: cc-qpv-2020, titre: "Cour des comptes — « L'évaluation de l'attractivité des quartiers prioritaires », rapport public thématique, décembre 2020, synthèse", url: "https://www.ccomptes.fr/sites/default/files/2023-10/20201202-rapport-quartiers-prioritaires.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: zone-tendue
+    cle: tlv
+    nom: "Les zones tendues"
+    nature: zonage
+    lancement: 2013
+    pilote: "Le ministère chargé du logement"
+    resume: "Les communes où l'offre de logements ne suit pas la demande, au sens de la taxe sur les logements vacants : une vingtaine de règles en dépendent, de la taxation des logements vides à l'encadrement des loyers."
+    classes_nom: catégorie
+    liste: "la liste des communes selon le zonage de la taxe sur les logements vacants du ministère chargé du logement"
+    classes:
+      - { cle: "1", libelle: "Zone tendue" }
+      - { cle: "2", libelle: "Zone touristique et tendue" }
+    ce_que_cest:
+      - texte: "Défini à l'article 232 du code général des impôts, le zonage a été créé en 2013 puis refondu le 25 août 2023 pour répondre à la disparition des résidences permanentes dans les zones touristiques. Il classe les communes en deux catégories : tendues et non tendues."
+        source: dg-tlv
+      - texte: "Sont tendues les communes d'une unité urbaine de plus de 50 000 habitants où existe un déséquilibre marqué entre l'offre et la demande de logements ; et, depuis 2023, des communes hors de ces agglomérations où ce déséquilibre se traduit notamment par un taux élevé de résidences secondaires et des prix et des loyers élevés : les « communes tendues et touristiques »."
+        source: dg-tlv
+    qui_decide:
+      - texte: "La liste est fixée par décret : le décret n° 2013-392 du 10 mai 2013, modifié, en dernier lieu par le décret n° 2025-1267 de décembre 2025, qui a tenu compte des fusions de communes."
+        source: dgcl-thlv
+    apporte:
+      - texte: "Le zonage sert à plus d'une vingtaine de dispositions, parmi lesquelles la taxe sur les logements vacants, la taxe d'habitation sur les logements vacants, la majoration de la taxe d'habitation sur les résidences secondaires, l'encadrement des loyers, le plafonnement des honoraires des agents immobiliers à la charge des locataires, le changement d'usage des logements, l'obligation de logements sociaux de la loi SRU et le droit de réquisition."
+        source: dg-tlv
+      - texte: "En zone tendue, la taxe sur les logements vacants, perçue par l'État, s'applique de plein droit après un an de vacance, au taux de 17 % la première année et de 34 % ensuite. Ailleurs, la commune peut instituer par délibération une taxe d'habitation sur les logements vacants après deux ans de vacance. En zone tendue, elle peut majorer de 5 à 60 % la taxe d'habitation sur les résidences secondaires."
+        source: dgcl-thlv
+      - texte: "Au 1er janvier 2027, les deux taxes sont fusionnées en une taxe sur la vacance des locaux d'habitation perçue par le bloc communal (article 108 de la loi de finances pour 2026) : de plein droit en zone tendue, où la commune pourra relever les taux jusqu'à 30 % puis 60 % ; sur délibération ailleurs, au taux de 50 % au plus."
+        source: dgcl-thlv
+    cout:
+      - texte: "Le zonage n'a pas de budget : il désigne où s'appliquent des taxes et des règles. La taxe sur les logements vacants est une recette, de l'État jusqu'en 2026, du bloc communal à partir de 2027."
+        source: dgcl-thlv
+    sans_evaluation: "Une évaluation de la politique de mobilisation des logements vacants a été publiée en 2016 ; le site n'a pas pu la lire depuis son environnement, et ne la cite donc pas. Aucune autre évaluation du zonage lui-même n'a été trouvée le 13 novembre 2026."
+    sources:
+      - { id: dg-tlv, titre: "Ministère chargé du logement — « Liste des communes selon le zonage TLV », présentation du jeu sur data.gouv.fr", url: "https://www.data.gouv.fr/datasets/657c88da2947e13be0597058/", consulte_le: 2026-11-13 }
+      - { id: dgcl-thlv, titre: "Direction générale des collectivités locales — « Taxe d'habitation sur les logements vacants »", url: "https://www.collectivites-locales.gouv.fr/taxe-dhabitation-sur-les-logements-vacants", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: territoires-d-industrie
+    cle: ti
+    nom: "Territoires d'industrie"
+    nature: programme
+    lancement: 2018
+    pilote: "L'Agence nationale de la cohésion des territoires et la direction générale des entreprises"
+    resume: "Un programme de soutien à l'industrie hors des métropoles : des intercommunalités labellisées, un binôme élu-industriel, un plan d'action, de l'ingénierie et des aides à l'investissement. 183 territoires pour 2023-2027."
+    groupes_nom: territoires
+    ce_que_cest:
+      - texte: "Lancé en 2018 et renouvelé en 2023, le programme veut déployer une stratégie de reconquête industrielle « par et pour les territoires ». En novembre 2023, 183 territoires ont été labellisés, qui rassemblent 630 intercommunalités dans les 18 régions."
+        source: anct-ti
+      - texte: "Chaque territoire élabore un plan d'action évolutif, coconstruit par un binôme local élu-industriel, autour de quatre axes : innovation ; compétences et attractivité ; foncier ; transition écologique et énergétique."
+        source: anct-ti
+    qui_decide:
+      - texte: "Le programme repose sur une collaboration entre les intercommunalités, la région et l'État, en partenariat avec France Industrie, Intercommunalités de France et Régions de France."
+        source: anct-ti
+      - texte: "Les aides à l'investissement du Fonds vert sont gérées par les préfectures de région, avec l'appui de l'Ademe et en concertation avec les conseils régionaux."
+        source: dge-ti-2023
+    apporte:
+      - texte: "Le cofinancement de postes de chefs de projet, de l'ingénierie (des bureaux d'études pour concevoir des projets complexes) et des aides du Fonds vert aux investissements verts des entreprises."
+        source: anct-ti
+    cout:
+      - texte: "Le Fonds vert a consacré 70 millions d'euros en 2024 aux projets d'investissement des entreprises des territoires ; plus de 4 millions d'euros d'ingénierie ont été mobilisés."
+        source: anct-ti
+      - texte: "Sur la première phase, de 2019 à 2023, les dispositifs des quatre principaux opérateurs de l'État pour les projets industriels de ces territoires représentent 1,7 milliard d'euros engagés et 794 millions effectivement versés. La Cour relève que les opérateurs n'ont pas intégré la géographie du programme dans leur activité."
+        source: cc-ti-2024
+    evaluations:
+      - source: cc-ti-2024
+        conclusion: "Le sondage réalisé par la Cour auprès des référents élus et industriels des Territoires d'industrie met en lumière l'effet positif du programme sur la coopération locale et les dynamiques de collaboration. […] Il ressort de l'évaluation réalisée par la Cour que la priorisation des Territoires d'industrie que le Gouvernement annonçait en 2018 n'a pas eu lieu, ni dans le nombre et le montant des interventions, ni dans les délais d'instruction des dossiers."
+    sources:
+      - { id: anct-ti, titre: "Agence nationale de la cohésion des territoires — « Territoires d'industrie »", url: "https://anct.gouv.fr/programmes-dispositifs/territoires-d-industrie", consulte_le: 2026-11-13 }
+      - { id: dge-ti-2023, titre: "Direction générale des entreprises — « Territoires d'industrie : lancement du temps II 2023-2027 », 10 novembre 2023", url: "https://www.entreprises.gouv.fr/la-dge/actualites/territoires-dindustrie-lancement-du-temps-ii-2023-2027", consulte_le: 2026-11-13 }
+      - { id: cc-ti-2024, titre: "Cour des comptes — « Le programme Territoires d'industrie 2018-2023 », évaluation de politique publique, novembre 2024, synthèse", url: "https://ccomptes.fr/sites/default/files/2024-11/20241121-synthese-Programme-Territoires-d-industrie.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13
+
+  - id: contrats-pour-la-reussite-de-la-transition-ecologique
+    cle: crte
+    nom: "Les contrats pour la réussite de la transition écologique"
+    nature: programme
+    lancement: 2020
+    pilote: "L'Agence nationale de la cohésion des territoires, avec le Commissariat général au développement durable"
+    resume: "Un contrat entre l'État et les collectivités d'un bassin de vie, signé partout en France : la feuille de route commune des projets du territoire, et le cadre où l'État doit décliner la planification écologique."
+    groupes_nom: contrats
+    series: false
+    ce_que_cest:
+      - texte: "Créés en 2020 sous le nom de contrats de relance et de transition écologique, rebaptisés en 2023, les CRTE sont le cadre de référence du dialogue entre l'État et les collectivités à l'échelle des bassins de vie, sur la durée des mandats municipaux."
+        source: min-crte
+      - texte: "À leur lancement, 853 périmètres ont été définis par les préfets en concertation avec les élus, à 80 % à l'échelle d'une intercommunalité et à 20 % à l'échelle de plusieurs. 849 contrats sont signés : ce sont les premiers à couvrir tout le territoire à une échelle proche des bassins de vie."
+        source: anct-crte
+    qui_decide:
+      - texte: "Les périmètres ont été définis par les préfets en concertation avec les élus locaux. Le contrat réunit l'État, les intercommunalités et les communes, et cherche à y associer les régions et les départements. Une instruction du 30 avril 2024 a relancé les contrats pour y décliner la planification écologique."
+        source: anct-crte
+    apporte:
+      - texte: "Le contrat recense les projets du territoire et oriente ceux qui ont besoin d'un appui financier ou d'ingénierie vers l'aide la plus adaptée ; il permet, si besoin, de les prioriser dans le dialogue avec les services de l'État. Plus de 55 000 projets portés par les collectivités y sont engagés ou prévus."
+        source: anct-crte
+    cout:
+      - texte: "Le contrat n'a pas de budget propre : il oriente vers les crédits existants de l'État et de ses opérateurs. En 2023, seul un tiers des projets financés par le Fonds vert était inscrit dans un CRTE, selon l'analyse de la Cour des comptes."
+        source: cc-te-2025
+    evaluations:
+      - source: cc-te-2025
+        conclusion: "Le bilan d'étape du déploiement des CRTE publié fin 2022 concluait à un manque de clarté dans leur animation […], à un financement des mesures du plan de relance principalement hors du cadre des CRTE et à la faiblesse des ambitions environnementales. […] À ce jour, 849 CRTE ont été signés, selon des formats très hétérogènes tant sur le fond que sur la forme. […] Aucun bilan des CRTE nouvelle génération et de leurs modalités de gouvernance ne peut donc être tiré à ce jour."
+    sources:
+      - { id: min-crte, titre: "Ministère de la Transition écologique — « Les contrats pour la réussite de la transition écologique (CRTE) », mis à jour le 13 mai 2025", url: "https://www.ecologie.gouv.fr/politiques-publiques/contrats-reussite-transition-ecologique-crte", consulte_le: 2026-11-13 }
+      - { id: anct-crte, titre: "Agence nationale de la cohésion des territoires — « Contrats pour la réussite de la transition écologique »", url: "https://anct.gouv.fr/programmes-dispositifs/contrats-pour-la-reussite-de-la-transition-ecologique", consulte_le: 2026-11-13 }
+      - { id: cc-te-2025, titre: "Cour des comptes — « La transition écologique », rapport public thématique, septembre 2025", url: "https://www.ccomptes.fr/sites/default/files/2025-10/20250916-Transition-ecologique.pdf", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

@@ -3829,6 +3829,26 @@ Recoupé par un calcul indépendant sur le fichier de la DGCL : 4 456 FRR
 2 134 « bénéficiaires », 20 classées en partie, 11 bénéficiaires en partie,
 à l'unité dans les fichiers écrits. Le Mayet-de-Montagne est « bénéficiaire ».
 
+**Les quatre derniers zonages de commune** ont leur page, sans collecte
+nouvelle — les fichiers de zonage les portaient déjà : les quartiers
+prioritaires (chaque commune avec ses quartiers), les zones tendues (par
+catégorie, et la fusion des deux taxes sur les logements vacants au
+1er janvier 2027, que la page de commune annonce aussi), Territoires
+d'industrie et les contrats pour la réussite de la transition écologique
+(la liste des territoires et des contrats, avec leur nombre de communes ; pas
+de séries avant / après pour les CRTE, qui couvrent tout le pays).
+Évaluations citées : la Cour des comptes sur l'attractivité des quartiers
+prioritaires (2020), sur Territoires d'industrie (2024) et sur la transition
+écologique (2025, pour les CRTE). Pour les zones tendues, l'évaluation de
+2016 sur les logements vacants est hébergée sur vie-publique.fr, qui refuse
+cet environnement : la page le dit au lieu de la citer de seconde main.
+
+Recoupé par un calcul indépendant sur les fichiers de zonage : 183
+Territoires d'industrie (18 730 communes), 846 contrats nommés (849 signés
+selon l'ANCT) couvrant 34 716 communes, 824 communes à quartier prioritaire,
+1 430 communes en zone tendue et 2 259 en zone touristique et tendue — les
+mêmes nombres que les pages.
+
 ## Phase 3 — Élargir
 
 - **Rouages économiques** : métiers, filières, chaînes de valeur. Même modèle,

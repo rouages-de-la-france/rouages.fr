@@ -5,7 +5,6 @@
  * chaque commune ; voir `scripts/zonages-emettre.ts`.
  */
 import type { ZonagesGroupe } from '../modele/fiche-vie.ts';
-import Glose from './Glose.astro';
 import { lienDispositif } from '../modele/dispositifs.ts';
 
 interface Props {
@@ -27,6 +26,9 @@ const nommerTi = nommer || z.territoiresIndustrie.length < 7;
 const nommerCrte = nommer || z.crte.length < 7;
 const montagne = lienDispositif('montagne');
 const lienFrr = lienDispositif('frr');
+const lienTi = lienDispositif('ti');
+const lienCrte = lienDispositif('crte');
+const lienQpv = lienDispositif('qpv');
 const NIVEAUX_FRR: [string, string][] = [
   ['plus', 'en FRR « plus »'],
   ['socle', 'en FRR « socle »'],
@@ -49,13 +51,15 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   })}
   {z.territoiresIndustrie.length > 0 && (
     <li>
-      {`Territoire${z.territoiresIndustrie.length > 1 ? 's' : ''} d’industrie : ` +
+      {lienTi ? <a href={lienTi}>{`Territoire${z.territoiresIndustrie.length > 1 ? 's' : ''} d’industrie`}</a> : `Territoire${z.territoiresIndustrie.length > 1 ? 's' : ''} d’industrie`}
+      {' : ' +
         (nommerTi ? `${z.territoiresIndustrie.map((t) => `« ${t} »`).join(', ')}.` : `${nf(z.territoiresIndustrie.length)}.`)}
     </li>
   )}
   {z.crte.length > 0 && (
     <li>
-      <Glose texte={`Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique : ${nommerCrte ? z.crte.map((t) => `« ${t} »`).join(', ') : nf(z.crte.length)}.`} />
+      {lienCrte ? <a href={lienCrte}>{`Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique`}</a> : `Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique`}
+      {` : ${nommerCrte ? z.crte.map((t) => `« ${t} »`).join(', ') : nf(z.crte.length)}.`}
     </li>
   )}
   {z.frr && (
@@ -85,8 +89,9 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   )}
   {z.quartiers.length > 0 && (
     <li>
-      {`${z.quartiers.length === 1 ? 'Un quartier prioritaire' : `${nf(z.quartiers.length)} quartiers prioritaires`} de la politique de la ville` +
-        (nommer ? ` : ${z.quartiers.map((q) => `${q.nom} (${q.commune})`).join(', ')}.` : '.')}
+      {z.quartiers.length === 1 ? 'Un quartier prioritaire ' : `${nf(z.quartiers.length)} quartiers prioritaires `}
+      {lienQpv ? <a href={lienQpv}>de la politique de la ville</a> : 'de la politique de la ville'}
+      {nommer ? ` : ${z.quartiers.map((q) => `${q.nom} (${q.commune})`).join(', ')}.` : '.'}
     </li>
   )}
 </ul>
