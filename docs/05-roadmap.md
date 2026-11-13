@@ -3776,8 +3776,23 @@ demain (le Sénat en compte 1 646 en 2025), 244 pour Action cœur de ville,
 n'ont pas la même date. Les sources se contredisent sur le coût de Petites
 villes de demain : 4 milliards d'euros engagés selon l'ANCT, une enveloppe
 de 3 milliards annoncée qui n'était pas de l'argent nouveau selon le Sénat ;
-la page donne les deux. Reste au premier lot : la zone de montagne et le
-zonage ABC.
+la page donne les deux.
+
+**Le zonage ABC** a sa page : la définition de l'article D. 304-1 du code de
+la construction et de l'habitation, ses révisions jusqu'à l'arrêté du
+23 juin 2026, les aides dont il fixe le périmètre et les barèmes, d'après la
+page du ministère chargé du logement. Les communes y sont données zone par
+zone — liste pour les zones de moins de 1 000 communes, décompte par
+département au-delà —, sans séries avant / après, qui n'ont de sens que
+pour un programme lancé à une date. Recoupé avec la liste du ministère du
+26 juin 2026 : 134, 870, 2 383, 3 162 et 28 326 communes, à l'unité.
+
+**La zone de montagne attend une décision** : la liste que le site affiche
+est celle des zones agricoles défavorisées de montagne (ministère de
+l'Agriculture), et l'Observatoire des territoires publie celle de la zone
+de montagne au sens du code de l'urbanisme. Elles diffèrent pour 766
+communes (412 en montagne pour l'une et pas pour l'autre, 82 en sens
+inverse, 272 communes nouvelles « en partie »).
 
 ## Phase 3 — Élargir
 

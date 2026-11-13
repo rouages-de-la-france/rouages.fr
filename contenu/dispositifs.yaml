@@ -120,3 +120,39 @@ dispositifs:
       - { id: anct-va, titre: "ANCT — Villages d'avenir, présentation du programme", url: "https://anct.gouv.fr/programmes-dispositifs/villages-d-avenir", consulte_le: 2026-11-13 }
       - { id: gouv-va-2026, titre: "Ministères de l'Aménagement du territoire — « Le programme Villages d'avenir pérennisé », 21 juillet 2026", url: "https://www.ecologie.gouv.fr/actualites/programme-villages-davenir-perennise", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
+
+  - id: zonage-abc
+    cle: abc
+    nom: "Le zonage ABC"
+    nature: zonage
+    lancement: 2003
+    pilote: "Le ministère chargé du logement"
+    resume: "Un classement de toutes les communes selon la tension de leur marché du logement — A bis, A, B1, B2, C —, qui décide où s'appliquent certaines aides au logement et avec quels plafonds."
+    classes:
+      - { cle: "A BIS", libelle: "Zone A bis" }
+      - { cle: "A", libelle: "Zone A" }
+      - { cle: "B1", libelle: "Zone B1" }
+      - { cle: "B2", libelle: "Zone B2" }
+      - { cle: "C", libelle: "Zone C" }
+    ce_que_cest:
+      - texte: "Défini à l'article D. 304-1 du code de la construction et de l'habitation, le zonage classe les communes « en fonction du déséquilibre entre l'offre et de la demande de logements ». Par ordre décroissant de tension : A bis, A, B1, B2 et C. La zone A bis est incluse dans la zone A ; B1 et B2 forment la zone B."
+        source: min-abc
+      - texte: "Créé en 2003 pour le dispositif d'investissement locatif dit « Robien », il a été refondu en 2006, 2009 et 2014."
+        source: min-abc
+    qui_decide:
+      - texte: "Il est révisé par arrêté : six révisions partielles depuis 2019, les dernières par les arrêtés du 5 septembre 2025, qui a reclassé 468 communes, et du 23 juin 2026."
+        source: min-abc
+      - texte: "La tension se mesure par les dynamiques du territoire — bassins de vie, démographie — et par des indicateurs, notamment les prix de l'immobilier et le niveau des loyers."
+        source: min-abc
+    apporte:
+      - texte: "Rien par lui-même : il fixe le périmètre et les barèmes — plafonds de loyer, plafonds de ressources — d'aides qui s'en servent : l'investissement locatif (Denormandie, Loc'Avantages), l'accession à la propriété (prêt social location-accession, prêt à taux zéro, TVA à taux réduit en zone de rénovation urbaine et en quartier prioritaire, bail réel solidaire), le logement locatif intermédiaire, et les plafonds de loyer des logements sociaux financés en prêt locatif social."
+        source: min-abc
+      - texte: "Les zones A bis, A et B1 présentent un « déséquilibre important » entre l'offre et la demande, selon l'article 18-0 bis C de l'annexe 4 du code général des impôts ; certains dispositifs, comme le logement locatif intermédiaire pour les investisseurs institutionnels, ne valent que là."
+        source: min-abc
+    cout:
+      - texte: "Le zonage n'a pas de budget propre : le ministère le présente comme le périmètre et le barème d'aides qui ont chacune le leur."
+        source: min-abc
+    sans_evaluation: "Aucune évaluation publiée du zonage lui-même n'a été trouvée le 13 novembre 2026 : ce sont les aides qui s'en servent qui s'évaluent."
+    sources:
+      - { id: min-abc, titre: "Ministère chargé du logement — « Zonage A, B, C », mis à jour le 3 juillet 2026", url: "https://www.ecologie.gouv.fr/politiques-publiques/zonage-b-c", consulte_le: 2026-11-13 }
+    verifie_le: 2026-11-13

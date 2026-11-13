@@ -47,7 +47,8 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   {z.crte && <li><Glose texte={`Elle est couverte par le contrat pour la réussite de la transition écologique « ${z.crte} ».`} /></li>}
   {z.abc && (
     <li>
-      {`Zonage ABC : zone ${z.abc}` +
+      {lienDispositif('abc') ? <a href={lienDispositif('abc')!}>Zonage ABC</a> : 'Zonage ABC'}
+      {` : zone ${z.abc}` +
         (z.abc === 'C'
           ? ', le reste du territoire, hors des zones où l’offre et la demande de logements sont en déséquilibre important.'
           : z.abc === 'B2'

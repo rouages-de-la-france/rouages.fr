@@ -54,7 +54,10 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
       : `Zone de montagne : ${sur(z.montagne)}` + (z.partieMontagne > 0 ? `, et ${nf(z.partieMontagne)} en partie.` : '.')}
   </li>
   {Object.keys(z.abc).length > 0 && (
-    <li>{`Zonage ABC : ${ordreAbc.filter((k) => z.abc[k]).map((k) => `${nf(z.abc[k])} en ${k}`).join(', ')}.`}</li>
+    <li>
+      {lienDispositif('abc') ? <a href={lienDispositif('abc')!}>Zonage ABC</a> : 'Zonage ABC'}
+      {` : ${ordreAbc.filter((k) => z.abc[k]).map((k) => `${nf(z.abc[k])} en ${k}`).join(', ')}.`}
+    </li>
   )}
   {z.quartiers.length > 0 && (
     <li>
