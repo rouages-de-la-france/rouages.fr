@@ -3900,6 +3900,20 @@ programmes et zonages de la commune y renvoient.
 la page de commune dit que le site ne sait pas, faute de liste nationale et
 de liste de sa région.
 
+**LEADER en Normandie** (14 novembre 2026). La page du SIG de la Région
+refuse les lectures automatiques, mais son jeu sur data.gouv.fr
+(`6ab70e7d55b2020a2104fa96`, Licence ouverte 2.0) désigne le service WFS de
+la Région, fait pour elles : les contours des 18 GAL, lus en GeoJSON et
+croisés avec les communes par le même point intérieur que les Pays de la
+Loire. La couche porte aussi un « Territoire urbain inéligible » — Caen,
+Rouen, Le Havre, Cherbourg-en-Cotentin, Évreux et leurs voisines —, qui
+n'est pas un GAL et que la collecte écarte. 2 359 communes ; recoupé par un
+calcul indépendant sur les centres des communes de geo.api.gouv.fr : 2 354
+dans le même GAL, six écarts, tous en limite de périmètre (Granville et
+Genêts, dont le centre tombe hors du tracé côtier). La base « Découpage
+Normandie » de la Région a aussi une colonne `gal`, mais elle décrit la
+programmation précédente : elle ne recoupe pas 2023-2027.
+
 **Cordouan et les sites de la Grande Guerre** ont leurs communes. Le phare,
 que l'UNESCO situe en mer, est rattaché au Verdon-sur-Mer comme dans la base
 Mérimée (PA00083858). Les 96 sites français du bien « Sites funéraires et
