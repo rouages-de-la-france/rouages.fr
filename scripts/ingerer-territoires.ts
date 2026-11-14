@@ -202,11 +202,32 @@ function zipEntier(chemin: string): boolean {
  */
 async function telecharger(url: string, vers: string): Promise<void> {
   const { Readable } = await import('node:stream');
+  // La reprise : après une coupure, si le serveur accepte les plages d'octets,
+  // on ne redemande que la suite, avec l'etag pour s'assurer que le fichier
+  // n'a pas changé entre deux morceaux (`If-Range`). La réingestion du
+  // 14 novembre 2026 est tombée sur le référentiel FINESS : static.data.gouv.fr
+  // coupait le flux vers 30 Mo sur 244, et chaque essai repartait de zéro.
+  type Reprise = { octets: number; etag: string | null };
+  let reprise = null as Reprise | null;
+  let coupures = 0;
   for (let essai = 1; ; essai++) {
-    const r = await obstine(url, 8, { delai: 1_800_000, entetes: { 'accept-encoding': 'identity' } });
+    const entetes: Record<string, string> = { 'accept-encoding': 'identity' };
+    if (reprise) {
+      entetes.range = `bytes=${reprise.octets}-`;
+      if (reprise.etag) entetes['if-range'] = reprise.etag;
+    }
+    const r = await obstine(url, 8, { delai: 1_800_000, entetes });
     if (!r.body) throw new Error(`${url} : réponse sans corps`);
-    const attendu = Number(r.headers.get('content-length') ?? 0);
-    const flux = createWriteStream(vers);
+    // 206 : la suite demandée, à ajouter ; 200 : le fichier entier, à réécrire.
+    const debut: number = r.status === 206 && reprise ? Number(/^bytes (\d+)-/.exec(r.headers.get('content-range') ?? '')?.[1] ?? -1) : 0;
+    const ajout: boolean = r.status === 206 && reprise !== null && debut === reprise.octets;
+    if (r.status === 206 && !ajout) {
+      // Une plage inattendue : on repart du début, sans reprise.
+      reprise = null;
+      continue;
+    }
+    const attendu: number = Number(r.headers.get('content-length') ?? 0) + (ajout ? debut : 0);
+    const flux = createWriteStream(vers, { flags: ajout ? 'a' : 'w' });
     let coupe = false;
     await new Promise<void>((ok, ko) => {
       Readable.fromWeb(r.body as Parameters<typeof Readable.fromWeb>[0])
@@ -214,21 +235,29 @@ async function telecharger(url: string, vers: string): Promise<void> {
         .pipe(flux)
         .on('finish', () => ok())
         .on('error', ko);
-    }).catch((e) => {
-      if (essai >= 4) throw e;
+    }).catch(() => {
       coupe = true;
     });
+    // Une source coupée ne ferme pas sa destination : on la ferme, pour que les octets reçus soient écrits avant la suite.
+    if (coupe) await new Promise<void>((ok) => (flux.closed ? ok() : (flux.once('close', () => ok()), flux.end())));
     const recu = existsSync(vers) ? statSync(vers).size : 0;
     // Une réponse compressée à la volée n'annonce que sa taille compressée.
     const compresse = !!r.headers.get('content-encoding');
     if (!coupe && existsSync(vers) && !zipEntier(vers)) {
       if (essai >= 4) throw new Error(`${url} : archive zip incomplète, quatre fois de suite`);
       dire(`${GRIS}  archive zip incomplète (${recu} octets), on recommence${RAZ}`);
+      reprise = null;
       continue;
     }
     if (!coupe && (!attendu || compresse || recu === attendu)) return;
-    if (essai >= 4) throw new Error(`${url} : ${recu} octets reçus sur ${attendu}, quatre fois de suite`);
-    dire(`${GRIS}  ${recu} octets reçus sur ${attendu}, on recommence${RAZ}`);
+    // Une reprise qui avance n'est pas un échec : on compte les coupures sans progrès, pas les morceaux.
+    // Sans reprise possible, chaque coupure compte, comme avant : quatre essais.
+    const progres = ajout && recu > debut;
+    if (!progres) coupures++;
+    if (coupures >= 4 || essai >= 40) throw new Error(`${url} : ${recu} octets reçus sur ${attendu}, sans progrès`);
+    const peutReprendre: boolean = (r.headers.get('accept-ranges') === 'bytes' || r.status === 206) && !compresse && recu > 0;
+    reprise = peutReprendre ? { octets: recu, etag: r.headers.get('etag') ?? reprise?.etag ?? null } : null;
+    dire(`${GRIS}  ${recu} octets reçus sur ${attendu || '?'}, ${reprise ? 'on reprend à la suite' : 'on recommence'}${RAZ}`);
   }
 }
 
