@@ -207,8 +207,18 @@ async function telecharger(url: string, vers: string): Promise<void> {
   // n'a pas changé entre deux morceaux (`If-Range`). La réingestion du
   // 14 novembre 2026 est tombée sur le référentiel FINESS : static.data.gouv.fr
   // coupait le flux vers 30 Mo sur 244, et chaque essai repartait de zéro.
+  //
+  // On tente la reprise même quand le serveur ne l'annonce pas : Melodi, le
+  // service de fichiers de l'INSEE, répond 206 à une plage sans écrire
+  // `accept-ranges` ni etag dans sa réponse entière (réingestion du même
+  // jour : les fichiers du recensement coupés vers 18 Mo, vingt fois). Un
+  // serveur qui ignore la plage renvoie 200 et le fichier entier, qu'on
+  // réécrit ; une plage dont la taille totale n'est pas celle du premier
+  // envoi fait aussi repartir du début.
   type Reprise = { octets: number; etag: string | null };
   let reprise = null as Reprise | null;
+  /** La taille du fichier entier, d'après la première réponse qui la donne. */
+  let total = 0;
   let coupures = 0;
   for (let essai = 1; ; essai++) {
     const entetes: Record<string, string> = { 'accept-encoding': 'identity' };
@@ -219,14 +229,17 @@ async function telecharger(url: string, vers: string): Promise<void> {
     const r = await obstine(url, 8, { delai: 1_800_000, entetes });
     if (!r.body) throw new Error(`${url} : réponse sans corps`);
     // 206 : la suite demandée, à ajouter ; 200 : le fichier entier, à réécrire.
-    const debut: number = r.status === 206 && reprise ? Number(/^bytes (\d+)-/.exec(r.headers.get('content-range') ?? '')?.[1] ?? -1) : 0;
-    const ajout: boolean = r.status === 206 && reprise !== null && debut === reprise.octets;
+    const plage = /^bytes (\d+)-\d+\/(\d+|\*)$/.exec(r.headers.get('content-range') ?? '');
+    const debut: number = r.status === 206 && reprise ? Number(plage?.[1] ?? -1) : 0;
+    const totalAnnonce = plage && plage[2] !== '*' ? Number(plage[2]) : 0;
+    const ajout: boolean = r.status === 206 && reprise !== null && debut === reprise.octets && (!total || !totalAnnonce || totalAnnonce === total);
     if (r.status === 206 && !ajout) {
       // Une plage inattendue : on repart du début, sans reprise.
       reprise = null;
       continue;
     }
     const attendu: number = Number(r.headers.get('content-length') ?? 0) + (ajout ? debut : 0);
+    if (!ajout) total = attendu;
     const flux = createWriteStream(vers, { flags: ajout ? 'a' : 'w' });
     let coupe = false;
     await new Promise<void>((ok, ko) => {
@@ -255,8 +268,10 @@ async function telecharger(url: string, vers: string): Promise<void> {
     const progres = ajout && recu > debut;
     if (!progres) coupures++;
     if (coupures >= 4 || essai >= 40) throw new Error(`${url} : ${recu} octets reçus sur ${attendu}, sans progrès`);
-    const peutReprendre: boolean = (r.headers.get('accept-ranges') === 'bytes' || r.status === 206) && !compresse && recu > 0;
-    reprise = peutReprendre ? { octets: recu, etag: r.headers.get('etag') ?? reprise?.etag ?? null } : null;
+    // Sans taille annoncée, on ne saurait pas où s'arrêter : la reprise demande l'annonce ou la taille.
+    const peutReprendre: boolean = (r.headers.get('accept-ranges') === 'bytes' || r.status === 206 || total > 0) && !compresse && recu > 0;
+    const validateur = r.headers.get('etag') ?? r.headers.get('last-modified');
+    reprise = peutReprendre ? { octets: recu, etag: validateur ?? reprise?.etag ?? null } : null;
     dire(`${GRIS}  ${recu} octets reçus sur ${attendu || '?'}, ${reprise ? 'on reprend à la suite' : 'on recommence'}${RAZ}`);
   }
 }
@@ -715,7 +730,7 @@ async function principal() {
   const logements = await tenter('Logements autorisés', () =>
     collecterLogements(
       (url, vers) =>
-        telechargerEnCache(url, vers, reutiliser, 'Sitadel — séries communales (environ 500 Mo)'),
+        telechargerEnCache(url, vers, reutiliser, 'Sitadel — séries communales, une année (environ 35 Mo)'),
       CACHE,
       lignesCsv,
       decoupage.populations,

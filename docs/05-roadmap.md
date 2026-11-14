@@ -3914,6 +3914,28 @@ Genêts, dont le centre tombe hors du tracé côtier). La base « Découpage
 Normandie » de la Région a aussi une colonne `gal`, mais elle décrit la
 programmation précédente : elle ne recoupe pas 2023-2027.
 
+**La réingestion du 14 novembre 2026 a dépassé ses 350 minutes.** Le
+correctif de la veille (reprise par plage) a marché pour FINESS et VigiEau,
+mais deux sources ont mangé près de quatre heures à elles seules :
+
+- **Sitadel** : le fichier communal entier compte 53 millions de lignes depuis
+  2002, plus de 1,9 Go, servis par l'API DiDo sans taille annoncée. Quatre
+  essais coupés à trente minutes, puis l'échec. On ne demande plus que ce que
+  la fenêtre de dix ans lit — les douze dernières années, une par requête,
+  les deux types de logement (« Tous Logements », « Individuel pur ») et six
+  colonnes —, filtrés par l'API : environ 35 Mo par année. L'année en cours,
+  vide en janvier (DiDo répond 400, « Le fichier est vide »), peut manquer
+  sans changer la fenêtre. Recoupé sur l'Allier : 2025 filtré redonne les
+  chiffres publiés pour 299 communes sur 306 ; les sept écarts sont des
+  révisions entre le millésime de juillet et celui d'octobre (957 logements
+  autorisés en 2025 dans le fichier publié, 979 aujourd'hui).
+- **Melodi** (INSEE, fichiers du recensement) : les flux s'arrêtaient vers
+  18 Mo, et chaque essai repartait de zéro, une vingtaine de fois. Le serveur
+  accepte les plages d'octets mais ne l'annonce pas dans sa réponse entière ;
+  la reprise est maintenant tentée dès que la taille du fichier est connue,
+  et refusée si la taille totale d'une plage n'est pas celle du premier
+  envoi.
+
 **Cordouan et les sites de la Grande Guerre** ont leurs communes. Le phare,
 que l'UNESCO situe en mer, est rattaché au Verdon-sur-Mer comme dans la base
 Mérimée (PA00083858). Les 96 sites français du bien « Sites funéraires et
