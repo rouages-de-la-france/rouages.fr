@@ -15,7 +15,12 @@
  *   — Pays de la Loire : les contours des GAL (ODbL). Un GAL réunit des
  *     communes entières : une commune en est quand un point intérieur de son
  *     contour tombe dans celui du GAL. Le fichier régional porte aussi le nom
- *     d'un contact : il n'est pas lu.
+ *     d'un contact : il n'est pas lu ;
+ *   — Normandie : les contours des GAL (Licence ouverte 2.0), lus sur le
+ *     service WFS de la Région, que son jeu sur data.gouv.fr désigne. La
+ *     couche porte aussi le « Territoire urbain inéligible », qui n'est pas
+ *     un GAL : il est écarté. La page de son SIG refuse les lectures
+ *     automatiques ; le service WFS, lui, est fait pour elles.
  *
  * Chaque région est facultative : celle qui échoue n'emporte pas les autres.
  *
@@ -44,6 +49,22 @@ export const REGIONS = {
     url: 'https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/groupements-dactions-locales-en-pays-de-la-loire/exports/geojson',
     licence: 'ODbL',
     deps: ['44', '49', '53', '72', '85'],
+  },
+  '28': {
+    nom: 'Normandie',
+    jeu: '6ab70e7d55b2020a2104fa96',
+    url:
+      'https://carto.normandie.fr/server/services/geoservices/MapServer/WFSServer?' +
+      new URLSearchParams({
+        request: 'GetFeature',
+        service: 'WFS',
+        version: '2.0.0',
+        typeName: 'geoservices:Europe_et_international_-_Groupes_d_action_locale_LEADER_2023-2027_-_Normandie',
+        srsname: 'urn:ogc:def:crs:EPSG::4326',
+        outputFormat: 'GEOJSON',
+      }),
+    licence: 'Licence ouverte 2.0',
+    deps: ['14', '27', '50', '61', '76'],
   },
 } as const;
 
@@ -152,49 +173,57 @@ export async function collecterLeader(
     dire(`LEADER : Hauts-de-France non lus (${(e as Error).message}).`);
   }
 
-  // Pays de la Loire : les contours des GAL, croisés avec ceux des communes.
-  try {
-    const r = REGIONS['52'];
-    const vers = join(cache, `leader-pays-de-la-loire-${jour}.geojson`);
-    await telecharger(r.url, vers);
-    const fc = JSON.parse(readFileSync(vers, 'utf8')) as {
-      features: { properties: Record<string, unknown>; geometry: Geometrie | null }[];
-    };
-    const gals = fc.features
-      .filter((f) => f.geometry)
-      .map((f) => {
-        const anneaux = anneauxDe(f.geometry!);
-        let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
-        for (const a of anneaux)
-          for (let i = 0; i < a.length; i += 2) {
-            x0 = Math.min(x0, a[i]);
-            x1 = Math.max(x1, a[i]);
-            y0 = Math.min(y0, a[i + 1]);
-            y1 = Math.max(y1, a[i + 1]);
-          }
-        // Le nom seul : le contact nominatif du fichier n'est pas lu.
-        const nom = String(f.properties.gal ?? f.properties['Libellé GAL'] ?? '').trim();
-        return { nom, anneaux, cadre: [x0, y0, x1, y1] as const };
-      })
-      .filter((g) => g.nom);
-    if (gals.length < 15) throw new Error(`${gals.length} GAL seulement`);
-    const contours = contoursDesCommunes(sortie);
-    let n = 0;
-    for (const [code, anneaux] of contours) {
-      if (!(r.deps as readonly string[]).includes(departementDe(code))) continue;
-      const p = pointInterieur(anneaux);
-      if (!p) continue;
-      const g = gals.find((x) => p[0] >= x.cadre[0] && p[0] <= x.cadre[2] && p[1] >= x.cadre[1] && p[1] <= x.cadre[3] && dedans(p[0], p[1], x.anneaux));
-      if (!g) continue;
-      communes.set(code, `GAL ${g.nom}`);
-      n++;
+  // Pays de la Loire et Normandie : les contours des GAL, croisés avec ceux des communes.
+  let contours: ReturnType<typeof contoursDesCommunes> | null = null;
+  const parContours = async (reg: '52' | '28', fichier: string, nomDe: (p: Record<string, unknown>) => string, prefixe: string) => {
+    const r = REGIONS[reg];
+    try {
+      const vers = join(cache, `leader-${fichier}-${jour}.geojson`);
+      await telecharger(r.url, vers);
+      const fc = JSON.parse(readFileSync(vers, 'utf8')) as {
+        features: { properties: Record<string, unknown>; geometry: Geometrie | null }[];
+      };
+      const gals = fc.features
+        .filter((f) => f.geometry)
+        .map((f) => {
+          const anneaux = anneauxDe(f.geometry!);
+          let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+          for (const a of anneaux)
+            for (let i = 0; i < a.length; i += 2) {
+              x0 = Math.min(x0, a[i]);
+              x1 = Math.max(x1, a[i]);
+              y0 = Math.min(y0, a[i + 1]);
+              y1 = Math.max(y1, a[i + 1]);
+            }
+          return { nom: nomDe(f.properties).trim().replace(/\s+/g, ' '), anneaux, cadre: [x0, y0, x1, y1] as const };
+        })
+        .filter((g) => g.nom);
+      if (gals.length < 15) throw new Error(`${gals.length} GAL seulement`);
+      contours ??= contoursDesCommunes(sortie);
+      let n = 0;
+      for (const [code, anneaux] of contours) {
+        if (!(r.deps as readonly string[]).includes(departementDe(code))) continue;
+        const p = pointInterieur(anneaux);
+        if (!p) continue;
+        const g = gals.find((x) => p[0] >= x.cadre[0] && p[0] <= x.cadre[2] && p[1] >= x.cadre[1] && p[1] <= x.cadre[3] && dedans(p[0], p[1], x.anneaux));
+        if (!g) continue;
+        communes.set(code, `${prefixe}${g.nom}`);
+        n++;
+      }
+      if (n < 500) throw new Error(`${n} communes seulement`);
+      regions[reg] = jour;
+      dire(`LEADER : ${r.nom}, ${gals.length} GAL, ${n.toLocaleString('fr-FR')} communes.`);
+    } catch (e) {
+      dire(`LEADER : ${r.nom} non lus (${(e as Error).message}).`);
     }
-    if (n < 500) throw new Error(`${n} communes seulement`);
-    regions['52'] = jour;
-    dire(`LEADER : Pays de la Loire, ${gals.length} GAL, ${n.toLocaleString('fr-FR')} communes.`);
-  } catch (e) {
-    dire(`LEADER : Pays de la Loire non lus (${(e as Error).message}).`);
-  }
+  };
+  // Le nom seul : le contact nominatif du fichier n'est pas lu.
+  await parContours('52', 'pays-de-la-loire', (p) => String(p.gal ?? p['Libellé GAL'] ?? ''), 'GAL ');
+  // Les noms portent déjà « GAL » ; le territoire urbain inéligible n'en est pas un.
+  await parContours('28', 'normandie', (p) => {
+    const nom = String(p.gal ?? '');
+    return /^GAL\b/i.test(nom.trim()) ? nom : '';
+  }, '');
 
   if (Object.keys(regions).length === 0) {
     dire('LEADER : aucune région lue, on garde l’ingestion précédente.');
