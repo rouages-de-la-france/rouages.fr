@@ -55,7 +55,7 @@ reste fatal, ce sont les référentiels dont dépend la structure du réseau,
 BANATIC et le découpage.
 
 Les sources lourdes : le répertoire national des associations (1,2 Go), les
-séries communales Sitadel (500 Mo), trois années de ventes immobilières DVF
+séries communales Sitadel (400 Mo, demandés année par année), trois années de ventes immobilières DVF
 (300 Mo), les résultats des élections nationales (240 Mo), trois tables du
 recensement (230 Mo), le référentiel FINESS (244 Mo), les objets protégés de la base
 Palissy (365 Mo), les bornes de recharge électrique (160 Mo) et l'historique

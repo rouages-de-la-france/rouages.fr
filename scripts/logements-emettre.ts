@@ -79,12 +79,37 @@ export async function collecterLogements(
     return null;
   }
 
-  const fichier = join(cache, 'sitadel-logements-communes.csv');
-  try {
-    await telecharger(adresse, fichier);
-  } catch {
-    dire('Logements : Sitadel n’a pas répondu, les fichiers précédents restent en place.');
-    return null;
+  // Le fichier entier compte 53 millions de lignes depuis 2002 — plus de
+  // 1,9 Go en novembre 2026, servis sans taille annoncée : la réingestion du
+  // 14 novembre l'a vu couper quatre fois à trente minutes. On ne demande que
+  // ce que la fenêtre lit — les dernières années, les deux types de logement,
+  // six colonnes —, une année par requête, à l'API DiDo qui filtre pour nous.
+  const fichiers: string[] = [];
+  const cetteAnnee = new Date().getUTCFullYear();
+  for (let annee = cetteAnnee - ANNEES - 1; annee <= cetteAnnee; annee++) {
+    const filtre = new URLSearchParams({
+      withColumnName: 'true',
+      withColumnDescription: 'false',
+      withColumnUnit: 'false',
+      columns: 'ANNEE,MOIS,CODE_INSEE,TYPE_LGT,LOG_AUT,LOG_COM',
+      ANNEE: `eq:${annee}`,
+      TYPE_LGT: `in:${TOUS},${INDIVIDUEL}`,
+    });
+    const fichier = join(cache, `sitadel-logements-${annee}.csv`);
+    try {
+      await telecharger(`${adresse}${adresse.includes('?') ? '&' : '?'}${filtre}`, fichier);
+    } catch {
+      // L'année en cours est vide tant que janvier n'est pas publié — DiDo
+      // répond alors 400, « Le fichier est vide ». Sans elle, la fenêtre est
+      // la même : une année en cours n'est jamais pleine.
+      if (annee === cetteAnnee) {
+        dire(`Logements : rien de ${annee} chez Sitadel pour l'instant.`);
+        continue;
+      }
+      dire(`Logements : Sitadel n’a pas répondu pour ${annee}, les fichiers précédents restent en place.`);
+      return null;
+    }
+    fichiers.push(fichier);
   }
 
   // Premier passage : tout retenir par année, puis fermer la fenêtre sur les
@@ -96,7 +121,7 @@ export async function collecterLogements(
   let dernierMois = '';
   let moisDeDerniereAnnee = new Set<string>();
   let derniereAnnee = 0;
-  for await (const l of lignes(fichier)) {
+  for (const fichier of fichiers) for await (const l of lignes(fichier)) {
     const code = (l['CODE_INSEE'] ?? '').trim();
     if (!/^\d[\dAB]\d{3}$/.test(code)) continue;
     const annee = Number(l['ANNEE']);
