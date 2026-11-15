@@ -20,7 +20,11 @@
  *     service WFS de la Région, que son jeu sur data.gouv.fr désigne. La
  *     couche porte aussi le « Territoire urbain inéligible », qui n'est pas
  *     un GAL : il est écarté. La page de son SIG refuse les lectures
- *     automatiques ; le service WFS, lui, est fait pour elles.
+ *     automatiques ; le service WFS, lui, est fait pour elles ;
+ *   — Auvergne-Rhône-Alpes : les contours des 13 GAL de 2023-2027
+ *     (Licence ouverte 2.0), sur le service WFS du CRAIG pour la Région. Les
+ *     métropoles en sont exclues. Les noms sont en capitales, tels que la
+ *     couche les écrit.
  *
  * Chaque région est facultative : celle qui échoue n'emporte pas les autres.
  *
@@ -65,6 +69,22 @@ export const REGIONS = {
       }),
     licence: 'Licence ouverte 2.0',
     deps: ['14', '27', '50', '61', '76'],
+  },
+  '84': {
+    nom: 'Auvergne-Rhône-Alpes',
+    jeu: '7be81825-3576-4f58-9c8d-894361e6668e',
+    url:
+      'https://ids.craig.fr/wxs/public/wfs?' +
+      new URLSearchParams({
+        service: 'WFS',
+        version: '2.0.0',
+        request: 'GetFeature',
+        typeNames: 'CR_AURA_GAL_LEADER_2023_2027',
+        outputFormat: 'application/json',
+        srsName: 'EPSG:4326',
+      }),
+    licence: 'Licence ouverte 2.0',
+    deps: ['01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'],
   },
 } as const;
 
@@ -175,7 +195,7 @@ export async function collecterLeader(
 
   // Pays de la Loire et Normandie : les contours des GAL, croisés avec ceux des communes.
   let contours: ReturnType<typeof contoursDesCommunes> | null = null;
-  const parContours = async (reg: '52' | '28', fichier: string, nomDe: (p: Record<string, unknown>) => string, prefixe: string) => {
+  const parContours = async (reg: '52' | '28' | '84', fichier: string, nomDe: (p: Record<string, unknown>) => string, prefixe: string, minimum = 15) => {
     const r = REGIONS[reg];
     try {
       const vers = join(cache, `leader-${fichier}-${jour}.geojson`);
@@ -198,7 +218,7 @@ export async function collecterLeader(
           return { nom: nomDe(f.properties).trim().replace(/\s+/g, ' '), anneaux, cadre: [x0, y0, x1, y1] as const };
         })
         .filter((g) => g.nom);
-      if (gals.length < 15) throw new Error(`${gals.length} GAL seulement`);
+      if (gals.length < minimum) throw new Error(`${gals.length} GAL seulement`);
       contours ??= contoursDesCommunes(sortie);
       let n = 0;
       for (const [code, anneaux] of contours) {
@@ -224,6 +244,8 @@ export async function collecterLeader(
     const nom = String(p.gal ?? '');
     return /^GAL\b/i.test(nom.trim()) ? nom : '';
   }, '');
+  // Treize grands GAL depuis 2023, un ou deux par département.
+  await parContours('84', 'auvergne-rhone-alpes', (p) => String(p.GAL_2327 ?? ''), '', 12);
 
   if (Object.keys(regions).length === 0) {
     dire('LEADER : aucune région lue, on garde l’ingestion précédente.');
