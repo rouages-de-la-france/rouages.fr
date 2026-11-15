@@ -3914,6 +3914,28 @@ Genêts, dont le centre tombe hors du tracé côtier). La base « Découpage
 Normandie » de la Région a aussi une colonne `gal`, mais elle décrit la
 programmation précédente : elle ne recoupe pas 2023-2027.
 
+**LEADER en Auvergne-Rhône-Alpes** (15 novembre 2026). Les contours des 13
+GAL de 2023-2027 sont publiés par le CRAIG pour la Région, sous Licence
+ouverte 2.0, sur un service WFS (métadonnées
+`7be81825-3576-4f58-9c8d-894361e6668e`) : la fiche dit « FEADER
+2023-2027 », version du 5 mai 2023, métropoles exclues. Croisés par le même
+point intérieur : 3 536 communes. Recoupé sur les centres des communes de
+geo.api.gouv.fr : 3 533 dans le même GAL, trois écarts en limite de
+périmètre (Léoncel, Ponsas, La Chambonie). Les communes hors GAL sont
+celles des métropoles de Lyon, de Saint-Étienne, de Grenoble et de
+Clermont, et de quelques autres agglomérations. Le Mayet-de-Montagne est
+dans le GAL « des Terroirs bourbonnais », avec Vichy et Moulins.
+
+Le tour des autres régions (même jour) : la Bourgogne-Franche-Comté et la
+Corse ne publient que leurs GAL de 2014-2020 ; le Grand Est publie 35 GAL
+sous Licence ouverte, dont les noms correspondent à ceux de 2023-2027, mais
+avec des métadonnées de 2016-2019 — la programmation n'est pas confirmée ;
+le Centre-Val de Loire (23 GAL, « périmètre de candidature 2023-2027 ») et
+la Nouvelle-Aquitaine (54 GAL) ont des services cartographiques publics
+sans licence nommée, et le second ne dit pas sa programmation. Rien de
+trouvé pour l'Île-de-France, la Bretagne, l'Occitanie, PACA et les
+outre-mer.
+
 **La réingestion du 14 novembre 2026 a dépassé ses 350 minutes.** Le
 correctif de la veille (reprise par plage) a marché pour FINESS et VigiEau,
 mais deux sources ont mangé près de quatre heures à elles seules :
