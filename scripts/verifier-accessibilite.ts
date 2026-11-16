@@ -52,6 +52,7 @@ const PAGES = [
   '/n/du-ble-a-la-baguette',
   '/mentions',
   '/signaler',
+  '/participer',
 ];
 // La recherche dans les délibérations, avec des résultats quand un index est publié.
 const indexDelib = join(racine, 'territoires', 'recherche-deliberations');

@@ -195,6 +195,29 @@ h1, .titre-voix { font-family: var(--titre); font-weight: 640; letter-spacing: -
 .baseline { color: var(--encre-douce); font-size: .82rem; }
 .bandeau nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .85rem; }
 .bandeau nav a[aria-current="page"] { color: var(--encre); font-weight: 600; text-decoration: none; }
+/* Le menu des services de l'éditeur : discret, ouvert au clic, en surimpression. */
+.menu-pro { position: relative; }
+.menu-pro > summary { cursor: pointer; color: var(--encre-douce); list-style: none; }
+.menu-pro > summary::-webkit-details-marker { display: none; }
+.menu-pro > summary::after { content: " ▾"; font-size: .75em; }
+.menu-pro[open] > summary { color: var(--encre); }
+.menu-pro-liste {
+  position: absolute; z-index: 30; right: 0; top: 1.6rem; width: 22rem; max-width: calc(100vw - 2.2rem);
+  padding: .7rem .9rem; background: var(--fond-carte); border: 1px solid var(--trait); border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / .12);
+}
+.menu-pro-liste ul { list-style: none; margin: .4rem 0; padding: 0; display: grid; gap: .45rem; }
+.menu-pro-liste li { display: grid; }
+.menu-pro-liste li span, .menu-pro-titre, .menu-pro-pied { color: var(--encre-douce); font-size: .78rem; }
+.menu-pro-titre { margin: 0; }
+.menu-pro-pied { margin: .5rem 0 0; padding-top: .5rem; border-top: 1px solid var(--trait); }
+.menu-pro:not([open]) .menu-pro-liste { display: none; }
+/* Sur un téléphone, le panneau prend la largeur de l'en-tête, à 16 px des bords, quel que soit l'endroit du bouton. */
+@media (max-width: 640px) {
+  .bandeau-int { position: relative; }
+  .menu-pro { position: static; }
+  .menu-pro-liste { left: 1rem; right: 1rem; top: auto; width: auto; max-width: none; margin-top: .4rem; }
+}
 /* Le sous-menu du fonctionnement : une ligne fine sous l'en-tête. Sa hauteur
    est fixe, parce que la carte occupe ce que l'en-tête laisse de l'écran. */
 .bandeau .sous-nav {

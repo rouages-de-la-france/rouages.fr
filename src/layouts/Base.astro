@@ -91,6 +91,23 @@ const sousCourant = (s: string) => (sousPage === s ? 'page' : undefined);
           <a href="/argent-public" aria-current={courant('argent-public')}>L’argent public</a>
           <a href="/jeux" aria-current={courant('jeux')}>Jeux</a>
           <a href="/simulateurs" aria-current={courant('simulateurs')}>Simulateurs</a>
+          {/* Les services de l'éditeur, qui financent le site : un menu discret, ouvert au clic
+              (décision du 13 novembre 2026, « rouages.fr peut mener aux services de Pro »). */}
+          <details class="menu-pro">
+            <summary>Rouages Pro</summary>
+            <div class="menu-pro-liste">
+              <p class="menu-pro-titre">Les services de l’éditeur, qui financent le site</p>
+              <ul>
+                <li><a href="https://pro.rouages.fr/marches">Marchés publics</a><span>la veille des échéances, des attributions et des avis</span></li>
+                <li><a href="https://pro.rouages.fr/collectivites">Collectivités</a><span>pour les élus et les services</span></li>
+                <li><a href="https://pro.rouages.fr/professionnels">Immobilier</a><span>pour les professionnels</span></li>
+                <li><a href="https://pro.rouages.fr/financements">Financements</a><span>ce qu’ont reçu les associations et les entreprises</span></li>
+                <li><a href="https://pro.rouages.fr/ess">Financements de l’ESS</a><span>gratuit pour l’économie sociale et solidaire</span></li>
+                <li><a href="https://pro.rouages.fr/donnees">Enquêter et analyser</a><span>les données ouvertes, et des extraits sur mesure, sur devis</span></li>
+              </ul>
+              <p class="menu-pro-pied">Le site public reste entier, gratuit et sans publicité. <a href="/participer">Participer à Rouages</a></p>
+            </div>
+          </details>
         </nav>
       </div>
       {section === 'fonctionnement' && (
@@ -114,6 +131,7 @@ const sousCourant = (s: string) => (sousPage === s ? 'page' : undefined);
     <script>
       import '../client/haut-de-page.ts';
       import '../client/sigles.ts';
+      import '../client/menu-pro.ts';
     </script>
 
     {!plein && (
@@ -131,6 +149,7 @@ const sousCourant = (s: string) => (sousPage === s ? 'page' : undefined);
         <p>
           Une erreur&nbsp;? <a href="/signaler">Signalez-la</a> — les référentiels
           ont des trous, et vous connaissez peut-être votre commune mieux qu’eux.
+          Une source à suggérer, un avis&nbsp;: <a href="/participer">participez</a>.
         </p>
       </footer>
     )}
