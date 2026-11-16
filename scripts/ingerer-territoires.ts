@@ -186,6 +186,9 @@ function zipEntier(chemin: string): boolean {
   }
 }
 
+/** Ce qu'un téléchargement tolère de silence avant d'être coupé et repris. */
+const SILENCE_MAX = 30_000;
+
 /**
  * Un flux coupé en route ne lève pas d'erreur : il laisse un fichier tronqué.
  * La réingestion du 30 septembre 2026 a perdu ainsi les trois tables du
@@ -242,8 +245,19 @@ async function telecharger(url: string, vers: string): Promise<void> {
     if (!ajout) total = attendu;
     const flux = createWriteStream(vers, { flags: ajout ? 'a' : 'w' });
     let coupe = false;
+    // Un flux qui se tait : Melodi s'arrête net vers 24 Mo et n'envoie plus rien, et le délai par défaut
+    // de Node attend cinq minutes avant de le dire (réingestion du 14 novembre 2026, vingt fois). Trente
+    // secondes sans un octet suffisent : on coupe, et la reprise prend la suite.
+    let silence: ReturnType<typeof setTimeout> | undefined;
     await new Promise<void>((ok, ko) => {
-      Readable.fromWeb(r.body as Parameters<typeof Readable.fromWeb>[0])
+      const source = Readable.fromWeb(r.body as Parameters<typeof Readable.fromWeb>[0]);
+      const veiller = () => {
+        clearTimeout(silence);
+        silence = setTimeout(() => source.destroy(new Error('flux muet depuis trente secondes')), SILENCE_MAX);
+      };
+      veiller();
+      source
+        .on('data', veiller)
         .on('error', ko)
         .pipe(flux)
         .on('finish', () => ok())
@@ -251,6 +265,7 @@ async function telecharger(url: string, vers: string): Promise<void> {
     }).catch(() => {
       coupe = true;
     });
+    clearTimeout(silence);
     // Une source coupée ne ferme pas sa destination : on la ferme, pour que les octets reçus soient écrits avant la suite.
     if (coupe) await new Promise<void>((ok) => (flux.closed ? ok() : (flux.once('close', () => ok()), flux.end())));
     const recu = existsSync(vers) ? statSync(vers).size : 0;
@@ -284,7 +299,7 @@ async function telecharger(url: string, vers: string): Promise<void> {
  * Analyse les guillemets plutôt que de découper sur la virgule : plusieurs
  * raisons sociales en contiennent une.
  */
-async function* lignesCsv(chemin: string): AsyncIterable<Record<string, string>> {
+async function* lignesCsv(chemin: string, separateur: ',' | ';' = ','): AsyncIterable<Record<string, string>> {
   let reste = '';
   let entetes: string[] | null = null;
   const decoder = new TextDecoder('utf-8');
@@ -294,13 +309,13 @@ async function* lignesCsv(chemin: string): AsyncIterable<Record<string, string>>
     while ((coupe = prochaineFinDeLigne(reste)) !== -1) {
       const ligne = reste.slice(0, coupe).replace(/\r$/, '');
       reste = reste.slice(coupe + 1);
-      const champs = decouper(ligne);
+      const champs = decouper(ligne, separateur);
       if (!entetes) entetes = champs;
       else if (champs.length > 1) yield Object.fromEntries(entetes.map((h, i) => [h, champs[i] ?? '']));
     }
   }
   if (reste.trim() !== '' && entetes) {
-    const champs = decouper(reste);
+    const champs = decouper(reste, separateur);
     if (champs.length > 1) yield Object.fromEntries(entetes.map((h, i) => [h, champs[i] ?? '']));
   }
 }
@@ -355,7 +370,7 @@ function prochaineFinDeLigne(s: string): number {
   return -1;
 }
 
-function decouper(ligne: string): string[] {
+function decouper(ligne: string, separateur: ',' | ';' = ','): string[] {
   const champs: string[] = [];
   let courant = '';
   let dansGuillemets = false;
@@ -366,7 +381,7 @@ function decouper(ligne: string): string[] {
         courant += '"';
         i++;
       } else dansGuillemets = !dansGuillemets;
-    } else if (c === ',' && !dansGuillemets) {
+    } else if (c === separateur && !dansGuillemets) {
       champs.push(courant);
       courant = '';
     } else courant += c;
@@ -732,7 +747,9 @@ async function principal() {
       (url, vers) =>
         telechargerEnCache(url, vers, reutiliser, 'Sitadel — séries communales, une année (environ 35 Mo)'),
       CACHE,
-      lignesCsv,
+      // DiDo sépare par des points-virgules : lu à la virgule, le fichier ne donnait aucune ligne
+      // (réingestion du 14 novembre 2026, « aucune ligne lue »).
+      (chemin) => lignesCsv(chemin, ';'),
       decoupage.populations,
       async <T,>(url: string) => (await obstine(url)).json() as Promise<T>,
       (m) => dire(`${GRIS}${m}${RAZ}`),

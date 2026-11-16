@@ -16,6 +16,10 @@ exécuté sur un serveur que Rouages loue ou possède. C'est l'option
   FINESS. Le runner garde ces fichiers d'une fois sur l'autre.
 - **Les ressources.** Mémoire et disque sont ceux du serveur, et le temps de
   calcul ne se décompte pas.
+- **La durée.** Un job sur les machines de GitHub est arrêté à six heures ; le
+  workflow s'arrête de lui-même à 350 minutes. Sur le runner, il a vingt-quatre
+  heures (réingestions du 14 novembre 2026, coupées toutes deux à la limite,
+  la seconde 76 secondes après avoir écrit ses fichiers).
 
 Ce qu'on garde : le déclenchement depuis l'onglet Actions, le contrôle de la
 CI dans le même job, la PR ouverte avec les fichiers réécrits et la liste des
