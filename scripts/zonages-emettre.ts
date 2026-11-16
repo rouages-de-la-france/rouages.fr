@@ -48,6 +48,13 @@
  * liste, par commune, d'après l'ANCT ; un quartier à cheval sur deux
  * communes compte dans chacune.
  *
+ * **Les opérations de revitalisation de territoire** (ORT), conventions que
+ * crée la loi ELAN du 23 novembre 2018 : la liste du ministère de la
+ * Cohésion des territoires, publiée en tableur (onglet « Suivi
+ * conventions »), une ligne par commune signataire. Seules les conventions
+ * signées sont retenues, avec leur date ; une convention terminée, non signée
+ * ou en cours de signature ne l'est pas. Facultative comme FRR.
+ *
  * Lancé seul — `tsx scripts/zonages-emettre.ts` —, il réécrit les fichiers
  * `public/territoires/dep/XX-zonages.json`.
  */
@@ -67,6 +74,7 @@ export const JEUX = {
   abc: '656715871172d08f8f680063',
   qpv: '5a561801c751df42d7fca9b6',
   tlv: '657c88da2947e13be0597058',
+  ort: '63c69d70de98bf9a1fa11948',
 } as const;
 /** La liste des communes de France ruralités revitalisation, par la DGCL. */
 export const FRR =
@@ -99,9 +107,11 @@ export type Programme = 'pvd' | 'acv' | 'va' | keyof typeof DU_CROISEMENT;
  * 13 novembre 2026, ou quand l'Observatoire n'a pas répondu —, puis le niveau
  * de France ruralités revitalisation : 0 non classée, 1 FRR plus, 2 FRR
  * socle, 3 FRR bénéficiaire, 4 classée en partie, 5 bénéficiaire en partie —
- * absent quand la liste n'a pas été lue.
+ * absent quand la liste n'a pas été lue —, puis la date de signature de la
+ * convention d'opération de revitalisation de territoire (AAAA-MM-JJ), ou
+ * une chaîne vide — absente quand la liste n'a pas été lue.
  */
-export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2, (0 | 1)?, (0 | 1 | 2 | 3 | 4 | 5)?];
+export type ZonagesCommune = [Programme[], string, string, 0 | 1 | 2, string, string[], 0 | 1 | 2, (0 | 1)?, (0 | 1 | 2 | 3 | 4 | 5)?, string?];
 
 export interface Zonages {
   maj: string;
@@ -365,6 +375,38 @@ export async function collecterZonages(
     dire(`Zonages : France ruralités revitalisation n’est pas lue (${(e as Error).message}) ; le reste est écrit sans elle.`);
   }
 
+  // Les opérations de revitalisation de territoire : le tableur du ministère, onglet « Suivi conventions ».
+  let ort: Map<string, string> | null = null;
+  try {
+    const r = (await lireJson(`https://www.data.gouv.fr/api/2/datasets/${JEUX.ort}/resources/?page_size=50`)) as { data?: Ressource[] };
+    const res = (r.data ?? [])
+      .filter((x) => x.url && /xlsx/i.test(`${x.format ?? ''} ${x.url}`) && /liste des communes/i.test(x.title ?? ''))
+      .sort((a, b) => (b.last_modified ?? '').localeCompare(a.last_modified ?? ''))[0];
+    if (!res) throw new Error('tableur introuvable');
+    const date = (res.last_modified ?? '').slice(0, 10);
+    const vers = join(cache, `ort-${date}.xlsx`);
+    await telecharger(res.url!, vers);
+    const f = XLSX.read(readFileSync(vers), { cellDates: true }).Sheets['Suivi conventions'];
+    if (!f) throw new Error('onglet « Suivi conventions » introuvable');
+    const l = XLSX.utils.sheet_to_json<Record<string, unknown>>(f, { defval: '' });
+    const lus = new Map<string, string>();
+    let n = 0;
+    for (const x of l) {
+      if (String(x['Signée ?'] ?? '').trim() !== 'Signée' || x['doublon'] === true) continue;
+      n++;
+      const code = actuelle(String(x['Code commune'] ?? '').trim());
+      const d = x['Si signée, date de signature'];
+      const signee = d instanceof Date && !Number.isNaN(d.getTime()) ? new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 10) : '';
+      // Deux anciennes communes reportées sur la même : la plus ancienne signature.
+      if (code && (!lus.has(code) || (signee && (!lus.get(code) || signee < lus.get(code)!)))) lus.set(code, signee);
+    }
+    if (n < 1500) throw new Error(`${n} conventions signées seulement`);
+    ort = lus;
+    dates.ort = date;
+  } catch (e) {
+    dire(`Zonages : les opérations de revitalisation de territoire ne sont pas lues (${(e as Error).message}) ; le reste est écrit sans elles.`);
+  }
+
   const communes = new Map<string, ZonagesCommune>();
   const ordre: Programme[] = ['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus'];
   for (const code of actuelles) {
@@ -376,11 +418,13 @@ export async function collecterZonages(
     const t = tlv.get(code) ?? 0;
     const u = montagneUrbanisme?.has(code) ? 1 : 0;
     const f = frr?.get(code) ?? 0;
-    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t && !u && !f) continue;
+    const o = ort?.has(code) ? ort.get(code) || 'signée' : '';
+    if (!p && !nomTi && !nomCrte && !m && !zone && quartiers.length === 0 && !t && !u && !f && !o) continue;
     const ligne: ZonagesCommune = [ordre.filter((x) => p?.has(x)), nomTi, nomCrte, m, zone, quartiers, t];
     // Les champs facultatifs sont positionnels : la montagne de l'urbanisme garde sa place même absente.
-    if (montagneUrbanisme || frr) ligne.push(montagneUrbanisme ? u : 0);
-    if (frr) ligne.push(f);
+    if (montagneUrbanisme || frr || ort) ligne.push(montagneUrbanisme ? u : 0);
+    if (frr || ort) ligne.push(f);
+    if (ort) ligne.push(o);
     communes.set(code, ligne);
   }
   const compte = (p: Programme) => [...communes.values()].filter((x) => x[0].includes(p)).length;
@@ -392,7 +436,8 @@ export async function collecterZonages(
       `France ruralités revitalisation ${frr ? frr.size.toLocaleString('fr-FR') : 'non lue'}, zonage ABC ${abc.size.toLocaleString('fr-FR')}, ` +
       `communes à quartier prioritaire ${qpv.size.toLocaleString('fr-FR')}, ` +
       `zone tendue ${[...tlv.values()].filter((x) => x === 1).length.toLocaleString('fr-FR')}, ` +
-      `touristique et tendue ${[...tlv.values()].filter((x) => x === 2).length.toLocaleString('fr-FR')}.`,
+      `touristique et tendue ${[...tlv.values()].filter((x) => x === 2).length.toLocaleString('fr-FR')}, ` +
+      `opération de revitalisation de territoire ${ort ? ort.size.toLocaleString('fr-FR') : 'non lue'}.`,
   );
   return { maj: new Date().toISOString().slice(0, 10), dates, communes };
 }
