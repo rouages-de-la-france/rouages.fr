@@ -97,10 +97,15 @@ async function obstine(url: string, essais = 8, options: { delai?: number; entet
  * Ce qui reste fatal : un référentiel dont dépend la structure même du réseau,
  * comme BANATIC ou le découpage. Sans eux il n'y a rien à écrire.
  */
+const DEBUT = new Date();
+/** Les collectes en échec, pour `ingestion.json` : le site dit lesquelles. */
+const ECHECS: string[] = [];
+
 async function tenter<T>(quoi: string, f: () => Promise<T | null>): Promise<T | null> {
   try {
     return await f();
   } catch (e) {
+    ECHECS.push(quoi);
     dire(`${JAUNE}${quoi} : ${(e as Error).message}${RAZ}`);
     dire(`${JAUNE}  → les fichiers de cette source ne seront pas réécrits.${RAZ}`);
     return null;
@@ -1418,3 +1423,10 @@ await tenter('Proximité', async () => {
   const n = await ecrireProvenance(SORTIE, async (url) => (await obstine(url, 2)).json());
   dire(`${GRIS}${n} liens de sources datés (provenance.json).${RAZ}`);
 }
+// La date de cette réingestion complète, que le pied de page affiche (voir
+// `src/modele/versions.ts`). Écrite en dernier : une ingestion interrompue
+// laisse la date de la précédente.
+writeFileSync(
+  join(SORTIE, 'ingestion.json'),
+  `${JSON.stringify({ debut: DEBUT.toISOString(), fin: new Date().toISOString(), echecs: ECHECS }, null, 1)}\n`,
+);

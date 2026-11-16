@@ -1,7 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
 import { construireReseau } from '../modele/reseau.ts';
+import { DEPOT } from '../modele/signalement.ts';
+import { derniereIngestion, duree, jourParis, momentParis, versionSite } from '../modele/versions.ts';
 const reseau = construireReseau();
+const version = versionSite();
+const ingestion = derniereIngestion();
+// La phrase sur la dernière réingestion, écrite d'un tenant : en gabarit,
+// chaque retour à la ligne laisserait une espace avant la ponctuation.
+const etatIngestion = (() => {
+  if (!ingestion) return 'Aucune n’est encore enregistrée.';
+  if (ingestion.nature === 'lecture') {
+    return `La date de la dernière réingestion complète n’est pas encore enregistrée\u00a0; la lecture la plus récente d’une source date du ${jourParis(ingestion.fin)}.`;
+  }
+  const fin = `La dernière s’est achevée le ${momentParis(ingestion.fin)}${ingestion.debut ? `, après ${duree(ingestion.debut, ingestion.fin)}` : ''}.`;
+  const n = ingestion.echecs.length;
+  if (n === 0) return `${fin} Toutes les collectes ont abouti.`;
+  const qui = n === 1 ? 'Une collecte a échoué' : `Collectes en échec (${n})`;
+  return `${fin} ${qui}\u00a0: ${ingestion.echecs.join(', ')}. Leurs données sont celles de la réingestion précédente, avec la date de leur lecture.`;
+})();
 const pages = new Set(reseau.noeuds.flatMap((n) => n.liens.map((l) => l.url))).size;
 ---
 
@@ -464,6 +481,27 @@ const pages = new Set(reseau.noeuds.flatMap((n) => n.liens.map((l) => l.url))).s
       avec la même fonction de résolution que la page&nbsp;: les deux ne peuvent
       pas répondre différemment à la même question. Le champ en haut de chaque
       page y conduit, par le nom ou le code postal.
+    </p>
+
+    <h2 class="badge" id="mises-a-jour">Les mises à jour</h2>
+    <p class="mesure">
+      Deux dates, en bas de chaque page, et elles ne disent pas la même chose.
+    </p>
+    <ul class="mesure">
+      <li>
+        <strong>Le déploiement</strong> est la mise en ligne du site&nbsp;: les fiches, les pages, le code. Il a lieu à
+        chaque modification acceptée dans le <a href={DEPOT} rel="noopener">dépôt public</a>. La version en cours a été
+        construite le {momentParis(version.construit)}{version.commit && <>, depuis le commit <a href={`${DEPOT}/commit/${version.commit}`} rel="noopener"><code>{version.commit.slice(0, 7)}</code></a></>}&nbsp;; l’<a href={`${DEPOT}/commits/main`} rel="noopener">historique du dépôt</a> dit ce que chaque version a changé.
+      </li>
+      <li>
+        <strong>La réingestion</strong> relit toutes les sources des données territoriales — une trentaine d’organismes —
+        et réécrit les fichiers de chaque commune.
+        {etatIngestion}
+      </li>
+    </ul>
+    <p class="mesure">
+      Une source lue récemment peut ne publier que des chiffres anciens&nbsp;: le recensement a toujours quelques
+      années. L’encadré «&nbsp;Sources&nbsp;» de chaque bloc dit ce que mesure le chiffre, et quand sa source a été lue.
     </p>
 
     <h2 class="badge">Quand c’est faux</h2>
