@@ -1,5 +1,5 @@
 {
-  "dernier_controle": "2026-11-09",
+  "dernier_controle": "2026-11-16",
   "constats": {
     "banatic-referentiel": {
       "empreinte": "a9d1b65dfa4eea62",
@@ -24,7 +24,7 @@
       "gravite": "ok"
     },
     "annuaire-education": {
-      "millesime": 68563,
+      "millesime": 68555,
       "gravite": "ok"
     },
     "dmto-recettes": {
@@ -32,7 +32,7 @@
       "gravite": "ok"
     },
     "decp-marches": {
-      "millesime": 743705,
+      "millesime": 732570,
       "gravite": "ok"
     },
     "budget-vert-plf": {
@@ -41,7 +41,7 @@
       "gravite": "ok"
     },
     "boamp-avis": {
-      "empreinte": "2026-11-09",
+      "empreinte": "2026-11-16",
       "gravite": "a-regarder"
     },
     "effectifs-ecoles": {
@@ -49,7 +49,7 @@
       "gravite": "ok"
     },
     "annuaire-administration": {
-      "millesime": 94159,
+      "millesime": 94117,
       "gravite": "ok"
     },
     "sru-inventaire": {
@@ -69,7 +69,8 @@
       "gravite": "ok"
     },
     "sitadel-communes": {
-      "gravite": "alerte"
+      "empreinte": "0214f578eae35c90",
+      "gravite": "ok"
     },
     "rei-millesime": {
       "empreinte": "2025",
@@ -86,10 +87,11 @@
       "gravite": "ok"
     },
     "municipales-resultats": {
-      "gravite": "alerte"
+      "empreinte": "93ad78fb759978d5",
+      "gravite": "ok"
     },
     "deliberations-megalis": {
-      "empreinte": "cc080b3018ee425c",
+      "empreinte": "b09f49c37d866d20",
       "gravite": "a-regarder"
     },
     "subventions-schema": {
@@ -133,7 +135,7 @@
     },
     "eau-controle-sanitaire": {
       "empreinte": "2026-11-03",
-      "gravite": "a-regarder"
+      "gravite": "ok"
     },
     "anct-fibre": {
       "empreinte": "d496235bbaee6e91",
@@ -159,7 +161,7 @@
     },
     "dvf-geo": {
       "empreinte": "2026-05-18",
-      "gravite": "a-regarder"
+      "gravite": "alerte"
     },
     "ips-ecoles": {
       "millesime": 97080,
@@ -199,7 +201,7 @@
       "gravite": "ok"
     },
     "geodae": {
-      "empreinte": "755b308f9383d877",
+      "empreinte": "dbac76e9c4b7ec9a",
       "gravite": "a-regarder"
     },
     "pan-arrets": {
@@ -212,8 +214,12 @@
       "gravite": "ok"
     },
     "datatourisme": {
-      "empreinte": "70a9af97802cf8cf",
+      "empreinte": "a7b37dd686461923",
       "gravite": "a-regarder"
+    },
+    "basilic": {
+      "empreinte": "53f63966e8207853",
+      "gravite": "ok"
     },
     "merimee": {
       "empreinte": "dd88e812270efad2",
@@ -238,7 +244,7 @@
       "gravite": "ok"
     },
     "bodacc-annonces": {
-      "empreinte": "2026-11-08",
+      "empreinte": "2026-11-15",
       "gravite": "a-regarder"
     },
     "hatvp-repertoire": {
@@ -272,6 +278,18 @@
       "gravite": "ok"
     },
     "qpv-2024": {
+      "gravite": "ok"
+    },
+    "montagne-urbanisme": {
+      "gravite": "ok"
+    },
+    "frr-dgcl": {
+      "gravite": "ok"
+    },
+    "leader-hauts-de-france": {
+      "gravite": "ok"
+    },
+    "leader-pays-de-la-loire": {
       "gravite": "ok"
     },
     "zonage-tlv": {
@@ -347,7 +365,7 @@
       "gravite": "ok"
     },
     "kohesio-2021-2027": {
-      "gravite": "alerte"
+      "gravite": "ok"
     },
     "brgm-casias": {
       "empreinte": "9ca39a0d80cdee1c",
@@ -374,9 +392,9 @@
     "https://cc-paysdelapalisse.fr/media/attachments/2026/02/05/depliant-france-renov-allier-lapalisse.pdf": "78e09c98f4f3184a",
     "https://cc-paysdelapalisse.fr/media/attachments/2026/09/25/99_de-003-240300491-20260917-rapport2025-de-1-1_1.pdf": "4de58f09ac105dde",
     "https://ccpm.paysdemauriac.fr/wp-content/plugins/actes-administratifs/actesAdministratif/2026/20260223/2026_02_23_04%20Habitat%20convention%20%C2%AB%20volet%20accompagnement%20%C2%BB.pdf": "5909f2b5b969c775",
-    "https://enclunisois.fr/2023/10/26/lopah-du-clunisois-un-dispositif-pour-ameliorer-lhabitat/": "33fa344d99db362d",
-    "https://enclunisois.fr/2024/10/10/lopah-du-clunisois-fete-son-premier-anniversaire-le-16-octobre/": "9cc0ccff6a9467ed",
-    "https://enclunisois.fr/actions/amenagement-habitat/habiter-mieux-en-clunisois/": "c773de6d83028612",
+    "https://enclunisois.fr/2023/10/26/lopah-du-clunisois-un-dispositif-pour-ameliorer-lhabitat/": "b23dfd832631a757",
+    "https://enclunisois.fr/2024/10/10/lopah-du-clunisois-fete-son-premier-anniversaire-le-16-octobre/": "33cca158a237e886",
+    "https://enclunisois.fr/actions/amenagement-habitat/habiter-mieux-en-clunisois/": "c51e9a31ec02e6aa",
     "https://enclunisois.fr/wp-content/uploads/2023/06/CONVENTION-OPAH-CLUNISOIS.pdf": "c5361cddc90d74a2",
     "https://habitat.vichy-communaute.fr/subventions-locales/": "e2061471939f65de",
     "https://habitat.vichy-communaute.fr/wp-content/uploads/2022/01/Courrier-demande-aide-facade-VichyComunaute-AOUT2021.pdf": "b29ce2af67fd5ac1",
@@ -414,11 +432,11 @@
     "https://webdelib.vichy-communaute.fr/webdelibplus/jsp/showFile.jsp?datePub=16%2F06%2F2023&dateRetLega=16%2F06%2F2023&pdf=wtKyq5gSV6UIi8PrmEya3hR%2FmLq%2BZfLnX4rI8DyJ0lkRgTin1oICmpHLMake1H%2FyM5q8zua17SbsW6d1CE7wc6Y4wP0G7%2Fb98mQb%2FV4cQcyvysr6kd8CjF4Tt%2F%2B6Wd%2BwYZ9gUhpL4aCOBS5aZ3k9kOnlPZg%2FlCIU": "b798f080a4268215",
     "https://webdelib.vichy-communaute.fr/webdelibplus/jsp/showFile.jsp?datePub=16%2F06%2F2023&dateRetLega=16%2F06%2F2023&pdf=wtKyq5gSV6UIi8PrmEya3hR%2FmLq%2BZfLnX4rI8DyJ0lkRgTin1oICmpHLMake1H%2FyM5q8zua17SbsW6d1CE7wc6Y4wP0G7%2Fb98mQb%2FV4cQcyvysr6kd8CjJ2d84yYgYpqRgxB9fqg9Bo%2FOdvHNn35BsR%2BxY%2FY2pCskKoCOHbe%2BmJdvWlZYGrTtw%3D%3D": "06f61a0591160d6f",
     "https://webdelib.vichy-communaute.fr/webdelibplus/jsp/showFile.jsp?datePub=16%2F06%2F2023&dateRetLega=16%2F06%2F2023&pdf=wtKyq5gSV6UIi8PrmEya3hR%2FmLq%2BZfLnX4rI8DyJ0lkRgTin1oICmpHLMake1H%2FyM5q8zua17SbsW6d1CE7wc6Y4wP0G7%2Fb98mQb%2FV4cQcyvysr6kd8CjMt9Y%2BpxyXFedpqN6Tc7qhMl%2FYBPNC2IDrOh440CThee8Yx50pcCLKwA9oTeG1HWyVqOdubHFxQzehoI1I1GZGItGK8bHhj8zpqzrjBjrNNI": "54f579a7dd91d0d3",
-    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/opah-ru/": "537c07953c4656b6",
-    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/dispositifs-dassainissement-autonomes-ou-collectifs/": "edffc88a96806edb",
-    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/logements-vacants/": "a7af99f762e04ebc",
-    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/renovation-des-facades/": "7bc2c0b5eadbf0d2",
-    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/soutien-aux-dispositifs-france-renov/": "f5d23868ede824c9",
+    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/opah-ru/": "f2740c7c1fbc4b79",
+    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/dispositifs-dassainissement-autonomes-ou-collectifs/": "e34f5f289cbb74fb",
+    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/logements-vacants/": "e344fa7b570d0787",
+    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/renovation-des-facades/": "6ba118035e11f604",
+    "https://www.agglo-grandgueret.fr/au-quotidien/habitat/renovation-et-aides/soutien-aux-dispositifs-france-renov/": "9bdd96b8313f5fdb",
     "https://www.agglo-grandgueret.fr/wp-content/uploads/2025/07/ca_grand_gueret_reglement_communautaire_des_aides_financieres_en_application_du_plh_cc_26_septembre_2024-1.pdf": "0ae9b8b07f2a832b",
     "https://www.agglo-grandgueret.fr/wp-content/uploads/2025/10/lettre_automne2025_web.pdf": "3b3804fabdebebe9",
     "https://www.agglo-lepuyenvelay.fr/habitat-urbanisme/": "f51a92e1d671efec",
@@ -429,24 +447,24 @@
     "https://www.agglo-moulins.fr/services-equipements/urbanisme-habitat/aides-au-logement.html": "370156b1723bb9f4",
     "https://www.agglo-nevers.net/se-loger-se-deplacer-2/opah-comme-opportunite/": "ea75a4973fe8d912",
     "https://www.aggloroanne.fr/fileadmin/Aggloroanne.fr/3_Au_quotidien/Habitat/Aides_a_l_habitat/ANAH_-_reglement_cofinancement.pdf": "8cbf53e9f53ce265",
-    "https://www.allier.fr/1569-frais-de-notaire.htm": "611b6bc09afa9457",
-    "https://www.allier.fr/1594-diagnostics-immobiliers-offerts.htm": "d452d74c6216d6b4",
-    "https://www.allier.fr/1778-lutte-contre-l-habitat-indigne.htm": "af28b87cfb8d2794",
-    "https://www.allier.fr/1779-autonomie-et-maintien-a-domicile.htm": "dda8025f6fe5e9db",
-    "https://www.allier.fr/1780-lutte-contre-la-precarite-energetique.htm": "bbaebd91e38c60d9",
-    "https://www.allier.fr/aide/161/1151-les-aides.htm": "18bf0d27cc9c2b82",
+    "https://www.allier.fr/1569-frais-de-notaire.htm": "40995dee978af845",
+    "https://www.allier.fr/1594-diagnostics-immobiliers-offerts.htm": "f1c7f8fd5c571d8f",
+    "https://www.allier.fr/1778-lutte-contre-l-habitat-indigne.htm": "d5e2d3d4c9ac7d89",
+    "https://www.allier.fr/1779-autonomie-et-maintien-a-domicile.htm": "ba742a95a7536838",
+    "https://www.allier.fr/1780-lutte-contre-la-precarite-energetique.htm": "856c0294a7b980e0",
+    "https://www.allier.fr/aide/161/1151-les-aides.htm": "dd093123254ed457",
     "https://www.allier.fr/aide/161/1151-les-aides.htm?dl=1": "cfb6243f739cf3a0",
-    "https://www.allier.fr/aide/162/1151-les-aides.htm": "f90c83a1f51b0739",
+    "https://www.allier.fr/aide/162/1151-les-aides.htm": "f21983393cf3a266",
     "https://www.allier.fr/aide/162/1151-les-aides.htm?dl=1": "bbccb6541e26b12c",
-    "https://www.allier.fr/aide/178/1151-les-aides.htm": "dbcb856c44016836",
-    "https://www.allier.fr/aide/179/1151-les-aides.htm": "f819b761aa4acfd5",
+    "https://www.allier.fr/aide/178/1151-les-aides.htm": "9c2f40b19c179722",
+    "https://www.allier.fr/aide/179/1151-les-aides.htm": "f9120d048a61c3ed",
     "https://www.allier.fr/aide/179/1151-les-aides.htm?dl=1": "729cbf55ec24c6c6",
-    "https://www.allier.fr/aide/18/1151-les-aides.htm": "54a7fd343c9ebae3",
-    "https://www.allier.fr/aide/180/1151-les-aides.htm": "5a27e4ceb4475de5",
-    "https://www.allier.fr/aide/181/1151-les-aides.htm": "553f2f6a9f7f66c4",
+    "https://www.allier.fr/aide/18/1151-les-aides.htm": "b213d480b52bc545",
+    "https://www.allier.fr/aide/180/1151-les-aides.htm": "e8ad2bb8bbc355f8",
+    "https://www.allier.fr/aide/181/1151-les-aides.htm": "cd2f340772742f10",
     "https://www.allier.fr/aide/181/1151-les-aides.htm?dl=1": "70971c7b6a8b7949",
-    "https://www.allier.fr/aide/182/1151-les-aides.htm": "1fd6b633e21e7a22",
-    "https://www.allier.fr/aide/62/1151-les-aides.htm": "aa131dce8c08ff28",
+    "https://www.allier.fr/aide/182/1151-les-aides.htm": "011e85a8979ffd64",
+    "https://www.allier.fr/aide/62/1151-les-aides.htm": "ff2d5c42989c1fee",
     "https://www.allier.fr/cms_viewFile.php?idtf=39245&path=aide_lutte_habitat_indigne.pdf": "491672844bc71282",
     "https://www.allier.fr/cms_viewFile.php?idtf=39246&path=aide_autonomie_habitat.pdf": "e192eebabec732b1",
     "https://www.allier.fr/cms_viewFile.php?idtf=39248&path=aide_precarite_energetique_habitat.pdf": "ee35a8d8246ad686",
@@ -454,7 +472,7 @@
     "https://www.ambertlivradoisforez.fr/wp-content/uploads/2026/07/21b.-ADT2b.-Convention-OPAH-RU-2026-2031-CCALF_compressed.pdf": "a3237037748d4356",
     "https://www.aubusson.fr/aides-de-la-fondation-du-patrimoine-et-de-la-commune-d-aubusson/": "eabeafe674750f9f",
     "https://www.aubusson.fr/exoneration-de-la-taxe-fonciere/": "b6789b3db531c8d7",
-    "https://www.bressenordintercom.fr/social-habitat-et-sante/habiter-mieux/": "884e56962cbb316c",
+    "https://www.bressenordintercom.fr/social-habitat-et-sante/habiter-mieux/": "ea4199c69f4136fc",
     "https://www.brioude.fr/_files/PLAQUETTE%20URBANIS%20OPAH.pdf": "49af35f986ec46a5",
     "https://www.brioudesudauvergne.fr/wp-content/uploads/2024/07/Liste-des-deliberations-avec-vote.pdf": "9ba21a83f6e1b483",
     "https://www.brioudesudauvergne.fr/wp-content/uploads/2024/10/2024-07-09-PV.pdf": "c013fcba7b53022a",
@@ -472,9 +490,9 @@
     "https://www.cc-bocage-bourbonnais.com/images/deliberations/2026/annexe-1---pv-2026-01-16.pdf": "fc8de6fe2bc4057c",
     "https://www.cc-bocage-bourbonnais.com/images/deliberations/liste-des-deliberations-fevrier-2026.pdf": "a396c38d0385c61d",
     "https://www.cc-bocage-bourbonnais.com/services-aux-habitants/le-logement.html": "b27e7d00782a45c2",
-    "https://www.cc-entresaoneetgrosne.fr/france-services/aides-a-la-renovation-habitat/": "152e4b9892ca696f",
-    "https://www.cc-massifdusancy.fr/services-aux-sancyliens/habitat/": "3450d26b4ff77787",
-    "https://www.cc-montsdulyonnais.fr/habitat/renover/": "91aced6e5301e35b",
+    "https://www.cc-entresaoneetgrosne.fr/france-services/aides-a-la-renovation-habitat/": "945044fad9461029",
+    "https://www.cc-massifdusancy.fr/services-aux-sancyliens/habitat/": "4862c5227a3f061e",
+    "https://www.cc-montsdulyonnais.fr/habitat/renover/": "4b1df9d018eae2d4",
     "https://www.cc-pays-huriel.com/wp-content/uploads/2025/03/6.-Programme-Habiter-mieux-T.pdf": "12b1242fe9eb91f7",
     "https://www.cc-pays-huriel.com/wp-content/uploads/2026/03/2.-ANAH-T.pdf": "53ca9fc74d088030",
     "https://www.ccdoreallier.fr/urbanisme-eau-environnement/habitat/vous-habitez-un-commune-entre-dore-et-allier-ou-lezoux-hors-centre-ville/aides-intercommunal-communal/subvention-cceda-facade-et-ou-toiture/": "26efbfd9ccf54585",
@@ -501,8 +519,8 @@
     "https://www.chataigneraie15.fr/userfile/fichier-telechargement/1753781238-CC220525.pdf": "2565075ba5adb9a0",
     "https://www.chataigneraie15.fr/userfile/fichier-telechargement/1786364398-CC250626.pdf": "e888ae7dab6519b5",
     "https://www.clamecy.fr/votre-mairie/urbanisme/accompagnement-a-la-renovation/": "861604258a878ec3",
-    "https://www.clermontmetropole.eu/habiter-se-deplacer/habitat-et-logement/renover-lhabitat-durable/amelioration-du-parc-prive/": "f23da8705761b8a6",
-    "https://www.clermontmetropole.eu/habiter-se-deplacer/habitat-et-logement/renover-lhabitat-durable/maintien-a-domicile/": "56252067f83ba06d",
+    "https://www.clermontmetropole.eu/habiter-se-deplacer/habitat-et-logement/renover-lhabitat-durable/amelioration-du-parc-prive/": "06333d943885555c",
+    "https://www.clermontmetropole.eu/habiter-se-deplacer/habitat-et-logement/renover-lhabitat-durable/maintien-a-domicile/": "f397d739297694c7",
     "https://www.cmnc03.fr/Habitat/aides-%C3%A0-lhabitat": "76641d0457438d10",
     "https://www.cmnc03.fr/sites/default/files/users/AlexandreB/__DELIBERATIONS.pdf": "720cf101f44cfeb2",
     "https://www.cmnc03.fr/sites/default/files/users/AlexandreB/PV%2009.02.2026.pdf": "eea8eb45b07bf296",
@@ -513,7 +531,7 @@
     "https://www.comcom-ccspsl.fr/wp-content/uploads/2025/12/PV-du-04-dec-2025-adopte-le-05-fev-2026.pdf": "a41b3738211ad0f8",
     "https://www.comcom-ccspsl.fr/wp-content/uploads/2026/01/conditions-dattributions-des-aides-a-lhabitat-de-la-CCSPSL-au-01-janv-2026.pdf": "87df6da2f8514035",
     "https://www.comcom-ccspsl.fr/wp-content/uploads/2026/03/Formulaire-demande-aides-CCSPSL-facade-secteur-MH-sans-aide-Anah-1er-janvier-2026.pdf": "fe07fdec8dd6002e",
-    "https://www.copler.fr/habitat-bien-accompagne-avec-la-copler/": "a69d100106e9084c",
+    "https://www.copler.fr/habitat-bien-accompagne-avec-la-copler/": "4f8fc9cda4efbb8c",
     "https://www.copler.fr/wp-content/uploads/2026/06/Reglement_attribution_CoPLERenov_2026.pdf": "0472b81757515fc5",
     "https://www.correze.fr/services-en-ligne/les-aides/aide-au-maintien-domicile-des-seniors-de-plus-de-65-ans-par-ladaptation-du-logement": "738b0d7d781d4982",
     "https://www.correze.fr/services-en-ligne/les-aides/aide-aux-bailleurs-prives-pour-remise-en-etat-suite-degradations": "9fe1806f24622fc9",
@@ -540,7 +558,7 @@
     "https://www.creusot-montceau.org/vie-quotidienne/habitat-et-logement/aide-a-la-renovation-de-logement/operation-programmee-damelioration-de-lhabitat-2021-2024/": "26634ef686d268c8",
     "https://www.creusot-montceau.org/wp-content/uploads/wpallimport/files/seances/seance_144564/24_d1773134750998.pdf": "33ede928d3e931ea",
     "https://www.creusot-montceau.org/wp-content/uploads/wpallimport/files/seances/seance_90451/13_d1623230603560.pdf": "ce3a4a1d6a25647e",
-    "https://www.data.gouv.fr/datasets/5fc1259b703620ed60a49d97/": "6aec4c61bd3cafab",
+    "https://www.data.gouv.fr/datasets/5fc1259b703620ed60a49d97/": "531aee5416e85364",
     "https://www.domes-sancyartense.fr/habitat-cadre-de-vie-environnement/habitat/": "4526cd3f0ec23178",
     "https://www.effilogis.fr/page/aide-effilogis-amo-pour-choix-dun-maitre-doeuvre": "9f9a5e89d55acca6",
     "https://www.effilogis.fr/page/aide-effilogis-audit-energetique": "d862e0beabc4de4f",
@@ -555,7 +573,7 @@
     "https://www.grandautunoismorvan.fr/vivre-et-sinstaller/vos-services-au-quotidien/renovation-de-lhabitat/habiter-mieux-aide-financiere/titre-par-defaut-1": "7bbfa3d5e82ce4f7",
     "https://www.habitat71.fr/renovation-energetique-aides-habitat-durable-9.html": "f0429065f13cc923",
     "https://www.hauteloire.fr/Maison-Departementale-de-l-Habitat.html": "2420b6703fc34657",
-    "https://www.hauteloire.fr/Patrimoine-rural-non-protege-et.html": "473e4ad65553b08e",
+    "https://www.hauteloire.fr/Patrimoine-rural-non-protege-et.html": "8eb97b84bb4b6a52",
     "https://www.hauteloire.fr/sites/cg43/IMG/pdf/dispos-renovation-toitures-typques-formulaire-subvention.pdf": "16187eeee2b27d42",
     "https://www.hauteloire.fr/sites/cg43/IMG/pdf/perimetre-eligibilite-dispositif-toitures-typiques.pdf": "c5052a56153ea8f3",
     "https://www.hautesterres.fr/habitat-bilan-des-dispositifs-daide-a-la-renovation/": "4c2ed6b2202eed10",
@@ -567,7 +585,7 @@
     "https://www.interco-abl.org/wp-content/uploads/2025/10/DELIB-22-Dispositif-Habiter-Mieux.pdf": "4aa8324967cd7f2e",
     "https://www.interco-abl.org/wp-content/uploads/2026/07/DELIB-117-Dispositif-Habiter-Mieux-Attribution-aide-aux-beneficiaires.pdf": "d4c6e5dd9746911e",
     "https://www.le-creusot.fr/app/uploads/2022/02/Reglement-plan-couleur.pdf": "dde0aec1dcf1edab",
-    "https://www.loire.fr/jcms/lw_858621/fr/maison-de-l-habitat-loire": "d57646a1cc0ac46a",
+    "https://www.loire.fr/jcms/lw_858621/fr/maison-de-l-habitat-loire": "ab89859a3a63265a",
     "https://www.loireforez.fr/services-au-quotidien/habitat-et-logement/aides-renovation-habitat/": "e344534d84231597",
     "https://www.loireforez.fr/wp-content/uploads/2025/12/20251216_CC_DEL24_HAB_Modification_n%C2%B05_rglt_PLH.pdf": "8044fa8257e2a035",
     "https://www.mb-agglo.com/app/uploads/1/2026/01/Convention_Opah-Ru_Macon_2026-2031.pdf": "04bbbd844552e569",
@@ -579,7 +597,7 @@
     "https://www.mond-arverne.fr/habiter-en-mondarverne/habitat-et-logement/renover-son-logement/operation-programmee-amelioration-habitat/": "a0bd90b59676ccb5",
     "https://www.montceaulesmines.fr/plan-couleur": "290a1a8292b31ef8",
     "https://www.montceaulesmines.fr/wp-content/uploads/2021/10/RS%CC%8Cglement-de-2016-plan-couleurs.pdf": "a227f4779628bb15",
-    "https://www.nouvelle-aquitaine.fr/linstitution/le-conseil-regional/les-commissions-permanentes/commission-permanente-du-3-avril-2023": "2e25e08f178cf71d",
+    "https://www.nouvelle-aquitaine.fr/linstitution/le-conseil-regional/les-commissions-permanentes/commission-permanente-du-3-avril-2023": "f3169dd830d8197e",
     "https://www.pays-sostranien.fr/amenagement-environnement/habitat/": "e44dd838ca09bc6c",
     "https://www.paysdetroncais.fr/lhabitat/": "962b9e86bdd79414",
     "https://www.paysdetroncais.fr/wp-content/uploads/2018/03/Rapport-dactivité-2017.pdf": "37f5c68d0f3e03b3",
