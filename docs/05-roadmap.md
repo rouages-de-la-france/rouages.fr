@@ -3936,6 +3936,25 @@ sans licence nommée, et le second ne dit pas sa programmation. Rien de
 trouvé pour l'Île-de-France, la Bretagne, l'Occitanie, PACA et les
 outre-mer.
 
+**Rouages Pro dans l'en-tête, et une page « Participer »** (16 novembre
+2026, demande du mainteneur). Un menu discret, « Rouages Pro », ouvert au
+clic, liste les services de l'éditeur qui financent le site — marchés
+publics, collectivités, immobilier, financements, financements de l'ESS,
+données et extraits sur mesure — et le dit. C'est un `<details>` natif ;
+`src/client/menu-pro.ts` le referme d'un clic ailleurs ou d'Échap. La page
+`/participer` recueille les sources à suggérer et les avis, par une issue
+publique ou par courriel ; elle dit ce que le site ne sait pas encore lire
+faute de moyens (les délibérations publiées en PDF, qu'il faudrait passer à
+la reconnaissance de caractères puis à une analyse automatique), et comment
+il se finance, avec la contribution volontaire des structures de l'ESS sur
+Pro — une prestation facturée, pas un don. Le pied de page y renvoie.
+Le même jour, la contribution s'ouvre à toutes les structures (les
+particuliers attendent l'avis d'un avocat sur la rétractation) ; sa seule
+contrepartie, sur demande, est une ligne sans lien sur `/remerciements`, lue
+dans `remerciements.yaml`, à la racine — hors de `contenu/`, dont la
+validation refuse les noms de personnes. Le menu gagne « Sur mesure »
+(`pro.rouages.fr/sur-mesure`, exemples de prestations et d'études).
+
 **La réingestion n° 11** (14 novembre 2026, après #166) a été coupée à
 350 minutes, 76 secondes après avoir écrit ses 101 départements. Trois
 corrections : Sitadel était bien téléchargé mais lu à la virgule, alors que

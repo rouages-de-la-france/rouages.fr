@@ -1,0 +1,113 @@
+---
+/**
+ * Participer : suggérer une source, donner un avis, voir ce que le site ne
+ * sait pas encore lire, et comment il se finance. Les signalements d'erreur
+ * ont leur page, `/signaler` ; celle-ci est pour ce qui manque.
+ *
+ * Tout passe par une issue publique du dépôt, ou par courriel : la page ne
+ * collecte rien elle-même.
+ */
+import Base from '../layouts/Base.astro';
+import { chargerGraphe } from '../modele/graphe.ts';
+import { DEPOT } from '../modele/signalement.ts';
+
+const g = chargerGraphe();
+const contact = g.editeur?.contact ?? '';
+const courriel = contact.includes('@') ? contact : null;
+
+const issue = (titre: string, corps: string) => `${DEPOT}/issues/new?${new URLSearchParams({ title: titre, body: corps })}`;
+const SOURCE = issue(
+  'Source à suggérer : ',
+  [
+    '**La source** (nom, organisme qui la publie, adresse) :',
+    '',
+    '**Ce qu’elle dirait sur le site** (quelle page, quelle commune, quel thème) :',
+    '',
+    '**Sa licence, si vous la connaissez** :',
+    '',
+  ].join('\n'),
+);
+const AVIS = issue('Avis : ', ['**Ce qui vous a servi, ou manqué** :', '', '**La page concernée, s’il y en a une** :', ''].join('\n'));
+const mail = (sujet: string) => (courriel ? `mailto:${courriel}?subject=${encodeURIComponent(sujet)}` : null);
+---
+
+<Base
+  titre="Participer"
+  description="Suggérer une source, donner un avis, voir ce que Rouages ne sait pas encore lire faute de moyens, et comment le site se finance."
+>
+  <div class="page page--etroite">
+    <h1>Participer</h1>
+    <p class="resume">
+      Rouages se construit avec ce que publient les administrations. Vous connaissez peut-être une source qu’il ne lit pas,
+      ou un usage qu’il sert mal&nbsp;: c’est ici que ça se dit.
+    </p>
+    <p>
+      Comme les signalements d’erreur, ce que vous proposez devient une <a href={`${DEPOT}/issues`} rel="noopener"
+        target="_blank">issue publique du dépôt</a>&nbsp;: la discussion et la décision restent visibles. Rien n’est envoyé
+      avant que vous ne validiez sur GitHub.{mail('Rouages') && <> Sans compte GitHub, écrivez à <a href={mail('Rouages')!}>{courriel}</a>.</>}
+      Une erreur sur une page se signale <a href="/signaler">ailleurs</a>, avec ce que la page affiche.
+    </p>
+
+    <section id="source">
+      <h2 class="badge">Suggérer une source</h2>
+      <p>
+        Un jeu de données, un registre, une liste officielle&nbsp;: ce qui compte est qu’il soit public, qu’on puisse le lire
+        sans contourner aucune protection, et qu’une licence en permette la réutilisation. Dites ce qu’il apporterait, et
+        à quelle page.
+      </p>
+      <p class="actions-signalement">
+        <a class="bouton" href={SOURCE} rel="noopener" target="_blank">Suggérer une source sur GitHub</a>
+        {mail('Rouages — une source à suggérer') && <a class="plat" href={mail('Rouages — une source à suggérer')!}>Par courriel</a>}
+      </p>
+    </section>
+
+    <section id="avis">
+      <h2 class="badge">Donner un avis</h2>
+      <p>Ce qui vous a servi, ce qui vous a manqué, ce qui ne se comprend pas&nbsp;: tout retour aide à choisir la suite.</p>
+      <p class="actions-signalement">
+        <a class="bouton" href={AVIS} rel="noopener" target="_blank">Donner un avis sur GitHub</a>
+        {mail('Rouages — un avis') && <a class="plat" href={mail('Rouages — un avis')!}>Par courriel</a>}
+      </p>
+    </section>
+
+    <section id="pas-encore">
+      <h2 class="badge">Ce que le site ne sait pas encore lire</h2>
+      <ul class="c-structures">
+        <li>
+          <strong>La plupart des délibérations.</strong> Le site lit celles que les collectivités publient en données
+          ouvertes, au <a href="/deliberations">schéma du socle commun des données locales</a>. Les autres — conseils
+          municipaux, communautaires, départementaux, régionaux — sont publiées en PDF, souvent scannées. Les lire
+          demanderait une reconnaissance de caractères, puis une analyse automatique de chaque texte, et une relecture&nbsp;:
+          un coût que le projet ne peut pas encore porter. La règle resterait la même&nbsp;: aucun particulier cité dans une
+          délibération ne serait nommé.
+        </li>
+        <li>
+          <strong>Ce que des services ne publient pas.</strong> Il n’existe pas de liste nationale des communes des
+          groupes d’action locale <a href="/dispositif/leader">LEADER</a>&nbsp;: le site lit les
+          Régions qui publient la leur, et dit, pour les autres, qu’il ne sait pas. Une source qui comble un tel manque est
+          la plus utile des suggestions.
+        </li>
+      </ul>
+      <p class="v-nature">
+        Vous savez faire ce travail, ou vous connaissez qui le fait déjà&nbsp;: dites-le, par une issue ou par courriel.
+      </p>
+    </section>
+
+    <section id="financement">
+      <h2 class="badge">Comment le site se finance</h2>
+      <p>
+        Rouages est édité par MayetCo SAS. Le site public est entier, gratuit et sans publicité&nbsp;; ce qui le finance,
+        ce sont les services de l’éditeur, réunis sur <a href="https://pro.rouages.fr">Rouages Pro</a>&nbsp;: la veille des
+        marchés publics, les services aux collectivités et aux professionnels de l’immobilier, les extraits de données sur
+        mesure.
+      </p>
+      <p>
+        <strong>Une contribution volontaire</strong> est ouverte à toutes les structures — association, entreprise,
+        collectivité —&nbsp;: <a href="https://pro.rouages.fr/contribuer">contribuer à Rouages</a>, du montant que vous
+        choisissez, en une fois. C’est un achat, pas un don&nbsp;: une prestation facturée, qui n’ouvre droit à aucune
+        réduction d’impôt. Sa seule contrepartie, si vous la demandez, est une ligne sur la page des
+        <a href="/remerciements">remerciements</a>, sans lien.
+      </p>
+    </section>
+  </div>
+</Base>

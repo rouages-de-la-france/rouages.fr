@@ -1,0 +1,59 @@
+---
+/**
+ * Les remerciements : ceux qui ont contribué et ont demandé à figurer ici,
+ * d'après `remerciements.yaml`. Une ligne, sans lien — le site reste sans
+ * publicité (décision du 16 novembre 2026).
+ */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parse } from 'yaml';
+import Base from '../layouts/Base.astro';
+
+type Ligne = { nom: string; depuis: string };
+const brut = parse(readFileSync(join(process.cwd(), 'remerciements.yaml'), 'utf8')) as { remerciements?: { nom?: unknown; depuis?: unknown }[] } | null;
+const lignes: Ligne[] = (brut?.remerciements ?? [])
+  .map((x) => ({ nom: String(x.nom ?? '').trim(), depuis: String(x.depuis ?? '').trim() }))
+  .filter((x) => x.nom.length > 1);
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const mois = (d: string) => {
+  const m = /^(\d{4})-(\d{2})/.exec(d);
+  return m ? `${MOIS[Number(m[2]) - 1]} ${m[1]}` : '';
+};
+---
+
+<Base
+  titre="Remerciements"
+  description="Celles et ceux qui ont contribué à Rouages, et ont demandé à y figurer."
+>
+  <div class="page page--etroite">
+    <h1>Remerciements</h1>
+    <p class="resume">
+      rouages.fr est gratuit et sans publicité. Ceux qui ont contribué à le faire vivre, et ont demandé à figurer ici,
+      sont nommés ci-dessous, tels qu’ils l’ont choisi.
+    </p>
+
+    {lignes.length > 0 ? (
+      <ul class="c-structures">
+        {lignes.map((l) => (
+          <li>
+            {l.nom}
+            {mois(l.depuis) && <span class="c-departement-detail">{` depuis ${mois(l.depuis)}`}</span>}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="v-nature">Aucun nom pour l’instant&nbsp;: la contribution vient d’ouvrir.</p>
+    )}
+
+    <h2 class="badge">Contribuer</h2>
+    <p>
+      La <a href="https://pro.rouages.fr/contribuer">contribution volontaire</a>, sur Rouages Pro, est un achat, pas un
+      don&nbsp;: une prestation facturée, du montant que vous choisissez, qui n’ouvre droit à aucune réduction d’impôt. Sa
+      seule contrepartie est une ligne sur cette page, sans lien, au nom ou au pseudonyme que vous choisissez — et
+      seulement si vous la demandez. Elle se retire sur simple courriel.
+    </p>
+    <p class="v-nature">
+      D’autres façons d’aider, sans payer&nbsp;: suggérer une source, donner un avis, <a href="/participer">participer</a>.
+    </p>
+  </div>
+</Base>
