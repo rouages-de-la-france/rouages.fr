@@ -9,8 +9,17 @@
 # Les secrets viennent de `.env`, jamais committé : voir `.env.exemple`.
 
 x-image: &image
-  build: docker/ingestion
+  # Compose vérifie l'image à chaque lancement et ne reconstruit que ce qui a
+  # changé (Dockerfile, scripts) : sans `pull_policy: build`, il garde
+  # l'image déjà construite, même périmée, et un correctif du dépôt n'y entre
+  # pas (« bash\r », 16 novembre 2026). Sans attestation de provenance,
+  # l'image garde le même identifiant tant que rien ne change : le runner
+  # n'est pas recréé pour rien.
+  build:
+    context: docker/ingestion
+    provenance: false
   image: rouages-ingestion
+  pull_policy: build
   env_file:
     - path: .env
       required: false

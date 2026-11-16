@@ -117,7 +117,13 @@ Les deux premiers partagent le cache des gros fichiers (volume
   ligne de ses scripts. Un clone déjà touché se répare dans WSL :
   `git config core.autocrlf false`, puis `git rm -rq --cached . && git reset --hard`
   (ce qui jette les modifications non commitées ; le `.env` n'est pas suivi
-  et reste), puis `docker compose build --no-cache`.
+  et reste). Ce n'est plus nécessaire pour le conteneur.
+- **L'image se met à jour seule.** `docker compose run` et `up` vérifient
+  l'image à chaque lancement (`pull_policy: build`) et ne reconstruisent que
+  ce qui a changé : un `git pull` suffit, sans `docker compose build`. Quand
+  rien n'a changé, la vérification prend moins d'une seconde et le runner
+  n'est pas redémarré. Avant ce réglage, une image construite une fois
+  restait en place même après un correctif du dépôt.
 - **Le dépôt cloné dans WSL** (`\\wsl$\Ubuntu\home\…`), pas sur `C:` :
   l'ingestion réécrit des dizaines de milliers de fichiers, et un dossier
   Windows passe par une couche réseau, bien plus lente. Le conteneur tourne
