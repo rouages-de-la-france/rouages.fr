@@ -2,6 +2,8 @@
 import { audience } from '../modele/audience.ts';
 import '../styles/global.css';
 import RechercheCommune from '../composants/RechercheCommune.astro';
+import { DEPOT } from '../modele/signalement.ts';
+import { derniereIngestion, jourParis, versionSite } from '../modele/versions.ts';
 
 interface Props {
   titre: string;
@@ -41,6 +43,12 @@ const { titre, description, plein = false, flux, section, sousPage, indexer = tr
 const imageAbsolue = new URL(image, Astro.site ?? 'https://rouages.fr').href;
 const courant = (s: string) => (section === s ? 'page' : undefined);
 const sousCourant = (s: string) => (sousPage === s ? 'page' : undefined);
+// De quand date ce qu'on lit : le site, puis les données (voir `versions.ts`).
+const version = versionSite();
+const ingestion = derniereIngestion();
+const datesDonnees = ingestion
+  ? ` · ${ingestion.nature === 'complete' ? 'données réingérées le' : 'dernière lecture d’une source le'} ${jourParis(ingestion.fin)}`
+  : '';
 ---
 
 <!doctype html>
@@ -151,6 +159,10 @@ const sousCourant = (s: string) => (sousPage === s ? 'page' : undefined);
           Une erreur&nbsp;? <a href="/signaler">Signalez-la</a> — les référentiels
           ont des trous, et vous connaissez peut-être votre commune mieux qu’eux.
           Une source à suggérer, un avis&nbsp;: <a href="/participer">participez</a>.
+        </p>
+        <p class="pied-versions">
+          Site déployé le {jourParis(version.construit)}{version.commit && <> (version <a href={`${DEPOT}/commit/${version.commit}`} rel="noopener">{version.commit.slice(0, 7)}</a>)</>}{datesDonnees}.
+          <a href="/methode#mises-a-jour">Ce que disent ces dates</a>.
         </p>
       </footer>
     )}
