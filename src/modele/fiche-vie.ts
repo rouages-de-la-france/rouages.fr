@@ -1496,6 +1496,14 @@ export interface ZonagesGroupe {
   montagneUrbanisme: number | null;
   /** Les communes par niveau de France ruralités revitalisation ; null quand la collecte ne l'a pas encore lu. */
   frr: Record<string, number> | null;
+  /** Les communes signataires d'une convention d'opération de revitalisation de territoire ; null quand la collecte ne l'a pas lue. */
+  ort: string[] | null;
+  /**
+   * Les groupes d'action locale LEADER des communes, avec leur nombre de
+   * communes, et combien de communes sont dans une région que la collecte n'a
+   * pas lue ; null quand aucune collecte n'a tourné.
+   */
+  leader: { gals: { nom: string; n: number }[]; inconnues: number } | null;
   programmes: Record<string, string[]>;
   territoiresIndustrie: string[];
   crte: string[];
@@ -1508,7 +1516,8 @@ export interface ZonagesGroupe {
 export function zonagesGroupe(liste: { code: string; dep: string; nom: string }[]): ZonagesGroupe | null {
   let dates: Record<string, string> | null = null;
   let maj = '';
-  const g: ZonagesGroupe = { communes: 0, montagne: 0, partieMontagne: 0, montagneUrbanisme: null, frr: null, programmes: {}, territoiresIndustrie: [], crte: [], abc: {}, quartiers: [], dates: {}, maj: '' };
+  const g: ZonagesGroupe = { communes: 0, montagne: 0, partieMontagne: 0, montagneUrbanisme: null, frr: null, ort: null, leader: null, programmes: {}, territoiresIndustrie: [], crte: [], abc: {}, quartiers: [], dates: {}, maj: '' };
+  const gals = new Map<string, number>();
   const ti = new Set<string>();
   const crte = new Set<string>();
   for (const c of liste) {
@@ -1517,7 +1526,17 @@ export function zonagesGroupe(liste: { code: string; dep: string; nom: string }[
     dates ??= d.dates;
     maj = d.maj;
     g.communes++;
-    const [programmes, nomTi, nomCrte, m, abc, quartiers, , u, f] = d.c[c.code] ?? [[], '', '', 0];
+    const [programmes, nomTi, nomCrte, m, abc, quartiers, , u, f, o] = d.c[c.code] ?? [[], '', '', 0];
+    if (d.dates.ort) {
+      g.ort ??= [];
+      if (o) g.ort.push(c.nom);
+    }
+    const l = leaderDe(c.dep, c.code);
+    if (l) {
+      g.leader ??= { gals: [], inconnues: 0 };
+      if (l.gal) gals.set(l.gal, (gals.get(l.gal) ?? 0) + 1);
+      else if (!l.couvert) g.leader.inconnues++;
+    }
     if (d.dates.frr) {
       g.frr ??= {};
       const k = NIVEAUX_FRR[f ?? 0] ?? 'non';
@@ -1535,6 +1554,7 @@ export function zonagesGroupe(liste: { code: string; dep: string; nom: string }[
   if (!dates) return null;
   g.territoiresIndustrie = [...ti].sort((a, b) => a.localeCompare(b, 'fr'));
   g.crte = [...crte].sort((a, b) => a.localeCompare(b, 'fr'));
+  if (g.leader) g.leader.gals = [...gals].map(([nom, n]) => ({ nom, n })).sort((a, b) => b.n - a.n || a.nom.localeCompare(b.nom, 'fr'));
   g.dates = dates;
   g.maj = maj;
   return g;

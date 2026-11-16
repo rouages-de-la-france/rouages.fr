@@ -29,6 +29,10 @@ const lienFrr = lienDispositif('frr');
 const lienTi = lienDispositif('ti');
 const lienCrte = lienDispositif('crte');
 const lienQpv = lienDispositif('qpv');
+const lienOrt = lienDispositif('ort');
+const lienLeader = lienDispositif('leader');
+// Comme les territoires d'industrie : au-delà de six, le nombre suffit.
+const nommerGals = nommer || (z.leader?.gals.length ?? 0) < 7;
 const NIVEAUX_FRR: [string, string][] = [
   ['plus', 'en FRR « plus »'],
   ['socle', 'en FRR « socle »'],
@@ -60,6 +64,27 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
     <li>
       {lienCrte ? <a href={lienCrte}>{`Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique`}</a> : `Contrat${z.crte.length > 1 ? 's' : ''} pour la réussite de la transition écologique`}
       {` : ${nommerCrte ? z.crte.map((t) => `« ${t} »`).join(', ') : nf(z.crte.length)}.`}
+    </li>
+  )}
+  {z.ort && (
+    <li>
+      {lienOrt ? <a href={lienOrt}>Opération de revitalisation de territoire</a> : 'Opération de revitalisation de territoire'}
+      {z.ort.length === 0
+        ? ' : aucune commune signataire.'
+        : ` : ${nf(z.ort.length)} commune${z.ort.length > 1 ? 's' : ''} signataire${z.ort.length > 1 ? 's' : ''} d’une convention, sur ${nf(z.communes)}` + (nommer ? ` — ${z.ort.join(', ')}.` : '.')}
+    </li>
+  )}
+  {z.leader && (z.leader.gals.length > 0 || z.leader.inconnues > 0) && (
+    <li>
+      {lienLeader ? <a href={lienLeader}>LEADER</a> : 'LEADER'}
+      {(z.leader.gals.length === 0
+        ? ''
+        : ` : ${z.leader.gals.length} groupe${z.leader.gals.length > 1 ? 's' : ''} d’action locale` +
+          (nommerGals ? ` — ${z.leader.gals.map((x) => `« ${x.nom} » (${nf(x.n)} commune${x.n > 1 ? 's' : ''})`).join(', ')}` : '') +
+          '.') +
+        (z.leader.inconnues > 0
+          ? `${z.leader.gals.length === 0 ? ' : pour' : ' Pour'} ${nf(z.leader.inconnues)} commune${z.leader.inconnues > 1 ? 's' : ''}, le site ne sait pas : leur région ne publie pas la liste des communes de ses groupes.`
+          : '')}
     </li>
   )}
   {z.frr && (
@@ -100,5 +125,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
   deux communes compte dans chacune.
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)}) ${z.dates.frr ? `, France ruralités revitalisation d’après la direction générale des collectivités locales (${date(z.dates.frr)})` : ''}${z.dates.montagneUrbanisme ? `, la zone de montagne au sens de l’urbanisme d’après l’Observatoire des territoires (${date(z.dates.montagneUrbanisme)})` : ''} et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires (Petites villes de demain, ${date(z.dates.pvd)} ; quartiers prioritaires, ${date(z.dates.qpv)}), le zonage ABC du ministère chargé du logement (${date(z.dates.abc)})${z.dates.ort ? `, les opérations de revitalisation de territoire d’après le ministère chargé de la cohésion des territoires (${date(z.dates.ort)})` : ''}${z.leader ? ', LEADER d’après les groupes d’action locale publiés par les Régions' : ''}${z.dates.frr ? `, France ruralités revitalisation d’après la direction générale des collectivités locales (${date(z.dates.frr)})` : ''}${z.dates.montagneUrbanisme ? `, la zone de montagne au sens de l’urbanisme d’après l’Observatoire des territoires (${date(z.dates.montagneUrbanisme)})` : ''} et la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>
