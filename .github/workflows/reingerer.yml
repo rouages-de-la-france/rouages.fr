@@ -47,8 +47,10 @@ jobs:
     runs-on: ${{ inputs.machine == 'auto-hebergee' && fromJSON('["self-hosted", "rouages"]') || 'ubuntu-26.04' }}
     # 2 h 38 d'ingestion le 16 octobre 2026 ; le 17, coupée à quatre heures, juste après les horaires de
     # transport (45 minutes à eux seuls) et avant la couverture mobile et les distances aux services. On
-    # monte au plus près des six heures que GitHub accorde à un job.
-    timeout-minutes: 350
+    # monte au plus près des six heures que GitHub accorde à un job. Le 14 novembre 2026, la réingestion
+    # n° 11 a écrit ses 101 départements à 5 h 49 et a été coupée 76 secondes plus tard : sur le runner
+    # auto-hébergé, que GitHub ne borne pas à six heures, on lui laisse vingt-quatre heures.
+    timeout-minutes: ${{ inputs.machine == 'auto-hebergee' && 1440 || 350 }}
     env:
       ROUAGES_RETRAITS_SECRET: ${{ secrets.ROUAGES_RETRAITS_SECRET }}
     steps:

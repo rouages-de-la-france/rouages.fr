@@ -3936,6 +3936,16 @@ sans licence nommée, et le second ne dit pas sa programmation. Rien de
 trouvé pour l'Île-de-France, la Bretagne, l'Occitanie, PACA et les
 outre-mer.
 
+**La réingestion n° 11** (14 novembre 2026, après #166) a été coupée à
+350 minutes, 76 secondes après avoir écrit ses 101 départements. Trois
+corrections : Sitadel était bien téléchargé mais lu à la virgule, alors que
+DiDo sépare par des points-virgules (« aucune ligne lue ») ; Melodi
+s'arrêtait net tous les 24 Mo et Node attendait cinq minutes avant de le
+dire — un flux muet depuis trente secondes est maintenant coupé et repris ;
+sur le runner auto-hébergé, le workflow a vingt-quatre heures au lieu de
+350 minutes. Restent longs : les horaires de transport (une heure) et le
+BODACC (vingt minutes).
+
 **Les opérations de revitalisation de territoire** (16 novembre 2026) ont leur
 page, `/dispositif/operations-de-revitalisation-de-territoire`, rangée parmi
 les contrats. La liste vient du tableur du ministère chargé de la cohésion
