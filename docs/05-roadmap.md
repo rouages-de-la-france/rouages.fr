@@ -3948,6 +3948,12 @@ faute de moyens (les délibérations publiées en PDF, qu'il faudrait passer à
 la reconnaissance de caractères puis à une analyse automatique), et comment
 il se finance, avec la contribution volontaire des structures de l'ESS sur
 Pro — une prestation facturée, pas un don. Le pied de page y renvoie.
+Le même jour, la contribution s'ouvre à toutes les structures (les
+particuliers attendent l'avis d'un avocat sur la rétractation) ; sa seule
+contrepartie, sur demande, est une ligne sans lien sur `/remerciements`, lue
+dans `remerciements.yaml`, à la racine — hors de `contenu/`, dont la
+validation refuse les noms de personnes. Le menu gagne « Sur mesure »
+(`pro.rouages.fr/sur-mesure`, exemples de prestations et d'études).
 
 **La réingestion n° 11** (14 novembre 2026, après #166) a été coupée à
 350 minutes, 76 secondes après avoir écrit ses 101 départements. Trois
