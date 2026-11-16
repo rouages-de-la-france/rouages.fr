@@ -211,7 +211,7 @@ type AppellationsDep = { maj: string; dates: { ao: string; ig: string }; c: Reco
 const appellationsDep = parDepartement<AppellationsDep>('appellations');
 type SecheresseDep = { maj: string; annee: number; du: string; au: string; debut: number; c: Record<string, [number, number, number, number, number, number[]]> };
 const secheresseDep = parDepartement<SecheresseDep>('secheresse');
-type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, 0 | 1 | 2, string?, string[]?, (0 | 1 | 2)?, (0 | 1)?, number?]> };
+type ZonagesDep = { maj: string; dates: Record<string, string>; c: Record<string, [string[], string, string, 0 | 1 | 2, string?, string[]?, (0 | 1 | 2)?, (0 | 1)?, number?, string?]> };
 const zonagesDep = parDepartement<ZonagesDep>('zonages');
 type LieuDep = string | [string, string];
 type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[]]> };
@@ -737,6 +737,12 @@ export interface Zonages {
   quartiersPrioritaires: string[];
   /** Le zonage de la taxe sur les logements vacants, au dernier décret ; null quand la collecte ne l'a pas encore lu. */
   tendue: 'non' | 'tendue' | 'touristique et tendue' | null;
+  /**
+   * La convention d'opération de revitalisation de territoire : sa date de
+   * signature (AAAA-MM-JJ), ou « signée » quand la liste ne la donne pas ;
+   * « non » sans convention signée ; null quand la collecte ne l'a pas lue.
+   */
+  ort: string | null;
   dates: Record<string, string>;
   maj: string;
 }
@@ -1362,7 +1368,7 @@ function lieux(c: CommuneFiche): Lieux | null {
 function zonages(c: CommuneFiche): Zonages | null {
   const d = zonagesDep.get(c.dep);
   if (!d) return null;
-  const [programmes, ti, crte, m, abc, quartiers, t, u, f] = d.c[c.code] ?? [[], '', '', 0];
+  const [programmes, ti, crte, m, abc, quartiers, t, u, f, o] = d.c[c.code] ?? [[], '', '', 0];
   return {
     programmes,
     territoireIndustrie: ti || null,
@@ -1374,6 +1380,7 @@ function zonages(c: CommuneFiche): Zonages | null {
     frr: !d.dates.frr ? null : NIVEAUX_FRR[f ?? 0] ?? 'non',
     leader: leaderDe(c.dep, c.code),
     tendue: !d.dates.tlv ? null : t === 1 ? 'tendue' : t === 2 ? 'touristique et tendue' : 'non',
+    ort: !d.dates.ort ? null : o || 'non',
     dates: d.dates,
     maj: d.maj,
   };

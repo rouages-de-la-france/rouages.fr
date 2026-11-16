@@ -3936,6 +3936,21 @@ sans licence nommée, et le second ne dit pas sa programmation. Rien de
 trouvé pour l'Île-de-France, la Bretagne, l'Occitanie, PACA et les
 outre-mer.
 
+**Les opérations de revitalisation de territoire** (16 novembre 2026) ont leur
+page, `/dispositif/operations-de-revitalisation-de-territoire`, rangée parmi
+les contrats. La liste vient du tableur du ministère chargé de la cohésion
+des territoires sur data.gouv.fr (`63c69d70de98bf9a1fa11948`, Licence
+ouverte 2.0), onglet « Suivi conventions » — la ressource CSV du même jeu
+ne compte que 78 lignes. Seules les conventions signées sont retenues
+(2 232 lignes), avec leur date de signature, dixième champ de
+`dep/XX-zonages.json` ; une convention terminée, non signée ou en cours ne
+l'est pas. 2 227 communes actuelles ; recoupé en Python sur le tableur :
+2 225 à la même date, deux signées sans date (la page dit « signée »), quatre
+anciennes communes de Hesdin et de Vars reportées sur la commune actuelle,
+elle-même signataire, et Saint-Gervais-en-Belin (72287), dont le code n'est
+plus dans le découpage. Le texte de la page cite la fiche outils du Cerema
+(avril 2021) ; aucune évaluation propre aux ORT n'a été trouvée.
+
 **La réingestion du 14 novembre 2026 a dépassé ses 350 minutes.** Le
 correctif de la veille (reprise par plage) a marché pour FINESS et VigiEau,
 mais deux sources ont mangé près de quatre heures à elles seules :

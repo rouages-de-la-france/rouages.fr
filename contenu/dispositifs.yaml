@@ -408,6 +408,37 @@ dispositifs:
       - { id: cc-te-2025, titre: "Cour des comptes — « La transition écologique », rapport public thématique, septembre 2025", url: "https://www.ccomptes.fr/sites/default/files/2025-10/20250916-Transition-ecologique.pdf", consulte_le: 2026-11-13 }
     verifie_le: 2026-11-13
 
+  - id: operations-de-revitalisation-de-territoire
+    cle: ort
+    nom: "Les opérations de revitalisation de territoire"
+    nature: programme
+    lancement: 2018
+    pilote: "L'État, avec l'intercommunalité et ses communes signataires ; la liste des conventions est tenue par le ministère chargé de la cohésion des territoires"
+    resume: "Une convention entre l'État, une intercommunalité et ses communes pour revitaliser un centre-ville : logement, commerce, patrimoine, services. Elle emporte des effets de droit, dont la dispense d'autorisation commerciale en centre-ville."
+    series: false
+    liste: "la liste des communes signataires d'une convention, tenue par le ministère chargé de la cohésion des territoires — seules les conventions signées sont retenues, pas celles qui sont terminées ou pas encore signées"
+    ce_que_cest:
+      - texte: "Créées par la loi ELAN du 23 novembre 2018, les opérations de revitalisation de territoire (ORT) ont pour objet la mise en œuvre d'un projet global de territoire destiné à adapter et moderniser le parc de logements et de locaux commerciaux et artisanaux, ainsi que le tissu urbain, pour améliorer son attractivité. Toute collectivité, quelle que soit sa taille, peut y recourir pour transformer et redynamiser son centre-ville."
+        source: cerema-ort
+      - texte: "La convention doit comprendre des actions d'amélioration de l'habitat, et peut en prévoir pour le commerce et l'artisanat, la transition énergétique ou la mixité sociale. Les ORT sont déployées dans le cadre des programmes Action cœur de ville et Petites villes de demain."
+        source: cerema-ort
+    qui_decide:
+      - texte: "La convention est signée entre l'État, ses établissements publics intéressés, une intercommunalité et tout ou partie de ses communes membres — sa ville principale et d'autres communes volontaires —, et toute personne publique ou privée qui prend part aux opérations. Il ne peut y avoir qu'une convention par intercommunalité ; sa signature est autorisée par les assemblées délibérantes des collectivités parties."
+        source: cerema-ort
+    apporte:
+      - texte: "Les projets commerciaux prévus dans un secteur d'intervention qui comprend un centre-ville identifié par la convention sont exonérés d'autorisation d'exploitation commerciale ; à l'inverse, le préfet peut suspendre l'instruction des demandes déposées en dehors des secteurs d'intervention."
+        source: cerema-ort
+      - texte: "L'ORT peut donner lieu au droit de préemption urbain renforcé et au droit de préemption sur les fonds artisanaux, les fonds de commerce et les baux commerciaux. Le maire et le président de l'intercommunalité doivent être informés au moins six mois à l'avance de la fermeture ou du déplacement d'un service public situé dans le périmètre de l'opération."
+        source: cerema-ort
+    cout:
+      - texte: "La convention fixe le plan de financement des actions prévues et leur répartition dans les secteurs d'intervention. Le site n'a pas trouvé de montant national consacré aux ORT."
+        source: cerema-ort
+    sans_evaluation: "Aucune évaluation publiée propre aux opérations de revitalisation de territoire n'a été trouvée le 16 novembre 2026."
+    sources:
+      - { id: cerema-ort, titre: "Cerema — « Les opérations de revitalisation de territoire (ORT) », fiche outils du site Outils de l'aménagement, avril 2021", url: "https://outil2amenagement.cerema.fr/sites/outils2am/files/fichiers/2023/09/Fiche_outils_L%E2%80%99op%C3%A9ration%20de%20revitalisation%20territoriale_ORT.pdf", consulte_le: 2026-11-16 }
+      - { id: mct-ort, titre: "Ministère chargé de la cohésion des territoires — « Liste des communes couvertes par des opérations de revitalisation de territoire » (Licence ouverte 2.0)", url: "https://www.data.gouv.fr/datasets/63c69d70de98bf9a1fa11948/", consulte_le: 2026-11-16 }
+    verifie_le: 2026-11-16
+
   - id: sites-ramsar
     cle: ramsar
     nom: "Les sites Ramsar"

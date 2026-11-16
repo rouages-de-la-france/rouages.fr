@@ -67,7 +67,7 @@ export interface Dispositif {
  * `montagne` : la zone de montagne au sens de l'urbanisme, dans le huitième
  * champ, comparée à la zone agricole défavorisée de montagne, le quatrième.
  */
-const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv', 'ramsar', 'biosphere', 'mondial', 'leader']);
+const CLES = new Set(['pvd', 'acv', 'va', 'ami', 'amm', 'cite', 'cde', 'fabp', 'habinclus', 'abc', 'montagne', 'frr', 'tlv', 'ti', 'crte', 'qpv', 'ramsar', 'biosphere', 'mondial', 'leader', 'ort']);
 
 /**
  * Les désignations internationales ne sont pas dans les fichiers de zonage :
@@ -89,6 +89,8 @@ const PAR_CHAMP: Record<string, (x: unknown[]) => boolean> = {
   ti: (x) => Boolean(x[1]),
   crte: (x) => Boolean(x[2]),
   qpv: (x) => Array.isArray(x[5]) && x[5].length > 0,
+  // La date de signature de la convention d'opération de revitalisation de territoire, ou « signée ».
+  ort: (x) => Boolean(x[9]),
 };
 /** Le nom du groupe — territoire, contrat — auquel la commune appartient. */
 const GROUPE: Record<string, (x: unknown[]) => string> = {
@@ -353,9 +355,9 @@ export const FAMILLES = [
 ] as const;
 export type Famille = (typeof FAMILLES)[number]['id'];
 
-/** La famille d'un dispositif : sa nature, sauf le contrat (CRTE) et le programme européen (LEADER). */
+/** La famille d'un dispositif : sa nature, sauf les contrats (CRTE, ORT) et le programme européen (LEADER). */
 export function familleDe(d: Dispositif): Famille {
-  if (d.cle === 'crte') return 'contrat';
+  if (d.cle === 'crte' || d.cle === 'ort') return 'contrat';
   if (d.cle === 'leader') return 'europe';
   return d.nature;
 }

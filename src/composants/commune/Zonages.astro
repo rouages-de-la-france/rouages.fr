@@ -32,6 +32,7 @@ const lien = (cle: string, texte: string) => ({ href: lienDispositif(cle), texte
 const ti = lien('ti', 'Territoire d’industrie');
 const crte = lien('crte', 'contrat pour la réussite de la transition écologique');
 const qpv = lien('qpv', 'de la politique de la ville');
+const ort = lien('ort', 'opération de revitalisation de territoire');
 const tlv = lien('tlv', z.tendue === 'touristique et tendue' ? 'zone touristique et tendue' : 'zone tendue');
 const FRR: Record<string, string> = {
   plus: ' « plus », le niveau renforcé, réservé au quart des communes classées, rurales, dont l’intercommunalité ou le bassin de vie a connu de 2009 à 2020 l’évolution la plus défavorable du revenu, de la population et de l’emploi : les exonérations d’impôts des entreprises qui s’y créent ou s’y reprennent y valent pour plus d’entreprises et d’opérations qu’au niveau « socle ».',
@@ -79,6 +80,14 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
       {z.tendue === 'non'
         ? ' : la taxe sur les logements vacants de l’État ne s’y applique pas ; la commune peut en revanche instituer, par délibération, une taxe d’habitation sur les logements vacants.'
         : ' : un logement vide depuis plus d’un an y est soumis à la taxe sur les logements vacants, et la commune peut majorer de 5 à 60 % la taxe d’habitation sur les résidences secondaires.'}
+    </li>
+  )}
+  {z.ort && z.ort !== 'non' && (
+    <li>
+      {'Elle est signataire d’une convention d’'}
+      {ort.href ? <a href={ort.href}>{ort.texte}</a> : ort.texte}
+      {(/^\d{4}-\d{2}-\d{2}$/.test(z.ort) ? `, signée le ${date(z.ort)}` : '') +
+        ' : un projet de revitalisation du centre-ville que la commune, son intercommunalité et l’État conduisent ensemble. Dans les secteurs d’intervention qui comprennent un centre-ville, un commerce peut s’installer sans autorisation d’exploitation commerciale.'}
     </li>
   )}
   {z.quartiersPrioritaires.length > 0 && (
@@ -133,5 +142,5 @@ const date = (d?: string) => (d ? d.split('-').reverse().join('/') : '');
     'La montagne a plusieurs délimitations officielles, qui ne coïncident pas : celle de l’urbanisme dit où s’appliquent les règles de construction de la loi Montagne ; celle des zones agricoles défavorisées dit quelles terres relèvent de la montagne pour les indemnités compensatoires de handicaps naturels versées aux agriculteurs. La liste agricole publiée date de 2017, reportée ici sur les communes actuelles.'} />
 </p>
 <p class="p-source-territoire">
-  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.leader?.couvert ? ` LEADER, d’après les groupes d’action locale publiés par la Région (lus le ${date(z.leader.maj)}) ;` : ''}${z.dates.frr ? ` France ruralités revitalisation, d’après la liste des communes de la direction générale des collectivités locales (${date(z.dates.frr)}) ;` : ''}${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
+  {`D’après les listes de communes des programmes de l’Agence nationale de la cohésion des territoires — Petites villes de demain (${date(z.dates.pvd)}), Action cœur de ville (${date(z.dates.acv)}), Villages d’avenir (${date(z.dates.va)}), Territoires d’industrie (${date(z.dates.ti)}), contrats pour la réussite de la transition écologique (${date(z.dates.crte)}), quartiers prioritaires (${date(z.dates.qpv)}) — et son tableau de croisement des dispositifs (${date(z.dates.croisement)}) ; le zonage ABC, d’après la liste du ministère chargé du logement (${date(z.dates.abc)}) ;${z.dates.ort ? ` les opérations de revitalisation de territoire, d’après la liste des communes signataires du ministère chargé de la cohésion des territoires (${date(z.dates.ort)}) ;` : ''}${z.dates.tlv ? ` les zones tendues, d’après la liste des communes selon le zonage de la taxe sur les logements vacants du même ministère (${date(z.dates.tlv)}) ;` : ''} ${z.leader?.couvert ? ` LEADER, d’après les groupes d’action locale publiés par la Région (lus le ${date(z.leader.maj)}) ;` : ''}${z.dates.frr ? ` France ruralités revitalisation, d’après la liste des communes de la direction générale des collectivités locales (${date(z.dates.frr)}) ;` : ''}${z.dates.montagneUrbanisme ? ` la zone de montagne au sens de l’urbanisme, d’après l’Observatoire des territoires de l’ANCT (${date(z.dates.montagneUrbanisme)}) ;` : ''} la zone agricole défavorisée de montagne, d’après la liste des communes classées en zones défavorisées du ministère de l’Agriculture (${z.maj}).`}
 </p>
