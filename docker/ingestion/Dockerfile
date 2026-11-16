@@ -21,6 +21,9 @@ RUN mkdir -p /home/node/runner /home/node/rouages-cache \
  && chown node:node /home/node/runner /home/node/rouages-cache
 
 COPY --chmod=755 runner.sh ingerer.sh dans-depot.sh /usr/local/bin/
+# Un clone fait par le Git de Windows peut avoir mis des fins de ligne Windows
+# dans les scripts : on les retire, pour qu'ils s'exécutent quoi qu'il arrive.
+RUN sed -i 's/\r$//' /usr/local/bin/runner.sh /usr/local/bin/ingerer.sh /usr/local/bin/dans-depot.sh
 
 ENV ROUAGES_CACHE_JOURS=6 \
     NODE_OPTIONS=--max-old-space-size=12288
