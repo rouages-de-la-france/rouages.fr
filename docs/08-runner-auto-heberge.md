@@ -109,6 +109,15 @@ Les deux premiers partagent le cache des gros fichiers (volume
 ### Sous Windows
 
 - **Docker Desktop, moteur WSL 2.**
+- **Le dépôt cloné depuis le terminal Ubuntu de WSL**, avec le Git de WSL,
+  pas avec Git Bash (le Git de Windows) : celui-ci met par défaut des fins de
+  ligne Windows dans les fichiers, et les scripts du conteneur échouent alors
+  sur « /usr/bin/env: 'bash\r' » (16 novembre 2026). Le `.gitattributes` du
+  dépôt l'empêche désormais, et l'image retire de toute façon ces fins de
+  ligne de ses scripts. Un clone déjà touché se répare dans WSL :
+  `git config core.autocrlf false`, puis `git rm -rq --cached . && git reset --hard`
+  (ce qui jette les modifications non commitées ; le `.env` n'est pas suivi
+  et reste), puis `docker compose build --no-cache`.
 - **Le dépôt cloné dans WSL** (`\\wsl$\Ubuntu\home\…`), pas sur `C:` :
   l'ingestion réécrit des dizaines de milliers de fichiers, et un dossier
   Windows passe par une couche réseau, bien plus lente. Le conteneur tourne

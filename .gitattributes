@@ -1,0 +1,20 @@
+# Des fins de ligne Unix partout, même dans un clone fait sous Windows : un
+# script shell en fins de ligne Windows ne s'exécute pas dans le conteneur
+# (« /usr/bin/env: 'bash\r' », runner auto-hébergé, 16 novembre 2026).
+* text=auto eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+# Ce qui n'est pas du texte reste tel quel.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.7z binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.xls binary
