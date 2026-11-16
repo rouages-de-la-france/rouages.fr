@@ -31,6 +31,8 @@ jobs:
       - run: npm ci
       - name: Structure, références et règles éditoriales
         run: npm run valider
+      - name: Scripts du conteneur d'ingestion (syntaxe bash)
+        run: for f in docker/ingestion/*.sh; do bash -n "$f"; done
       - name: Classement de la recherche de communes
         run: npm run verifier-recherche
       - name: Fenêtre et plafonds du journal
