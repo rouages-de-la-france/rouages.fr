@@ -903,6 +903,13 @@ async function principal() {
   );
   if (decheteries) grise(`${ecrireDecheteries(SORTIE, decheteries)} départements de déchèteries écrits.`);
 
+  // Les logements vacants du parc privé (LOVAC, DGALN et Cerema).
+  const { collecterVacance, ecrireVacance } = await import('./vacance-emettre.ts');
+  const vacance = await tenter('Logements vacants (LOVAC)', () =>
+    collecterVacance(enCache('LOVAC — communes (8 Mo)'), async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, CACHE, grise),
+  );
+  if (vacance) grise(`${ecrireVacance(SORTIE, vacance)} départements de vacance écrits.`);
+
   // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
   // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
   const { collecterBatiments } = await import('./batiments-emettre.ts');

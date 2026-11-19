@@ -80,6 +80,8 @@ const fibreDep = parDepartement<FibreDep>('fibre');
 type ServiceAssainissementBrut = [string, string, string, string, string, string, string, string];
 type AssainissementDep = { maj: string; exercices: { AC: number; ANC: number }; c: Record<string, [ServiceAssainissementBrut[], ServiceAssainissementBrut[]]> };
 const assainissementDep = parDepartement<AssainissementDep>('assainissement');
+type VacanceDep = { maj: string; millesimes: number[]; c: Record<string, [number, number | null, number | null, number | null][]> };
+const vacanceDep = parDepartement<VacanceDep>('vacance');
 type BatimentsBrut = [number, number, number, number[], number[], [number, number], [number, number, [number, string, string, string][]], [number, number, number, number], number[]];
 type BatimentsDep = { maj: string; millesime: string; periodes: string[]; usages: string[]; argile: string[]; c: Record<string, BatimentsBrut> };
 const batimentsDep = parDepartement<BatimentsDep>('batiments');
@@ -312,6 +314,12 @@ export interface Batiments {
   chaleur: { raccordes: number; moins100: number; de100a200: number; de200a400: number };
   argile: { alea: string; n: number }[];
   millesime: string;
+  maj: string;
+}
+
+/** Les logements vacants du parc privé, millésime par millésime (LOVAC, `scripts/vacance-emettre.ts`) ; null sous le secret. */
+export interface Vacance {
+  serie: { millesime: number; vacants: number | null; longue: number | null; parc: number | null }[];
   maj: string;
 }
 
@@ -912,6 +920,7 @@ export interface ComplementsVie {
   eau: EauRobinet | null;
   assainissement: Assainissement | null;
   decheteries: Decheteries | null;
+  vacance: Vacance | null;
   batiments: Batiments | null;
   fibre: Fibre | null;
   parc: Parc | null;
@@ -1009,6 +1018,13 @@ function batiments(c: CommuneFiche): Batiments | null {
     millesime: d.millesime.replace(/-([a-z])$/, '.$1'),
     maj: d.maj,
   };
+}
+
+function vacance(c: CommuneFiche): Vacance | null {
+  const d = vacanceDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || x.length === 0) return null;
+  return { serie: x.map(([millesime, vacants, longue, parc]) => ({ millesime, vacants, longue, parc })), maj: d.maj };
 }
 
 function decheteries(c: CommuneFiche): Decheteries | null {
@@ -1713,6 +1729,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     eau: eau(c),
     assainissement: assainissement(c),
     decheteries: decheteries(c),
+    vacance: vacance(c),
     batiments: batiments(c),
     fibre: fibre(c),
     parc: parc(c),

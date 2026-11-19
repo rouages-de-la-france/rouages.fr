@@ -64,6 +64,7 @@ import Fiscalite from '../../composants/commune/Fiscalite.astro';
 import Logements from '../../composants/commune/Logements.astro';
 import Equipements from '../../composants/commune/Equipements.astro';
 import Batiments from '../../composants/commune/Batiments.astro';
+import Vacance from '../../composants/commune/Vacance.astro';
 import Decheteries from '../../composants/commune/Decheteries.astro';
 import Services from '../../composants/commune/Services.astro';
 import Emploi from '../../composants/commune/Emploi.astro';
@@ -373,6 +374,7 @@ const sommaire: [string, string, unknown][] = [
   ['zonages', 'Programmes et zonages', vie.zonages],
   ['logements', 'Les logements', vie.parc || vie.immobilier],
   ['batiments', 'Les bâtiments', vie.batiments],
+  ['vacance', 'La vacance', vie.vacance],
   ['loyers', 'Les loyers', vie.loyers],
   ['dpe', 'Les étiquettes énergétiques', vie.dpe],
   ['aides-locales', 'Les aides à la rénovation', aidesIci.length > 0 || aidesAilleurs.length > 0],
@@ -447,7 +449,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'logement',
     nom: 'Se loger, construire',
-    blocs: ['zonages', 'logements', 'batiments', 'loyers', 'dpe', 'aides-locales', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
+    blocs: ['zonages', 'logements', 'batiments', 'vacance', 'loyers', 'dpe', 'aides-locales', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
   },
   {
     id: 'quotidien',
@@ -823,6 +825,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       <section id="batiments">
         <h2 class="badge">Ses bâtiments</h2>
         <Batiments b={vie.batiments} parc={vie.parc} />
+      </section>
+    )}
+
+    {vie.vacance && (
+      <section id="vacance">
+        <h2 class="badge">La vacance dans le parc privé</h2>
+        <Vacance v={vie.vacance} />
       </section>
     )}
 
