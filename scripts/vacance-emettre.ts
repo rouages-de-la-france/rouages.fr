@@ -8,8 +8,15 @@
  * deux ans — la vacance « structurelle », celle qui ne se résorbe pas d'elle-
  * même — et le nombre de logements du parc privé.
  *
- * **Le secret.** Une commune qui compte moins de onze logements vacants n'a
- * pas de chiffre : la cellule vaut « s ». On garde `null`, et la page le dit.
+ * **Le secret.** Une case masquée vaut « s » ; on garde `null`, et la page
+ * dit « masqué », sans deviner. Ce n'est pas toujours « moins de onze » : au
+ * millésime 2026, aucune valeur publiée n'est entre 1 et 10 (les petites sont
+ * des zéros), mais des communes masquées en 2026 ont, d'autres années, des
+ * valeurs publiées jusqu'à 487 — d'après la documentation, il suffit que les
+ * vacants de moins ou de plus de deux ans soient moins de onze —, et le parc privé est masqué dans
+ * 18 321 communes, dont 10 699 où la vacance est publiée : un masquage
+ * secondaire, pour qu'on ne retrouve rien par différence (vérifié le
+ * 19 novembre 2026).
  *
  * **Les dates.** La documentation date chaque millésime du 1er janvier de
  * l'année précédente, mais pas de façon tout à fait cohérente (le millésime

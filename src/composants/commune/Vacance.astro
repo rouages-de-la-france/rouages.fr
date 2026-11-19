@@ -3,8 +3,9 @@
  * Les logements vacants du parc privé, d'après LOVAC (`scripts/vacance-emettre.ts`).
  *
  * Une part ne se calcule qu'entre deux chiffres du même millésime : la
- * documentation ne date pas tous les millésimes de la même façon. Sous onze
- * logements vacants, le chiffre est couvert par le secret, et la page le dit
+ * documentation ne date pas tous les millésimes de la même façon. Une case
+ * masquée par LOVAC est dite « masquée », sans deviner ce qu'elle cache : ce
+ * n'est pas toujours « moins de onze » (voir `scripts/vacance-emettre.ts`), et la page le dit
  * au lieu de l'estimer.
  */
 import type { Vacance } from '../../modele/fiche-vie.ts';
@@ -18,13 +19,14 @@ const pc = (x: number) => `${Math.round(x * 100).toLocaleString('fr-FR')} %`;
 const dernier = v.serie[v.serie.length - 1];
 // Le dernier millésime où le parc et la vacance sont connus ensemble.
 const complet = [...v.serie].reverse().find((s) => s.vacants !== null && s.parc !== null && s.parc > 0);
-const cellule = (n: number | null) => (n === null ? 'secret' : entier(n));
+const cellule = (n: number | null) => (n === null ? 'masqué' : entier(n));
 const toutSecret = v.serie.every((s) => s.vacants === null);
 ---
 {toutSecret ? (
   <p class="mesure">
-    Moins de onze logements du parc privé y sont vacants : le chiffre est couvert par le secret statistique et fiscal, et
-    LOVAC ne le publie pas.
+    LOVAC ne publie pas la vacance de cette commune : le secret statistique et fiscal masque les chiffres fondés sur
+    moins de onze logements vacants, de moins ou de plus de deux ans, et d’autres encore, pour qu’on ne puisse pas les
+    retrouver par différence. Le recensement, plus haut, donne une vacance pour tous les logements.
   </p>
 ) : (
   <>
@@ -37,7 +39,7 @@ const toutSecret = v.serie.every((s) => s.vacants === null);
         (dernier.vacants !== null
           ? ` Au millésime ${dernier.millesime}, ${entier(dernier.vacants)} logements vacants` +
             (dernier.longue !== null ? `, dont ${entier(dernier.longue)} depuis plus de deux ans.` : '.')
-          : ` Au millésime ${dernier.millesime}, moins de onze : le chiffre est couvert par le secret.`)}
+          : ` Au millésime ${dernier.millesime}, le chiffre est masqué par LOVAC.`)}
     </p>
     <div class="cpt-defile" tabindex="0" role="region" aria-label="La vacance — le tableau défile sur les petits écrans">
       <table class="cpt-tableau">
@@ -56,7 +58,7 @@ const toutSecret = v.serie.every((s) => s.vacants === null);
               <th scope="row">{s.millesime}</th>
               <td>{cellule(s.vacants)}</td>
               <td>{cellule(s.longue)}</td>
-              <td>{s.parc === null ? (s === dernier ? '—' : 'secret') : entier(s.parc)}</td>
+              <td>{s.parc === null ? (s === dernier ? '—' : 'masqué') : entier(s.parc)}</td>
             </tr>
           ))}
         </tbody>
@@ -73,5 +75,7 @@ const toutSecret = v.serie.every((s) => s.vacants === null);
 <p class="p-source-territoire">
   {`D’après LOVAC, la base des logements vacants du parc privé de la DGALN et du Cerema (fichier 1767 bis Com de la DGFiP croisé avec les fichiers fonciers), ` +
     `version ouverte, sous Licence Ouverte (lue le ${v.maj}). Chaque millésime décrit la situation au 1er janvier précédent, selon la documentation ; `}
-  {'« secret » : moins de onze logements vacants, chiffre non publié ; « — » : le parc privé n’est pas encore publié pour ce millésime.'}
+  {'« masqué » : chiffre non publié par LOVAC au titre du secret statistique et fiscal — selon sa documentation, il suffit que les logements vacants de moins ' +
+    'ou de plus de deux ans soient moins de onze, et d’autres cases sont masquées pour qu’on ne puisse pas retrouver celles-là par différence ; ' +
+    '« — » : le parc privé n’est pas encore publié pour ce millésime.'}
 </p>
