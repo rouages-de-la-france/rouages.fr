@@ -8,6 +8,7 @@
  */
 import { nomAffiche, nommables, type PersonneAnnonce } from './entreprises-emettre.ts';
 import { retraitsDe } from './retraits.ts';
+import { annonceRetenue, type AnnonceFichier } from '../src/modele/retraits-entreprises.ts';
 
 const ROUGE = '\x1b[31m', VERT = '\x1b[32m', GRIS = '\x1b[90m', RAZ = '\x1b[0m';
 let echecs = 0;
@@ -43,7 +44,7 @@ const pp = (siren: string, prenom: string, nom: string, commercial = ''): Person
   siren,
   pp: true,
   nom: `${prenom} ${nom}${commercial ? ` (${commercial})` : ''}`,
-  famille: nom,
+  famille: `${prenom} ${nom}`,
   commercial,
 });
 const vu = (p: PersonneAnnonce[]) => nomAffiche(p, r.entreprises, r.affichages);
@@ -80,6 +81,30 @@ const annonce = JSON.stringify({
 const n = nommables(annonce)!;
 attendre(n.noms, ['Jeanne DURAND-FICTIF (Gîte Les Tilleuls)'], 'le nom affiché sans opposition');
 attendre(nomAffiche(n.personnes, r.entreprises, r.affichages), 'Gîte Les Tilleuls', 'de l’annonce publiée au nom affiché');
+
+attendre(vu([pp('222222222', 'Jeanne', 'DURAND-FICTIF', 'Chez Jeanne')]), 'Entreprise individuelle', 'le prénom dans le nom commercial nomme aussi');
+
+// Au build : une opposition inscrite après l'ingestion, sur le fichier tel qu'écrit.
+const fichier = (nom: string, sirens: string[], ei: 0 | 1 = 1, n?: number): AnnonceFichier =>
+  n ? ['2026-04-23', 0, nom, 'B2026', 'activité', ei, sirens, n] : ['2026-04-23', 0, nom, 'B2026', 'activité', ei, sirens];
+const build = (a: AnnonceFichier) => annonceRetenue(a, r)?.[2] ?? null;
+attendre(build(fichier('Jeanne DURAND-FICTIF (Gîte Les Tilleuls)', ['999999999'])), 'Jeanne DURAND-FICTIF (Gîte Les Tilleuls)', 'build, sans opposition : rien ne change');
+attendre(build(fichier('Jeanne DURAND-FICTIF (Gîte Les Tilleuls)', ['111111111'])), null, 'build, retrait complet');
+attendre(build(fichier('Jeanne DURAND-FICTIF (Gîte Les Tilleuls)', ['222222222'])), 'Gîte Les Tilleuls', 'build, commercial');
+attendre(build(fichier('Jeanne DURAND-FICTIF (Gîte Les Tilleuls)', ['333333333'])), 'Entreprise individuelle', 'build, anonyme');
+attendre(build(fichier('Jeanne DURAND-FICTIF (Jeanne Durand Fictif)', ['444444444'])), 'Entreprise individuelle', 'build, nom commercial qui nomme : anonyme');
+attendre(build(fichier('Jeanne DURAND-FICTIF (Bar (le) du Port)', ['222222222'])), 'Bar (le) du Port', 'build, parenthèses dans le nom commercial');
+attendre(build(fichier('Jeanne DURAND-FICTIF', ['555555555'])), 'Entreprise individuelle', 'build, sans nom commercial : anonyme');
+attendre(build(fichier('SCI DES TILLEULS, Paul MARTIN-FICTIF', ['333333333', '999999999'], 1, 2)), null, 'build, plusieurs personnes dont une s’oppose : retirée jusqu’à l’ingestion');
+attendre(build(fichier('SCI DES TILLEULS', ['222222222'], 0)), 'SCI DES TILLEULS', 'build, une société en commercial');
+attendre(build(['2026-04-23', 0, 'Jeanne DURAND-FICTIF', 'B2026', 'activité', 1]), 'Jeanne DURAND-FICTIF', 'un fichier d’avant, sans SIREN : le build n’y peut rien, l’ingestion le fera');
+// Ce que l'ingestion a déjà appliqué n'est pas appliqué deux fois : le SIREN n'est plus dans le fichier.
+attendre(build(fichier('Gîte Les Tilleuls', [])), 'Gîte Les Tilleuls', 'build après une ingestion qui a déjà appliqué');
+// L'ingestion et le build disent la même chose.
+for (const [siren, commercial] of [['222222222', 'Gîte Les Tilleuls'], ['222222222', 'Jeanne Durand Fictif'], ['333333333', 'Gîte'], ['555555555', '']] as const) {
+  const p = pp(siren, 'Jeanne', 'DURAND-FICTIF', commercial);
+  attendre(build(fichier(p.nom, [siren])), vu([p]), `ingestion et build d’accord (${siren}, « ${commercial} »)`);
+}
 
 console.log(echecs ? `${ROUGE}${echecs} échec(s).${RAZ}` : `${VERT}Retraits des entreprises conformes.${RAZ}`);
 process.exit(echecs ? 1 : 0);

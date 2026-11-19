@@ -14,6 +14,7 @@
 import { lienWeb } from './lien-web.ts';
 import { dernierChangement } from './fiche-commune.ts';
 import { deliberationRetiree } from './retraits-deliberations.ts';
+import { annonceRetenue, type AnnonceFichier } from './retraits-entreprises.ts';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { verdictDe, type StructureExercante, type Verdict } from './verdict.ts';
@@ -264,6 +265,19 @@ const cacheCommune = new Map<string, EvenementCommune[]>();
 /** Le plafond au-delà duquel rien n'est lu : la page en montre douze. */
 const JOURNAL_MAX = 40;
 
+const cacheEntreprises = new Map<string, { c: Record<string, [unknown, AnnonceFichier[]]> } | null>();
+
+/** Les annonces de la commune que les oppositions changent : l'identifiant, et le nom montré (null : plus montrée). */
+function annoncesModifiees(c: CommuneIndex): Map<string, string | null> {
+  const f = enCache(cacheEntreprises, c.dep, `dep/${c.dep}-entreprises.json`);
+  const m = new Map<string, string | null>();
+  for (const a of f?.c[c.code]?.[1] ?? []) {
+    const r = annonceRetenue(a);
+    if (r !== a) m.set(a[3], r ? r[2] : null);
+  }
+  return m;
+}
+
 function rassemblerJournal(c: CommuneIndex): EvenementCommune[] {
   const j = enCache(cacheJournal, c.dep, `dep/${c.dep}-journal.json`);
   const dep = enCache(cacheDep, c.dep, `dep/${c.dep}.json`);
@@ -280,11 +294,21 @@ function rassemblerJournal(c: CommuneIndex): EvenementCommune[] {
   // porte son code, et son SIREN se lit dans le fichier des délibérations.
   const genreDelib = j.genres.indexOf('Délibération');
   const sirenCommune = genreDelib >= 0 ? enCache(cacheDelibCom, c.dep, `dep/${c.dep}-deliberations.json`)?.com?.[c.code] : undefined;
-  const retenus = j.e.filter(
-    (e) =>
-      (e.c ? e.c === c.code : nomDe.has(e.s ?? '')) &&
-      !(e.g === genreDelib && deliberationRetiree(e.s ?? sirenCommune ?? '', e.d, e.q)),
-  );
+  // Une annonce du BODACC qu'une opposition retire ou rend anonyme : le journal
+  // suit la page, dès ce build (`retraits-entreprises.ts`).
+  const annonces = annoncesModifiees(c);
+  const retenus = j.e
+    .filter(
+      (e) =>
+        (e.c ? e.c === c.code : nomDe.has(e.s ?? '')) &&
+        !(e.g === genreDelib && deliberationRetiree(e.s ?? sirenCommune ?? '', e.d, e.q)),
+    )
+    .flatMap((e) => {
+      const id = /[?&]q\.id=id:([A-Z0-9]+)$/.exec(e.u ?? '')?.[1];
+      if (!id || !annonces.has(id)) return [e];
+      const nom = annonces.get(id);
+      return nom === null ? [] : [{ ...e, q: nom! }];
+    });
   return retenus
     .sort((a, b) => b.d.localeCompare(a.d) || a.q.localeCompare(b.q, 'fr'))
     .slice(0, JOURNAL_MAX)
