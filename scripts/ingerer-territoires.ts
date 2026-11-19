@@ -35,6 +35,7 @@ import {
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { chargerGraphe, RACINE } from '../src/modele/graphe.ts';
+import { ECHECS, noterEchec } from './echecs.ts';
 import { ecrireProvenance, garderVersion, journaliserLesLectures, noter, noterDuCache } from './provenance.ts';
 
 // Le `fetch` intégré de Node ne lit la configuration de proxy qu'à son
@@ -98,14 +99,12 @@ async function obstine(url: string, essais = 8, options: { delai?: number; entet
  * comme BANATIC ou le découpage. Sans eux il n'y a rien à écrire.
  */
 const DEBUT = new Date();
-/** Les collectes en échec, pour `ingestion.json` : le site dit lesquelles. */
-const ECHECS: string[] = [];
 
 async function tenter<T>(quoi: string, f: () => Promise<T | null>): Promise<T | null> {
   try {
     return await f();
   } catch (e) {
-    ECHECS.push(quoi);
+    noterEchec(quoi);
     dire(`${JAUNE}${quoi} : ${(e as Error).message}${RAZ}`);
     dire(`${JAUNE}  → les fichiers de cette source ne seront pas réécrits.${RAZ}`);
     return null;
@@ -193,6 +192,15 @@ function zipEntier(chemin: string): boolean {
 
 /** Ce qu'un téléchargement tolère de silence avant d'être coupé et repris. */
 const SILENCE_MAX = 30_000;
+/**
+ * Sans taille annoncée, pas de reprise possible : une coupure fait tout
+ * recommencer. Mieux vaut alors attendre davantage. DiDo, qui sert Sitadel,
+ * marque une pause de 45 secondes à 35 681 220 octets sur 36 131 187 pour
+ * l'année 2015 (mesuré le 19 novembre 2026) : coupé à trente secondes, il
+ * recommençait trois fois au même octet, puis la collecte renonçait
+ * (réingestion du 18 novembre 2026).
+ */
+const SILENCE_SANS_REPRISE = 180_000;
 
 /**
  * Un flux coupé en route ne lève pas d'erreur : il laisse un fichier tronqué.
@@ -248,17 +256,19 @@ async function telecharger(url: string, vers: string): Promise<void> {
     }
     const attendu: number = Number(r.headers.get('content-length') ?? 0) + (ajout ? debut : 0);
     if (!ajout) total = attendu;
+    const silenceMax = total > 0 ? SILENCE_MAX : SILENCE_SANS_REPRISE;
     const flux = createWriteStream(vers, { flags: ajout ? 'a' : 'w' });
     let coupe = false;
     // Un flux qui se tait : Melodi s'arrête net vers 24 Mo et n'envoie plus rien, et le délai par défaut
     // de Node attend cinq minutes avant de le dire (réingestion du 14 novembre 2026, vingt fois). Trente
-    // secondes sans un octet suffisent : on coupe, et la reprise prend la suite.
+    // secondes sans un octet suffisent quand la reprise prend la suite ; sans taille connue, on en
+    // attend trois minutes (`SILENCE_SANS_REPRISE`).
     let silence: ReturnType<typeof setTimeout> | undefined;
     await new Promise<void>((ok, ko) => {
       const source = Readable.fromWeb(r.body as Parameters<typeof Readable.fromWeb>[0]);
       const veiller = () => {
         clearTimeout(silence);
-        silence = setTimeout(() => source.destroy(new Error('flux muet depuis trente secondes')), SILENCE_MAX);
+        silence = setTimeout(() => source.destroy(new Error(`flux muet depuis ${silenceMax / 1000} secondes`)), silenceMax);
       };
       veiller();
       source

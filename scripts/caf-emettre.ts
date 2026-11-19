@@ -17,6 +17,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const JEU = 'https://data.caf.fr/api/explore/v2.1/catalog/datasets/s_ben_com_f';
 /** Foyers, personnes couvertes, puis foyers au RSA, à la prime d'activité, à une aide au logement, aux allocations familiales, à la PAJE. */
@@ -65,8 +66,7 @@ export async function collecterCaf(
     if (somme) c[1] = 1;
   }
   if (communes.size < 30000) {
-    dire(`CAF : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `CAF : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const dernier = annees.length - 1;
   const foyers = [...communes.values()].reduce((s, c) => s + (c[0][dernier]?.[0] ?? 0), 0);

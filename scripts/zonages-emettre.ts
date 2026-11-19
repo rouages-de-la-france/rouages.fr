@@ -63,6 +63,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import XLSX from 'xlsx';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEUX = {
   pvd: '5fc1259b703620ed60a49d97',
@@ -190,8 +191,7 @@ export async function collecterZonages(
       n++;
     }
     if (n < { pvd: 1000, acv: 200, va: 2000 }[p]) {
-      dire(`Zonages : ${n} communes seulement pour ${p}, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Zonages : ${n} communes seulement pour ${p}, on garde l’ingestion précédente.`);
     }
   }
 
@@ -241,8 +241,7 @@ export async function collecterZonages(
     classees.set(code, !String(l[iPartie] ?? '').trim());
   }
   if (classees.size < 5000) {
-    dire(`Zonages : ${classees.size} communes de montagne seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Zonages : ${classees.size} communes de montagne seulement, on garde l’ingestion précédente.`);
   }
   // Pour chaque commune actuelle, ses anciennes communes : elle-même et celles qui s'y reportent.
   const anciennes = new Map<string, string[]>();
@@ -270,8 +269,7 @@ export async function collecterZonages(
       if (code && /^(A BIS|ABIS|A|B1|B2|C)$/.test(zone)) abc.set(code, zone.replace('ABIS', 'A BIS'));
     }
     if (abc.size < 30000) {
-      dire(`Zonages : ${abc.size} communes seulement au zonage ABC, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Zonages : ${abc.size} communes seulement au zonage ABC, on garde l’ingestion précédente.`);
     }
   }
   // Les quartiers prioritaires de 2024, par commune.
@@ -290,8 +288,7 @@ export async function collecterZonages(
       n++;
     }
     if (n < 1000) {
-      dire(`Zonages : ${n} quartiers prioritaires seulement, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Zonages : ${n} quartiers prioritaires seulement, on garde l’ingestion précédente.`);
     }
   }
 
@@ -309,8 +306,7 @@ export async function collecterZonages(
       else if (/^2\./.test(z)) tlv.set(code, 2);
     }
     if (n < 30000) {
-      dire(`Zonages : ${n} communes seulement au zonage TLV, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Zonages : ${n} communes seulement au zonage TLV, on garde l’ingestion précédente.`);
     }
   }
 

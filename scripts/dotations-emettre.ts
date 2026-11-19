@@ -25,6 +25,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const BASE = 'https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/dotations-communes';
 
@@ -100,8 +101,7 @@ export async function collecterDotations(
   };
   const annees = g.results.map((r) => Number(r.exercice.slice(0, 4))).filter((a) => a >= 2018).sort();
   if (annees.length < 3) {
-    dire('Dotations : moins de trois exercices publiés, on garde l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'Dotations : moins de trois exercices publiés, on garde l’ingestion précédente.');
   }
   const { actuelles, reports } = reportsDuDecoupage();
   const communes = new Map<string, Dotation>();
@@ -125,8 +125,7 @@ export async function collecterDotations(
     }
   }
   if (communes.size < 30000) {
-    dire(`Dotations : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Dotations : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const total = [...communes.values()].reduce((s, d) => s + (d[0][dernier] ?? 0), 0);
   dire(

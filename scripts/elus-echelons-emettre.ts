@@ -41,6 +41,7 @@ import {
   type Contenu,
 } from './declarations-emettre.ts';
 import { telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const JEU = 'repertoire-national-des-elus-1';
 
@@ -137,8 +138,7 @@ export async function collecterElusEchelons(
     }
   }
   if (lus === 0) {
-    dire('Élus des autres échelons : aucun fichier lu.');
-    return null;
+    return indisponible(dire, 'Élus des autres échelons : aucun fichier lu.');
   }
 
   // Les déclarations : le statut d'après la liste.

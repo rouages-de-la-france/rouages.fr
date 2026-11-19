@@ -29,6 +29,7 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { communeDe, departementDe, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '5808de39c751df1e0679df72';
 const WFS = 'https://data.geopf.fr/wfs/ows?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326';
@@ -234,8 +235,7 @@ export async function collecterContours(cache: string, dire: (m: string) => void
   }
   const codes = new Set(anneaux.map((a) => a.code));
   if (codes.size < 34000) {
-    dire(`Contours : ${codes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Contours : ${codes.size} communes seulement, on garde l’ingestion précédente.`);
   }
 
   // Combien d'anneaux empruntent chaque sommet : un nœud est un sommet où ce nombre change.

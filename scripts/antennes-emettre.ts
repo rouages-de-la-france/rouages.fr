@@ -26,6 +26,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const DOSSIER = 'https://data.arcep.fr/mobile/sites/';
 
@@ -111,8 +112,7 @@ export async function collecterAntennes(
     }
   }
   if (total < 80000) {
-    dire(`Sites mobiles : ${total} seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Sites mobiles : ${total} seulement, on garde l’ingestion précédente.`);
   }
 
   const communes = new Map<string, AntennesCommune>();

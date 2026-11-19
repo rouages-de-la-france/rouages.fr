@@ -15,6 +15,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '53834c53a3a72906c7ec5c4c';
 export const URL_RADON =
@@ -57,8 +58,7 @@ export async function collecterRadon(
   await telecharger(URL_RADON, vers);
   const communes = await lireRadon(vers);
   if (communes.size < 30000) {
-    dire(`Radon : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Radon : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const n = [1, 2, 3].map((z) => [...communes.values()].filter((x) => x.includes(z)).length);
   const mixtes = [...communes.values()].filter((x) => x.length > 1).length;

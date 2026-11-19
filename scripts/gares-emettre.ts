@@ -29,6 +29,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const SNCF = 'https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets';
 const ANNUAIRE =
@@ -105,8 +106,7 @@ export async function collecterGares(
     gares.push({ nom: g.nom.trim(), code, pos: [pos.lon, pos.lat], v });
   }
   if (gares.length < 2000) {
-    dire(`Gares : ${gares.length} gares fréquentées seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Gares : ${gares.length} gares fréquentées seulement, on garde l’ingestion précédente.`);
   }
 
   // La mairie de chaque commune. Une commune nouvelle a aussi ses mairies

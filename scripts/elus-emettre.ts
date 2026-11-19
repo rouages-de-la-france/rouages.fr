@@ -33,6 +33,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { eluRetire } from './retraits.ts';
+import { indisponible } from './echecs.ts';
 
 /**
  * Le répertoire n'est pas téléchargeable en un fichier depuis tous les
@@ -70,8 +71,7 @@ export async function collecterMaires(
   const premier = await json<Reponse>(`${BASE}?page_size=${PAGE}&page=1`);
   const total = premier.meta?.total ?? 0;
   if (total === 0) {
-    dire('Répertoire des élus : aucune ligne, la ressource a changé de forme.');
-    return null;
+    return indisponible(dire, 'Répertoire des élus : aucune ligne, la ressource a changé de forme.');
   }
   const pages = Math.ceil(total / PAGE);
 

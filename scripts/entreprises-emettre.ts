@@ -39,6 +39,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normaliser } from '../src/client/recherche-commune.ts';
 import { retraits } from './retraits.ts';
+import { indisponible } from './echecs.ts';
 
 /** Le lien d'une annonce sur bodacc.fr, depuis son identifiant. */
 export const ANNONCE = 'https://www.bodacc.fr/pages/annonces-commerciales-detail/?q.id=id:';
@@ -296,8 +297,7 @@ export async function collecterEntreprises(
     const e = comptesCsv[0] ?? [];
     const [iVille, iCp, iFamille, iN] = ['ville', 'cp', 'familleavis', 'n'].map((c) => e.indexOf(c));
     if ([iVille, iCp, iFamille, iN].some((i) => i === -1)) {
-      dire('BODACC : l’export des décomptes a changé de forme.');
-      return null;
+      return indisponible(dire, 'BODACC : l’export des décomptes a changé de forme.');
     }
     for (const l of comptesCsv.slice(1)) {
       const f = FAMILLES.indexOf(l[iFamille] as (typeof FAMILLES)[number]);
@@ -338,8 +338,7 @@ export async function collecterEntreprises(
     const r = mois[0];
     const [jDate, jFamille, jVille, jCp, jPersonnes, jEtab, jUrl] = ['dateparution', 'familleavis', 'ville', 'cp', 'listepersonnes', 'listeetablissements', 'url_complete'].map((c) => r.indexOf(c));
     if ([jDate, jFamille, jVille, jCp, jPersonnes, jEtab, jUrl].some((i) => i === -1)) {
-      dire('BODACC : l’export des annonces a changé de forme.');
-      return null;
+      return indisponible(dire, 'BODACC : l’export des annonces a changé de forme.');
     }
     for (const l of mois.slice(1)) {
       const f = FAMILLES.indexOf(l[jFamille] as (typeof FAMILLES)[number]);

@@ -27,6 +27,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const JEU =
   'https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/registre-national-installation-production-stockage-electricite-agrege';
@@ -113,8 +114,7 @@ export async function collecterProduction(
   }
   if (inconnues > 0) dire(`Production : ${inconnues} lignes d’une filière inconnue, écartées — le registre a changé ?`);
   if (solaire < 500000) {
-    dire(`Production : ${solaire} installations solaires seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Production : ${solaire} installations solaires seulement, on garde l’ingestion précédente.`);
   }
 
   const communes = new Map<string, ProductionCommune>();

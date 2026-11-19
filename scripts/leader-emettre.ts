@@ -38,6 +38,7 @@ import { fileURLToPath } from 'node:url';
 import XLSX from 'xlsx';
 import { contoursDesCommunes, dedans, ECHELLE, type Anneau } from './espaces-emettre.ts';
 import { communeDe, departementDe, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const REGIONS = {
   '32': {
@@ -248,8 +249,7 @@ export async function collecterLeader(
   await parContours('84', 'auvergne-rhone-alpes', (p) => String(p.GAL_2327 ?? ''), '', 12);
 
   if (Object.keys(regions).length === 0) {
-    dire('LEADER : aucune région lue, on garde l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'LEADER : aucune région lue, on garde l’ingestion précédente.');
   }
   return { maj: jour, regions, communes };
 }

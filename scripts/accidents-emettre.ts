@@ -20,6 +20,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '53698f4ca3a729239d2036df';
 const ANNEES = 5;
@@ -53,8 +54,7 @@ export async function collecterAccidents(
   }
   const annees = [...caract.keys()].filter((a) => usagers.has(a) && a >= 2019).sort().slice(-ANNEES);
   if (annees.length < ANNEES) {
-    dire(`Accidents : ${annees.length} années complètes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Accidents : ${annees.length} années complètes seulement, on garde l’ingestion précédente.`);
   }
   const { actuelles, reports } = reportsDuDecoupage();
   const communes = new Map<string, Accidents>();
@@ -101,8 +101,7 @@ export async function collecterAccidents(
   }
   const t = [...communes.values()].reduce((s, x) => [s[0] + x[0], s[1] + x[1], s[2] + x[2]], [0, 0, 0]);
   if (t[0] < 200000) {
-    dire(`Accidents : ${t[0]} seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Accidents : ${t[0]} seulement, on garde l’ingestion précédente.`);
   }
   dire(
     `Accidents ${annees[0]} à ${annees[annees.length - 1]} : ${t[0].toLocaleString('fr-FR')} accidents corporels, ` +

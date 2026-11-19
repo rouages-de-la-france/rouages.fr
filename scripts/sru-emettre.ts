@@ -21,6 +21,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 /**
  * L'identifiant change à chaque millésime — le fichier 2026 n'est pas le
@@ -88,8 +89,7 @@ export async function collecterSru(
   const premier = await json<Reponse>(`${BASE}?page_size=${PAGE}&page=1`);
   const total = premier.meta?.total ?? 0;
   if (total === 0) {
-    dire('Inventaire SRU : aucune ligne, la ressource a changé de millésime ou de forme.');
-    return null;
+    return indisponible(dire, 'Inventaire SRU : aucune ligne, la ressource a changé de millésime ou de forme.');
   }
   const pages = Math.ceil(total / PAGE);
   const lignes: Ligne[] = [...premier.data];

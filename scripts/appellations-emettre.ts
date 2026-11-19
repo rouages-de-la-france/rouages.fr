@@ -22,6 +22,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEUX = { ao: '53698ecca3a729239d203579', ig: '53698ec7a3a729239d20356a' } as const;
 
@@ -82,8 +83,7 @@ export async function collecterAppellations(
       n++;
     }
     if (n < (cle === 'ao' ? 30000 : 200000)) {
-      dire(`Appellations : ${n} lignes seulement pour ${cle}, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Appellations : ${n} lignes seulement pour ${cle}, on garde l’ingestion précédente.`);
     }
   }
   const communes = new Map<string, AppellationsCommune>();

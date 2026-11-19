@@ -29,6 +29,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { correspondances } from './lieux-emettre.ts';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU_IRVE = '5448d3e0c751df01f85d0572';
 export const JEU_BNLC = '5d6eaffc8b4c417cdc452ac3';
@@ -106,8 +107,7 @@ export async function collecterRecharge(
     points++;
   }
   if (points < 100000) {
-    dire(`Recharge : ${points} points de charge seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Recharge : ${points} points de charge seulement, on garde l’ingestion précédente.`);
   }
 
   const versBnlc = join(cache, `bnlc-${date(bnlc)}.csv`);
@@ -131,8 +131,7 @@ export async function collecterRecharge(
     lieux++;
   }
   if (lieux < 5000) {
-    dire(`Covoiturage : ${lieux} lieux seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Covoiturage : ${lieux} lieux seulement, on garde l’ingestion précédente.`);
   }
 
   const communes = new Map<string, RechargeCommune>();

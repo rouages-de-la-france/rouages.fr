@@ -23,6 +23,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lignesArchive } from './ages-emettre.ts';
 import { ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const MELODI = (ds: string, an: number) => `https://api.insee.fr/melodi/file/${ds}/${ds}_${an}_CSV_FR`;
 export const MILLESIME = 2023;
@@ -196,13 +197,11 @@ export async function collecterRecensement(
     try {
       await telecharger(MELODI(t.jeu, MILLESIME), vers);
     } catch {
-      dire(`Recensement, ${nom} : indisponible, l’ingestion précédente reste en place.`);
-      return null;
+      return indisponible(dire, `Recensement, ${nom} : indisponible, l’ingestion précédente reste en place.`);
     }
     const l = await lireTable(vers, t, millesimes);
     if (l.communes.size < 30000 || !l.france?.[0]) {
-      dire(`Recensement, ${nom} : ${l.communes.size} communes, ou pas de total national — on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Recensement, ${nom} : ${l.communes.size} communes, ou pas de total national — on garde l’ingestion précédente.`);
     }
     dire(`Recensement ${millesimes.join(' et ')}, ${nom} : ${l.communes.size.toLocaleString('fr-FR')} communes.`);
     return l;

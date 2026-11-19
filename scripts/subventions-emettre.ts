@@ -37,6 +37,7 @@ import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { debutFenetre, GENRES, type Evenement } from '../src/modele/journal.ts';
 import { anneePlausible } from '../src/modele/annees.ts';
 import { lireCsvOuvert, ressourcesDuSchema } from './donnees-ouvertes.ts';
+import { indisponible } from './echecs.ts';
 
 /** Combien de subventions le fichier du département porte, par collectivité. */
 const PAR_COLLECTIVITE = 6;
@@ -135,8 +136,7 @@ export async function collecterSubventions(
 ): Promise<Subventions | null> {
   const sources = await ressourcesDuSchema('subventions', json, dire);
   if (sources.length === 0) {
-    dire('Subventions : aucune ressource conforme au schéma.');
-    return null;
+    return indisponible(dire, 'Subventions : aucune ressource conforme au schéma.');
   }
   dire(`Subventions : ${sources.length} fichiers découverts par le schéma.`);
 
@@ -222,8 +222,7 @@ export async function collecterSubventions(
   }
 
   if (brut.size === 0) {
-    dire('Subventions : aucune collectivité rattachée, rien à écrire.');
-    return null;
+    return indisponible(dire, 'Subventions : aucune collectivité rattachée, rien à écrire.');
   }
 
   const parCollectivite = new Map<string, Subvention[]>();

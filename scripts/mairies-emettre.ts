@@ -22,6 +22,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const ANNUAIRE =
   'https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json' +
@@ -168,8 +169,7 @@ export async function collecterMairies(
   const rang = (nom: string) => (/^Mairie\s*-/.test(nom) ? 0 : 1);
   for (const l of communes.values()) l.sort((a, b) => rang(a[0]) - rang(b[0]) || a[0].localeCompare(b[0], 'fr'));
   if (communes.size < 30_000) {
-    dire(`Mairies : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Mairies : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const avecSite = [...communes.values()].filter((l) => l.some((m) => m[1])).length;
   dire(

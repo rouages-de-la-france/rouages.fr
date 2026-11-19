@@ -46,6 +46,7 @@ import { fileURLToPath } from 'node:url';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
 import { retraits } from './retraits.ts';
 import { diffusionSirene } from './sirene-noms.ts';
+import { indisponible } from './echecs.ts';
 
 export const SERVICE = 'https://mapsref.brgm.fr/wxs/georisques/georisques_dl?service=wfs&version=2.0.0';
 /** L'adresse que la fiche data.gouv de la CASIAS donne pour son fichier CSV, couche par couche. */
@@ -258,8 +259,7 @@ export async function collecterGeorisques(
   }
   if (fichesAilleurs > 0) throw new Error(`${fichesAilleurs} installations ont une fiche à une autre adresse que /details/<code>`);
   if (sites.size === 0 || installations.size === 0) {
-    dire('Géorisques : une des deux bases est vide, on garde l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'Géorisques : une des deux bases est vide, on garde l’ingestion précédente.');
   }
 
   // --- Les noms --------------------------------------------------------------

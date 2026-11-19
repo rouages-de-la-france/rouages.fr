@@ -27,6 +27,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createGunzip } from 'node:zlib';
 import { ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const BASE = 'https://data-pipeline-open.s3.sbg.io.cloud.ovh.net/controle_sanitaire_eau';
 export const PRELEVEMENTS = `${BASE}/PLV.csv.gz`;
@@ -155,13 +156,11 @@ export async function collecterEauQualite(
     await telecharger(RESEAUX, udi);
     await telecharger(PRELEVEMENTS, plv);
   } catch {
-    dire('Contrôle sanitaire de l’eau indisponible : celui de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Contrôle sanitaire de l’eau indisponible : celui de l’ingestion précédente reste en place.');
   }
   const e = await lireEauQualite(plv, udi);
   if (e.communes.size < 30000) {
-    dire(`Contrôle sanitaire de l’eau : ${e.communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Contrôle sanitaire de l’eau : ${e.communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const touchees = [...e.communes.values()].filter((q) => q[1] + q[2] > 0).length;
   dire(

@@ -24,6 +24,7 @@
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 /**
  * Le fichier des séries historiques. Son adresse porte le millésime : la
@@ -77,8 +78,7 @@ export async function collecterPopulations(
   try {
     await telecharger(FICHIER, fichier);
   } catch {
-    dire('Séries de population indisponibles : celles de l’ingestion précédente restent en place.');
-    return null;
+    return indisponible(dire, 'Séries de population indisponibles : celles de l’ingestion précédente restent en place.');
   }
 
   const [chainesXml, feuille] = await Promise.all([
@@ -108,8 +108,7 @@ export async function collecterPopulations(
   // leur nombre a déjà changé d'un millésime à l'autre.
   const iEntete = lignes.findIndex((l) => cellules(l)[0] === 'CODGEO');
   if (iEntete === -1) {
-    dire('Séries de population : aucune colonne « CODGEO » — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Séries de population : aucune colonne « CODGEO » — le fichier a changé de forme.');
   }
   const entetes = cellules(lignes[iEntete]);
   // PTOT jusqu'en 1954, PSDC de 1962 à 1999, PMUN depuis 2006 : trois
@@ -118,8 +117,7 @@ export async function collecterPopulations(
     .map((h, i) => ({ annee: Number(/^(?:PMUN|PSDC|PTOT)(\d{4})$/.exec(h)?.[1] ?? 0), i }))
     .filter((c) => c.annee > 0);
   if (colonnes.length === 0) {
-    dire('Séries de population : aucune colonne de millésime reconnue.');
-    return null;
+    return indisponible(dire, 'Séries de population : aucune colonne de millésime reconnue.');
   }
   const rangDe = new Map(colonnes.map((c) => [c.annee, c.i]));
 
@@ -145,8 +143,7 @@ export async function collecterPopulations(
   }
 
   if (communes.size === 0) {
-    dire('Séries de population : aucune commune lue.');
-    return null;
+    return indisponible(dire, 'Séries de population : aucune commune lue.');
   }
   dire(
     `Séries de population : ${communes.size.toLocaleString('fr-FR')} communes, ` +

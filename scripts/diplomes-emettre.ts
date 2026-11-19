@@ -21,6 +21,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lignesArchive } from './ages-emettre.ts';
+import { indisponible } from './echecs.ts';
 
 export const MILLESIMES = [2023, 2017] as const;
 export const FICHIER =
@@ -99,13 +100,11 @@ export async function collecterDiplomes(
   try {
     await telecharger(FICHIER, vers);
   } catch {
-    dire('Diplômes indisponibles : ceux de l’ingestion précédente restent en place.');
-    return null;
+    return indisponible(dire, 'Diplômes indisponibles : ceux de l’ingestion précédente restent en place.');
   }
   const d = await lireDiplomes(vers);
   if (d.communes.size === 0 || !d.france?.[0]) {
-    dire('Diplômes : aucune commune lue, ou pas de total national.');
-    return null;
+    return indisponible(dire, 'Diplômes : aucune commune lue, ou pas de total national.');
   }
   const recents = [...d.communes.values()].filter((e) => e[0]).length;
   dire(

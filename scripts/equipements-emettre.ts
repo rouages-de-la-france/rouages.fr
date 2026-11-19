@@ -23,6 +23,7 @@
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 /**
  * Les deux fichiers de l'INSEE. **Leur adresse porte l'identifiant de la
@@ -133,8 +134,7 @@ export async function collecterEquipements(
     await telecharger(GAMMES, classeur);
     await telecharger(DENOMBREMENT, archive);
   } catch {
-    dire('Équipements : l’INSEE n’a pas répondu, les fichiers précédents restent en place.');
-    return null;
+    return indisponible(dire, 'Équipements : l’INSEE n’a pas répondu, les fichiers précédents restent en place.');
   }
 
   // --- la nomenclature : quels types composent quelle gamme ---
@@ -146,8 +146,7 @@ export async function collecterEquipements(
       extraire(classeur, 'xl/worksheets/sheet1.xml'),
     ]);
   } catch {
-    dire('Équipements : le classeur des gammes n’a pas pu être ouvert.');
-    return null;
+    return indisponible(dire, 'Équipements : le classeur des gammes n’a pas pu être ouvert.');
   }
   const chaines = [...chainesXml.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((m) =>
     m[1].replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>'),
@@ -168,8 +167,7 @@ export async function collecterEquipements(
   // nombre a déjà changé.
   const iEntete = lignesGammes.findIndex((l) => l.includes('TYPEQU'));
   if (iEntete === -1) {
-    dire('Équipements : aucune colonne « TYPEQU » — le classeur a changé de forme.');
-    return null;
+    return indisponible(dire, 'Équipements : aucune colonne « TYPEQU » — le classeur a changé de forme.');
   }
   const entetes = lignesGammes[iEntete];
   const col = (nom: string) => entetes.indexOf(nom);
@@ -180,8 +178,7 @@ export async function collecterEquipements(
   const cGamme = col('GAMME');
   const cOu = col('LIBELLE_SDOM');
   if (cCode === -1 || cGamme === -1) {
-    dire('Équipements : les colonnes du classeur des gammes ont changé.');
-    return null;
+    return indisponible(dire, 'Équipements : les colonnes du classeur des gammes ont changé.');
   }
 
   const types: TypeEquipement[] = [];
@@ -217,8 +214,7 @@ export async function collecterEquipements(
     groupes[j].types.push(i);
   }
   if (types.length === 0) {
-    dire('Équipements : aucune gamme reconnue — le classeur a changé de forme.');
-    return null;
+    return indisponible(dire, 'Équipements : aucune gamme reconnue — le classeur a changé de forme.');
   }
   const nombreProximite = groupes.filter((g) => g.gamme === 0).length;
 
@@ -244,8 +240,7 @@ export async function collecterEquipements(
   }
 
   if (communes.size === 0) {
-    dire('Équipements : aucune commune lue — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Équipements : aucune commune lue — le fichier a changé de forme.');
   }
 
   const proximites: number[] = [];

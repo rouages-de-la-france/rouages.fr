@@ -27,6 +27,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const FICHIER =
   'https://agreste.agriculture.gouv.fr/agreste-web/download/publication/publie/RA2020_1013/RA2020_1013_SAU_Communes.zip';
@@ -119,13 +120,11 @@ export async function collecterAgriculture(
   try {
     await telecharger(FICHIER, vers);
   } catch (e) {
-    dire(`Recensement agricole indisponible (${(e as Error).message}) : celui de l’ingestion précédente reste en place.`);
-    return null;
+    return indisponible(dire, `Recensement agricole indisponible (${(e as Error).message}) : celui de l’ingestion précédente reste en place.`);
   }
   const communes = await lireAgriculture(vers);
   if (communes.size < 25000) {
-    dire(`Recensement agricole : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Recensement agricole : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const sau = [...communes.values()].reduce((s, x) => s + x[0], 0);
   dire(

@@ -26,6 +26,7 @@ import { createReadStream } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indisponible } from './echecs.ts';
 
 const OFGL =
   'https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/ofgl-base-ccas-cias/exports/csv';
@@ -105,8 +106,7 @@ export async function collecterCcas(
     'exer', 'siren', 'type', 'nom_ccas', 'lbudg', 'type_de_budget', 'agregat', 'montant',
   ].map(col);
   if ([iExer, iSiren, iAgregat, iMontant].some((i) => i === -1)) {
-    dire('Comptes des CCAS : l’export de l’OFGL a changé de forme.');
-    return null;
+    return indisponible(dire, 'Comptes des CCAS : l’export de l’OFGL a changé de forme.');
   }
   const annees = [...new Set(ofgl.slice(1).map((l) => Number(l[iExer].slice(0, 4))))].filter(Boolean).sort();
   const derniere = annees[annees.length - 1];
