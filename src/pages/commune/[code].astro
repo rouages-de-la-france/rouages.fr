@@ -395,7 +395,7 @@ const sommaire: [string, string, unknown][] = [
   ['defibrillateurs', 'Les défibrillateurs', vie.defibrillateurs],
   ['petite-enfance', 'Les tout-petits', vie.petiteEnfance],
   ['ecoles', 'Les écoles', vie.ecoles],
-  ['reseaux', 'Eau, fibre, énergie', vie.eau || vie.fibre || vie.energie],
+  ['reseaux', 'Eau, assainissement, fibre, énergie', vie.eau || vie.assainissement || vie.fibre || vie.energie],
   ['secheresse', 'Les restrictions d’eau', vie.secheresse],
   ['nature', 'Les espaces naturels', espaces],
   ['mobile', 'Le mobile : antennes et couverture', vie.antennes || vie.couvertureMobile],
@@ -1171,10 +1171,10 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
-    {(vie.eau || vie.fibre || vie.energie) && (
+    {(vie.eau || vie.assainissement || vie.fibre || vie.energie) && (
       <section id="reseaux">
         <h2 class="badge">Les réseaux qui y arrivent</h2>
-        <Reseaux eau={vie.eau} fibre={vie.fibre} energie={vie.energie} />
+        <Reseaux eau={vie.eau} assainissement={vie.assainissement} fibre={vie.fibre} energie={vie.energie} />
       </section>
     )}
 

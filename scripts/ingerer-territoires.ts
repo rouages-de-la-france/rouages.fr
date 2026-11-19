@@ -889,6 +889,13 @@ async function principal() {
   );
   if (eauQualite) grise(`${ecrireEauQualite(SORTIE, eauQualite)} départements de qualité de l’eau écrits.`);
 
+  // Les eaux usées : qui collecte et traite, et en régie ou en délégation (SISPEA).
+  const { collecterAssainissement, ecrireAssainissement } = await import('./assainissement-emettre.ts');
+  const assainissement = await tenter('Assainissement', () =>
+    collecterAssainissement(enCache('SISPEA — composition communale des services (4 Mo)'), CACHE, grise),
+  );
+  if (assainissement) grise(`${ecrireAssainissement(SORTIE, assainissement)} départements d’assainissement écrits.`);
+
   const { collecterFibre, ecrireFibre } = await import('./fibre-emettre.ts');
   const fibre = await tenter('Fibre optique', () => collecterFibre(lireJson, enCache('France Très Haut Débit (6 Mo)'), CACHE, grise));
   if (fibre) grise(`${ecrireFibre(SORTIE, fibre)} départements de fibre écrits.`);
