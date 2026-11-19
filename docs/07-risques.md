@@ -134,8 +134,12 @@ l'établissement et la commune. Une opposition peut donc
 garder l'annonce du BODACC sous le seul nom commercial (`affichage:
 commercial`), ou sans aucun nom (`affichage: anonyme`), au lieu de la retirer.
 La page de la commune garde l'information sans nommer. Une précaution, née
-du même cas : un nom commercial qui contient le nom de famille — qui exerce
-sous son propre nom — nommerait encore ; l'annonce devient alors anonyme.
+du même cas : un nom commercial qui contient un mot du prénom ou du nom — qui
+exerce sous son propre nom — nommerait encore ; l'annonce devient alors
+anonyme. Depuis le
+19 novembre aussi, l'opposition s'applique dès la publication suivante du
+site : chaque annonce garde les SIREN des personnes qu'elle nomme, et le
+build relit `retraits.yaml`, sans attendre la réingestion.
 
 ### Les nuances politiques et l'année de naissance (1er octobre 2026)
 

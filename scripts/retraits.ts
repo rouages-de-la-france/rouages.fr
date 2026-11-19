@@ -12,19 +12,13 @@ import { deliberationRetiree, empreinteDeliberation } from '../src/modele/retrai
 
 export { deliberationRetiree, empreinteDeliberation };
 
-/**
- * Ce qu'une annonce du BODACC montre d'une entreprise qui a demandé à ne plus
- * être nommée. Sans affichage, elle n'est plus montrée du tout (comptée
- * seulement) ; `commercial` garde l'annonce sous le seul nom commercial ;
- * `anonyme` la garde sans aucun nom. Le titulaire d'un marché, l'exploitant
- * d'un site, lui, n'est plus nommé dans tous les cas.
- */
-export type Affichage = 'commercial' | 'anonyme';
+import { retraitsEntreprisesDe, type Affichage } from '../src/modele/retraits-entreprises.ts';
+export type { Affichage };
 
 export interface Retraits {
   /** Des SIREN, sans espaces : toutes les oppositions, quel que soit l'affichage. */
   entreprises: Set<string>;
-  /** Les SIREN dont l'annonce reste montrée, et comment. */
+  /** Les SIREN dont l'annonce reste montrée, et comment (voir `src/modele/retraits-entreprises.ts`). */
   affichages: Map<string, Affichage>;
   /** « code INSEE|fonction ». */
   elus: Set<string>;
@@ -70,15 +64,11 @@ export function retraitsDe(texte: string): Retraits {
     declarations?: { page?: string; rubrique?: string }[];
     sites?: unknown[];
   };
-  // Une entrée est un SIREN seul (retrait complet), ou { siren, affichage }.
-  const entrees = (brut.entreprises ?? []).map((x) => {
-    const o = typeof x === 'object' && x !== null ? (x as { siren?: unknown; affichage?: unknown }) : { siren: x };
-    const affichage = o.affichage === 'commercial' || o.affichage === 'anonyme' ? (o.affichage as Affichage) : null;
-    return { siren: String(o.siren ?? '').replace(/\D/g, ''), affichage };
-  }).filter((e) => e.siren.length === 9);
+  // Une entrée est un SIREN seul (retrait complet), ou { siren, affichage } : la même lecture qu'au build.
+  const { entreprises, affichages } = retraitsEntreprisesDe(texte);
   return {
-    entreprises: new Set(entrees.map((e) => e.siren)),
-    affichages: new Map(entrees.filter((e) => e.affichage).map((e) => [e.siren, e.affichage!])),
+    entreprises,
+    affichages,
     elus: new Set((brut.elus ?? []).filter((e) => e?.commune && e?.fonction).map((e) => `${e.commune}|${e.fonction}`)),
     empreintes: new Set((brut.elus ?? []).filter((e) => e?.empreinte).map((e) => String(e.empreinte))),
     declarations: new Set((brut.declarations ?? []).filter((d) => d?.page && d?.rubrique).map((d) => `${d.page}|${d.rubrique}`)),

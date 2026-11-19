@@ -39,6 +39,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normaliser } from '../src/client/recherche-commune.ts';
 import { retraits } from './retraits.ts';
+import { anonymat, commercialNomme } from '../src/modele/retraits-entreprises.ts';
 import { indisponible } from './echecs.ts';
 
 /** Le lien d'une annonce sur bodacc.fr, depuis son identifiant. */
@@ -56,7 +57,12 @@ const DEPUIS = 2016;
 /** Combien d'annonces nommées une commune garde. */
 const RECENTES = 8;
 
-export type Recente = [string, number, string, string, string, 0 | 1];
+/**
+ * Date, famille, nom, identifiant, activité, entrepreneur individuel ; puis les
+ * SIREN des personnes nommées, qui laissent le build appliquer une opposition
+ * inscrite après l'ingestion, et leur nombre quand il dépasse un.
+ */
+export type Recente = [string, number, string, string, string, 0 | 1, string[], number?];
 
 /** La copie de SIRENE qu'Opendatasoft tient à jour, pour relire le statut de diffusion. */
 const SIRENE =
@@ -188,7 +194,7 @@ export interface PersonneAnnonce {
   pp: boolean;
   /** Le nom affiché : « Prénom Nom (nom commercial) », ou la dénomination. */
   nom: string;
-  /** Pour une personne physique : son nom de famille et son nom commercial. */
+  /** Pour une personne physique : son prénom et son nom, et son nom commercial. */
   famille: string;
   commercial: string;
 }
@@ -237,20 +243,11 @@ export function nommables(
       noms.push(affiche);
       sirensPp.push(siren);
       sirens.push(siren);
-      liste.push({ siren, pp: true, nom: affiche, famille: nom, commercial });
+      liste.push({ siren, pp: true, nom: affiche, famille: `${prenom} ${nom}`.trim(), commercial });
     } else return null;
   }
   return { noms, sirensPp, sirens, personnes: liste };
 }
-
-/** Sans accents ni casse ni ponctuation : « Bénard-Lefèvre » et « BENARD LEFEVRE » se valent. */
-const plie = (x: string) =>
-  x
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
 
 /**
  * Le nom qu'une annonce affiche, une fois appliquées les oppositions de
@@ -259,9 +256,10 @@ const plie = (x: string) =>
  * - Une opposition sans affichage retire l'annonce : elle reste comptée.
  * - `anonyme` la garde sans nom : « Entreprise individuelle », ou « Société ».
  * - `commercial` la garde sous le seul nom commercial. Un nom commercial qui
- *   contient le nom de famille le nommerait encore (c'est le cas de qui
- *   exerce sous son propre nom) : l'annonce est alors anonyme. Sans nom
- *   commercial, aussi.
+ *   contient un mot du prénom ou du nom le nommerait encore (c'est le cas de
+ *   qui exerce sous son propre nom) : l'annonce est alors anonyme. Sans nom
+ *   commercial, aussi. Le build applique la même règle
+ *   (`src/modele/retraits-entreprises.ts`).
  */
 export function nomAffiche(
   personnes: PersonneAnnonce[],
@@ -276,15 +274,9 @@ export function nomAffiche(
     }
     const mode = affichages.get(p.siren);
     if (!mode) return null;
-    const anonyme = p.pp ? 'Entreprise individuelle' : 'Société';
-    if (mode === 'anonyme') noms.push(anonyme);
+    if (mode === 'anonyme') noms.push(anonymat(p.pp));
     else if (!p.pp) noms.push(p.nom);
-    else {
-      const famille = plie(p.famille);
-      const commercial = plie(p.commercial);
-      const nomme = !commercial || famille.split(' ').some((m) => m.length > 1 && ` ${commercial} `.includes(` ${m} `));
-      noms.push(nomme ? anonyme : p.commercial);
-    }
+    else noms.push(!p.commercial || commercialNomme(p.commercial, p.famille) ? anonymat(p.pp) : p.commercial);
   }
   return noms.join(', ');
 }
@@ -424,7 +416,11 @@ export async function collecterEntreprises(
         const liste = candidates.get(code) ?? [];
         // Une annonce qui cite deux établissements de la même commune n'y compte qu'une fois.
         if (liste.length < RECENTES * 3 && !liste.some((x) => x.r[3] === id)) {
-          liste.push({ r: [l[jDate], f, nom, id, activite(l[jEtab]), ei], sirensPp: n.sirensPp });
+          // Les SIREN des personnes encore nommées : une opposition déjà appliquée ne l'est pas deux fois.
+          const nommes = n.personnes.filter((p) => p.siren && !r.entreprises.has(p.siren)).map((p) => p.siren);
+          const recente: Recente = [l[jDate], f, nom, id, activite(l[jEtab]), ei, nommes];
+          if (n.personnes.length > 1) recente.push(n.personnes.length);
+          liste.push({ r: recente, sirensPp: n.sirensPp });
         }
         candidates.set(code, liste);
       }

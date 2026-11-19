@@ -16,6 +16,7 @@
  * reste.
  */
 import { deliberationRetiree } from './retraits-deliberations.ts';
+import { annonceRetenue, type AnnonceFichier } from './retraits-entreprises.ts';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { detailDepuisBrut, type DetailAffiche, type DetailBrut } from '../vues/detail-marche.ts';
 import { join } from 'node:path';
@@ -457,9 +458,11 @@ export interface Entreprises {
   /**
    * Les dernières annonces nommées : date, rang de la famille, nom, identifiant
    * de l'annonce au BODACC, activité déclarée, 1 pour un entrepreneur individuel.
-   * Un fichier antérieur au 1er octobre 2026 n'a que les quatre premiers.
+   * Un fichier antérieur au 1er octobre 2026 n'a que les quatre premiers ;
+   * depuis le 19 novembre 2026 suivent les SIREN des personnes nommées, et leur
+   * nombre quand il dépasse un (`src/modele/retraits-entreprises.ts`).
    */
-  recentes: [string, number, string, string, string?, (0 | 1)?][];
+  recentes: AnnonceFichier[];
   /** La part des annonces nationales qu'aucune commune ne reçoit. */
   sansCommune: number;
   maj: string;
@@ -566,7 +569,7 @@ type EntreprisesDep = {
   annees: number[];
   familles: string[];
   sansCommune: number;
-  c: Record<string, [number[][] | null, [string, number, string, string, string?, (0 | 1)?][]]>;
+  c: Record<string, [number[][] | null, AnnonceFichier[]]>;
 };
 type SireneDep = {
   maj: string;
@@ -1030,7 +1033,9 @@ function assemblerEntreprises(commune: CommuneFiche): Entreprises | null {
   const d = entreprisesDep.get(commune.dep);
   const f = d?.c[commune.code];
   if (!d || !f) return null;
-  const [comptes, recentes] = f;
+  const [comptes, lues] = f;
+  // Une opposition inscrite après l'ingestion s'applique dès ce build.
+  const recentes = lues.map((a) => annonceRetenue(a)).filter((a): a is AnnonceFichier => a !== null);
   if (!comptes && recentes.length === 0) return null;
   return { annees: d.annees, familles: d.familles, comptes, recentes, sansCommune: d.sansCommune, maj: d.maj };
 }

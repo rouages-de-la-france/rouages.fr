@@ -17,10 +17,11 @@
 #                     affichage: commercial   # le seul nom commercial
 #                   - siren: "123456789"
 #                     affichage: anonyme      # « Entreprise individuelle »
-#                 Un nom commercial qui contient le nom de famille, ou absent,
+#                 Un nom commercial qui contient un mot du prénom ou du nom, ou absent,
 #                 donne une annonce anonyme. Le titulaire d'un marché ou
 #                 l'exploitant d'un site n'est plus nommé dans tous les cas.
-#                 Vérifié par `npm run verifier-retraits` ;
+#                 Appliqué à l'ingestion, et dès le build pour les annonces
+#                 du BODACC. Vérifié par `npm run verifier-retraits` ;
 #   elus        : le code INSEE de la commune et la fonction, telle que le
 #                 répertoire national des élus l'écrit (« Maire »,
 #                 « 2ème adjoint au Maire ») ; pour un conseiller sans
