@@ -896,6 +896,13 @@ async function principal() {
   );
   if (assainissement) grise(`${ecrireAssainissement(SORTIE, assainissement)} départements d’assainissement écrits.`);
 
+  // Les déchèteries, et qui les exploite (SINOE, ADEME).
+  const { collecterDecheteries, ecrireDecheteries } = await import('./decheteries-emettre.ts');
+  const decheteries = await tenter('Déchèteries', () =>
+    collecterDecheteries(enCache('SINOE — annuaire des déchèteries (24 Mo)'), CACHE, grise),
+  );
+  if (decheteries) grise(`${ecrireDecheteries(SORTIE, decheteries)} départements de déchèteries écrits.`);
+
   const { collecterFibre, ecrireFibre } = await import('./fibre-emettre.ts');
   const fibre = await tenter('Fibre optique', () => collecterFibre(lireJson, enCache('France Très Haut Débit (6 Mo)'), CACHE, grise));
   if (fibre) grise(`${ecrireFibre(SORTIE, fibre)} départements de fibre écrits.`);

@@ -63,6 +63,7 @@ import Demarches from '../../composants/commune/Demarches.astro';
 import Fiscalite from '../../composants/commune/Fiscalite.astro';
 import Logements from '../../composants/commune/Logements.astro';
 import Equipements from '../../composants/commune/Equipements.astro';
+import Decheteries from '../../composants/commune/Decheteries.astro';
 import Services from '../../composants/commune/Services.astro';
 import Emploi from '../../composants/commune/Emploi.astro';
 import Logement from '../../composants/commune/Logement.astro';
@@ -389,7 +390,7 @@ const sommaire: [string, string, unknown][] = [
   ['entreprises', 'Les entreprises', plus.presentes || plus.entreprises],
   ['representants', 'Les représentants d’intérêts', plus.representants],
   ['travail', 'Le travail', vie.travail],
-  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length],
+  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length || vie.decheteries],
   ['services', 'Les services', (fiche?.services.length ?? 0) > 0],
   ['sante', 'Le médecin', vie.sante || vie.acces?.medecin],
   ['defibrillateurs', 'Les défibrillateurs', vie.defibrillateurs],
@@ -1116,10 +1117,11 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
-    {(equ || vie.acces?.services.length) && (
+    {(equ || vie.acces?.services.length || vie.decheteries) && (
       <section id="equipements" class="p-equipements">
         <h2 class="badge">Ce qu’on trouve sur place</h2>
         {equ && <Equipements e={equ} />}
+        {vie.decheteries && <Decheteries d={vie.decheteries} />}
         {vie.acces && vie.acces.services.length > 0 && (
           <>
             <h3>À quelle distance</h3>
