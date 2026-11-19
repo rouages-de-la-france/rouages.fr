@@ -9,7 +9,7 @@
  * même — et le nombre de logements du parc privé.
  *
  * **Le secret.** Une case masquée vaut « s » ; on garde `null`, et la page
- * dit « masqué », sans deviner. Ce n'est pas toujours « moins de onze » : au
+ * dit « non publié », sans deviner. Ce n'est pas toujours « moins de onze » : au
  * millésime 2026, aucune valeur publiée n'est entre 1 et 10 (les petites sont
  * des zéros), mais des communes masquées en 2026 ont, d'autres années, des
  * valeurs publiées jusqu'à 487 — d'après la documentation, il suffit que les
