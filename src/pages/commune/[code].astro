@@ -63,6 +63,7 @@ import Demarches from '../../composants/commune/Demarches.astro';
 import Fiscalite from '../../composants/commune/Fiscalite.astro';
 import Logements from '../../composants/commune/Logements.astro';
 import Equipements from '../../composants/commune/Equipements.astro';
+import Decheteries from '../../composants/commune/Decheteries.astro';
 import Services from '../../composants/commune/Services.astro';
 import Emploi from '../../composants/commune/Emploi.astro';
 import Logement from '../../composants/commune/Logement.astro';
@@ -389,13 +390,13 @@ const sommaire: [string, string, unknown][] = [
   ['entreprises', 'Les entreprises', plus.presentes || plus.entreprises],
   ['representants', 'Les représentants d’intérêts', plus.representants],
   ['travail', 'Le travail', vie.travail],
-  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length],
+  ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length || vie.decheteries],
   ['services', 'Les services', (fiche?.services.length ?? 0) > 0],
   ['sante', 'Le médecin', vie.sante || vie.acces?.medecin],
   ['defibrillateurs', 'Les défibrillateurs', vie.defibrillateurs],
   ['petite-enfance', 'Les tout-petits', vie.petiteEnfance],
   ['ecoles', 'Les écoles', vie.ecoles],
-  ['reseaux', 'Eau, fibre, énergie', vie.eau || vie.fibre || vie.energie],
+  ['reseaux', 'Eau, assainissement, fibre, énergie', vie.eau || vie.assainissement || vie.fibre || vie.energie],
   ['secheresse', 'Les restrictions d’eau', vie.secheresse],
   ['nature', 'Les espaces naturels', espaces],
   ['mobile', 'Le mobile : antennes et couverture', vie.antennes || vie.couvertureMobile],
@@ -1116,10 +1117,11 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
-    {(equ || vie.acces?.services.length) && (
+    {(equ || vie.acces?.services.length || vie.decheteries) && (
       <section id="equipements" class="p-equipements">
         <h2 class="badge">Ce qu’on trouve sur place</h2>
         {equ && <Equipements e={equ} />}
+        {vie.decheteries && <Decheteries d={vie.decheteries} />}
         {vie.acces && vie.acces.services.length > 0 && (
           <>
             <h3>À quelle distance</h3>
@@ -1171,10 +1173,10 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
-    {(vie.eau || vie.fibre || vie.energie) && (
+    {(vie.eau || vie.assainissement || vie.fibre || vie.energie) && (
       <section id="reseaux">
         <h2 class="badge">Les réseaux qui y arrivent</h2>
-        <Reseaux eau={vie.eau} fibre={vie.fibre} energie={vie.energie} />
+        <Reseaux eau={vie.eau} assainissement={vie.assainissement} fibre={vie.fibre} energie={vie.energie} />
       </section>
     )}
 

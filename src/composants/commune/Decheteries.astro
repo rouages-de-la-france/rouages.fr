@@ -1,0 +1,34 @@
+---
+/**
+ * La déchèterie de la commune, et qui l'exploite (annuaire SINOE de l'ADEME,
+ * `scripts/decheteries-emettre.ts`). L'exploitant n'est nommé que s'il est
+ * public ; une entreprise reste « une entreprise ». L'annuaire ne dit pas
+ * quelles communes y ont accès : c'est le règlement de la collectivité qui
+ * en a la charge, et la page ne le devine pas.
+ */
+import type { Decheteries } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  d: Decheteries;
+}
+const { d } = Astro.props;
+const MODES: Record<string, string> = {
+  REGIE: 'en régie',
+  ENTRE: 'dans le cadre d’un marché de prestation de service',
+  GESDE: 'en délégation de service public',
+  PRIVE: 'en gestion privée',
+};
+const phrase = (s: Decheteries['sites'][number]) =>
+  `${s.nom || 'La déchèterie'}${s.ouverture ? `, ouverte en ${s.ouverture}` : ''}, ` +
+  (s.exploitant ? `est exploitée par ${s.exploitant}` : 'est exploitée par une entreprise') +
+  (MODES[s.mode] ? ` ${MODES[s.mode]}` : '') +
+  (s.professionnels ? ' ; elle accepte aussi les déchets des professionnels.' : '.');
+---
+<h3>{d.sites.length > 1 ? 'Les déchèteries' : 'La déchèterie'}</h3>
+<ul class="mesure">
+  {d.sites.map((s) => <li>{phrase(s)}</li>)}
+</ul>
+<p class="p-source-territoire">
+  {`D’après l’annuaire des déchèteries SINOE de l’ADEME, sous Licence Ouverte (données ${d.annee}, lues le ${d.maj}). ` +
+    'Qui peut y déposer quoi, et à quelles heures, se lit dans le règlement de la collectivité chargée des déchets : '}<a href="/n/dechets-menagers">la collecte et le traitement des déchets</a>{'.'}
+</p>

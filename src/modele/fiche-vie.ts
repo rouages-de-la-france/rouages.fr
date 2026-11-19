@@ -77,6 +77,11 @@ type EnergieDep = { maj: string; annee: number; c: Record<string, [FiliereLigne 
 const santeDep = parDepartement<SanteDep>('sante');
 const eauDep = parDepartement<EauQualiteDep>('eau-qualite');
 const fibreDep = parDepartement<FibreDep>('fibre');
+type ServiceAssainissementBrut = [string, string, string, string, string, string, string, string];
+type AssainissementDep = { maj: string; exercices: { AC: number; ANC: number }; c: Record<string, [ServiceAssainissementBrut[], ServiceAssainissementBrut[]]> };
+const assainissementDep = parDepartement<AssainissementDep>('assainissement');
+type DecheteriesDep = { maj: string; annee: number; c: Record<string, [string, string, string, 0 | 1, number | null][]> };
+const decheteriesDep = parDepartement<DecheteriesDep>('decheteries');
 const parcDep = parDepartement<ParcDep>('parc');
 const emploiDep = parDepartement<EmploiDep>('emploi');
 const dvfDep = parDepartement<DvfDep>('dvf');
@@ -246,6 +251,47 @@ export interface EauRobinet {
   dernierNonConforme: string | null;
   maitreOuvrage: string;
   exploitant: string;
+  maj: string;
+}
+
+/** Un service d'assainissement qui dessert la commune (SISPEA). */
+export interface ServiceAssainissement {
+  entite: string;
+  /** La collectivité qui en a la charge, et son SIREN. */
+  collectivite: string;
+  siren: string;
+  /** « Régie », « Délégation »… */
+  mode: string;
+  /** « Régie à autonomie financière », « Délégation de service public »… */
+  statut: string;
+  /** Le délégataire, quand il y en a un. */
+  operateur: string;
+  /** Les dates du mode de gestion, AAAA-MM-JJ ou vides. */
+  debut: string;
+  fin: string;
+}
+
+export interface Assainissement {
+  collectif: ServiceAssainissement[];
+  nonCollectif: ServiceAssainissement[];
+  exercices: { AC: number; ANC: number };
+  maj: string;
+}
+
+/** Une déchèterie de la commune (annuaire SINOE de l'ADEME). */
+export interface Decheterie {
+  nom: string;
+  /** L'exploitant, s'il est public ; vide s'il est privé (jamais nommé). */
+  exploitant: string;
+  /** REGIE, ENTRE, GESDE, PRIVE (voir `scripts/decheteries-emettre.ts`). */
+  mode: string;
+  professionnels: boolean;
+  ouverture: number | null;
+}
+
+export interface Decheteries {
+  sites: Decheterie[];
+  annee: number;
   maj: string;
 }
 
@@ -844,6 +890,8 @@ export interface Secheresse {
 export interface ComplementsVie {
   sante: Sante | null;
   eau: EauRobinet | null;
+  assainissement: Assainissement | null;
+  decheteries: Decheteries | null;
   fibre: Fibre | null;
   parc: Parc | null;
   emploi: Emploi | null;
@@ -910,6 +958,27 @@ function eau(c: CommuneFiche): EauRobinet | null {
   if (!d || !x || x[0] === 0) return null;
   const [prelevements, bacterio, chimique, derogation, dernierNonConforme, maitreOuvrage, exploitant] = x;
   return { du: d.du, au: d.au, prelevements, bacterio, chimique, derogation, dernierNonConforme, maitreOuvrage, exploitant, maj: d.maj };
+}
+
+function assainissement(c: CommuneFiche): Assainissement | null {
+  const d = assainissementDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || (x[0].length === 0 && x[1].length === 0)) return null;
+  const service = ([entite, collectivite, siren, mode, statut, operateur, debut, fin]: ServiceAssainissementBrut): ServiceAssainissement => ({
+    entite, collectivite, siren, mode, statut, operateur, debut, fin,
+  });
+  return { collectif: x[0].map(service), nonCollectif: x[1].map(service), exercices: d.exercices, maj: d.maj };
+}
+
+function decheteries(c: CommuneFiche): Decheteries | null {
+  const d = decheteriesDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || x.length === 0) return null;
+  return {
+    sites: x.map(([nom, exploitant, mode, pro, ouverture]) => ({ nom, exploitant, mode, professionnels: pro === 1, ouverture })),
+    annee: d.annee,
+    maj: d.maj,
+  };
 }
 
 function fibre(c: CommuneFiche): Fibre | null {
@@ -1601,6 +1670,8 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
   return {
     sante: sante(c),
     eau: eau(c),
+    assainissement: assainissement(c),
+    decheteries: decheteries(c),
     fibre: fibre(c),
     parc: parc(c),
     emploi: emploi(c),

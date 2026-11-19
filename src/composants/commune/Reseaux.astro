@@ -9,14 +9,15 @@
  * signalent un défaut d'installation, pas un danger, et la réglementation les
  * distingue.
  */
-import type { EauRobinet, Energie, Fibre } from '../../modele/fiche-vie.ts';
+import type { Assainissement, EauRobinet, Energie, Fibre, ServiceAssainissement } from '../../modele/fiche-vie.ts';
 
 interface Props {
   eau: EauRobinet | null;
+  assainissement?: Assainissement | null;
   fibre: Fibre | null;
   energie: Energie | null;
 }
-const { eau, fibre, energie } = Astro.props;
+const { eau, assainissement = null, fibre, energie } = Astro.props;
 const entier = (v: number) => Math.round(v).toLocaleString('fr-FR');
 const pc = (v: number) => `${Math.round(v * 100).toLocaleString('fr-FR')} %`;
 const date = (iso: string) =>
@@ -32,6 +33,23 @@ const zone = fibre
   : '';
 const parLogement = (f: { residentiel: number; points: number }) => (f.points > 0 ? f.residentiel / f.points : null);
 const autre = (d: string[], principal: string) => d.filter((x) => x !== principal);
+// Les eaux usées : qui en a la charge, et comment le service est géré. La
+// collectivité est écrite telle que SISPEA la nomme, souvent en capitales.
+const aujourdhui = new Date().toISOString().slice(0, 10);
+const gestion = (s: ServiceAssainissement): string => {
+  const qui = s.collectivite || s.entite;
+  if (/d[ée]l[ée]gation/i.test(s.mode)) {
+    const contrat = s.fin
+      ? s.fin >= aujourdhui
+        ? `, jusqu’au ${date(s.fin)}`
+        : `, par un contrat échu le ${date(s.fin)} selon la source`
+      : '';
+    return `${qui}, qui l’a délégué${s.operateur ? ` à ${s.operateur}` : ''}${contrat}`;
+  }
+  if (/r[ée]gie/i.test(s.mode)) return `${qui}, en régie${s.operateur && s.operateur !== qui ? `, avec ${s.operateur} pour prestataire` : ''}`;
+  return qui;
+};
+const liste = (l: ServiceAssainissement[]) => l.map(gestion).join(' ; ');
 ---
 {eau && (
   <>
@@ -62,6 +80,25 @@ const autre = (d: string[], principal: string) => d.filter((x) => x !== principa
       {`D’après les résultats du contrôle sanitaire de l’eau distribuée publiés par le ministère chargé de la santé (${eau.maj}). ` +
         'Un prélèvement fait en amont, à l’usine ou au captage, compte pour chaque réseau qu’il alimente. Les bulletins détaillés, ' +
         'paramètre par paramètre, sont sur '}<a href="https://sante.gouv.fr/sante-et-environnement/eaux/eau" target="_blank" rel="noopener">le site du ministère</a>{'.'}
+    </p>
+  </>
+)}
+{assainissement && (
+  <>
+    <h3 class="p-titre-echelon">Les eaux usées</h3>
+    <p class="mesure">
+      {assainissement.collectif.length > 0
+        ? `L’assainissement collectif — le réseau d’égouts et la station d’épuration — relève de ${liste(assainissement.collectif)}. `
+        : 'Aucun service d’assainissement collectif n’est déclaré pour la commune : les maisons y ont leur propre installation. '}
+      {assainissement.nonCollectif.length > 0 &&
+        `Le contrôle des installations individuelles, celles que le réseau ne dessert pas, revient au service public d’assainissement non collectif (SPANC) : ${liste(assainissement.nonCollectif)}.`}
+    </p>
+    <p class="p-strate">
+      {'Qui peut en avoir la charge, et comment la compétence passe de la commune à l’intercommunalité : '}<a href="/n/assainissement">l’assainissement</a>{'.'}
+    </p>
+    <p class="p-source-territoire">
+      {`D’après la composition communale des services du système d’information SISPEA de l’Office français de la biodiversité, exercice ${assainissement.exercices.AC}, ` +
+        `sous Licence Ouverte (${assainissement.maj}). Le prix, la conformité de la station et les autres indicateurs de chaque service sont publiés sur `}<a href="https://www.services.eaufrance.fr/" target="_blank" rel="noopener">l’Observatoire des services d’eau et d’assainissement</a>{'.'}
     </p>
   </>
 )}
