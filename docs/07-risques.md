@@ -127,6 +127,16 @@ personne au moment même où elle demande à ne plus l'être. Une limite connue 
 le retrait vaut pour Rouages, pas pour la source, et une copie du site faite
 avant la mise à jour garde l'ancien état.
 
+**Retirer ou ne plus nommer (19 novembre 2026).** La première demande reçue
+ne voulait pas faire disparaître l'annonce de sa création d'activité, mais
+ne plus y voir son nom, en gardant si possible le nom commercial de
+l'établissement et la commune. Une opposition peut donc
+garder l'annonce du BODACC sous le seul nom commercial (`affichage:
+commercial`), ou sans aucun nom (`affichage: anonyme`), au lieu de la retirer.
+La page de la commune garde l'information sans nommer. Une précaution, née
+du même cas : un nom commercial qui contient le nom de famille — qui exerce
+sous son propre nom — nommerait encore ; l'annonce devient alors anonyme.
+
 ### Les nuances politiques et l'année de naissance (1er octobre 2026)
 
 Décision du mainteneur, le même jour : **les élus ont choisi leur engagement

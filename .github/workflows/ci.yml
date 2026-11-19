@@ -39,6 +39,8 @@ jobs:
         run: npm run verifier-journal
       - name: Rattachement des annonces du BODACC
         run: npm run verifier-rattachement
+      - name: Oppositions des entreprises (nom commercial, annonce anonyme)
+        run: npm run verifier-retraits
       - name: Collecte des marchés indépendante de l'ordre de lecture
         run: npm run verifier-marches
       - name: Liens venus des registres, en http(s) seulement

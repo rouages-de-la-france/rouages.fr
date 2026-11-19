@@ -12,9 +12,20 @@ import { deliberationRetiree, empreinteDeliberation } from '../src/modele/retrai
 
 export { deliberationRetiree, empreinteDeliberation };
 
+/**
+ * Ce qu'une annonce du BODACC montre d'une entreprise qui a demandé à ne plus
+ * être nommée. Sans affichage, elle n'est plus montrée du tout (comptée
+ * seulement) ; `commercial` garde l'annonce sous le seul nom commercial ;
+ * `anonyme` la garde sans aucun nom. Le titulaire d'un marché, l'exploitant
+ * d'un site, lui, n'est plus nommé dans tous les cas.
+ */
+export type Affichage = 'commercial' | 'anonyme';
+
 export interface Retraits {
-  /** Des SIREN, sans espaces. */
+  /** Des SIREN, sans espaces : toutes les oppositions, quel que soit l'affichage. */
   entreprises: Set<string>;
+  /** Les SIREN dont l'annonce reste montrée, et comment. */
+  affichages: Map<string, Affichage>;
   /** « code INSEE|fonction ». */
   elus: Set<string>;
   /** Les empreintes des conseillers sans fonction, voir `empreinteElu`. */
@@ -47,22 +58,32 @@ let lus: Retraits | null = null;
 export function retraits(): Retraits {
   if (lus) return lus;
   const chemin = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'retraits.yaml');
-  const brut = existsSync(chemin)
-    ? ((parse(readFileSync(chemin, 'utf8')) ?? {}) as {
-        entreprises?: unknown[];
-        elus?: { commune?: string; fonction?: string; empreinte?: string }[];
-        declarations?: { page?: string; rubrique?: string }[];
-        sites?: unknown[];
-      })
-    : {};
-  lus = {
-    entreprises: new Set((brut.entreprises ?? []).map((x) => String(x).replace(/\D/g, '')).filter((x) => x.length === 9)),
+  lus = retraitsDe(existsSync(chemin) ? readFileSync(chemin, 'utf8') : '');
+  return lus;
+}
+
+/** Les oppositions d'un texte au format de `retraits.yaml` (exporté pour la vérification). */
+export function retraitsDe(texte: string): Retraits {
+  const brut = ((texte ? parse(texte) : null) ?? {}) as {
+    entreprises?: unknown[];
+    elus?: { commune?: string; fonction?: string; empreinte?: string }[];
+    declarations?: { page?: string; rubrique?: string }[];
+    sites?: unknown[];
+  };
+  // Une entrée est un SIREN seul (retrait complet), ou { siren, affichage }.
+  const entrees = (brut.entreprises ?? []).map((x) => {
+    const o = typeof x === 'object' && x !== null ? (x as { siren?: unknown; affichage?: unknown }) : { siren: x };
+    const affichage = o.affichage === 'commercial' || o.affichage === 'anonyme' ? (o.affichage as Affichage) : null;
+    return { siren: String(o.siren ?? '').replace(/\D/g, ''), affichage };
+  }).filter((e) => e.siren.length === 9);
+  return {
+    entreprises: new Set(entrees.map((e) => e.siren)),
+    affichages: new Map(entrees.filter((e) => e.affichage).map((e) => [e.siren, e.affichage!])),
     elus: new Set((brut.elus ?? []).filter((e) => e?.commune && e?.fonction).map((e) => `${e.commune}|${e.fonction}`)),
     empreintes: new Set((brut.elus ?? []).filter((e) => e?.empreinte).map((e) => String(e.empreinte))),
     declarations: new Set((brut.declarations ?? []).filter((d) => d?.page && d?.rubrique).map((d) => `${d.page}|${d.rubrique}`)),
     sites: new Set((brut.sites ?? []).map((x) => String(x).trim()).filter(Boolean)),
   };
-  return lus;
 }
 
 export const eluRetire = (commune: string, fonction: string) => retraits().elus.has(`${commune}|${fonction}`);

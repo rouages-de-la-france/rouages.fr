@@ -25,6 +25,7 @@ npm run valider              structure, références, règles éditoriales
 npm run verifier-recherche   le classement des communes homonymes
 npm run verifier-journal     la fenêtre et les plafonds du journal
 npm run verifier-rattachement  les annonces du BODACC rattachées à la bonne commune
+npm run verifier-retraits    une opposition : annonce retirée, sous le nom commercial seul, ou anonyme
 npm run verifier-marches     les fichiers des marchés, identiques quel que soit l'ordre de lecture
 npm run verifier-liens       une adresse venue d'un registre ne devient un lien qu'en http(s)
 npm run verifier-ressources  une ressource data.gouv.fr se trouve par son titre, puis par son adresse
