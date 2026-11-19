@@ -903,6 +903,13 @@ async function principal() {
   );
   if (decheteries) grise(`${ecrireDecheteries(SORTIE, decheteries)} départements de déchèteries écrits.`);
 
+  // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
+  // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
+  const { collecterBatiments } = await import('./batiments-emettre.ts');
+  await tenter('Bâtiments (BDNB)', () =>
+    collecterBatiments(SORTIE, async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, telecharger, CACHE, grise),
+  );
+
   const { collecterFibre, ecrireFibre } = await import('./fibre-emettre.ts');
   const fibre = await tenter('Fibre optique', () => collecterFibre(lireJson, enCache('France Très Haut Débit (6 Mo)'), CACHE, grise));
   if (fibre) grise(`${ecrireFibre(SORTIE, fibre)} départements de fibre écrits.`);
