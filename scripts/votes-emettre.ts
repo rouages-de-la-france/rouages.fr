@@ -31,6 +31,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const R = 'https://static.data.gouv.fr/resources';
 export const SCRUTINS = [
@@ -220,8 +221,7 @@ export async function collecterVotes(
       lus.push(l.participation);
       voix.push(l.voix);
     } catch (e) {
-      dire(`Élections nationales, ${s.nom} : ${(e as Error).message} — l’ingestion précédente reste en place.`);
-      return null;
+      return indisponible(dire, `Élections nationales, ${s.nom} : ${(e as Error).message} — l’ingestion précédente reste en place.`);
     }
   }
   const codes = new Set(lus.flatMap((m) => [...m.keys()]));
@@ -239,8 +239,7 @@ export async function collecterVotes(
       : null,
   }));
   if (lus.some((m) => m.size < 25000 && m !== lus[4])) {
-    dire('Élections nationales : un fichier compte trop peu de communes, l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Élections nationales : un fichier compte trop peu de communes, l’ingestion précédente reste en place.');
   }
   dire(
     'Élections nationales : ' +

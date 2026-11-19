@@ -25,6 +25,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lignesArchive } from './ages-emettre.ts';
+import { indisponible } from './echecs.ts';
 
 export const MILLESIME = 2023;
 export const FICHIER = `https://api.insee.fr/melodi/file/DS_FILOSOFI_CC/DS_FILOSOFI_CC_${MILLESIME}_CSV_FR`;
@@ -90,13 +91,11 @@ export async function collecterRevenus(
   try {
     await telecharger(FICHIER, vers);
   } catch {
-    dire('Niveau de vie indisponible : celui de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Niveau de vie indisponible : celui de l’ingestion précédente reste en place.');
   }
   const r = await lireRevenus(vers);
   if (r.communes.size === 0 || r.metropole?.[0] == null) {
-    dire('Niveau de vie : aucune commune lue, ou pas de médiane métropolitaine.');
-    return null;
+    return indisponible(dire, 'Niveau de vie : aucune commune lue, ou pas de médiane métropolitaine.');
   }
   const medianes = [...r.communes.values()].filter((x) => x[0] !== null).length;
   const pauvrete = [...r.communes.values()].filter((x) => x[1] !== null).length;

@@ -48,6 +48,7 @@ import { fileURLToPath } from 'node:url';
 import { lignesCsvOuvert, ressourcesDuJeu } from './donnees-ouvertes.ts';
 import { telechargerSiAbsent } from './par-departement.ts';
 import { conseillerRetire, eluRetire } from './retraits.ts';
+import { indisponible } from './echecs.ts';
 
 /** Le jeu du ministère, et les deux fichiers qu'on y prend. */
 const JEU = 'repertoire-national-des-elus-1';
@@ -157,8 +158,7 @@ export async function collecterConseils(
   const [municipaux] = await ressourcesDuJeu(JEU, 'conseillers-municipaux', json, dire);
   const [communautaires] = await ressourcesDuJeu(JEU, 'conseillers-communautaires', json, dire);
   if (!municipaux) {
-    dire('Conseils : le fichier des conseillers municipaux est introuvable.');
-    return null;
+    return indisponible(dire, 'Conseils : le fichier des conseillers municipaux est introuvable.');
   }
 
   const aujourdhui = new Date();
@@ -176,8 +176,7 @@ export async function collecterConseils(
   try {
     await telecharger(municipaux, fichierCm);
   } catch {
-    dire('Conseils : le répertoire n’a pas répondu, les fichiers précédents restent en place.');
-    return null;
+    return indisponible(dire, 'Conseils : le répertoire n’a pas répondu, les fichiers précédents restent en place.');
   }
   for await (const l of lignesCsvOuvert(fichierCm, lire)) {
     const code = (l['Code de la commune'] ?? '').trim();
@@ -235,8 +234,7 @@ export async function collecterConseils(
   }
 
   if (communes.size === 0) {
-    dire('Conseils : aucun conseiller lu.');
-    return null;
+    return indisponible(dire, 'Conseils : aucun conseiller lu.');
   }
 
   // Les représentants au conseil communautaire, comptés pour mesurer l'écart

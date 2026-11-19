@@ -39,6 +39,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '6176785207139a929a2776fe';
 export const JEU_FONDS_VERT = '66a215a463a9da4fb801b8cf';
@@ -213,12 +214,10 @@ export async function collecterInvestissement(
     }
   }
   if (fondsVert < 3000) {
-    dire(`Subventions d’investissement : ${fondsVert} projets du Fonds vert seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Subventions d’investissement : ${fondsVert} projets du Fonds vert seulement, on garde l’ingestion précédente.`);
   }
   if (lus < 30000) {
-    dire(`Subventions d’investissement : ${lus} projets seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Subventions d’investissement : ${lus} projets seulement, on garde l’ingestion précédente.`);
   }
   for (const m of [communes, groupements, departements]) for (const l of m.values()) l.sort((a, b) => b[0] - a[0] || b[4] - a[4]);
   dire(

@@ -24,6 +24,7 @@
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 /** Le jeu Opendatasoft qui porte les millésimes du REI en pièces jointes. */
 const JEU =
@@ -151,20 +152,17 @@ export async function collecterFiscalite(
       if (!piece || annee > piece.annee) piece = { id: a.id, annee };
     }
   } catch {
-    dire('Fiscalité : le catalogue du REI n’a pas répondu.');
-    return null;
+    return indisponible(dire, 'Fiscalité : le catalogue du REI n’a pas répondu.');
   }
   if (!piece) {
-    dire('Fiscalité : aucune pièce jointe « REI » — le jeu a changé de forme.');
-    return null;
+    return indisponible(dire, 'Fiscalité : aucune pièce jointe « REI » — le jeu a changé de forme.');
   }
 
   const fichier = join(cache, 'rei.zip');
   try {
     await telecharger(`${JEU}/attachments/${piece.id}`, fichier);
   } catch {
-    dire('Fiscalité : le fichier REI n’a pas répondu, le précédent reste en place.');
-    return null;
+    return indisponible(dire, 'Fiscalité : le fichier REI n’a pas répondu, le précédent reste en place.');
   }
 
   const communes = new Map<string, FiscaliteCommune>();
@@ -203,8 +201,7 @@ export async function collecterFiscalite(
   }
 
   if (communes.size === 0) {
-    dire('Fiscalité : aucune commune lue — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Fiscalité : aucune commune lue — le fichier a changé de forme.');
   }
   const mediane = (v: number[]): number =>
     v.length === 0 ? 0 : Number([...v].sort((a, b) => a - b)[Math.floor(v.length / 2)].toFixed(2));

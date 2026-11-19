@@ -53,6 +53,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'no
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOCUMENTS } from '../src/modele/urbanisme.ts';
+import { indisponible } from './echecs.ts';
 
 /** Le service de la Géoplateforme qui expose le Géoportail de l'urbanisme. */
 const WFS = 'https://data.geopf.fr/wfs/ows';
@@ -172,8 +173,7 @@ export async function collecterPlu(
   const dossiers = await couche('document', ['partition', 'id'], json, dire);
 
   if (documents.length === 0 || couvertures.length === 0) {
-    dire('Géoportail de l’urbanisme : aucune donnée exploitable.');
-    return null;
+    return indisponible(dire, 'Géoportail de l’urbanisme : aucune donnée exploitable.');
   }
 
   const identifiant = new Map<string, string>();

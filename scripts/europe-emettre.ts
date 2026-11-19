@@ -34,6 +34,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chargerGraphe } from '../src/modele/graphe.ts';
 import { ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = 'https://cohesiondata.ec.europa.eu/resource/557j-pmg8.json';
 const CHAMPS = [
@@ -257,8 +258,7 @@ export async function collecterEurope(
     if (page.length < PAR_PAGE) break;
   }
   if (lignes.length < 10_000) {
-    dire(`Fonds européens : ${lignes.length} opérations seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Fonds européens : ${lignes.length} opérations seulement, on garde l’ingestion précédente.`);
   }
 
   const brut = new Map<string, Projet[]>();
@@ -409,8 +409,7 @@ export async function collecterEurope2127(
     }
   }
   if (projets.size < 1_000) {
-    dire(`Fonds européens 2021-2027 : ${projets.size} projets seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Fonds européens 2021-2027 : ${projets.size} projets seulement, on garde l’ingestion précédente.`);
   }
 
   const brut = new Map<string, Projet[]>();

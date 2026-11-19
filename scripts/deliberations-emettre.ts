@@ -49,6 +49,7 @@ import { deliberationRetiree } from './retraits.ts';
 import { debutFenetre, GENRES, type Evenement } from '../src/modele/journal.ts';
 import { lireCsvOuvert, ressourcesDuJeu, ressourcesDuSchema } from './donnees-ouvertes.ts';
 import { lienWeb } from '../src/modele/lien-web.ts';
+import { indisponible } from './echecs.ts';
 
 /**
  * Les neuf familles de la nomenclature ACTES, celle que les collectivités
@@ -243,8 +244,7 @@ export async function collecterDeliberations(
   }
 
   if (brut.size === 0) {
-    dire('Délibérations : aucune collectivité rattachée, rien à écrire.');
-    return null;
+    return indisponible(dire, 'Délibérations : aucune collectivité rattachée, rien à écrire.');
   }
 
   const parCollectivite = new Map<string, Deliberation[]>();

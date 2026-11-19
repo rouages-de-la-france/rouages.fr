@@ -31,6 +31,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { departementDe, ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const WFS = 'https://data.geopf.fr/wfs/ows?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326';
 export const ECHELLE = 1e4;
@@ -368,8 +369,7 @@ export async function collecterEspaces(sortie: string, cache: string, dire: (m: 
     }
   }
   if (zones.length < 20000) {
-    dire(`Espaces naturels : ${zones.length} zones seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Espaces naturels : ${zones.length} zones seulement, on garde l’ingestion précédente.`);
   }
 
   // Un index en grille de 0,2° : les zones dont le cadre touche chaque case.

@@ -26,6 +26,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '5af120e5b595087cfabcde81';
 export const FICHIER = 'https://ministere-culture.s3.sbg.io.cloud.ovh.net/POP/merimee.csv';
@@ -77,8 +78,7 @@ export async function collecterMonuments(
     }
   }
   if (lues < 40000) {
-    dire(`Monuments historiques : ${lues} notices seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Monuments historiques : ${lues} notices seulement, on garde l’ingestion précédente.`);
   }
   for (const l of communes.values()) l.sort((a, b) => b[2] - a[2] || a[1].localeCompare(b[1], 'fr'));
   dire(

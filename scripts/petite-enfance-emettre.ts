@@ -20,6 +20,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const API = 'https://data.caf.fr/api/explore/v2.1/catalog/datasets';
 /** Global, établissements d'accueil (EAJE), assistantes maternelles, école dès deux ans, salariée à domicile. */
@@ -87,8 +88,7 @@ export async function collecterPetiteEnfance(
     if (v && l.numregi) parReg[String(l.numregi).padStart(2, '0')] = v;
   }
   if (Object.keys(parEpci).length < 1000) {
-    dire(`Accueil du jeune enfant : ${Object.keys(parEpci).length} intercommunalités seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Accueil du jeune enfant : ${Object.keys(parEpci).length} intercommunalités seulement, on garde l’ingestion précédente.`);
   }
   dire(
     `Accueil du jeune enfant ${annee} : ${Object.keys(parEpci).length} intercommunalités, ` +

@@ -21,6 +21,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const FICHIER = 'https://ministere-culture.s3.sbg.io.cloud.ovh.net/POP/palissy.csv';
 const LISTES = 40;
@@ -69,8 +70,7 @@ export async function collecterObjets(
     parCommune.set(code, x);
   }
   if (lus < 150000) {
-    dire(`Objets protégés : ${lus} seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Objets protégés : ${lus} seulement, on garde l’ingestion précédente.`);
   }
   const communes = new Map<string, ObjetsCommune>();
   for (const [code, x] of parCommune) {

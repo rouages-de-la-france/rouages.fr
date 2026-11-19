@@ -23,6 +23,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = 'indicateur-france-tres-haut-debit-etat-des-deploiements-de-la-fibre-optique-et-decommissionnement-du-cuivre';
 
@@ -100,13 +101,11 @@ export async function collecterFibre(
   try {
     await telecharger(await adresseFibre(lireJson), vers);
   } catch {
-    dire('Fibre optique indisponible : celle de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Fibre optique indisponible : celle de l’ingestion précédente reste en place.');
   }
   const f = await lireFibre(vers);
   if (f.communes.size < 30000) {
-    dire(`Fibre optique : ${f.communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Fibre optique : ${f.communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   let locaux = 0;
   let ftth = 0;

@@ -22,6 +22,7 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ressourcesDuJeu } from './donnees-ouvertes.ts';
+import { indisponible } from './echecs.ts';
 
 /**
  * Le jeu des séries mensuelles communales, par son identifiant : son intitulé
@@ -75,8 +76,7 @@ export async function collecterLogements(
   // l'accompagne : on garde l'adresse qui sert un fichier.
   const adresse = adresses.find((u) => /\/csv$|\.csv$/.test(u));
   if (!adresse) {
-    dire('Logements : la série communale Sitadel est introuvable.');
-    return null;
+    return indisponible(dire, 'Logements : la série communale Sitadel est introuvable.');
   }
 
   // Le fichier entier compte 53 millions de lignes depuis 2002 — plus de
@@ -106,8 +106,7 @@ export async function collecterLogements(
         dire(`Logements : rien de ${annee} chez Sitadel pour l'instant.`);
         continue;
       }
-      dire(`Logements : Sitadel n’a pas répondu pour ${annee}, les fichiers précédents restent en place.`);
-      return null;
+      return indisponible(dire, `Logements : Sitadel n’a pas répondu pour ${annee}, les fichiers précédents restent en place.`);
     }
     fichiers.push(fichier);
   }
@@ -152,8 +151,7 @@ export async function collecterLogements(
   }
 
   if (parAnnee.size === 0) {
-    dire('Logements : aucune ligne lue — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Logements : aucune ligne lue — le fichier a changé de forme.');
   }
 
   // L'année en cours n'est pleine que si ses douze mois sont là.

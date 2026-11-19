@@ -29,6 +29,7 @@ import { fileURLToPath } from 'node:url';
 import { indexDuDecoupage, rattacheur } from './entreprises-emettre.ts';
 import { telechargerSiAbsent } from './par-departement.ts';
 import { retraits } from './retraits.ts';
+import { indisponible } from './echecs.ts';
 
 const AGORA = 'https://www.hatvp.fr/agora/opendata/agora_repertoire_opendata.json';
 
@@ -102,8 +103,7 @@ export async function collecterHatvp(
   await telecharger(AGORA, fichier);
   const brut = JSON.parse(readFileSync(fichier, 'utf8')) as { publications?: Publication[] };
   if (!brut.publications?.length) {
-    dire('HATVP : le répertoire est vide, il a changé de forme.');
-    return null;
+    return indisponible(dire, 'HATVP : le répertoire est vide, il a changé de forme.');
   }
   return lireHatvp(brut.publications, index, dire);
 }

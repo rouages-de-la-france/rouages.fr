@@ -23,6 +23,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '6a01b9280dd2d45907e5fc61';
 export const URL_CONSO =
@@ -93,8 +94,7 @@ export async function collecterArtificialisation(
   await telecharger(URL_CONSO, vers);
   const c = await lireConso(vers);
   if (c.communes.size < 30000) {
-    dire(`Artificialisation : ${c.communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Artificialisation : ${c.communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const total = [...c.communes.values()].reduce((s, x) => s + x[4], 0);
   dire(

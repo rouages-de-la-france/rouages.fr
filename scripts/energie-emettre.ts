@@ -22,6 +22,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const API =
   'https://opendata.agenceore.fr/data-fair/api/v1/datasets/consommation-annuelle-d-electricite-et-gaz-par-commune';
@@ -104,12 +105,10 @@ export async function collecterEnergie(
       url = suivante;
     }
   } catch (e) {
-    dire(`Électricité et gaz indisponibles (${(e as Error).message}) : ceux de l’ingestion précédente restent en place.`);
-    return null;
+    return indisponible(dire, `Électricité et gaz indisponibles (${(e as Error).message}) : ceux de l’ingestion précédente restent en place.`);
   }
   if (communes.size < 30000) {
-    dire(`Électricité et gaz : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Électricité et gaz : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   for (const e of communes.values()) {
     for (const f of e) {

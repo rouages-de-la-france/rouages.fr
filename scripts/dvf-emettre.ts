@@ -44,6 +44,7 @@ import { fileURLToPath } from 'node:url';
 import { createGunzip } from 'node:zlib';
 import { communeDe, departementDe, ecrireParDepartement, lignesCsv, mediane, telechargerSiAbsent } from './par-departement.ts';
 import { bienDe, ecrireEstimation, type Bien } from './estimation-emettre.ts';
+import { indisponible } from './echecs.ts';
 
 export const ADRESSE = (annee: number) => `https://files.data.gouv.fr/geo-dvf/latest/csv/${annee}/full.csv.gz`;
 /** Sous ce nombre de ventes, la médiane serait celle de trois maisons. */
@@ -313,8 +314,7 @@ export async function collecterDvf(
   // Trois années ou rien : une médiane sur deux ans ne se comparerait pas à
   // celle de l'ingestion précédente.
   if (lues.length !== annees.length) {
-    dire('Ventes immobilières : une année manque, l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Ventes immobilières : une année manque, l’ingestion précédente reste en place.');
   }
   const communes = new Map<string, Prix>();
   const parDep = new Map<string, Vente[]>();

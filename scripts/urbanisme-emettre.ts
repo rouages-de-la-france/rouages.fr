@@ -27,6 +27,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ressourcesDuJeu } from './donnees-ouvertes.ts';
 import { DOCUMENTS } from '../src/modele/urbanisme.ts';
+import { indisponible } from './echecs.ts';
 
 /**
  * Le jeu de données, désigné par son identifiant et non par son adresse : son
@@ -114,16 +115,14 @@ export async function collecterUrbanisme(
 ): Promise<Urbanisme | null> {
   const [adresse] = await ressourcesDuJeu(JEU, "documents d'urbanisme par commune", json, dire);
   if (!adresse) {
-    dire('Urbanisme : l’état des documents par commune est introuvable.');
-    return null;
+    return indisponible(dire, 'Urbanisme : l’état des documents par commune est introuvable.');
   }
 
   const fichier = join(cache, 'sudocuh-documents-urbanisme.xlsx');
   try {
     await telecharger(adresse, fichier);
   } catch {
-    dire('Urbanisme : le fichier n’a pas répondu, celui de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Urbanisme : le fichier n’a pas répondu, celui de l’ingestion précédente reste en place.');
   }
 
   // Le classeur porte quatre feuilles : un mode d'emploi, une synthèse, la
@@ -137,8 +136,7 @@ export async function collecterUrbanisme(
       extraire(fichier, 'xl/worksheets/sheet3.xml'),
     ]);
   } catch {
-    dire('Urbanisme : le classeur n’a pas pu être ouvert.');
-    return null;
+    return indisponible(dire, 'Urbanisme : le classeur n’a pas pu être ouvert.');
   }
   const chaines = [...chainesXml.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((m) =>
     m[1].replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>'),
@@ -163,8 +161,7 @@ export async function collecterUrbanisme(
     cellules(l).some((h) => h.trim().toLowerCase() === 'du_opposable'),
   );
   if (iEntete === -1) {
-    dire('Urbanisme : aucune colonne « DU_Opposable » — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Urbanisme : aucune colonne « DU_Opposable » — le fichier a changé de forme.');
   }
   const entetes = cellules(lignes[iEntete]).map((h) => h.trim().toLowerCase());
   const col = (nom: string): number => entetes.indexOf(nom);
@@ -176,8 +173,7 @@ export async function collecterUrbanisme(
   const cApprobation = col('approbation du en vigueur');
   const cPrescription = col('prescription proc en cours');
   if (cCode === -1 || cOpposable === -1 || cApprobation === -1) {
-    dire('Urbanisme : les colonnes attendues manquent — le fichier a changé de forme.');
-    return null;
+    return indisponible(dire, 'Urbanisme : les colonnes attendues manquent — le fichier a changé de forme.');
   }
 
   const communes = new Map<string, UrbanismeCommune>();
@@ -219,8 +215,7 @@ export async function collecterUrbanisme(
   }
 
   if (communes.size === 0) {
-    dire('Urbanisme : aucune commune lue.');
-    return null;
+    return indisponible(dire, 'Urbanisme : aucune commune lue.');
   }
   const jusquau = [...communes.values()].map((c) => c.a).filter(Boolean).sort().pop() ?? '';
   dire(

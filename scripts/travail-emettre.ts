@@ -25,6 +25,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const URSSAF =
   'https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last';
@@ -113,8 +114,7 @@ export async function collecterTravail(
     salaries.set(code, x);
   }
   if (lignes < 50000) {
-    dire(`Salariés : ${lignes} lignes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Salariés : ${lignes} lignes seulement, on garde l’ingestion précédente.`);
   }
 
   // Les inscrits : la seule ligne « total, tous âges » de chaque commune.
@@ -139,8 +139,7 @@ export async function collecterTravail(
     lus++;
   }
   if (lus < 100000) {
-    dire(`Inscrits à France Travail : ${lus} lignes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Inscrits à France Travail : ${lus} lignes seulement, on garde l’ingestion précédente.`);
   }
   const anneesI = [...new Set([...inscrits.values()].flatMap((m) => [...m.keys()]))].sort((a, b) => a - b);
   const debutI = anneesI[0];

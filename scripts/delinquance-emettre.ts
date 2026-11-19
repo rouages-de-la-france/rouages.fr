@@ -26,6 +26,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createGunzip } from 'node:zlib';
 import { ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = 'bases-statistiques-communale-departementale-et-regionale-de-la-delinquance-enregistree-par-la-police-et-la-gendarmerie-nationales';
 
@@ -152,13 +153,11 @@ export async function collecterDelinquance(
     await telecharger(a.communal, com);
     await telecharger(a.departemental, dep);
   } catch {
-    dire('Délinquance enregistrée indisponible : celle de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Délinquance enregistrée indisponible : celle de l’ingestion précédente reste en place.');
   }
   const d = await lireDelinquance(com, dep);
   if (d.communes.size < 5000 || d.departements.size < 90) {
-    dire(`Délinquance enregistrée : ${d.communes.size} communes, ${d.departements.size} départements — on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Délinquance enregistrée : ${d.communes.size} communes, ${d.departements.size} départements — on garde l’ingestion précédente.`);
   }
   dire(
     `Délinquance enregistrée ${d.annees[0]}-${d.annees.at(-1)} : au moins un indicateur diffusé pour ` +

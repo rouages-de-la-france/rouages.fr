@@ -23,6 +23,7 @@
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 /** Un seul fichier, mis à jour par le ministère, dont le nom ne change pas. */
 const ARCHIVE = 'http://files.georisques.fr/GASPAR/gaspar.zip';
@@ -113,8 +114,7 @@ export async function collecterRisques(
   try {
     await telecharger(ARCHIVE, archive);
   } catch {
-    dire('GASPAR indisponible : les risques restent ceux de l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'GASPAR indisponible : les risques restent ceux de l’ingestion précédente.');
   }
 
   const dossier = mkdtempSync(join(tmpdir(), 'gaspar-'));

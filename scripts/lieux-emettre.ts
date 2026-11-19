@@ -35,6 +35,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '5b598be088ee387c0c353714';
 
@@ -124,8 +125,7 @@ export async function collecterLieux(
   };
   const regions = (r.data ?? []).filter((x) => /^datatourisme-reg-[a-z]+\.csv$/i.test(x.title ?? '') && x.url);
   if (regions.length < 13) {
-    dire(`Lieux à voir : ${regions.length} fichiers régionaux seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Lieux à voir : ${regions.length} fichiers régionaux seulement, on garde l’ingestion précédente.`);
   }
   const commune = correspondances();
   const parCommune = new Map<string, [Map<string, string>, Map<string, string>, Map<string, string>]>();
@@ -170,8 +170,7 @@ export async function collecterLieux(
     }
   }
   if (retenus < 50000) {
-    dire(`Lieux à voir : ${retenus} fiches seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Lieux à voir : ${retenus} fiches seulement, on garde l’ingestion précédente.`);
   }
   const communes = new Map<string, Lieux>();
   const trier = (s: Map<string, string>) => [...s].sort((a, b) => a[0].localeCompare(b[0], 'fr'));

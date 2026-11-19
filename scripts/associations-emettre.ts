@@ -50,6 +50,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { debutFenetre, GENRES, type Evenement } from '../src/modele/journal.ts';
+import { indisponible } from './echecs.ts';
 
 /**
  * Le fichier Waldec, en CSV consolidé.
@@ -227,8 +228,7 @@ export async function collecterAssociations(
   try {
     await telecharger(WALDEC, fichier);
   } catch {
-    dire('RNA indisponible : les associations restent celles de l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'RNA indisponible : les associations restent celles de l’ingestion précédente.');
   }
 
   // La fenêtre s'arrête à la dernière année civile complète : l'année en cours
@@ -342,8 +342,7 @@ export async function collecterAssociations(
   }
 
   if (communes.size === 0) {
-    dire('RNA : aucune création rattachée, rien à écrire.');
-    return null;
+    return indisponible(dire, 'RNA : aucune création rattachée, rien à écrire.');
   }
 
   let nExistantes = 0;

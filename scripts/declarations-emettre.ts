@@ -39,6 +39,7 @@ import { normaliser } from '../src/client/recherche-commune.ts';
 import { lignesCsvOuvert } from './donnees-ouvertes.ts';
 import { telechargerSiAbsent } from './par-departement.ts';
 import { retraits } from './retraits.ts';
+import { indisponible } from './echecs.ts';
 
 const LISTE = 'https://www.hatvp.fr/livraison/opendata/liste.csv';
 const CONTENUS = 'https://www.hatvp.fr/livraison/merge/declarations.xml';
@@ -258,8 +259,7 @@ export async function collecterDeclarations(
   await telecharger(LISTE, fichierListe);
   const fichierRne = join(cache, 'rne-conseillers-municipaux.csv');
   if (!existsSync(fichierRne)) {
-    dire('Déclarations HATVP : le fichier des conseillers municipaux manque, rien n’est rapproché.');
-    return null;
+    return indisponible(dire, 'Déclarations HATVP : le fichier des conseillers municipaux manque, rien n’est rapproché.');
   }
 
   // Les conseillers municipaux, par département et par nom : la commune, ou
@@ -281,8 +281,7 @@ export async function collecterDeclarations(
 
   const liste = lireListe(readFileSync(fichierListe, 'utf8'));
   if (!liste) {
-    dire('Déclarations HATVP : la liste a changé de forme.');
-    return null;
+    return indisponible(dire, 'Déclarations HATVP : la liste a changé de forme.');
   }
 
   const parCommune = new Map<string, Map<string, Declarant>>();

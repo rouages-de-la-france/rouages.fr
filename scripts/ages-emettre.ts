@@ -24,6 +24,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
+import { indisponible } from './echecs.ts';
 
 /** Le millésime lu, et le fichier complet du catalogue Melodi (73 Mo compressés). */
 export const MILLESIME = 2023;
@@ -101,13 +102,11 @@ export async function collecterAges(
   try {
     await telecharger(FICHIER, vers);
   } catch {
-    dire('Pyramide des âges indisponible : celle de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Pyramide des âges indisponible : celle de l’ingestion précédente reste en place.');
   }
   const a = await lireAges(vers);
   if (a.communes.size === 0) {
-    dire('Pyramide des âges : aucune commune lue.');
-    return null;
+    return indisponible(dire, 'Pyramide des âges : aucune commune lue.');
   }
   dire(
     `Pyramide des âges : ${a.communes.size.toLocaleString('fr-FR')} communes et ` +

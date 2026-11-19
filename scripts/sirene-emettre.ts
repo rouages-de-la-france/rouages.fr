@@ -29,6 +29,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indisponible } from './echecs.ts';
 
 const SIRENE =
   'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/economicref-france-sirene-v3/exports/csv';
@@ -148,8 +149,7 @@ export async function collecterSirene(
       (c) => entete?.indexOf(c) ?? -1,
     );
     if ([iCode, iSection, iEmployeur, iN].some((i) => i === -1)) {
-      dire(`SIRENE : l’export du département ${dep} a changé de forme.`);
-      return null;
+      return indisponible(dire, `SIRENE : l’export du département ${dep} a changé de forme.`);
     }
     for (const l of corps) {
       const brut = l[iCode];
@@ -170,8 +170,7 @@ export async function collecterSirene(
     }
   }
   if (communes.size === 0) {
-    dire('SIRENE : aucune commune lue.');
-    return null;
+    return indisponible(dire, 'SIRENE : aucune commune lue.');
   }
   // Une poignée d'établissements garde un libellé des nomenclatures d'avant
   // 2008 — « Hôtels et restaurants » : comptés au total, sans détail. Au-delà,

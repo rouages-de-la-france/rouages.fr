@@ -23,6 +23,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indisponible } from './echecs.ts';
 
 /** Les deux fichiers complets du catalogue Melodi : trois mégaoctets chacun, compressés. */
 export const FICHIERS = {
@@ -98,16 +99,14 @@ export async function collecterEtatCivil(
     await telecharger(FICHIERS.naissances, vers.naissances);
     await telecharger(FICHIERS.deces, vers.deces);
   } catch {
-    dire('Naissances et décès indisponibles : ceux de l’ingestion précédente restent en place.');
-    return null;
+    return indisponible(dire, 'Naissances et décès indisponibles : ceux de l’ingestion précédente restent en place.');
   }
   const [naissances, deces] = (await Promise.all([lireArchive(vers.naissances), lireArchive(vers.deces)])).map(lire);
   const toutes = new Set<number>();
   for (const s of [naissances, deces]) for (const m of s.values()) for (const a of m.keys()) toutes.add(a);
   const annees = [...toutes].sort((a, b) => a - b);
   if (annees.length === 0) {
-    dire('Naissances et décès : aucune commune lue.');
-    return null;
+    return indisponible(dire, 'Naissances et décès : aucune commune lue.');
   }
   const communes = new Map<string, [(number | null)[], (number | null)[]]>();
   for (const code of new Set([...naissances.keys(), ...deces.keys()])) {

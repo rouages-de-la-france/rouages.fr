@@ -91,6 +91,7 @@ import { nomsSirene } from './sirene-noms.ts';
 import { jugementsBodacc, MOIS_RETENUS, situations as situationsDe, type Situation } from './titulaires-situation.ts';
 import { COLLECTIVITES_SIRENS, echelonsDuDepartement } from '../src/modele/collectivites-sirens.ts';
 import { situerAcheteurs, type AcheteurNational } from './acheteurs-nationaux.ts';
+import { indisponible } from './echecs.ts';
 
 const DECP =
   'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/decp-2022-marches-valides';
@@ -490,8 +491,7 @@ export async function collecterMarches(
     for (const l of await json<LigneDecp[]>(`${url}&where=${encodeURIComponent(where)}`)) lignes.push(l);
   }
   if (lignes.length === 0) {
-    dire('Marchés publics : aucune ligne, le jeu a changé de forme.');
-    return null;
+    return indisponible(dire, 'Marchés publics : aucune ligne, le jeu a changé de forme.');
   }
   // L'export ne garantit pas l'ordre de ses lignes, et tout ce qui suit en
   // dépend : la ligne qui représente un groupe de lots identiques, l'ordre

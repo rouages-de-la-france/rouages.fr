@@ -33,6 +33,7 @@ import { fileURLToPath } from 'node:url';
 import { nommeUnePersonne, nommeUnParticulier, estUnPrenomCourant } from '../src/modele/civilites.ts';
 import { ressourcesDuJeu } from './donnees-ouvertes.ts';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 /** Le jeu, par son identifiant : l'adresse du fichier porte l'horodatage de chaque publication. */
 export const JEU = '61777ddaa9101d073e5506cd';
@@ -95,8 +96,7 @@ export async function collecterCulture(
   );
   const [adresse] = (await ressourcesDuJeu(JEU, 'base-des-lieux', json, dire)).filter((u) => /\.csv$/i.test(u));
   if (!adresse) {
-    dire('Lieux culturels : la base Basilic est introuvable, on garde l’ingestion précédente.');
-    return null;
+    return indisponible(dire, 'Lieux culturels : la base Basilic est introuvable, on garde l’ingestion précédente.');
   }
   const base = ((d.data ?? []).find((r) => r.url === adresse)?.last_modified ?? '').slice(0, 10);
   const vers = join(cache, 'basilic.csv');
@@ -133,8 +133,7 @@ export async function collecterCulture(
     gardes++;
   }
   if (gardes < 20000) {
-    dire(`Lieux culturels : ${gardes} lieux seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Lieux culturels : ${gardes} lieux seulement, on garde l’ingestion précédente.`);
   }
   for (const l of communes.values()) l.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1], 'fr'));
   dire(

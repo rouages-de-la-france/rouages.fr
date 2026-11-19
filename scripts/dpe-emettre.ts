@@ -19,6 +19,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, departementDe, ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = 'meg-83tjwtg8dyz4vv7h1dqe';
 const BASE = `https://data.ademe.fr/data-fair/api/v1/datasets/${JEU}`;
@@ -51,8 +52,7 @@ export async function collecterDpe(
 ): Promise<DpeCommunes | null> {
   const meta = (await lireJson(`${BASE}?select=updatedAt,count`)) as { updatedAt?: string; count?: number };
   if ((meta.count ?? 0) < 1_000_000) {
-    dire(`DPE : ${meta.count ?? 0} diagnostics seulement dans la base, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `DPE : ${meta.count ?? 0} diagnostics seulement dans la base, on garde l’ingestion précédente.`);
   }
   const communes = new Map<string, Etiquettes>();
   const departements = new Map<string, Etiquettes>();
@@ -83,8 +83,7 @@ export async function collecterDpe(
   }
   const total = france.reduce((s, x) => s + x, 0);
   if (communes.size < 30000) {
-    dire(`DPE : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `DPE : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   dire(
     `DPE depuis juillet 2021 : ${total.toLocaleString('fr-FR')} diagnostics dans ${communes.size.toLocaleString('fr-FR')} communes, ` +

@@ -24,6 +24,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 /** Le jeu du millésime 2025 ; la recherche en trouve un plus récent s'il paraît. */
 export const JEU_2025 = '693aa2feed1bf4da603faa49';
@@ -113,8 +114,7 @@ export async function collecterLoyers(
       n++;
     }
     if (n < 30000) {
-      dire(`Carte des loyers : ${n} communes seulement, on garde l’ingestion précédente.`);
-      return null;
+      return indisponible(dire, `Carte des loyers : ${n} communes seulement, on garde l’ingestion précédente.`);
     }
   }
   dire(`Carte des loyers ${millesime} : ${communes.size.toLocaleString('fr-FR')} communes.`);

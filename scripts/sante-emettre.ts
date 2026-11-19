@@ -35,6 +35,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, communeDe, departementDe, ecrireParDepartement, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const FICHIER =
   'https://data.drees.solidarites-sante.gouv.fr/api/explore/v2.1/catalog/datasets/530_l-accessibilite-potentielle-localisee-apl/attachments/indicateur_d_apl_aux_medecins_generalistes_xlsx';
@@ -128,13 +129,11 @@ export async function collecterSante(
   try {
     await telecharger(FICHIER, vers);
   } catch {
-    dire('Accès aux généralistes indisponible : celui de l’ingestion précédente reste en place.');
-    return null;
+    return indisponible(dire, 'Accès aux généralistes indisponible : celui de l’ingestion précédente reste en place.');
   }
   const s = await lireSante(vers);
   if (s.communes.size < 30000) {
-    dire(`Accès aux généralistes : ${s.communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Accès aux généralistes : ${s.communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const dernier = s.annees.length - 1;
   const sousDotees = [...s.communes.values()].filter((v) => v[dernier][0] !== null && v[dernier][0]! <= 2.5).length;

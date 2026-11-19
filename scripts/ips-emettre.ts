@@ -21,6 +21,7 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 const API = 'https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets';
 export const JEUX = { ecole: 'fr-en-ips-ecoles-ap2022', college: 'fr-en-ips-colleges-ap2023' } as const;
@@ -106,14 +107,12 @@ export async function collecterIps(
       await telecharger(`${API}/${jeu}/exports/csv?where=${ou}&delimiter=%3B`, chemins[type]);
     }
   } catch {
-    dire('Indices de position sociale indisponibles : ceux de l’ingestion précédente restent en place.');
-    return null;
+    return indisponible(dire, 'Indices de position sociale indisponibles : ceux de l’ingestion précédente restent en place.');
   }
   const i = await lireIps(chemins, lireFlux);
   const n = [...i.communes.values()].reduce((s, e) => s + e.length, 0);
   if (n < 30000) {
-    dire(`Indices de position sociale : ${n} établissements seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Indices de position sociale : ${n} établissements seulement, on garde l’ingestion précédente.`);
   }
   dire(
     `Indices de position sociale, écoles ${rentrees.école} et collèges ${rentrees.collège} : ` +

@@ -28,6 +28,7 @@ import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '662a5e2cd71b24df5e9a0827';
 export const DEBUT = 2012;
@@ -127,8 +128,7 @@ export async function collecterSecheresse(
     });
   });
   if (communes.size < 30000) {
-    dire(`Sécheresse : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Sécheresse : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const du = `${annee}-01-01`;
   const parAnnee = Array.from({ length: annee - DEBUT + 1 }, (_, i) =>

@@ -20,6 +20,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { indisponible } from './echecs.ts';
 
 const DMTO =
   'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/dmto_attrib';
@@ -58,8 +59,7 @@ export async function collecterDmto(
     `${DMTO}/exports/json?select=date,collectivite_attributaire,nature_attributaire,recettes`;
   const lignes = await json<LigneDmto[]>(url);
   if (lignes.length === 0) {
-    dire('Droits de mutation : aucune ligne, le jeu a changé de forme.');
-    return null;
+    return indisponible(dire, 'Droits de mutation : aucune ligne, le jeu a changé de forme.');
   }
 
   // Combien de mois distincts par exercice : c'est ce qui dit si l'année est
@@ -77,8 +77,7 @@ export async function collecterDmto(
     .map(([an]) => an)
     .sort((a, b) => a - b);
   if (annees.length === 0) {
-    dire('Droits de mutation : aucun exercice complet.');
-    return null;
+    return indisponible(dire, 'Droits de mutation : aucun exercice complet.');
   }
   const rang = new Map(annees.map((a, i) => [a, i]));
 

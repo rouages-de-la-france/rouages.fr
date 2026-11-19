@@ -18,6 +18,7 @@ import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
+import { indisponible } from './echecs.ts';
 
 export const JEU = '61556e1e9d6adb2df86eb0fc';
 
@@ -76,8 +77,7 @@ export async function collecterDae(
   const communes = await lireDae(vers);
   const total = [...communes.values()].reduce((s, d) => s + d[0], 0);
   if (total < 50000) {
-    dire(`Défibrillateurs : ${total} appareils seulement, on garde l’ingestion précédente.`);
-    return null;
+    return indisponible(dire, `Défibrillateurs : ${total} appareils seulement, on garde l’ingestion précédente.`);
   }
   const dehors = [...communes.values()].reduce((s, d) => s + d[1], 0);
   dire(
