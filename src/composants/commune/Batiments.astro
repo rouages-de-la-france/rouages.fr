@@ -1,0 +1,148 @@
+---
+/**
+ * Les bâtiments de la commune, d'après la Base de données nationale des
+ * bâtiments (BDNB) : leur âge, leur usage, le logement social tel que les
+ * bailleurs le déclarent, les copropriétés, le réseau de chaleur, l'argile.
+ *
+ * Deux chiffres se lisent à côté de ceux du recensement, qui ne mesurent pas
+ * la même chose : les logements des fichiers fonciers comptent aussi ceux qui
+ * sont inoccupés ou hors d'usage ; le logement social du répertoire des
+ * bailleurs compte les logements, le recensement les ménages qui les occupent.
+ * La page montre les deux, sans dire lequel a raison.
+ */
+import type { Batiments, Parc } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  b: Batiments;
+  parc: Parc | null;
+}
+const { b, parc } = Astro.props;
+const entier = (v: number) => Math.round(v).toLocaleString('fr-FR');
+const pc = (v: number) => `${Math.round(v * 100).toLocaleString('fr-FR')} %`;
+const pluriel = (n: number, un: string, plusieurs: string) => `${entier(n)} ${n > 1 ? plusieurs : un}`;
+const connus = b.periodes.reduce((s, p) => s + p.n, 0);
+const usage = (nom: string) => b.usages.find((u) => u.usage === nom)?.n ?? 0;
+const usages = [
+  [usage('Résidentiel individuel'), 'maison', 'maisons'],
+  [usage('Résidentiel collectif'), 'immeuble collectif', 'immeubles collectifs'],
+  [usage('Tertiaire'), 'bâtiment tertiaire', 'bâtiments tertiaires'],
+  [usage('Dépendance'), 'dépendance', 'dépendances'],
+] as const;
+const recensement = parc?.commune[0] ?? null;
+const millesimeRecensement = parc?.millesimes[0];
+// Des ensembles identiques — même année, même type, même étiquette — se disent ensemble.
+const ensembles = (() => {
+  const m = new Map<string, { logements: number; n: number; annees: string; types: string; etiquette: string }>();
+  for (const e of b.social.detail) {
+    const cle = `${e.annees}|${e.types}|${e.etiquette}`;
+    const x = m.get(cle) ?? { logements: 0, n: 0, annees: e.annees, types: e.types, etiquette: e.etiquette };
+    x.logements += e.logements;
+    x.n++;
+    m.set(cle, x);
+  }
+  return [...m.values()].sort((x, y) => y.logements - x.logements);
+})();
+const typeDe = (t: string, n: number) => {
+  const s = n > 1 ? 's' : '';
+  return t === 'Individuel' ? `individuel${s}` : t === 'Collectif' ? `collectif${s}` : t ? `individuel${s} et collectif${s}` : '';
+};
+/** « 1970, 1982 » devient « 1970 et 1982 ». */
+const annees = (a: string) => a.replace(/, ([^,]*)$/, ' et $1');
+const chaleurProche = b.chaleur.moins100 + b.chaleur.de100a200 + b.chaleur.de200a400;
+const argile = b.argile.filter((a) => a.n > 0);
+---
+<p class="mesure">
+  {`La base de données nationale des bâtiments compte ${pluriel(b.groupes, 'bâtiment ou groupe de bâtiments', 'bâtiments ou groupes de bâtiments')} dans la commune. `}
+  {usages.some(([n]) => n > 0) &&
+    `Par usage principal : ${usages.filter(([n]) => n > 0).map(([n, un, plusieurs]) => pluriel(n, un, plusieurs)).join(', ')}.`}
+</p>
+
+{connus > 0 && (
+  <>
+    <h3>L’âge du bâti</h3>
+    <div class="cpt-defile" tabindex="0" role="region" aria-label="L’âge du bâti — le tableau défile sur les petits écrans">
+      <table class="cpt-tableau">
+        <caption>{`Bâtiments par période de construction, sur les ${entier(connus)} dont l’année est connue`}</caption>
+        <thead>
+          <tr><th scope="col">Période</th><th scope="col">Bâtiments</th><th scope="col">Part</th></tr>
+        </thead>
+        <tbody>
+          {b.periodes.map((p) => (
+            <tr>
+              <th scope="row">{p.periode}</th>
+              <td>{entier(p.n)}</td>
+              <td>{pc(p.n / connus)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+
+<h3>Les logements, et le logement social</h3>
+<ul class="mesure">
+  {b.logements > 0 && (
+    <li>
+      {`${pluriel(b.logements, 'logement', 'logements')} dans les fichiers fonciers` +
+        (recensement ? `, ${entier(recensement[0])} au recensement de ${millesimeRecensement}` : '') +
+        '. Les fichiers fonciers, ceux de l’impôt, comptent aussi les logements inoccupés ou hors d’usage.'}
+    </li>
+  )}
+  <li>
+    {b.social.logements > 0
+      ? `${pluriel(b.social.logements, 'logement social', 'logements sociaux')} déclarés par les bailleurs (${pluriel(b.social.ensembles, 'ensemble', 'ensembles')})` +
+        (recensement ? `, quand le recensement compte ${entier(recensement[6])} ménages locataires d’un logement social` : '') +
+        '. L’un compte les logements, vides compris — en travaux, en attente d’attribution —, l’autre les ménages qui les occupent.'
+      : 'Aucun logement social n’est déclaré par les bailleurs dans la commune.'}
+  </li>
+  <li>
+    {b.coproprietes.n > 0
+      ? `${pluriel(b.coproprietes.n, 'copropriété immatriculée', 'copropriétés immatriculées')}, ${pluriel(b.coproprietes.logements, 'logement', 'logements')}.`
+      : 'Aucune copropriété immatriculée au registre national.'}
+  </li>
+</ul>
+{ensembles.length > 0 && (
+  <>
+    <p class="mesure">Le logement social, ensemble par ensemble, avec l’étiquette énergétique la plus fréquente :</p>
+    <ul class="mesure">
+      {ensembles.map((e, i) => (
+        <li>
+          {`${pluriel(e.logements, 'logement', 'logements')}${typeDe(e.types, e.logements) ? ` ${typeDe(e.types, e.logements)}` : ''}${e.annees ? ` de ${annees(e.annees)}` : ''}` +
+            (e.n > 1 ? `, en ${entier(e.n)} ensembles` : '') +
+            (e.etiquette && e.etiquette !== 'N' ? `, étiquette ${e.etiquette}` : '') +
+            (i === ensembles.length - 1 ? '.' : ' ;')}
+        </li>
+      ))}
+    </ul>
+    {b.social.ensembles > b.social.detail.length && (
+      <p class="mesure">{`Les ${entier(b.social.detail.length)} plus grands ensembles, sur ${entier(b.social.ensembles)}.`}</p>
+    )}
+  </>
+)}
+
+{(b.chaleur.raccordes > 0 || chaleurProche > 0 || argile.length > 0) && (
+  <>
+    <h3>Le réseau de chaleur, et l’argile</h3>
+    <ul class="mesure">
+      {(b.chaleur.raccordes > 0 || chaleurProche > 0) && (
+        <li>
+          {(b.chaleur.raccordes > 0 ? `${pluriel(b.chaleur.raccordes, 'bâtiment raccordé', 'bâtiments raccordés')} à un réseau de chaleur` : 'Aucun bâtiment raccordé à un réseau de chaleur') +
+            (chaleurProche > 0 ? `, et ${entier(chaleurProche)} autres à moins de 400 mètres de l’un d’eux.` : '.')}
+        </li>
+      )}
+      {argile.length > 0 && (
+        <li>
+          {`Retrait-gonflement des argiles, aléa par bâtiment : ${argile.map((a) => `${entier(a.n)} en aléa ${a.alea.toLowerCase()}`).join(', ')}. `}
+          {'Les risques de la commune, arrêtés compris, sont plus bas.'}
+        </li>
+      )}
+    </ul>
+  </>
+)}
+
+<p class="p-source-territoire">
+  {`D’après la base de données nationale des bâtiments du CSTB, version ouverte, millésime ${b.millesime}, sous Licence Ouverte (lue le ${b.maj}). ` +
+    'Elle croise les fichiers fonciers, le répertoire des logements sociaux, le registre des copropriétés et une cinquantaine d’autres sources, bâtiment par bâtiment. '}
+  <a href="https://bdnb.io" target="_blank" rel="noopener">La BDNB</a>{'.'}
+</p>

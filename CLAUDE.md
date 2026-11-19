@@ -50,7 +50,7 @@ docker compose run --rm sonde    ce que la connexion de la machine joint
 ```
 
 `npm run territoires` dure une quarantaine de minutes et touche plus de trente
-sources — dont quatre-vingts collectes facultatives, isolées : celle qui échoue laisse en
+sources — dont quatre-vingt-une collectes facultatives, isolées : celle qui échoue laisse en
 place les fichiers de l'ingestion précédente plutôt que de tout emporter. Ce qui
 reste fatal, ce sont les référentiels dont dépend la structure du réseau,
 BANATIC et le découpage.
@@ -68,7 +68,9 @@ Mobilités seule 160 Mo, gardés dans `.cache/gtfs/`), et les cartes de
 couverture 4G de l'Arcep (1,1 Go en 7z, recalculées seulement quand un
 nouveau trimestre paraît), avec le carroyage Filosofi de l'INSEE (92 Mo,
 2,3 millions de carreaux de 200 m) et la base des équipements géolocalisée
-(143 Mo, 1,5 Go lus en flux, pour la position des services du quotidien). `--cache` les
+(143 Mo, 1,5 Go lus en flux, pour la position des services du quotidien), et la base
+nationale des bâtiments du CSTB (40 Go pour la France, un fichier par département,
+effacé dès qu'il est lu ; recalculée seulement à un nouveau millésime). `--cache` les
 réutilise, et sans lui il faut compter le téléchargement en plus.
 
 La réingestion complète se lance aussi en intégration continue : workflow

@@ -80,6 +80,9 @@ const fibreDep = parDepartement<FibreDep>('fibre');
 type ServiceAssainissementBrut = [string, string, string, string, string, string, string, string];
 type AssainissementDep = { maj: string; exercices: { AC: number; ANC: number }; c: Record<string, [ServiceAssainissementBrut[], ServiceAssainissementBrut[]]> };
 const assainissementDep = parDepartement<AssainissementDep>('assainissement');
+type BatimentsBrut = [number, number, number, number[], number[], [number, number], [number, number, [number, string, string, string][]], [number, number, number, number], number[]];
+type BatimentsDep = { maj: string; millesime: string; periodes: string[]; usages: string[]; argile: string[]; c: Record<string, BatimentsBrut> };
+const batimentsDep = parDepartement<BatimentsDep>('batiments');
 type DecheteriesDep = { maj: string; annee: number; c: Record<string, [string, string, string, 0 | 1, number | null][]> };
 const decheteriesDep = parDepartement<DecheteriesDep>('decheteries');
 const parcDep = parDepartement<ParcDep>('parc');
@@ -292,6 +295,23 @@ export interface Decheterie {
 export interface Decheteries {
   sites: Decheterie[];
   annee: number;
+  maj: string;
+}
+
+/** Les bâtiments de la commune, d'après la BDNB (`scripts/batiments-emettre.ts`). */
+export interface Batiments {
+  groupes: number;
+  /** Groupes décrits par les fichiers fonciers, et leurs logements. */
+  decrits: number;
+  logements: number;
+  /** Bâtiments par période de construction, sur ceux dont l'année est connue. */
+  periodes: { periode: string; n: number }[];
+  usages: { usage: string; n: number }[];
+  coproprietes: { n: number; logements: number };
+  social: { ensembles: number; logements: number; detail: { logements: number; annees: string; types: string; etiquette: string }[] };
+  chaleur: { raccordes: number; moins100: number; de100a200: number; de200a400: number };
+  argile: { alea: string; n: number }[];
+  millesime: string;
   maj: string;
 }
 
@@ -892,6 +912,7 @@ export interface ComplementsVie {
   eau: EauRobinet | null;
   assainissement: Assainissement | null;
   decheteries: Decheteries | null;
+  batiments: Batiments | null;
   fibre: Fibre | null;
   parc: Parc | null;
   emploi: Emploi | null;
@@ -968,6 +989,26 @@ function assainissement(c: CommuneFiche): Assainissement | null {
     entite, collectivite, siren, mode, statut, operateur, debut, fin,
   });
   return { collectif: x[0].map(service), nonCollectif: x[1].map(service), exercices: d.exercices, maj: d.maj };
+}
+
+function batiments(c: CommuneFiche): Batiments | null {
+  const d = batimentsDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || x[0] === 0) return null;
+  const [groupes, decrits, logements, periodes, usages, [nc, lc], [ns, ls, detail], [r, m100, m200, m400], argile] = x;
+  return {
+    groupes,
+    decrits,
+    logements,
+    periodes: d.periodes.map((periode, i) => ({ periode, n: periodes[i] ?? 0 })),
+    usages: d.usages.map((usage, i) => ({ usage, n: usages[i] ?? 0 })),
+    coproprietes: { n: nc, logements: lc },
+    social: { ensembles: ns, logements: ls, detail: detail.map(([n, annees, types, etiquette]) => ({ logements: n, annees, types, etiquette })) },
+    chaleur: { raccordes: r, moins100: m100, de100a200: m200, de200a400: m400 },
+    argile: d.argile.map((alea, i) => ({ alea, n: argile[i] ?? 0 })),
+    millesime: d.millesime.replace(/-([a-z])$/, '.$1'),
+    maj: d.maj,
+  };
 }
 
 function decheteries(c: CommuneFiche): Decheteries | null {
@@ -1672,6 +1713,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     eau: eau(c),
     assainissement: assainissement(c),
     decheteries: decheteries(c),
+    batiments: batiments(c),
     fibre: fibre(c),
     parc: parc(c),
     emploi: emploi(c),
