@@ -87,6 +87,29 @@ async function obstine(url: string, essais = 8, options: { delai?: number; entet
 }
 
 /**
+ * Le corps entier, obstinément. `obstine` recommence une requête qui échoue,
+ * pas la lecture de son corps : un corps lent dépasse le délai hors de la
+ * boucle, et la collecte tombe au premier essai. L'export des comptes des CCAS
+ * de l'OFGL (106 Mo, 75 secondes d'ici le 19 novembre 2026) a dépassé les
+ * trois minutes sur le runner auto-hébergé, en pleine nuit, et la réingestion
+ * du 18 novembre l'a perdu ainsi. Ici, une lecture coupée recommence tout, et
+ * le délai se règle par source.
+ */
+async function obstineTexte(url: string, essais = 3, delai = 180_000): Promise<string> {
+  let derniere: unknown;
+  for (let i = 0; i < essais; i++) {
+    try {
+      return await (await obstine(url, 2, { delai })).text();
+    } catch (e) {
+      derniere = e;
+      dire(`${GRIS}  ${url.slice(0, 80)}… : ${(e as Error).message}, on recommence${RAZ}`);
+    }
+    await new Promise((r) => setTimeout(r, (i + 1) * 5000));
+  }
+  throw new Error(`${url} : ${(derniere as Error)?.message ?? 'injoignable'}`);
+}
+
+/**
  * Une collecte facultative qui échoue ne doit pas jeter l'ingestion entière.
  *
  * Le rapatriement complet dure une dizaine de minutes et touche huit sources.
@@ -1219,7 +1242,8 @@ async function principal() {
   const { collecterCcas, ecrireCcas } = await import('./ccas-emettre.ts');
   const ccas = await tenter('Centres d’action sociale', () =>
     collecterCcas(
-      async (url) => (await obstine(url)).text(),
+      // L'export de l'OFGL pèse une centaine de mégaoctets : quinze minutes par essai.
+      (url) => obstineTexte(url, 3, 900_000),
       join(CACHE, 't-finess.csv'),
       (m) => dire(`${GRIS}${m}${RAZ}`),
     ),
