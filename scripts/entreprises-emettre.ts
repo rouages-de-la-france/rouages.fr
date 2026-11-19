@@ -181,7 +181,21 @@ export function indexDuDecoupage(): [string, string, string, string, number][] {
  * publiés, avec son nom commercial s'il en a un, et son SIREN pour qu'on relise
  * son statut de diffusion. Une personne sans nom rend l'annonce innommable.
  */
-export function nommables(listepersonnes: string): { noms: string[]; sirensPp: string[]; sirens: string[] } | null {
+/** Une personne d'une annonce, telle que publiée. */
+export interface PersonneAnnonce {
+  siren: string;
+  /** Personne physique (entrepreneur individuel) ou morale. */
+  pp: boolean;
+  /** Le nom affiché : « Prénom Nom (nom commercial) », ou la dénomination. */
+  nom: string;
+  /** Pour une personne physique : son nom de famille et son nom commercial. */
+  famille: string;
+  commercial: string;
+}
+
+export function nommables(
+  listepersonnes: string,
+): { noms: string[]; sirensPp: string[]; sirens: string[]; personnes: PersonneAnnonce[] } | null {
   let brut: unknown;
   try {
     brut = JSON.parse(listepersonnes);
@@ -204,6 +218,7 @@ export function nommables(listepersonnes: string): { noms: string[]; sirensPp: s
   const noms: string[] = [];
   const sirensPp: string[] = [];
   const sirens: string[] = [];
+  const liste: PersonneAnnonce[] = [];
   for (const x of personnes) {
     if (x.typePersonne === 'pm') {
       const d = (x.denomination ?? '').trim();
@@ -211,18 +226,67 @@ export function nommables(listepersonnes: string): { noms: string[]; sirensPp: s
       noms.push(d);
       const siren = (x.numeroImmatriculation?.numeroIdentification ?? '').replace(/\D/g, '');
       if (siren) sirens.push(siren);
+      liste.push({ siren, pp: false, nom: d, famille: '', commercial: '' });
     } else if (x.typePersonne === 'pp') {
       const siren = (x.numeroImmatriculation?.numeroIdentification ?? '').replace(/\D/g, '');
       const prenom = chaine(x.prenom).split(',')[0].trim();
       const nom = chaine(x.nom).trim();
       if (!/^\d{9}$/.test(siren) || !nom) return null;
       const commercial = chaine(x.nomCommercial).trim();
-      noms.push(`${prenom ? `${prenom} ` : ''}${nom}${commercial ? ` (${commercial})` : ''}`);
+      const affiche = `${prenom ? `${prenom} ` : ''}${nom}${commercial ? ` (${commercial})` : ''}`;
+      noms.push(affiche);
       sirensPp.push(siren);
       sirens.push(siren);
+      liste.push({ siren, pp: true, nom: affiche, famille: nom, commercial });
     } else return null;
   }
-  return { noms, sirensPp, sirens };
+  return { noms, sirensPp, sirens, personnes: liste };
+}
+
+/** Sans accents ni casse ni ponctuation : « Bénard-Lefèvre » et « BENARD LEFEVRE » se valent. */
+const plie = (x: string) =>
+  x
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+
+/**
+ * Le nom qu'une annonce affiche, une fois appliquées les oppositions de
+ * `retraits.yaml` ; `null` si l'annonce ne doit plus être montrée.
+ *
+ * - Une opposition sans affichage retire l'annonce : elle reste comptée.
+ * - `anonyme` la garde sans nom : « Entreprise individuelle », ou « Société ».
+ * - `commercial` la garde sous le seul nom commercial. Un nom commercial qui
+ *   contient le nom de famille le nommerait encore (c'est le cas de qui
+ *   exerce sous son propre nom) : l'annonce est alors anonyme. Sans nom
+ *   commercial, aussi.
+ */
+export function nomAffiche(
+  personnes: PersonneAnnonce[],
+  retires: Set<string>,
+  affichages: Map<string, 'commercial' | 'anonyme'>,
+): string | null {
+  const noms: string[] = [];
+  for (const p of personnes) {
+    if (!p.siren || !retires.has(p.siren)) {
+      noms.push(p.nom);
+      continue;
+    }
+    const mode = affichages.get(p.siren);
+    if (!mode) return null;
+    const anonyme = p.pp ? 'Entreprise individuelle' : 'Société';
+    if (mode === 'anonyme') noms.push(anonyme);
+    else if (!p.pp) noms.push(p.nom);
+    else {
+      const famille = plie(p.famille);
+      const commercial = plie(p.commercial);
+      const nomme = !commercial || famille.split(' ').some((m) => m.length > 1 && ` ${commercial} `.includes(` ${m} `));
+      noms.push(nomme ? anonyme : p.commercial);
+    }
+  }
+  return noms.join(', ');
 }
 
 /** L'activité déclarée du premier établissement, coupée à un mot près. */
@@ -344,8 +408,11 @@ export async function collecterEntreprises(
       const f = FAMILLES.indexOf(l[jFamille] as (typeof FAMILLES)[number]);
       const n = nommables(l[jPersonnes]);
       if (f === -1 || !n) continue;
-      // Une opposition reçue : l'annonce reste comptée, elle n'est plus nommée.
-      if (n.sirens.some((x) => retraits().entreprises.has(x))) continue;
+      // Une opposition reçue : l'annonce reste comptée ; selon ce qui a été
+      // demandé, elle n'est plus montrée, ou l'est sans le nom de la personne.
+      const r = retraits();
+      const nom = nomAffiche(n.personnes, r.entreprises, r.affichages);
+      if (nom === null) continue;
       // L'identifiant seul : le lien se reconstruit, et le préfixe répété pèserait
       // plus lourd que tout le reste du fichier.
       const id = /[?&]q\.id=id:([A-Z0-9]+)$/.exec(l[jUrl])?.[1];
@@ -357,7 +424,7 @@ export async function collecterEntreprises(
         const liste = candidates.get(code) ?? [];
         // Une annonce qui cite deux établissements de la même commune n'y compte qu'une fois.
         if (liste.length < RECENTES * 3 && !liste.some((x) => x.r[3] === id)) {
-          liste.push({ r: [l[jDate], f, n.noms.join(', '), id, activite(l[jEtab]), ei], sirensPp: n.sirensPp });
+          liste.push({ r: [l[jDate], f, nom, id, activite(l[jEtab]), ei], sirensPp: n.sirensPp });
         }
         candidates.set(code, liste);
       }
