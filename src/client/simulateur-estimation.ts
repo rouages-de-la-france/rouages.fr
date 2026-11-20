@@ -22,6 +22,7 @@ type Estimation = [
   (number | null)?,
 ];
 type EffetsDpe = { multiplicateurs: Record<string, number>; ventes: number; repartition: Record<string, number>; ecart: [number, number]; portee: string };
+type Intervalles = { niveaux: number[]; classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }> };
 type Fichier = { maj: string; annees: number[]; tailles: [number, number]; partActivite: number; dpe: EffetsDpe | null; c: Record<string, Estimation> };
 
 const LIEUX: OptionsLieu = { source: '/jeux/territoires.json', genres: ['commune'] };
@@ -112,7 +113,24 @@ export function brancherEstimation(): void {
     const precisionTexte = $('se-precision');
     fourchette.textContent = '';
     precisionTexte.textContent = '';
-    if (bati && precision && !manque && total > 0) {
+    // La fourchette au niveau choisi, calibrée sur le banc d'essai ; à défaut, la moitié centrale mesurée dans la commune.
+    const niveau = Number((form.elements.namedItem('niveau') as RadioNodeList | null)?.value ?? 0.8) || 0.8;
+    const classe = intervalles?.classes[anneaux === 0 ? 'seule' : 'voisines'];
+    const rang = intervalles ? intervalles.niveaux.indexOf(niveau) : -1;
+    $('se-niveau').hidden = !(bati && classe);
+    if (bati && classe && rang >= 0 && !manque && total > 0) {
+      const [bas, haut] = classe.bornes[rang];
+      const tenue = classe.tenue[rang];
+      const sur = niveau === 0.5 ? 'une maison sur deux' : niveau === 0.8 ? 'huit maisons sur dix' : 'neuf maisons sur dix';
+      fourchette.textContent = `Entre ${euros(arrondi(total * bas))} et ${euros(arrondi(total * haut))}`;
+      precisionTexte.textContent =
+        `Sur des ventes que le simulateur n’avait pas vues, ${sur} ${anneaux === 0 ? 'dans les communes mesurées seules' : 'dans les communes mesurées avec leurs voisines'} ` +
+        `se sont vendues dans cette fourchette autour de leur estimation (contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %). ` +
+        'Plus la fourchette est large, plus elle a de chances de contenir le prix, et moins elle en dit. ' +
+        (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette est celle sans étiquette. ` : '') +
+        `Ont servi ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`}. ` +
+        'Le curseur d’état sert à réduire l’écart : les ventes ne disent rien de l’état d’une maison.';
+    } else if (bati && precision && !manque && total > 0) {
       const [ecart, bas, haut] = precision;
       fourchette.textContent = `Entre ${euros(arrondi(total * bas))} et ${euros(arrondi(total * haut))}`;
       precisionTexte.textContent =
@@ -126,6 +144,18 @@ export function brancherEstimation(): void {
   };
 
   form.addEventListener('input', calculer);
+  // Le choix de la fourchette est hors du formulaire, sous le résultat : il a son écouteur.
+  $('se-niveau').addEventListener('change', calculer);
+
+  // Les fourchettes calibrées par le banc d'essai (`scripts/banc-estimation.ts`) ; absentes avant le premier calcul.
+  let intervalles: Intervalles | null = null;
+  void fetch('/territoires/simulateurs/estimation/intervalles.json')
+    .then((r) => (r.ok ? (r.json() as Promise<Intervalles>) : null))
+    .then((x) => {
+      intervalles = x;
+      if (e) calculer();
+    })
+    .catch(() => {});
 
   const preparer = async (cle: string) => {
     lieu = await resoudre(cle, LIEUX).catch(() => null);

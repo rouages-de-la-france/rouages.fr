@@ -20,6 +20,7 @@ type Banc = {
   france: Record<string, Mesure>;
   departements: Record<string, Record<string, Mesure>>;
   tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
+  intervalles?: { niveaux: number[]; classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }> };
 };
 const base = join(process.cwd(), 'public', 'territoires');
 const lire = <T,>(f: string): T | null => (existsSync(join(base, f)) ? (JSON.parse(readFileSync(join(base, f), 'utf8')) as T) : null);
@@ -106,6 +107,39 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
             </tbody>
           </table>
         </div>
+
+        {banc.intervalles && (
+          <>
+            <h2 class="badge">Les fourchettes, et ce qu’elles tiennent</h2>
+            <p class="mesure">
+              Le simulateur propose trois fourchettes autour de l’estimation : resserrée, large, très large. Chacune est tirée des
+              écarts observés sur des ventes que le modèle n’a pas vues ; puis elle est contrôlée sur d’autres ventes, tenues à
+              part : une fourchette annoncée à huit ventes sur dix doit en contenir huit sur dix. Plus elle est large, plus elle a
+              de chances de contenir le prix, et moins elle en dit.
+            </p>
+            <div class="cpt-defile" tabindex="0" role="region" aria-label="Les fourchettes — le tableau défile sur les petits écrans">
+              <table class="cpt-tableau">
+                <caption>Prix / estimation : bornes de chaque fourchette, et part des ventes tenues à part qui y tombent</caption>
+                <thead>
+                  <tr><th scope="col">Commune mesurée</th><th scope="col">Fourchette</th><th scope="col">Bornes</th><th scope="col">Annoncé</th><th scope="col">Contrôlé</th></tr>
+                </thead>
+                <tbody>
+                  {(['seule', 'voisines'] as const).flatMap((k) =>
+                    banc.intervalles!.niveaux.map((n, i) => (
+                      <tr>
+                        <th scope="row">{k === 'seule' ? 'seule' : 'avec ses voisines'}</th>
+                        <td>{n === 0.5 ? 'resserrée' : n === 0.8 ? 'large' : 'très large'}</td>
+                        <td>{`${r2(banc.intervalles!.classes[k].bornes[i][0])} à ${r2(banc.intervalles!.classes[k].bornes[i][1])}`}</td>
+                        <td>{pc(n)}</td>
+                        <td>{pc(banc.intervalles!.classes[k].tenue[i])}</td>
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
         {deps.length > 1 && (
           <>

@@ -128,6 +128,42 @@ export interface Banc {
   france: Record<string, Mesure>;
   departements: Record<string, Record<string, Mesure>>;
   tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
+  intervalles: Intervalles;
+}
+
+/**
+ * Les fourchettes du simulateur, par niveau de confiance : les bornes du rapport
+ * prix / estimation qui laissent de côté autant de ventes de chaque côté, mesurées
+ * sur les ventes que le modèle n'a pas vues ; séparément pour une commune mesurée
+ * seule et pour une commune mesurée avec ses voisines.
+ *
+ * La tenue est vérifiée à part : bornes apprises sur les cinq premières parts,
+ * comptées sur les cinq autres. Une fourchette « à 80 % » qui n'en contiendrait que
+ * 70 % le dirait ici, et la page aussi.
+ */
+export type Intervalles = {
+  niveaux: number[];
+  classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }>;
+};
+export const NIVEAUX = [0.5, 0.8, 0.9];
+
+export function intervalles(lignes: { voisines: boolean; pli: number; surface: number | null }[], plis: number): Intervalles {
+  const arr = (x: number) => Math.round(x * 1000) / 1000;
+  const classe = (voisines: boolean) => {
+    const l = lignes.filter((x) => x.voisines === voisines && x.surface !== null) as { pli: number; surface: number }[];
+    const bornes = (r: number[], n: number): [number, number] => [quantile(r, (1 - n) / 2) ?? 0, quantile(r, 1 - (1 - n) / 2) ?? 0];
+    const apprises = l.filter((x) => x.pli < plis / 2).map((x) => x.surface);
+    const comptees = l.filter((x) => x.pli >= plis / 2).map((x) => x.surface);
+    return {
+      ventes: l.length,
+      bornes: NIVEAUX.map((n) => bornes(l.map((x) => x.surface), n).map(arr) as [number, number]),
+      tenue: NIVEAUX.map((n) => {
+        const [b, h] = bornes(apprises, n);
+        return comptees.length ? arr(comptees.filter((r) => r >= b && r <= h).length / comptees.length) : 0;
+      }),
+    };
+  };
+  return { niveaux: NIVEAUX, classes: { seule: classe(false), voisines: classe(true) } };
 }
 
 const MODELES = [
@@ -151,7 +187,7 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
   for (const { b } of maisons) parCommune.set(b.commune, (parCommune.get(b.commune) ?? 0) + 1);
 
   const rapports: Record<string, (number | null)[]> = { surface: [], naif: [] };
-  const lignes: { dep: string; taille: number; surface: number | null; naif: number | null }[] = [];
+  const lignes: { dep: string; taille: number; voisines: boolean; pli: number; surface: number | null; naif: number | null }[] = [];
   for (let p = 0; p < plis; p++) {
     const appris = biens.filter((_, i) => part.get(i) !== p);
     const modele = estimer(appris, voisines);
@@ -169,12 +205,16 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
     const medD = new Map([...m2Dep].map(([k, l]) => [k, mediane(l)!]));
     for (const { b, i } of maisons) {
       if (part.get(i) !== p) continue;
-      const e = estimation(modele.get(b.commune), b);
+      const est = modele.get(b.commune);
+      const e = estimation(est, b);
       const u = medC.get(b.commune) ?? medD.get(departementDe(b.commune)) ?? null;
       const n = u !== null ? u * b.habitable : null;
       const n2 = parCommune.get(b.commune) ?? 0;
       lignes.push({
         dep: departementDe(b.commune),
+        // La commune mesurée seule, ou avec ses voisines : la page le sait, et choisit la fourchette en conséquence.
+        voisines: (est?.[5][1] ?? 0) > 0,
+        pli: p,
         taille: TAILLES_MARCHE.findIndex((t) => n2 < t.max),
         surface: e ? b.prix / e : null,
         naif: n ? b.prix / n : null,
@@ -200,6 +240,7 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
     france: parModele(() => true),
     departements: Object.fromEntries(deps.map((d) => [d, parModele((l) => l.dep === d)])),
     tailles: TAILLES_MARCHE.map((t, k) => ({ id: t.id, nom: t.nom, mesures: parModele((l) => l.taille === k) })),
+    intervalles: intervalles(lignes, plis),
   };
   const f = resultat.france;
   dire(
@@ -210,7 +251,7 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
 }
 
 /** Le banc déjà calculé pour ces années, avec la même méthode : on ne le refait pas — c'est dix fois le simulateur (31 s pour l'Allier). */
-export const VERSION = 1;
+export const VERSION = 2;
 export function bancAJour(sortie: string, annees: number[]): boolean {
   const f = join(sortie, 'simulateurs', 'estimation', 'banc.json');
   if (process.env.ROUAGES_BANC_FORCER || !existsSync(f)) return false;
@@ -226,6 +267,8 @@ export function ecrireBanc(sortie: string, b: Banc): void {
   const dossier = join(sortie, 'simulateurs', 'estimation');
   mkdirSync(dossier, { recursive: true });
   writeFileSync(join(dossier, 'banc.json'), JSON.stringify({ version: VERSION, ...b }));
+  // Le petit fichier que lit la page du simulateur pour ses fourchettes.
+  writeFileSync(join(dossier, 'intervalles.json'), JSON.stringify({ maj: b.maj, annees: b.annees, ...b.intervalles }));
 }
 
 // Lancé seul : les ventes déjà en cache.
