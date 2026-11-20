@@ -1,0 +1,180 @@
+---
+/**
+ * L'index des sources : chaque jeu de données que le site ingère, ce qu'il
+ * alimente, sa licence, ce que la veille en a vu à son dernier contrôle, et
+ * quand il a été lu ; puis chaque fichier lu à la dernière réingestion, avec
+ * sa date.
+ *
+ * Rien n'est recopié à la main : la liste vient de la veille
+ * (`contenu/veille.yaml`), l'état de son dernier contrôle de
+ * `veille/etat.json`, les lectures de `public/territoires/provenance.json`,
+ * que l'ingestion écrit. Une source ajoutée sans être déclarée à la veille
+ * manquerait ici comme sur /mentions : c'est la veille qui fait foi.
+ */
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import Base from '../layouts/Base.astro';
+import { chargerGraphe, RACINE } from '../modele/graphe.ts';
+import { derniereIngestion, jourParis } from '../modele/versions.ts';
+
+const g = chargerGraphe();
+const lire = <T,>(f: string): T | null => {
+  const p = join(RACINE, f);
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, 'utf8')) as T;
+  } catch {
+    return null;
+  }
+};
+const etat = lire<{ dernier_controle?: string; constats?: Record<string, { gravite?: string; millesime?: string | number; empreinte?: string }> }>('veille/etat.json');
+const provenance = lire<Record<string, { r: string; v?: string }>>('public/territoires/provenance.json') ?? {};
+const ingestion = derniereIngestion();
+
+const LICENCES: Record<string, string> = {
+  odbl: 'ODbL',
+  'licence-ouverte-2.0': 'Licence Ouverte 2.0',
+  'licence-ouverte-1.0': 'Licence Ouverte 1.0',
+  'licence-ouverte': 'Licence Ouverte',
+  'cc-by-4.0': 'CC BY 4.0',
+  'cc-by-sa-4.0': 'CC BY-SA 4.0',
+  cc0: 'CC0',
+  variable: 'choisie par chaque publieur',
+  'non-precisee': 'non précisée par le producteur',
+};
+const GRAVITES: Record<string, string> = { ok: 'à jour', 'a-regarder': 'à regarder', alerte: 'en alerte' };
+
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const date = (iso: string | undefined) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return '—';
+  const [a, m, j] = iso.slice(0, 10).split('-').map(Number);
+  return `${j === 1 ? '1er' : j} ${MOIS[m - 1]} ${a}`;
+};
+
+/** L'hôte et les deux premiers segments du chemin : assez pour rapprocher une source de ses fichiers, pas plus. */
+const racine = (u: string) => {
+  try {
+    const x = new URL(u);
+    return `${x.host}${x.pathname.split('/').slice(0, 3).join('/')}`;
+  } catch {
+    return '';
+  }
+};
+const hote = (u: string) => {
+  try {
+    return new URL(u).host;
+  } catch {
+    return '';
+  }
+};
+const lectures = Object.entries(provenance);
+/** La lecture la plus récente d'un fichier de la même adresse, quand on peut la rapprocher sans deviner. */
+const luLe = (urls: string[]) => {
+  const r = urls.map(racine).filter(Boolean);
+  const dates = lectures.filter(([u]) => r.some((x) => racine(u) === x)).map(([, p]) => p.r);
+  return dates.length ? dates.sort().at(-1)! : null;
+};
+
+const jeux = [...g.surveillances.values()]
+  .map((s) => {
+    const source = s.lien ? g.sources.get(s.lien) : undefined;
+    const constat = etat?.constats?.[s.id];
+    return {
+      id: s.id,
+      nom: s.nom,
+      alimente: s.alimente,
+      licence: LICENCES[s.licence] ?? s.licence,
+      lien: source?.url ?? (/^https?:/.test(s.url) ? s.url : undefined),
+      etat: constat?.gravite ? (GRAVITES[constat.gravite] ?? constat.gravite) : '—',
+      // La veille note parfois un nombre de lignes dans ce champ : on n'affiche qu'une année, une date ou une version.
+      millesime: constat?.millesime !== undefined && /^((19|20)\d\d(-\d\d){0,2}|\d+\.\d+(\.\d+)?)$/.test(String(constat.millesime)) ? String(constat.millesime) : null,
+      lu: luLe([s.url, source?.url ?? ''].filter((u) => /^https?:/.test(u))),
+    };
+  })
+  .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+
+const parHote = new Map<string, [string, { r: string; v?: string }][]>();
+for (const l of lectures.sort((a, b) => a[0].localeCompare(b[0]))) {
+  const h = hote(l[0]);
+  (parHote.get(h) ?? parHote.set(h, []).get(h)!).push(l);
+}
+---
+<Base
+  titre="Les sources"
+  description="Chaque jeu de données que Rouages lit : ce qu’il alimente, sa licence, son état au dernier contrôle, et la date à laquelle il a été lu."
+>
+  <div class="page">
+    <h1>Les sources</h1>
+    <p class="resume">
+      Tout ce que le site montre vient d’une source publique. Voici chacune, ce qu’elle alimente, sous quelle licence elle
+      est publiée, ce que la veille en a vu, et quand elle a été lue.
+    </p>
+    <p class="mesure">
+      {ingestion
+        ? ingestion.nature === 'complete'
+          ? `La dernière réingestion complète s’est terminée le ${jourParis(ingestion.fin)}` +
+            (ingestion.echecs.length ? ` ; ${ingestion.echecs.length} collecte${ingestion.echecs.length > 1 ? 's ont' : ' a'} échoué et gardé les fichiers de la précédente.` : '.')
+          : `Aucune réingestion complète n’est encore enregistrée ; la lecture la plus récente d’une source date du ${jourParis(ingestion.fin)}.`
+        : 'Aucune lecture n’est encore enregistrée.'}
+      {etat?.dernier_controle && ` La veille, qui vérifie chaque source sans la réingérer, a fait son dernier contrôle le ${date(etat.dernier_controle)}.`}
+      {' Sous chaque bloc d’une page, l’encadré « Sources » dit, lui, ce que mesure le chiffre et de quand il date.'}
+    </p>
+
+    <h2 class="badge">{`Les jeux de données (${jeux.length})`}</h2>
+    <div class="cpt-defile" tabindex="0" role="region" aria-label="Les jeux de données — le tableau défile sur les petits écrans">
+      <table class="cpt-tableau">
+        <caption>Chaque jeu, ce qu’il alimente, sa licence, son état et sa dernière lecture</caption>
+        <thead>
+          <tr>
+            <th scope="col">Jeu</th>
+            <th scope="col">Ce qu’il alimente</th>
+            <th scope="col">Licence</th>
+            <th scope="col">Dernier contrôle</th>
+            <th scope="col">Lu le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {jeux.map((j) => (
+            <tr id={`jeu-${j.id}`}>
+              <th scope="row">{j.lien ? <a href={j.lien} target="_blank" rel="noopener">{j.nom}</a> : j.nom}</th>
+              <td>{j.alimente}</td>
+              <td>{j.licence}</td>
+              <td>{j.etat}{j.millesime && ` (millésime ${j.millesime})`}</td>
+              <td>{j.lu ? date(j.lu) : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="p-strate">
+      {'« Lu le » : la dernière lecture d’un fichier à la même adresse que le jeu ; « — » quand le fichier est servi par une autre adresse que la fiche du jeu, ou n’a pas encore été lu. '}
+      {'« Dernier contrôle » : ce que la veille a constaté — à jour, à regarder (la source a changé de forme ou de date), en alerte (elle ne répond plus, ou ne publie plus). '}
+      {'Les licences et ce qu’elles obligent à faire : '}<a href="/mentions">les mentions légales</a>{'.'}
+    </p>
+
+    {parHote.size > 0 && (
+      <>
+        <h2 class="badge">{`Les fichiers lus à la dernière réingestion (${lectures.length})`}</h2>
+        <p class="mesure">Chaque fichier, avec la date à laquelle il a été lu et, quand le producteur la donne, celle de sa version.</p>
+        {[...parHote].map(([h, l]) => (
+          <details class="mesure src-fichiers">
+            <summary>{`${h} — ${l.length} fichier${l.length > 1 ? 's' : ''}`}</summary>
+            <ul>
+              {l.map(([u, p]) => (
+                <li>
+                  <a href={u} target="_blank" rel="noopener">{u.length > 110 ? `${u.slice(0, 107)}…` : u}</a>
+                  {` — lu le ${date(p.r)}${p.v && p.v !== p.r ? `, version du ${date(p.v)}` : ''}`}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </>
+    )}
+  </div>
+</Base>
+
+<style>
+  /* Les adresses de fichiers sont longues et sans espace : elles passent à la ligne plutôt que d'élargir la page. */
+  .src-fichiers li, .src-fichiers a { overflow-wrap: anywhere; word-break: break-word; }
+</style>
