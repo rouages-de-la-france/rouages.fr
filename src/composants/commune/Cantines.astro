@@ -1,0 +1,68 @@
+---
+/**
+ * Les restaurants collectifs de la commune, d'après le registre national de
+ * Ma Cantine (`scripts/cantines-emettre.ts`) : qui les gère, où les repas sont
+ * préparés, et ce qu'ils déclarent de leurs achats au regard de la loi EGalim.
+ * Un restaurant sans déclaration publiée n'a pas de taux : la page ne lui en
+ * prête pas.
+ */
+import type { Cantines } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  c: Cantines;
+}
+const { c } = Astro.props;
+const MONTRES = 15;
+const pc = (x: number) => `${Math.round(x * 100).toLocaleString('fr-FR')} %`;
+const entier = (n: number) => n.toLocaleString('fr-FR');
+const montres = c.restaurants.slice(0, MONTRES);
+const autres = c.restaurants.length - montres.length;
+/** « Ecole primaire » → « école primaire » : la source écrit les capitales sans accent. */
+const minuscule = (s: string) => (s.charAt(0).toLowerCase() + s.slice(1)).replace(/^ecole/, 'école').replace(/^etablissement/, 'établissement');
+const gestion = (r: Cantines['restaurants'][number]) =>
+  [
+    r.public === null ? null : r.public ? 'public' : 'privé',
+    r.concede === null ? null : r.concede ? 'concédé à un prestataire' : 'géré en direct',
+  ]
+    .filter(Boolean)
+    .join(', ');
+const PRODUCTION: Record<string, string> = {
+  S: 'repas préparés sur place',
+  L: 'repas livrés par une cuisine centrale',
+  C: 'cuisine centrale',
+  CS: 'cuisine centrale qui sert aussi sur place',
+};
+const declares = c.restaurants.filter((r) => r.bio !== null);
+---
+<p class="mesure">
+  {`${c.restaurants.length > 1 ? `${entier(c.restaurants.length)} restaurants collectifs sont inscrits` : 'Un restaurant collectif est inscrit'} au registre national des cantines` +
+    (c.campagne ? ` ; ${declares.length === 0 ? 'aucun n’a' : declares.length === 1 ? 'un a' : `${entier(declares.length)} ont`} des achats ${c.campagne} publiés.` : '.')}
+</p>
+<ul class="mesure">
+  {montres.map((r) => {
+    const debut =
+      (r.secteurs.length > 0 ? ` — ${r.secteurs.map(minuscule).join(', ')}` : '') +
+      (gestion(r) ? ` ; ${gestion(r)}` : '') +
+      (PRODUCTION[r.production] ? ` ; ${PRODUCTION[r.production]}` : '');
+    const fin =
+      (r.repas !== null ? ` ; ${entier(r.repas)} repas par jour.` : '.') +
+      (r.bio !== null
+        ? ` Achats ${c.campagne} : ${pc(r.bio)} de bio` +
+          (r.egalimHorsBio !== null ? `, ${pc(r.egalimHorsBio)} d’autres produits durables et de qualité` : '') +
+          (r.viaCentrale ? ', d’après la déclaration de sa cuisine centrale.' : '.')
+        : '');
+    const lien = r.production === 'L' && r.centrale;
+    return (
+      <li><strong>{r.nom || 'Un restaurant'}</strong>{debut}{lien && ' ('}{lien && <a href={`https://annuaire-entreprises.data.gouv.fr/etablissement/${r.centrale}`} target="_blank" rel="noopener">{`SIRET ${r.centrale}`}</a>}{lien && ')'}{fin}</li>
+    );
+  })}
+</ul>
+{autres > 0 && <p class="mesure">{`Les ${entier(MONTRES)} qui servent le plus de repas, sur ${entier(c.restaurants.length)}.`}</p>}
+<p class="p-strate">
+  {'La loi EGalim (article L. 230-5-1 du code rural et de la pêche maritime) demande à la restauration collective au moins 50 % de produits durables et de qualité, dont 20 % de bio. '}
+  {'Chaque restaurant déclare ses achats sur Ma Cantine ; une cuisine centrale peut déclarer pour ceux qu’elle livre. Un restaurant sans taux n’a pas de déclaration publiée, ce n’est pas un zéro.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après le registre national des cantines et les résultats de la campagne de télédéclaration${c.campagne ? ` (données ${c.campagne})` : ''} de Ma Cantine, ministère de l’Agriculture, sous Licence Ouverte (lus le ${c.maj}). `}
+  <a href="https://ma-cantine.agriculture.gouv.fr/" target="_blank" rel="noopener">Ma Cantine</a>{'.'}
+</p>

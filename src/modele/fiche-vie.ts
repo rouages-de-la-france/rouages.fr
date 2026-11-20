@@ -87,6 +87,11 @@ type BatimentsDep = { maj: string; millesime: string; periodes: string[]; usages
 const batimentsDep = parDepartement<BatimentsDep>('batiments');
 type DecheteriesDep = { maj: string; annee: number; c: Record<string, [string, string, string, 0 | 1, number | null][]> };
 const decheteriesDep = parDepartement<DecheteriesDep>('decheteries');
+type PoliceDep = { maj: string; annee: number; c: Record<string, [number, number, number, 0 | 1]> };
+const policeDep = parDepartement<PoliceDep>('police');
+type CantineBrute = [string, string, 0 | 1 | null, 0 | 1 | null, string, number | null, string, number | null, number | null, 0 | 1 | null];
+type CantinesDep = { maj: string; campagne: number | null; c: Record<string, CantineBrute[]> };
+const cantinesDep = parDepartement<CantinesDep>('cantines');
 const parcDep = parDepartement<ParcDep>('parc');
 const emploiDep = parDepartement<EmploiDep>('emploi');
 const dvfDep = parDepartement<DvfDep>('dvf');
@@ -297,6 +302,38 @@ export interface Decheterie {
 export interface Decheteries {
   sites: Decheterie[];
   annee: number;
+  maj: string;
+}
+
+/**
+ * La police municipale d'après l'enquête du ministère de l'Intérieur
+ * (`scripts/police-emettre.ts`). `null` dans les effectifs : la commune n'a pas
+ * déclaré de service cette année-là.
+ */
+export interface Police {
+  effectifs: { agents: number; asvp: number; gardes: number; enCommun: boolean } | null;
+  annee: number;
+  maj: string;
+}
+
+/** Un restaurant collectif, d'après le registre de Ma Cantine (`scripts/cantines-emettre.ts`). */
+export interface Cantine {
+  nom: string;
+  secteurs: string[];
+  public: boolean | null;
+  concede: boolean | null;
+  /** S sur place, L livré, C cuisine centrale, CS cuisine centrale qui sert aussi sur place. */
+  production: string;
+  repas: number | null;
+  centrale: string;
+  bio: number | null;
+  egalimHorsBio: number | null;
+  /** La déclaration est celle de la cuisine centrale qui le livre. */
+  viaCentrale: boolean;
+}
+export interface Cantines {
+  restaurants: Cantine[];
+  campagne: number | null;
   maj: string;
 }
 
@@ -928,6 +965,8 @@ export interface ComplementsVie {
   immobilier: Immobilier | null;
   ecoles: Ecoles | null;
   delinquance: Delinquance | null;
+  police: Police | null;
+  cantines: Cantines | null;
   agriculture: Agriculture | null;
   energie: Energie | null;
   votes: Votes | null;
@@ -1025,6 +1064,39 @@ function vacance(c: CommuneFiche): Vacance | null {
   const x = d?.c[c.code];
   if (!d || !x || x.length === 0) return null;
   return { serie: x.map(([millesime, vacants, longue, parc]) => ({ millesime, vacants, longue, parc })), maj: d.maj };
+}
+
+function cantines(c: CommuneFiche): Cantines | null {
+  const d = cantinesDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || x.length === 0) return null;
+  return {
+    restaurants: x.map(([nom, secteurs, modele, gestion, production, repas, centrale, bio, egalim, origine]) => ({
+      nom,
+      secteurs: secteurs ? secteurs.split(' ; ') : [],
+      public: modele === null ? null : modele === 0,
+      concede: gestion === null ? null : gestion === 1,
+      production,
+      repas,
+      centrale,
+      bio,
+      egalimHorsBio: egalim,
+      viaCentrale: origine === 1,
+    })),
+    campagne: d.campagne,
+    maj: d.maj,
+  };
+}
+
+function police(c: CommuneFiche): Police | null {
+  const d = policeDep.get(c.dep);
+  if (!d) return null;
+  const x = d.c[c.code];
+  return {
+    effectifs: x ? { agents: x[0], asvp: x[1], gardes: x[2], enCommun: x[3] === 1 } : null,
+    annee: d.annee,
+    maj: d.maj,
+  };
 }
 
 function decheteries(c: CommuneFiche): Decheteries | null {
@@ -1587,6 +1659,48 @@ export function investissementCollectivite(echelon: 'intercommunalite' | 'depart
   };
 }
 
+type SecoursFichier = {
+  maj: string;
+  annees: number[];
+  familles: string[];
+  services: Record<string, { nom: string; categorie: string; serie: ((number | null)[] | null)[] }>;
+};
+const secoursFichier = national<SecoursFichier>('secours.json');
+
+/** Un service d'incendie et de secours et ses interventions (`scripts/secours-emettre.ts`). */
+export interface ServiceSecours {
+  /** « le SDIS », « la brigade de sapeurs-pompiers de Paris », « le bataillon de marins-pompiers de Marseille ». */
+  nom: string;
+  /** Ce que le service couvre, quand ce n'est pas tout le département. */
+  couvre: string | null;
+  serie: ((number | null)[] | null)[];
+}
+export interface Secours {
+  services: ServiceSecours[];
+  annees: number[];
+  familles: string[];
+  maj: string;
+}
+
+const PETITE_COURONNE = new Set(['75', '92', '93', '94']);
+
+/** Les services d'incendie et de secours qui interviennent dans un département. */
+export function secoursDepartement(dep: string): Secours | null {
+  const d = secoursFichier();
+  if (!d) return null;
+  const services: ServiceSecours[] = [];
+  if (PETITE_COURONNE.has(dep) && d.services.BSPP) {
+    services.push({ nom: 'la brigade de sapeurs-pompiers de Paris', couvre: 'Paris, les Hauts-de-Seine, la Seine-Saint-Denis et le Val-de-Marne', serie: d.services.BSPP.serie });
+  } else if (d.services[dep]) {
+    services.push({ nom: 'le service départemental d’incendie et de secours (SDIS)', couvre: dep === '13' ? 'le département hors Marseille' : null, serie: d.services[dep].serie });
+  }
+  if (dep === '13' && d.services.BMPM) {
+    services.push({ nom: 'le bataillon de marins-pompiers de Marseille', couvre: 'Marseille', serie: d.services.BMPM.serie });
+  }
+  if (services.length === 0) return null;
+  return { services, annees: d.annees, familles: d.familles, maj: d.maj };
+}
+
 /** Le taux d'accueil du jeune enfant d'une intercommunalité, d'un département ou d'une région. */
 export function petiteEnfanceCollectivite(echelon: 'intercommunalite' | 'departement' | 'region', cle: string): PetiteEnfance | null {
   const d = petiteEnfanceFichier();
@@ -1737,6 +1851,8 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     immobilier: immobilier(c),
     ecoles: ecoles(c),
     delinquance: delinquance(c),
+    police: police(c),
+    cantines: cantines(c),
     agriculture: agriculture(c),
     energie: energie(c),
     votes: votes(c),

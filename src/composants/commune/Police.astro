@@ -1,0 +1,44 @@
+---
+/**
+ * La police municipale, d'après l'enquête annuelle du ministère de
+ * l'Intérieur (`scripts/police-emettre.ts`). Une commune absente de l'enquête
+ * n'a pas déclaré de service : la page le dit au nom de l'enquête, sans en
+ * conclure davantage.
+ */
+import type { Police } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  p: Police;
+  /** Rappeler qui assure la sécurité publique — sauf si le bloc de la délinquance, qui suit, le dit déjà. */
+  rappel: boolean;
+}
+const { p, rappel } = Astro.props;
+const e = p.effectifs;
+const n = (v: number, un: string, plusieurs: string) => `${v.toLocaleString('fr-FR')} ${v > 1 ? plusieurs : un}`;
+const parts = e
+  ? [
+      e.agents > 0 && n(e.agents, 'agent de police municipale', 'agents de police municipale'),
+      e.asvp > 0 && n(e.asvp, 'agent de surveillance de la voie publique', 'agents de surveillance de la voie publique'),
+      e.gardes > 0 && n(e.gardes, 'garde champêtre', 'gardes champêtres'),
+    ].filter((x): x is string => !!x)
+  : [];
+const liste = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} et ${parts.at(-1)}` : (parts[0] ?? '');
+---
+<p class="mesure">
+  {e
+    ? (parts.length > 0
+        ? `À l’enquête ${p.annee} du ministère de l’Intérieur, la commune déclare ${liste}.`
+        : `À l’enquête ${p.annee} du ministère de l’Intérieur, la commune déclare un service de police municipale, sans agent en poste.`) +
+      (e.enCommun ? ' Ses agents sont mis en commun avec d’autres communes.' : '')
+    : `La commune ne déclare pas de service de police municipale à l’enquête ${p.annee} du ministère de l’Intérieur.`}
+  {rappel && (
+    <>
+      {' La '}<a href="/n/police-municipale">police municipale</a>{' est placée sous l’autorité du maire ; la sécurité publique relève, elle, de la '}
+      <a href="/n/gendarmerie">gendarmerie</a>{' ou de la '}<a href="/n/police-nationale">police nationale</a>{'.'}
+    </>
+  )}
+</p>
+<p class="p-source-territoire">
+  {`D’après l’enquête sur les effectifs de police municipale du ministère de l’Intérieur, ${p.annee}, sous Licence Ouverte (lue le ${p.maj}). ` +
+    'Les services portés par une intercommunalité n’y sont pas rattachés à une commune.'}
+</p>
