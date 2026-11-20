@@ -186,8 +186,12 @@ export function brancherEstimation(): void {
       $('se-total').textContent = `${euros(arrondi(total))}`;
       fourchette.textContent = `Entre ${euros(arrondi(b.lo))} et ${euros(arrondi(b.hi))}`;
       precisionTexte.textContent =
-        `Sur des ventes que le simulateur n’avait pas vues, ${sur} ${anneaux === 0 ? 'dans les communes mesurées seules' : 'dans les communes mesurées avec leurs voisines'} ` +
-        `${niveau === 0.5 ? 's’est vendue' : 'se sont vendues'} dans cette fourchette autour de ${niveau === 0.5 ? 'son' : 'leur'} estimation (contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %). ` +
+        // La part mesurée vaut pour la fourchette centrée sur l'estimation ; déplacée par l'état, elle n'est plus vérifiée.
+        (etatConnu && etat !== 0
+          ? `Sans l’état, cette fourchette contenait ${niveau === 0.5 ? 'la moitié' : niveau === 0.8 ? 'huit sur dix' : 'neuf sur dix'} des ventes que le simulateur n’avait pas vues ${anneaux === 0 ? 'dans les communes mesurées seules' : 'dans les communes mesurées avec leurs voisines'} ` +
+            `(contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %) ; déplacée par l’état, cette part n’est plus vérifiée. `
+          : `Sur des ventes que le simulateur n’avait pas vues, ${sur} ${anneaux === 0 ? 'dans les communes mesurées seules' : 'dans les communes mesurées avec leurs voisines'} ` +
+            `${niveau === 0.5 ? 's’est vendue' : 'se sont vendues'} dans cette fourchette autour de ${niveau === 0.5 ? 'son' : 'leur'} estimation (contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %). `) +
         'Plus la fourchette est large, plus elle a de chances de contenir le prix, et moins elle en dit. ' +
         (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette est celle sans étiquette. ` : '') +
         `Ont servi ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`}. ` +
