@@ -1,0 +1,149 @@
+---
+/**
+ * La précision du simulateur d'estimation, mesurée et publiée
+ * (`scripts/banc-estimation.ts`) : la méthode du banc d'essai, et ses
+ * résultats pour la France, par taille de marché et par département, à côté
+ * d'une référence naïve. Décision du 20 novembre 2026 : un modèle publie sa
+ * précision, et ce qu'il gagne sur la méthode la plus simple.
+ */
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import Base from '../../layouts/Base.astro';
+
+type Mesure = { ventes: number; couverture: number; ecartMedian: number | null; q1: number | null; q3: number | null; a10: number | null; a20: number | null };
+type Banc = {
+  maj: string;
+  annees: number[];
+  plis: number;
+  graine: number;
+  modeles: { id: string; nom: string }[];
+  france: Record<string, Mesure>;
+  departements: Record<string, Record<string, Mesure>>;
+  tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
+};
+const base = join(process.cwd(), 'public', 'territoires');
+const lire = <T,>(f: string): T | null => (existsSync(join(base, f)) ? (JSON.parse(readFileSync(join(base, f), 'utf8')) as T) : null);
+const banc = lire<Banc>('simulateurs/estimation/banc.json');
+const index = lire<{ deps: Record<string, string> }>('index.json');
+// Au dixième : l'écart entre les deux modèles se joue parfois à un ou deux points.
+const pc = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString('fr-FR')} %`);
+const r2 = (x: number | null) => (x === null ? '—' : x.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const entier = (n: number) => n.toLocaleString('fr-FR');
+const f = banc?.france;
+const gain = f && f.surface.ecartMedian !== null && f.naif.ecartMedian !== null ? f.naif.ecartMedian - f.surface.ecartMedian : null;
+const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].localeCompare(b[0])) : [];
+---
+<Base
+  titre="La précision du simulateur d’estimation"
+  description="Le simulateur d’estimation mis à l’épreuve sur des ventes qu’il n’a pas vues : sa méthode, son écart aux prix réels, et ce qu’il gagne sur la méthode la plus simple."
+  section="simulateurs"
+>
+  <div class="page page--etroite">
+    <p class="badge"><a href="/simulateurs">Simulateurs</a> · <a href="/simulateurs/estimation">Estimer un bien</a></p>
+    <h1>La précision du simulateur d’estimation</h1>
+    <p class="resume">
+      Un simulateur qui ne dit pas de combien il se trompe n’est pas transparent. Celui-ci est mis à l’épreuve à chaque
+      mise à jour des ventes, sur des ventes qu’il n’a pas vues, et comparé à la méthode la plus simple.
+    </p>
+
+    {!banc || !f ? (
+      <p class="mesure p-incertain">Le banc d’essai n’a pas encore été calculé : il le sera à la prochaine mise à jour des données.</p>
+    ) : (
+      <>
+        <h2 class="badge">Le résultat</h2>
+        <p class="mesure">
+          {`Sur ${entier(f.surface.ventes)} ventes de maisons de ${banc.annees[0]} à ${banc.annees.at(-1)}, l’estimation du simulateur s’écarte du prix réel de ${pc(f.surface.ecartMedian)} en médiane : `}
+          {`une vente sur deux s’est vendue à moins de ${pc(f.surface.ecartMedian)} au-dessus ou au-dessous de son estimation, l’autre plus loin. `}
+          {`${pc(f.surface.a10)} des ventes tombent à 10 % près, ${pc(f.surface.a20)} à 20 % près. `}
+          {gain !== null &&
+            (gain >= 0.01
+              ? `La référence naïve — le prix médian au mètre carré de la commune, multiplié par la surface — s’écarte de ${pc(f.naif.ecartMedian)} : le simulateur fait mieux de ${(Math.round(gain * 1000) / 10).toLocaleString('fr-FR')} point${gain >= 0.02 ? 's' : ''}.`
+              : `La référence naïve — le prix médian au mètre carré de la commune, multiplié par la surface — s’écarte de ${pc(f.naif.ecartMedian)} : le simulateur ne fait pas nettement mieux qu’elle.`)}
+        </p>
+        <div class="cpt-defile" tabindex="0" role="region" aria-label="Le résultat — le tableau défile sur les petits écrans">
+          <table class="cpt-tableau">
+            <caption>Écart aux prix réels, sur des ventes que le modèle n’a pas vues</caption>
+            <thead>
+              <tr><th scope="col">Modèle</th><th scope="col">Écart médian</th><th scope="col">À 10 % près</th><th scope="col">À 20 % près</th><th scope="col">Prix / estimation, moitié centrale</th><th scope="col">Ventes estimées</th></tr>
+            </thead>
+            <tbody>
+              {banc.modeles.map((m) => {
+                const x = f[m.id];
+                return (
+                  <tr>
+                    <th scope="row">{m.nom}</th>
+                    <td>{pc(x.ecartMedian)}</td>
+                    <td>{pc(x.a10)}</td>
+                    <td>{pc(x.a20)}</td>
+                    <td>{`${r2(x.q1)} à ${r2(x.q3)}`}</td>
+                    <td>{pc(x.couverture)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="badge">Selon la taille du marché</h2>
+        <p class="mesure">
+          Une commune qui vend peu de maisons emprunte les ventes de ses voisines. C’est là que le simulateur doit apporter le
+          plus : la référence naïve n’y dispose que de quelques ventes.
+        </p>
+        <div class="cpt-defile" tabindex="0" role="region" aria-label="Selon la taille du marché — le tableau défile sur les petits écrans">
+          <table class="cpt-tableau">
+            <caption>Écart médian, par nombre de ventes de maisons dans la commune</caption>
+            <thead>
+              <tr><th scope="col">Commune</th><th scope="col">Ventes</th>{banc.modeles.map((m) => <th scope="col">{m.id === 'surface' ? 'Simulateur' : 'Référence naïve'}</th>)}</tr>
+            </thead>
+            <tbody>
+              {banc.tailles.map((t) => (
+                <tr>
+                  <th scope="row">{t.nom}</th>
+                  <td>{entier(t.mesures.surface.ventes)}</td>
+                  {banc.modeles.map((m) => <td>{pc(t.mesures[m.id].ecartMedian)}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {deps.length > 1 && (
+          <>
+            <h2 class="badge">Par département</h2>
+            <div class="cpt-defile" tabindex="0" role="region" aria-label="Par département — le tableau défile sur les petits écrans">
+              <table class="cpt-tableau">
+                <caption>Écart médian du simulateur et de la référence naïve</caption>
+                <thead>
+                  <tr><th scope="col">Département</th><th scope="col">Ventes</th><th scope="col">Simulateur</th><th scope="col">Référence naïve</th></tr>
+                </thead>
+                <tbody>
+                  {deps.map(([d, m]) => (
+                    <tr>
+                      <th scope="row">{index?.deps[d] ?? d}</th>
+                      <td>{entier(m.surface.ventes)}</td>
+                      <td>{pc(m.surface.ecartMedian)}</td>
+                      <td>{pc(m.naif.ecartMedian)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        <h2 class="badge">La méthode</h2>
+        <ul class="accueil-themes">
+          <li><strong>Dix parts</strong>&nbsp;: {`les ventes de maisons sont réparties en ${banc.plis} parts par un tirage pseudo-aléatoire, de graine ${banc.graine} : le tirage se refait à l’identique.`}</li>
+          <li><strong>Des ventes que le modèle n’a pas vues</strong>&nbsp;: pour chaque part, tout le simulateur est recalculé sans elle — prix unitaires et voisinage compris —, puis chacune de ses ventes est estimée comme le fait la page, sans étiquette énergétique ni état du bâtiment.</li>
+          <li><strong>L’écart</strong>&nbsp;: pour chaque vente, le prix réel divisé par l’estimation. L’écart médian est celui qui partage les ventes en deux moitiés ; la moitié centrale, l’intervalle où tombe la moitié des rapports.</li>
+          <li><strong>La référence naïve</strong>&nbsp;: le prix médian au mètre carré habitable des maisons de la commune vendues sans terres ni bois — le chiffre de sa page —, multiplié par la surface ; celui du département quand la commune a moins de cinq ventes. Le simulateur doit faire mieux qu’elle, ou le dire.</li>
+          <li><strong>Ce qui manque</strong>&nbsp;: les ventes ne disent rien de l’état d’une maison, de sa vue ni de ses prestations. C’est l’essentiel de l’écart, et la raison du curseur d’état sur le simulateur.</li>
+          <li><strong>Un contrôle indépendant</strong>&nbsp;: les mesures ont été recalculées par un programme distinct, à partir des mêmes rapports, et le tirage refait dans un autre langage.</li>
+        </ul>
+        <p class="p-source-territoire">
+          {`Calculé le ${banc.maj} sur les demandes de valeurs foncières de la DGFiP (version géolocalisée d’Etalab, Licence Ouverte), ventes de ${banc.annees[0]} à ${banc.annees.at(-1)}. Le code du banc d’essai est public : scripts/banc-estimation.ts.`}
+        </p>
+      </>
+    )}
+  </div>
+</Base>
