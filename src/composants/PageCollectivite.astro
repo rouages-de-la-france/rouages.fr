@@ -18,7 +18,8 @@ import {
   type Collectivite,
 } from '../modele/fiche-commune.ts';
 import { communes, intercommunalites, lienIntercommunalite, metaTerritoires } from '../modele/territoires.ts';
-import { investissementCollectivite, petiteEnfanceCollectivite, zonagesGroupe } from '../modele/fiche-vie.ts';
+import { investissementCollectivite, petiteEnfanceCollectivite, secoursDepartement, zonagesGroupe } from '../modele/fiche-vie.ts';
+import Secours from './Secours.astro';
 import ZonagesGroupe from './ZonagesGroupe.astro';
 import CarteCommunes from './CarteCommunes.astro';
 import CentEuros from './CentEuros.astro';
@@ -111,6 +112,8 @@ const comparaison = protections ? comparaisonProtections(deps, depsRegion) : nul
 // Le réseau, le car, le médecin : même partage que le bilan des protections pour le Rhône et la Métropole.
 const portee = c.code === '691' ? null : bilanPortee(deps, depsRegion);
 const investissement = c.echelon === 'departement' ? investissementCollectivite('departement', c.code) : null;
+// Les secours du département ; la Métropole de Lyon partage le SDMIS du Rhône, montré sur la page du Rhône.
+const secours = c.echelon === 'departement' && deps.length === 1 && c.code !== '691' ? secoursDepartement(deps[0]) : null;
 const petiteEnfance = partage || c.code === '67A' ? null : petiteEnfanceCollectivite(c.echelon, c.code);
 
 // L'échelon voisin : la région d'un département.
@@ -245,6 +248,12 @@ const titre = c.echelon === 'departement' ? c.nom : `${c.nom}${unique ? '' : ' (
       <section id="petite-enfance">
         <h2 class="badge">L’accueil des tout-petits</h2>
         <PetiteEnfance p={petiteEnfance} />
+      </section>
+    )}
+    {secours && (
+      <section id="secours">
+        <h2 class="badge">Les secours</h2>
+        <Secours s={secours} />
       </section>
     )}
     {elus && (

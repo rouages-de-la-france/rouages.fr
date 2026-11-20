@@ -1,0 +1,69 @@
+---
+/**
+ * Les interventions des services d'incendie et de secours d'un département,
+ * d'après la statistique annuelle de la sécurité civile
+ * (`scripts/secours-emettre.ts`) : les grandes familles, sur cinq ans.
+ */
+import type { Secours } from '../modele/fiche-vie.ts';
+
+interface Props {
+  s: Secours;
+}
+const { s } = Astro.props;
+const entier = (v: number | null) => (v === null ? '—' : v.toLocaleString('fr-FR'));
+const der = s.annees.length - 1;
+const iTotal = s.familles.indexOf('total');
+const iSap = s.familles.indexOf('secours à personne');
+const LIBELLES: Record<string, string> = {
+  incendies: 'Incendies',
+  'secours à personne': 'Secours à personne',
+  'accidents de circulation': 'Accidents de circulation',
+  'risques technologiques': 'Risques technologiques',
+  'opérations diverses': 'Opérations diverses',
+  total: 'Total',
+};
+const phrase = (sv: Secours['services'][number]) => {
+  const d = sv.serie[der];
+  if (!d || d[iTotal] === null) return null;
+  const total = d[iTotal]!;
+  const sap = d[iSap];
+  return (
+    `En ${s.annees[der]}, ${sv.nom}${sv.couvre ? ` (${sv.couvre})` : ''} a mené ${entier(total)} interventions, ` +
+    `soit ${entier(Math.round(total / 365))} interventions par jour en moyenne` +
+    (sap !== null ? ` ; ${Math.round((sap / total) * 100)} % étaient des secours à personne.` : '.')
+  );
+};
+---
+{s.services.map((sv, n) => (
+  <>
+    <p class="mesure">{phrase(sv)}</p>
+    <div class="cpt-defile" tabindex="0" role="region" aria-label={`Les interventions${s.services.length > 1 ? ` (${n + 1})` : ''} — le tableau défile sur les petits écrans`}>
+      <table class="cpt-tableau">
+        <caption>Interventions par famille et par année</caption>
+        <thead>
+          <tr>
+            <th scope="col">Famille</th>
+            {s.annees.map((a) => <th scope="col">{a}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {s.familles.map((f, i) => (
+            <tr>
+              <th scope="row">{LIBELLES[f] ?? f}</th>
+              {sv.serie.map((x) => <td>{x ? entier(x[i]) : '—'}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+))}
+<p class="p-strate">
+  {'Le service départemental d’incendie et de secours est un établissement public que financent le département, les communes et les intercommunalités ; '}
+  {'à Paris et dans la petite couronne, comme à Marseille, ce sont des unités militaires de l’État. Les secours à personne — malaises, chutes, accidents à domicile — '}
+  {'sont l’essentiel de leur activité, loin devant les incendies.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après les statistiques des services d’incendie et de secours de la direction générale de la sécurité civile et de la gestion des crises (ministère de l’Intérieur), ` +
+    `éditions ${s.annees[0]} à ${s.annees[der]}, sous Licence Ouverte (lues le ${s.maj}). « — » : année non publiée.`}
+</p>

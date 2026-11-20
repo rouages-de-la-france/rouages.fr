@@ -910,6 +910,30 @@ async function principal() {
   );
   if (vacance) grise(`${ecrireVacance(SORTIE, vacance)} départements de vacance écrits.`);
 
+  // La police municipale (enquête annuelle du ministère de l'Intérieur).
+  const { collecterPolice, ecrirePolice } = await import('./police-emettre.ts');
+  const police = await tenter('Police municipale', () =>
+    collecterPolice(enCache('Police municipale — enquête (0,2 Mo)'), async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, CACHE, grise),
+  );
+  if (police) grise(`${ecrirePolice(SORTIE, police)} départements de police municipale écrits.`);
+
+  // Les interventions des services d'incendie et de secours (sécurité civile), cinq ans.
+  const { collecterSecours, ecrireSecours } = await import('./secours-emettre.ts');
+  const secours = await tenter('Interventions des secours', () =>
+    collecterSecours(enCache('Interventions des SIS (0,2 Mo)'), async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, CACHE, grise),
+  );
+  if (secours) {
+    ecrireSecours(SORTIE, secours);
+    grise('Interventions des secours écrites.');
+  }
+
+  // Les restaurants collectifs et leurs achats (Ma Cantine, ministère de l'Agriculture).
+  const { collecterCantines, ecrireCantines } = await import('./cantines-emettre.ts');
+  const cantines = await tenter('Cantines', () =>
+    collecterCantines(enCache('Ma Cantine — registre et campagne (33 Mo)'), async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, CACHE, grise),
+  );
+  if (cantines) grise(`${ecrireCantines(SORTIE, cantines)} départements de cantines écrits.`);
+
   // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
   // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
   const { collecterBatiments } = await import('./batiments-emettre.ts');
