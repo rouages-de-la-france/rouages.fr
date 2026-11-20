@@ -1,0 +1,44 @@
+---
+/**
+ * La zone à faibles émissions qui couvre la commune (`scripts/zfe-emettre.ts`).
+ * La page dit qu'elle existe, depuis quand et sur quelle part de la commune,
+ * et renvoie à la collectivité pour les vignettes interdites : la base
+ * nationale n'est pas toujours à jour de leur calendrier.
+ */
+import type { Zfe } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  z: Zfe;
+}
+const { z } = Astro.props;
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const date = (iso: string) => {
+  const [a, m, j] = iso.split('-').map(Number);
+  return `${j === 1 ? '1er' : j} ${MOIS[m - 1]} ${a}`;
+};
+const part = (p: number) => (p >= 99 ? 'toute la commune' : p === 0 ? 'une petite partie de la commune' : `environ ${p} % de la commune`);
+---
+{z.zones.map((zone) => (
+  <p class="mesure">
+    {`Une zone à faibles émissions couvre ${part(zone.part)} depuis le ${date(zone.debut)}${zone.porteur ? ` (collectivité : ${zone.porteur})` : ''}. `}
+    {zone.sansRestriction
+      ? 'La base nationale n’y déclare, pour l’instant, aucune restriction de circulation. '
+      : 'Les véhicules les plus polluants, selon leur vignette Crit’Air, y sont interdits de circulation. '}
+    {zone.site && (
+      <>
+        {'Les vignettes concernées, les horaires et les dérogations : '}
+        <a href={zone.site} target="_blank" rel="noopener">le site de la collectivité</a>
+        {'.'}
+      </>
+    )}
+  </p>
+))}
+<p class="p-strate">
+  {'Ses règles — vignettes interdites, horaires, dérogations — sont fixées par la collectivité qui la porte. '}
+  {'Le Conseil constitutionnel a censuré, le 21 mai 2026, la suppression des zones à faibles émissions votée au printemps : elles restent en vigueur. La part de la commune est approchée.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après la base nationale consolidée des zones à faibles émissions, point d’accès national aux données de transport (transport.data.gouv.fr), lue le ${z.maj}. `}
+  {'Cette base est publiée sous '}<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>
+  {' : la liste des communes couvertes qui en est tirée l’est aussi, dans un fichier à part. La base dépend des déclarations des collectivités, et peut être incomplète.'}
+</p>

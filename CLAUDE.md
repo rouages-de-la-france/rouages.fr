@@ -38,7 +38,7 @@ npm run relecture-autorisations  réécrit la fiche de relecture du praticien (d
 npm run verifier-parcelle    le test d'appartenance de la lecture du PLU, sans réseau
 npm run relecture-parcelle   réécrit la fiche de relecture de la parcelle (docs/11-…), en lisant le Géoportail
 npm run verifier-types       les types, fichiers .astro compris — `tsc` seul ne les voit pas
-npm run verifier-accessibilite  axe-core sur vingt et une pages du build, en clair, en sombre et à 390 px
+npm run verifier-accessibilite  axe-core sur vingt-deux pages du build, en clair, en sombre et à 390 px
 npm run build                valide puis génère (le build refuse un contenu invalide)
 npm run relire               les fiches encore à vérifier contre leur source
 npm run veille               l'état des sources surveillées
@@ -50,7 +50,7 @@ docker compose run --rm sonde    ce que la connexion de la machine joint
 ```
 
 `npm run territoires` dure une quarantaine de minutes et touche plus de trente
-sources — dont quatre-vingt-huit collectes facultatives, isolées : celle qui échoue laisse en
+sources — dont quatre-vingt-dix collectes facultatives, isolées : celle qui échoue laisse en
 place les fichiers de l'ingestion précédente plutôt que de tout emporter. Ce qui
 reste fatal, ce sont les référentiels dont dépend la structure du réseau,
 BANATIC et le découpage.

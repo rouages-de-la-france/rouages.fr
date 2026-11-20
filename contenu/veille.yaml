@@ -1043,6 +1043,96 @@ surveillances:
     ressource: "fichier csv casias"
     lien: od-brgm-casias
 
+  # Ajoutées du 17 au 20 novembre 2026.
+  - id: lovac
+    nom: "LOVAC — logements vacants du parc privé"
+    alimente: "la vacance de longue durée dans le parc privé de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/logements-vacants-du-parc-prive-par-commune-departement-region-france-de-2020-a-2026"
+    lien: od-lovac
+
+  - id: bdnb
+    nom: "BDNB — base de données nationale des bâtiments"
+    alimente: "l'âge, l'usage et le logement social des bâtiments de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/base-de-donnees-nationale-des-batiments"
+    lien: od-bdnb
+
+  - id: sinoe-decheteries
+    nom: "SINOE — annuaire des déchèteries"
+    alimente: "les déchèteries de la commune et leur mode de gestion"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/sinoe-r-annuaire-des-decheteries-dma"
+    lien: od-sinoe-decheteries
+
+  - id: police-municipale
+    nom: "Ministère de l'Intérieur — effectifs de police municipale"
+    alimente: "la police municipale de la commune"
+    type: disponibilite
+    licence: licence-ouverte-1.0
+    url: "https://www.data.gouv.fr/datasets/police-municipale-effectifs-par-commune"
+    lien: od-police-municipale
+
+  - id: secours-interventions
+    nom: "Ministère de l'Intérieur — interventions des SIS"
+    alimente: "les interventions des secours, sur la page du département"
+    type: disponibilite
+    licence: licence-ouverte-1.0
+    url: "https://www.data.gouv.fr/datasets/interventions-realisees-par-les-services-d-incendie-et-de-secours"
+    lien: od-secours
+
+  - id: ma-cantine
+    nom: "Ma Cantine — registre et télédéclarations"
+    alimente: "les cantines de la commune et leurs achats EGalim"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/registre-national-des-cantines"
+    lien: od-cantines
+
+  - id: onf-forets
+    nom: "ONF — forêts publiques"
+    alimente: "les forêts publiques qui s'étendent sur la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/forets-publiques-diffusion-publique"
+    lien: od-onf-forets
+
+  - id: ign-boisement
+    nom: "IGN — taux de boisement communal"
+    alimente: "le taux de boisement de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities"
+    lien: od-ign-boisement
+
+  - id: sandre-steu
+    nom: "Sandre — stations de traitement des eaux usées"
+    alimente: "les stations d'épuration de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/ouvrages-de-depollution-odp-systraitementeauxusees"
+    lien: od-sandre-steu
+
+  - id: opendatafrance
+    nom: "OpenDataFrance — Observatoire open data des territoires"
+    alimente: "la publication de données ouvertes par la commune et son intercommunalité"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/datasets/donnees-de-lobservatoire-open-data-des-territoires-edition-2022"
+    lien: od-opendatafrance
+
+  - id: zfe
+    nom: "Base nationale des zones à faibles émissions"
+    alimente: "les zones à faibles émissions en vigueur qui couvrent la commune"
+    type: disponibilite
+    licence: odbl
+    fichiers: ["zfe.json"]
+    url: "https://www.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions"
+    lien: od-zfe
+
 decouverte:
   mots_cles:
     - "intercommunalité compétences"

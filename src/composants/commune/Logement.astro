@@ -84,11 +84,16 @@ const terrainsNus = x ? x.batir.ventes + x.terres.ventes + x.bois.ventes : 0;
     <h3 class="p-titre-echelon">{`Ce qu’ils se vendent, de ${immobilier!.annees[0]} à ${immobilier!.annees.at(-1)}`}</h3>
     <p class="mesure">
       {m.maisons > 0 &&
-        `${entier(m.maisons)} maison${m.maisons > 1 ? 's vendues' : ' vendue'}` +
+        `${entier(m.maisons)} maison${m.maisons > 1 ? 's vendues' : ' vendue'}${x?.avecTerres ? ' sans terres ni bois' : ''}` +
           (m.prixMaison !== null
             ? `, pour un prix médian de ${euros(m.prixMaison)}, soit ${euros(m.m2Maison!)} le mètre carré habitable` +
               (d?.m2Maison ? ` (${depNom} : ${euros(d.m2Maison)})` : '') + '.'
             : ` — trop peu pour une médiane, qui demande ${immobilier!.minimum} ventes.`)}
+      {x?.avecTerres && x.avecTerres.ventes > 0 &&
+        ` ${x.avecTerres.ventes > 1 ? `${entier(x.avecTerres.ventes)} autres maisons, vendues` : 'Une autre maison, vendue'} avec des terres, des prés ou des bois, ` +
+          `${x.avecTerres.ventes > 1 ? 'sont comptées' : 'est comptée'} à part` +
+          (x.avecTerres.prix !== null ? ` (prix médian : ${euros(x.avecTerres.prix)})` : '') +
+          ' : leur prix comprend celui des terres.'}
       {m.appartements > 0 &&
         ` ${entier(m.appartements)} appartement${m.appartements > 1 ? 's vendus' : ' vendu'}` +
           (m.m2Appartement !== null
@@ -140,7 +145,8 @@ const terrainsNus = x ? x.batir.ventes + x.terres.ventes + x.bois.ventes : 0;
     </p>
     <p class="p-source-territoire">
       {`D’après les demandes de valeurs foncières de la DGFiP, version géolocalisée publiée par data.gouv (${immobilier!.maj}). ` +
-        'Ne sont comptées que les ventes d’un seul logement, avec ou sans dépendances, dans une seule commune ; la médiane est le prix ' +
+        'Ne sont comptées que les ventes d’un seul logement, avec ou sans dépendances, dans une seule commune ; une maison vendue avec des terres, ' +
+        'des prés, des landes, des vignes, des vergers ou des bois est comptée à part, son prix comprenant celui des terres. La médiane est le prix ' +
         'qui partage ces ventes en deux moitiés, la fourchette celle des quartiles — la moitié des ventes tombe entre les deux. ' +
         'Les terrains nus sont les ventes sans aucun local, d’une seule nature cadastrale : terrains à bâtir à partir de 100 m², ' +
         'terres et prés, bois à partir de 1 000 m² ; les vignes et les vergers, dont le prix tient à l’appellation, n’y sont pas. ' +
