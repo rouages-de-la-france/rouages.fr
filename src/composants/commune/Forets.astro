@@ -1,0 +1,55 @@
+---
+/**
+ * Les forêts de la commune (`scripts/forets-emettre.ts`) : le taux de
+ * boisement de l'Observatoire des forêts de l'IGN, et les forêts publiques
+ * que l'ONF gère au titre du régime forestier, avec la part de la commune
+ * qu'elles couvrent — approchée, comme pour les espaces naturels.
+ */
+import type { Forets } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  f: Forets;
+}
+const { f } = Astro.props;
+const entier = (n: number) => Math.round(n).toLocaleString('fr-FR');
+const part = (p: number) => (p === 0 ? 'moins de 1 %' : `${entier(p)} %`);
+const b = f.boisement;
+const essences = b
+  ? [
+      b.feuillus > 0 && `${entier(b.feuillus)} ha de feuillus`,
+      b.coniferes > 0 && `${entier(b.coniferes)} ha de conifères`,
+      b.mixtes > 0 && `${entier(b.mixtes)} ha de peuplements mixtes`,
+    ].filter((x): x is string => !!x)
+  : [];
+const liste = (l: string[]) => (l.length > 1 ? `${l.slice(0, -1).join(', ')} et ${l.at(-1)}` : (l[0] ?? ''));
+---
+{b && (
+  <p class="mesure">
+    {`La forêt couvre ${entier(b.hectares)} hectares de la commune, soit ${entier(b.taux)} % de sa surface` +
+      (essences.length > 0 ? ` : ${liste(essences)}` : '') +
+      (b.annee ? `, d’après les photographies aériennes de ${b.annee}.` : '.')}
+  </p>
+)}
+{f.publiques.length > 0 ? (
+  <>
+    <p class="mesure">
+      {f.publiques.length > 1
+        ? `${entier(f.publiques.length)} forêts publiques s’étendent sur la commune ; l’Office national des forêts les gère au titre du régime forestier :`
+        : 'Une forêt publique s’étend sur la commune ; l’Office national des forêts la gère au titre du régime forestier :'}
+    </p>
+    <ul class="mesure">
+      {f.publiques.map((x, i) => (
+        <li>{`${x.nom}${x.domaniale ? ', forêt de l’État' : ''} — ${part(x.part)} de la commune${i === f.publiques.length - 1 ? '.' : ' ;'}`}</li>
+      ))}
+    </ul>
+  </>
+) : (
+  <p class="mesure">Aucune forêt publique relevant du régime forestier ne s’étend sur la commune.</p>
+)}
+<p class="p-strate">
+  {'Une forêt qui appartient à l’État, à une commune, une section de commune, un département ou un établissement public relève du régime forestier : sa gestion est confiée à l’Office national des forêts. '}
+  {'Une forêt est montrée sur les communes où elle s’étend, qui ne sont pas toujours sa propriétaire : son nom dit à qui elle est. La part est approchée.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après les forêts publiques de l’Office national des forêts et le taux de boisement communal de l’Observatoire des forêts (IGN), servis par la Géoplateforme, sous Licence Ouverte (lus le ${f.maj}).`}
+</p>

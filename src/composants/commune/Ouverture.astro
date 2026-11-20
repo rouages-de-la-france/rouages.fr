@@ -1,0 +1,58 @@
+---
+/**
+ * La commune et son intercommunalité à l'Observatoire open data des
+ * territoires d'OpenDataFrance (`scripts/opendata-emettre.ts`) : une
+ * photographie datée, que la page date à chaque phrase. Ne pas y figurer ne
+ * veut pas dire ne rien publier aujourd'hui.
+ */
+import type { Ouverture, Publication } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  o: Ouverture;
+}
+const { o } = Astro.props;
+const [a, m, j] = o.edition.split('-');
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const date = `${Number(j) === 1 ? '1er' : Number(j)} ${MOIS[Number(m) - 1]} ${a}`;
+const jeux = (n: number) => (n > 1 ? `${n.toLocaleString('fr-FR')} jeux de données` : n === 1 ? 'un jeu de données' : 'aucun jeu de données');
+/** Ce qu'une organisation publiait : sur sa plateforme, sur data.gouv.fr, ou les deux. */
+const ou = (p: Publication) =>
+  [
+    p.jeuxPlateforme !== null && { texte: `${jeux(p.jeuxPlateforme)} sur ${p.plateforme && p.plateforme !== 'DataGouv' ? `la plateforme ${p.plateforme}` : 'une plateforme'}`, lien: p.adressePlateforme },
+    p.jeuxDatagouv !== null && { texte: `${jeux(p.jeuxDatagouv)} sur data.gouv.fr`, lien: p.adresseDatagouv },
+  ].filter((x): x is { texte: string; lien: string } => !!x);
+const commune = o.commune ? ou(o.commune) : [];
+const epci = o.epci ? ou(o.epci) : [];
+---
+<p class="mesure">
+  {o.commune
+    ? <>
+        {`Au ${date}, l’Observatoire open data des territoires recensait la commune parmi les collectivités qui publient leurs données : `}
+        {commune.map((x, i) => (
+          <>
+            {i > 0 && ', et '}
+            {x.lien ? <a href={x.lien} target="_blank" rel="noopener">{x.texte}</a> : x.texte}
+          </>
+        ))}
+        {'.'}
+      </>
+    : `Au ${date}, l’Observatoire open data des territoires ne recensait aucune publication de données de la commune.`}
+  {o.epci && (
+    <>
+      {` Son intercommunalité, ${o.epci.nom}, y figurait : `}
+      {epci.map((x, i) => (
+        <>
+          {i > 0 && ', et '}
+          {x.lien ? <a href={x.lien} target="_blank" rel="noopener">{x.texte}</a> : x.texte}
+        </>
+      ))}
+      {'.'}
+    </>
+  )}
+</p>
+<p class="p-strate">
+  {'C’est la dernière édition publiée : une collectivité qui publie depuis n’y figure pas. Les délibérations, les marchés et les subventions que la commune met en ligne au format du socle commun sont, eux, lus à chaque ingestion et montrés plus haut quand il y en a.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après l’Observatoire open data des territoires d’OpenDataFrance, édition arrêtée au ${date}, sous Licence Ouverte (lu le ${o.maj}).`}
+</p>

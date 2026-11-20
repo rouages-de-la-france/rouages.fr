@@ -934,6 +934,21 @@ async function principal() {
   );
   if (cantines) grise(`${ecrireCantines(SORTIE, cantines)} départements de cantines écrits.`);
 
+  // Les collectivités qui publient en open data (Observatoire d'OpenDataFrance, édition datée).
+  const { collecterOuverture, ecrireOuverture } = await import('./opendata-emettre.ts');
+  const ouverture = await tenter('Open data des territoires', () =>
+    collecterOuverture(enCache('Observatoire open data des territoires (0,3 Mo)'), async <T,>(url: string) => (await obstine(url)).json() as Promise<T>, CACHE, grise),
+  );
+  if (ouverture) {
+    ecrireOuverture(SORTIE, ouverture);
+    grise('Open data des territoires écrit.');
+  }
+
+  // Les stations de traitement des eaux usées (référentiel du Sandre, en WFS).
+  const { collecterStations, ecrireStations } = await import('./steu-emettre.ts');
+  const stations = await tenter('Stations d’épuration', () => collecterStations(CACHE, grise));
+  if (stations) grise(`${ecrireStations(SORTIE, stations)} départements de stations d’épuration écrits.`);
+
   // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
   // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
   const { collecterBatiments } = await import('./batiments-emettre.ts');
@@ -1181,6 +1196,11 @@ async function principal() {
   const { collecterEspaces, ecrireEspaces } = await import('./espaces-emettre.ts');
   const espaces = await tenter('Espaces naturels', () => collecterEspaces(SORTIE, CACHE, grise));
   if (espaces) grise(`${ecrireEspaces(SORTIE, espaces)} départements d’espaces naturels écrits.`);
+
+  // Les forêts publiques de l'ONF et le taux de boisement (Géoplateforme), sur les contours des communes.
+  const { collecterForets, ecrireForets } = await import('./forets-emettre.ts');
+  const forets = await tenter('Forêts', () => collecterForets(SORTIE, CACHE, grise));
+  if (forets) grise(`${ecrireForets(SORTIE, forets)} départements de forêts écrits.`);
 
   // Le patrimoine mondial : la liste de l'UNESCO et les périmètres régionaux, croisés avec les mêmes contours.
   const { collecterPatrimoineMondial, ecrirePatrimoineMondial } = await import('./patrimoine-mondial-emettre.ts');

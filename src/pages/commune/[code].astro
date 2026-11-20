@@ -75,6 +75,8 @@ import Reseaux from '../../composants/commune/Reseaux.astro';
 import Delinquance from '../../composants/commune/Delinquance.astro';
 import Police from '../../composants/commune/Police.astro';
 import Cantines from '../../composants/commune/Cantines.astro';
+import Ouverture from '../../composants/commune/Ouverture.astro';
+import Forets from '../../composants/commune/Forets.astro';
 import Agriculture from '../../composants/commune/Agriculture.astro';
 import Votes from '../../composants/commune/Votes.astro';
 import Sols from '../../composants/commune/Sols.astro';
@@ -122,7 +124,7 @@ import Culture from '../../composants/commune/Culture.astro';
 import SolsPollues from '../../composants/commune/SolsPollues.astro';
 import Installations from '../../composants/commune/Installations.astro';
 import Lieux from '../../composants/commune/Lieux.astro';
-import { complementsVie } from '../../modele/fiche-vie.ts';
+import { complementsVie, ouverture } from '../../modele/fiche-vie.ts';
 
 export function getStaticPaths() {
   // `ROUAGES_DEPS` restreint la génération à quelques départements : engendrer
@@ -152,6 +154,7 @@ const siegesCc = siegesCommunautaires(fiche);
 const acheteurCommune = plus.marches.find((a) => a.natureLibelle === 'la commune');
 const epciFp = fiche?.structures.find((x) => intercommunalite(x.siren));
 const acheteurEpci = epciFp ? plus.marches.find((a) => a.siren === epciFp.siren) : undefined;
+const ouvertureIci = ouverture(commune.code, epciFp ? { siren: epciFp.siren, nom: epciFp.nom } : null);
 const rapprochementsParElu = new Map<string, Rapprochement[]>();
 for (const d of fiche?.declarations ?? []) {
   const acheteurs = [
@@ -391,6 +394,7 @@ const sommaire: [string, string, unknown][] = [
   ['marches', 'Les marchés', plus.marches.length > 0],
   ['deliberations', 'Les délibérations', plus.deliberations.length > 0],
   ['subventions', 'Les subventions', plus.subventions.length > 0],
+  ['donnees-ouvertes', 'Ses données ouvertes', ouvertureIci],
   ['europe', 'L’Europe', vie.europe],
   ['associations', 'Les associations', (plus.associations && (plus.associations.total > 0 || plus.associations.existantes > 0)) || droitLocal],
   ['entreprises', 'Les entreprises', plus.presentes || plus.entreprises],
@@ -403,9 +407,10 @@ const sommaire: [string, string, unknown][] = [
   ['petite-enfance', 'Les tout-petits', vie.petiteEnfance],
   ['ecoles', 'Les écoles', vie.ecoles],
   ['cantines', 'Les cantines', vie.cantines],
-  ['reseaux', 'Eau, assainissement, fibre, énergie', vie.eau || vie.assainissement || vie.fibre || vie.energie],
+  ['reseaux', 'Eau, assainissement, fibre, énergie', vie.eau || vie.assainissement || vie.stations || vie.fibre || vie.energie],
   ['secheresse', 'Les restrictions d’eau', vie.secheresse],
   ['nature', 'Les espaces naturels', espaces],
+  ['forets', 'Les forêts', vie.forets],
   ['mobile', 'Le mobile : antennes et couverture', vie.antennes || vie.couvertureMobile],
   ['production', 'L’électricité produite', vie.production],
   ['culture', 'Les lieux culturels', vie.culture],
@@ -442,7 +447,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'argent',
     nom: 'L’argent',
-    blocs: ['financeurs', 'comptes', 'dotations', 'investissement', 'ccas', 'caf', 'preleve', 'intercommunalite', 'marches', 'deliberations', 'subventions', 'europe'],
+    blocs: ['financeurs', 'comptes', 'dotations', 'investissement', 'ccas', 'caf', 'preleve', 'intercommunalite', 'marches', 'deliberations', 'subventions', 'donnees-ouvertes', 'europe'],
   },
   {
     id: 'habitants',
@@ -462,7 +467,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'environnement',
     nom: 'Environnement et patrimoine',
-    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'production', 'culture', 'monuments', 'a-voir'],
+    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'forets', 'production', 'culture', 'monuments', 'a-voir'],
   },
   { id: 'suivre', nom: 'Suivre la commune', blocs: ['journal', 'ailleurs'] },
 ];
@@ -1075,6 +1080,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
+    {ouvertureIci && (
+      <section id="donnees-ouvertes">
+        <h2 class="badge">Ses données ouvertes</h2>
+        <Ouverture o={ouvertureIci} />
+      </section>
+    )}
+
     {vie.europe && (
       <section id="europe">
         <h2 class="badge">Ce que l’Europe a cofinancé</h2>
@@ -1201,10 +1213,10 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       </section>
     )}
 
-    {(vie.eau || vie.assainissement || vie.fibre || vie.energie) && (
+    {(vie.eau || vie.assainissement || vie.stations || vie.fibre || vie.energie) && (
       <section id="reseaux">
         <h2 class="badge">Les réseaux qui y arrivent</h2>
-        <Reseaux eau={vie.eau} assainissement={vie.assainissement} fibre={vie.fibre} energie={vie.energie} />
+        <Reseaux eau={vie.eau} assainissement={vie.assainissement} stations={vie.stations} fibre={vie.fibre} energie={vie.energie} />
       </section>
     )}
 
@@ -1219,6 +1231,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       <section id="nature">
         <h2 class="badge">Les espaces naturels</h2>
         <EspacesNaturels e={espaces} nom={commune.nom} />
+      </section>
+    )}
+
+    {vie.forets && (
+      <section id="forets">
+        <h2 class="badge">Ses forêts</h2>
+        <Forets f={vie.forets} />
       </section>
     )}
 
