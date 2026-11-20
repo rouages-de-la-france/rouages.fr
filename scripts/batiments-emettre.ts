@@ -35,7 +35,7 @@
  * ou pour tous.
  */
 import { spawn } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { indisponible } from './echecs.ts';
@@ -112,10 +112,32 @@ export async function dernierMillesime(json: <T>(url: string) => Promise<T>): Pr
   return m[m.length - 1];
 }
 
-function dejaCalcule(sortie: string, millesime: string): boolean {
+/**
+ * L'année de construction des maisons, parcelle par parcelle, pour le
+ * simulateur d'estimation (`estimation-emettre.ts`) : un fichier par
+ * département, gardé dans le cache — il ne se publie pas, il sert à rapprocher
+ * une vente de son bâtiment. La plus ancienne des maisons (« résidentiel
+ * individuel ») de la parcelle, d'après les fichiers fonciers que reprend la BDNB.
+ */
+export const fichierAnnees = (cache: string, dep: string) => join(cache, 'bdnb-annees', `${dep}.json`);
+
+/** L'année de construction de chaque parcelle d'un département, si le fichier existe. */
+export function anneesParcelles(cache: string, dep: string): Map<string, number> | null {
+  const f = fichierAnnees(cache, dep);
+  if (!existsSync(f)) return null;
+  try {
+    return new Map(Object.entries((JSON.parse(readFileSync(f, 'utf8')) as { p: Record<string, number> }).p));
+  } catch {
+    return null;
+  }
+}
+
+function dejaCalcule(sortie: string, millesime: string, cache: string): boolean {
   const dossier = join(sortie, 'dep');
   const fichiers = readdirSync(dossier).filter((f) => f.endsWith('-batiments.json'));
   if (fichiers.length < 90) return false;
+  // Les années des parcelles, ajoutées après les fichiers des communes : leur absence suffit à tout relire.
+  if (!fichiers.every((f) => existsSync(fichierAnnees(cache, f.replace('-batiments.json', ''))))) return false;
   return fichiers.every((f) => {
     try {
       return (JSON.parse(readFileSync(join(dossier, f), 'utf8')) as { millesime?: string }).millesime === millesime;
@@ -129,7 +151,10 @@ function dejaCalcule(sortie: string, millesime: string): boolean {
 export async function lireDepartement(
   archive: string,
   reports: { actuelles: Set<string>; reports: Map<string, string> },
+  /** Rempli, s'il est donné : l'année de construction de la plus ancienne maison de chaque parcelle. */
+  annees?: Map<string, number>,
 ): Promise<Map<string, BatimentsCommune>> {
+  const anneeDuGroupe = new Map<string, number>();
   const communeDuGroupe = new Map<string, string>();
   const communes = new Map<string, BatimentsCommune>();
   const de = (id: string) => {
@@ -157,7 +182,10 @@ export async function lireDepartement(
     c[1]++;
     c[2] += entier(r.nb_log);
     const a = Number(r.annee_construction);
-    if (a > 1000 && a <= new Date().getUTCFullYear()) c[3][BORNES.filter((b) => a >= b).length]++;
+    if (a > 1000 && a <= new Date().getUTCFullYear()) {
+      c[3][BORNES.filter((b) => a >= b).length]++;
+      if (annees && r.usage_niveau_1_txt === 'Résidentiel individuel') anneeDuGroupe.set(r.batiment_groupe_id, a);
+    }
   }
   for await (const r of table(archive, 'batiment_groupe_rnc')) {
     const c = de(r.batiment_groupe_id);
@@ -189,6 +217,13 @@ export async function lireDepartement(
     if (i >= 0) c[8][i]++;
   }
   for (const c of communes.values()) c[6][2] = c[6][2].sort((x, y) => y[0] - x[0]).slice(0, ENSEMBLES);
+  if (annees) {
+    for await (const r of table(archive, 'rel_batiment_groupe_parcelle')) {
+      const a = anneeDuGroupe.get(r.batiment_groupe_id);
+      const p = r.parcelle_id.replace(/"/g, '').trim();
+      if (a && p && !(annees.get(p)! <= a)) annees.set(p, a);
+    }
+  }
   return communes;
 }
 
@@ -202,7 +237,7 @@ export async function collecterBatiments(
   seuls?: string[],
 ): Promise<{ millesime: string; departements: number } | null> {
   const millesime = await dernierMillesime(json);
-  if (!process.env.ROUAGES_BDNB_FORCER && !seuls && dejaCalcule(sortie, millesime)) {
+  if (!process.env.ROUAGES_BDNB_FORCER && !seuls && dejaCalcule(sortie, millesime, cache)) {
     dire(`  Bâtiments : déjà calculés pour le millésime ${millesime} de la BDNB ; rien à refaire.`);
     return null;
   }
@@ -219,7 +254,10 @@ export async function collecterBatiments(
     const archive = join(cache, `bdnb-${millesime}-${dep}.zip`);
     try {
       await telecharger(ARCHIVE(millesime, dep), archive);
-      const communes = await lireDepartement(archive, reports);
+      const annees = new Map<string, number>();
+      const communes = await lireDepartement(archive, reports, annees);
+      mkdirSync(join(cache, 'bdnb-annees'), { recursive: true });
+      writeFileSync(fichierAnnees(cache, dep), JSON.stringify({ millesime, p: Object.fromEntries(annees) }));
       const c = Object.fromEntries([...communes].filter(([code]) => code.startsWith(dep)).sort());
       writeFileSync(
         join(sortie, 'dep', `${dep}-batiments.json`),

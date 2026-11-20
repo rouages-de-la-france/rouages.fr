@@ -20,10 +20,14 @@ type Estimation = [
   number,
   number,
   (number | null)?,
+  (number | null)?,
+  (number | null)?,
 ];
-type EffetsDpe = { multiplicateurs: Record<string, number>; ventes: number; repartition: Record<string, number>; ecart: [number, number]; portee: string };
-type Intervalles = { niveaux: number[]; classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }> };
-type Fichier = { maj: string; annees: number[]; tailles: [number, number]; partActivite: number; dpe: EffetsDpe | null; c: Record<string, Estimation> };
+type EffetsDpe = { multiplicateurs: Record<string, number>; ventes: number; repartition: Record<string, number>; ecart: [number, number]; portee: string; sachantPeriode?: Record<string, number> };
+type EffetsPeriode = { multiplicateurs: number[]; periodes: string[]; ventes: number; ecart: [number, number]; portee: string };
+type ClassesIntervalles = Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }>;
+type Intervalles = { niveaux: number[]; classes: ClassesIntervalles; periode?: ClassesIntervalles };
+type Fichier = { maj: string; annees: number[]; tailles: [number, number]; partActivite: number; dpe: EffetsDpe | null; periode?: EffetsPeriode | null; c: Record<string, Estimation> };
 
 const LIEUX: OptionsLieu = { source: '/jeux/territoires.json', genres: ['commune'] };
 const euros = (x: number) => `${Math.round(x).toLocaleString('fr-FR')} €`;
@@ -60,11 +64,25 @@ export function brancherEstimation(): void {
     const etat = Number((form.elements.namedItem('etat') as HTMLInputElement).value) / 100;
     // L'étiquette : le prix d'une maison de cette étiquette, rapporté à celui d'une maison ordinaire de la commune.
     const etiquette = (form.elements.namedItem('dpe') as HTMLSelectElement).value;
-    const melange = e[10] ?? null;
-    const effetDpe = etiquette && f.dpe && melange ? f.dpe.multiplicateurs[etiquette] / melange : 1;
+    // La période de construction : le prix d'une maison de cette période, rapporté à celui d'une maison ordinaire de la commune.
+    const periodeChoisie = (form.elements.namedItem('periode') as HTMLSelectElement).value;
+    const k = periodeChoisie === '' ? -1 : Number(periodeChoisie);
+    const melangePeriode = e[11] ?? null;
+    const effetPeriode = k >= 0 && f.periode && melangePeriode ? f.periode.multiplicateurs[k] / melangePeriode : 1;
+    // Les deux donnés : l'étiquette à période égale, pour ne pas compter deux fois l'âge de la maison.
+    const conjoint = effetPeriode !== 1 && !!etiquette;
+    const melange = conjoint ? (e[12] ?? null) : (e[10] ?? null);
+    const multEtiquette = conjoint ? f.dpe?.sachantPeriode : f.dpe?.multiplicateurs;
+    const effetEtiquette = etiquette && multEtiquette && melange ? multEtiquette[etiquette] / melange : 1;
+    const effetDpe = effetEtiquette * effetPeriode;
+    $('se-periode-note').textContent =
+      k >= 0 && f.periode && melangePeriode
+        ? `Une maison ${f.periode.periodes[k] === 'avant 1919' || f.periode.periodes[k] === 'depuis 2006' ? 'construite ' : 'de '}${f.periode.periodes[k]} vaut ${Math.round((effetPeriode - 1) * 100) >= 0 ? '+' : '−'}${Math.abs(Math.round((effetPeriode - 1) * 100))} % par rapport à une maison ordinaire de la commune, d’après ${f.periode.ventes.toLocaleString('fr-FR')} ventes datées par la base nationale des bâtiments (${f.periode.portee}).` +
+          (etiquette && !f.dpe?.sachantPeriode ? ' L’étiquette n’est pas comptée en plus : son effet à période égale n’est pas mesuré ici.' : '')
+        : '';
     $('se-dpe-note').textContent =
       etiquette && f.dpe && melange
-        ? `Une maison ${etiquette} vaut ${Math.round((effetDpe - 1) * 100) >= 0 ? '+' : '−'}${Math.abs(Math.round((effetDpe - 1) * 100))} % par rapport à une maison ordinaire de la commune, d’après ${f.dpe.ventes.toLocaleString('fr-FR')} ventes rapprochées d’un DPE (${f.dpe.portee}).`
+        ? `Une maison ${etiquette} vaut ${Math.round((effetEtiquette - 1) * 100) >= 0 ? '+' : '−'}${Math.abs(Math.round((effetEtiquette - 1) * 100))} % par rapport à une maison ordinaire de la commune${conjoint ? ' de la même période' : ''}, d’après ${f.dpe.ventes.toLocaleString('fr-FR')} ventes rapprochées d’un DPE (${f.dpe.portee}).`
         : f.dpe
           ? 'Sans étiquette, l’estimation vaut pour une maison ordinaire de la commune.'
           : '';
@@ -72,7 +90,7 @@ export function brancherEstimation(): void {
 
     const lignes: { part: string; surface: string; prix: string; valeur: number | null; note?: string }[] = [];
     const bati = H > 0 || A > 0;
-    if (H > 0) lignes.push({ part: 'Habitable', surface: m2(H), prix: h ? `${euros(Math.round(h * effetDpe))}/m²` : '—', valeur: h ? h * effetDpe * H * (1 + etat) : null, note: effetDpe !== 1 ? `étiquette ${etiquette}` : undefined });
+    if (H > 0) lignes.push({ part: 'Habitable', surface: m2(H), prix: h ? `${euros(Math.round(h * effetDpe))}/m²` : '—', valeur: h ? h * effetDpe * H * (1 + etat) : null, note: effetDpe !== 1 ? [etiquette && effetEtiquette !== 1 && `étiquette ${etiquette}`, k >= 0 && f.periode && `${f.periode.periodes[k]}`].filter(Boolean).join(', ') : undefined });
     if (A > 0) lignes.push({ part: 'Local d’activité', surface: m2(A), prix: h ? `${Math.round(part * 100)} % de ${euros(h)}/m²` : '—', valeur: h ? h * part * A * (1 + etat) : null });
     if (C > 0) {
       // Le terrain d'une maison se mesure dans les ventes de maisons ; un terrain seul, dans les ventes de terrain seul.
@@ -115,7 +133,8 @@ export function brancherEstimation(): void {
     precisionTexte.textContent = '';
     // La fourchette au niveau choisi, calibrée sur le banc d'essai ; à défaut, la moitié centrale mesurée dans la commune.
     const niveau = Number((form.elements.namedItem('niveau') as RadioNodeList | null)?.value ?? 0.8) || 0.8;
-    const classe = intervalles?.classes[anneaux === 0 ? 'seule' : 'voisines'];
+    const jeu = effetPeriode !== 1 && intervalles?.periode ? intervalles.periode : intervalles?.classes;
+    const classe = jeu?.[anneaux === 0 ? 'seule' : 'voisines'];
     const rang = intervalles ? intervalles.niveaux.indexOf(niveau) : -1;
     $('se-niveau').hidden = !(bati && classe);
     if (bati && classe && rang >= 0 && !manque && total > 0) {
@@ -175,6 +194,12 @@ export function brancherEstimation(): void {
     $('se-titre').textContent = `${aLieu(lieu.nom).replace(/^./, (x) => x.toUpperCase())}, ventes de ${f.annees[0]} à ${f.annees[f.annees.length - 1]}`;
     (form.elements.namedItem('part') as HTMLInputElement).value = String(Math.round(f.partActivite * 100));
     $('se-dpe-bloc').hidden = !(f.dpe && e[10]);
+    // La période : les choix de la base des bâtiments, quand l'effet est mesuré pour ce département.
+    const choixPeriode = form.elements.namedItem('periode') as HTMLSelectElement;
+    const garde = choixPeriode.value;
+    choixPeriode.replaceChildren(new Option('Je ne sais pas', ''), ...(f.periode?.periodes ?? []).map((p, i) => new Option(p, String(i))));
+    choixPeriode.value = garde && f.periode ? garde : '';
+    $('se-periode-bloc').hidden = !(f.periode && e[11]);
     if (!restaure) {
       restaurerSaisie(form);
       restaure = true;

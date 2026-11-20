@@ -991,7 +991,8 @@ async function principal() {
     if (bancAJour(SORTIE, dvf.annees)) grise('Banc d’essai de l’estimation : déjà calculé pour ces années.');
     else await tenter('Banc d’essai de l’estimation', async () => {
       const { lireVoisines } = await import('./estimation-emettre.ts');
-      const b = banc(dvf.biens, lireVoisines(SORTIE), dvf.annees, grise);
+      const meta = JSON.parse(readFileSync(join(SORTIE, 'meta.json'), 'utf8')) as { codesRegion: Record<string, string> };
+      const b = banc(dvf.biens, lireVoisines(SORTIE), dvf.annees, grise, undefined, undefined, (d) => meta.codesRegion[d] ?? d);
       ecrireBanc(SORTIE, b);
       return b;
     });
