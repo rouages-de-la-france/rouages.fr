@@ -68,7 +68,7 @@ export function brancherEstimation(): void {
     curseur.disabled = !etatConnu;
     $('se-etat-curseur').hidden = !etatConnu;
     $('se-etat-aide').textContent = etatConnu
-      ? 'Votre jugement déplace l’estimation ; il ne la rend pas plus sûre aux yeux du simulateur : les ventes ne disent rien de l’état, et l’effet de ce curseur ne peut pas être mesuré.'
+      ? 'Votre jugement place la maison dans la fourchette mesurée, sans la faire sortir de ses bornes : un bon état remonte la borne basse, un mauvais abaisse la borne haute.'
       : 'Non renseigné : l’estimation vaut pour une maison dans l’état moyen de celles vendues autour.';
     const etat = etatConnu ? Number(curseur.value) / 100 : 0;
     // L'étiquette : le prix d'une maison de cette étiquette, rapporté à celui d'une maison ordinaire de la commune.
@@ -132,7 +132,22 @@ export function brancherEstimation(): void {
       tbody.append(tr);
     }
     const manque = lignes.some((l) => l.valeur === null);
-    const total = lignes.reduce((s, l) => s + (l.valeur ?? 0), 0);
+    const brut = lignes.reduce((s, l) => s + (l.valeur ?? 0), 0);
+    // Le bâti seul porte l'état ; sans lui, l'estimation d'une maison dans l'état moyen de celles vendues autour.
+    const bati_ = lignes.filter((l) => l.part === 'Habitable' || l.part === 'Local d’activité').reduce((s, l) => s + (l.valeur ?? 0), 0);
+    const base = brut - bati_ + bati_ / (1 + etat);
+    /**
+     * La fourchette mesurée contient déjà des maisons dans tous les états. L'état indiqué ne peut pas en faire
+     * sortir : il dit dans quelle partie de la fourchette la maison se trouve. Un bon état remonte la borne basse,
+     * un mauvais abaisse la borne haute ; l'estimation reste entre les deux.
+     */
+    const borner = (bas: number, haut: number) => {
+      const r = base > 0 ? brut / base : 1;
+      const lo = base * bas * (r > 1 ? r : 1);
+      const hi = base * haut * (r < 1 ? r : 1);
+      return { lo, hi, estimation: Math.min(Math.max(brut, lo), hi), butee: brut > hi || brut < lo };
+    };
+    let total = brut;
     $('se-total').textContent = lignes.length === 0 ? '—' : `${manque ? 'au moins ' : ''}${euros(arrondi(total))}`;
     $('se-resultat').hidden = lignes.length === 0;
 
@@ -150,19 +165,31 @@ export function brancherEstimation(): void {
       const [bas, haut] = classe.bornes[rang];
       const tenue = classe.tenue[rang];
       const sur = niveau === 0.5 ? 'une maison sur deux' : niveau === 0.8 ? 'huit maisons sur dix' : 'neuf maisons sur dix';
-      fourchette.textContent = `Entre ${euros(arrondi(total * bas))} et ${euros(arrondi(total * haut))}`;
+      const b = borner(bas, haut);
+      total = b.estimation;
+      $('se-total').textContent = `${euros(arrondi(total))}`;
+      fourchette.textContent = `Entre ${euros(arrondi(b.lo))} et ${euros(arrondi(b.hi))}`;
       precisionTexte.textContent =
         `Sur des ventes que le simulateur n’avait pas vues, ${sur} ${anneaux === 0 ? 'dans les communes mesurées seules' : 'dans les communes mesurées avec leurs voisines'} ` +
-        `se sont vendues dans cette fourchette autour de leur estimation (contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %). ` +
+        `${niveau === 0.5 ? 's’est vendue' : 'se sont vendues'} dans cette fourchette autour de ${niveau === 0.5 ? 'son' : 'leur'} estimation (contrôle sur des ventes tenues à part : ${Math.round(tenue * 100)} %). ` +
         'Plus la fourchette est large, plus elle a de chances de contenir le prix, et moins elle en dit. ' +
         (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette est celle sans étiquette. ` : '') +
         `Ont servi ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`}. ` +
-        (etatConnu
-          ? 'La fourchette ne tient pas compte de l’état que vous indiquez : il déplace l’estimation, mais son effet ne peut pas être mesuré sur les ventes, qui ne disent rien de l’état d’une maison.'
+        (etatConnu && etat !== 0
+          ? `L’état que vous indiquez ne fait pas sortir de la fourchette mesurée, qui contient déjà des maisons dans tous les états : il la resserre, ${etat > 0 ? 'en remontant sa borne basse' : 'en abaissant sa borne haute'}` +
+            (b.butee
+              ? niveau === 0.5
+                ? ', et place la maison à son extrémité. Cette fourchette ne contient qu’une vente sur deux : pour un état aussi marqué, la fourchette large dit mieux où la maison peut se situer. '
+                : `, et place la maison à son extrémité : au-delà, il ne reste qu’${niveau === 0.8 ? 'une vente sur dix' : 'une vente sur vingt'}. `
+              : '. ') +
+            'De combien exactement, les ventes ne permettent pas de le mesurer : elles ne disent rien de l’état d’une maison.'
           : 'L’état d’une maison est l’essentiel de l’écart : les ventes n’en disent rien. Vous pouvez l’indiquer ci-dessus.');
     } else if (bati && precision && !manque && total > 0) {
       const [ecart, bas, haut] = precision;
-      fourchette.textContent = `Entre ${euros(arrondi(total * bas))} et ${euros(arrondi(total * haut))}`;
+      const b = borner(bas, haut);
+      total = b.estimation;
+      $('se-total').textContent = `${euros(arrondi(total))}`;
+      fourchette.textContent = `Entre ${euros(arrondi(b.lo))} et ${euros(arrondi(b.hi))}`;
       precisionTexte.textContent =
         (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette ci-dessus est celle sans étiquette. ` : '') +
         `La moitié des ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`} ` +
