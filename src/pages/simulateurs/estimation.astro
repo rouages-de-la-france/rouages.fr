@@ -73,11 +73,15 @@ const mayet = !filtre?.length || filtre.includes('03');
           </select>
           <small id="se-dpe-note"></small>
         </label>
-        <label class="se-etat">
-          L’état du bâtiment, à votre jugement — au-delà de ce que dit l’étiquette&nbsp;: <strong id="se-etat-valeur">tel quel</strong>
-          <input type="range" name="etat" min="-40" max="40" step="5" value="0" />
-          <span class="se-etat-bornes"><span>à rénover entièrement</span><span>refait à neuf</span></span>
-        </label>
+        <div class="se-etat">
+          <label class="se-etat-case"><input type="checkbox" name="etatConnu" /> J’indique l’état du bâtiment</label>
+          <small id="se-etat-aide">Non renseigné : l’estimation vaut pour une maison dans l’état moyen de celles vendues autour.</small>
+          <label class="se-etat-curseur" id="se-etat-curseur" hidden>
+            L’état, à votre jugement — au-delà de ce que disent l’année et l’étiquette&nbsp;: <strong id="se-etat-valeur">moyen</strong>
+            <input type="range" name="etat" min="-40" max="40" step="5" value="0" disabled />
+            <span class="se-etat-bornes"><span>à rénover entièrement</span><span>moyen</span><span>refait à neuf</span></span>
+          </label>
+        </div>
       </form>
 
       <section id="se-resultat" class="jeu-carte" hidden aria-live="polite">
@@ -107,7 +111,7 @@ const mayet = !filtre?.length || filtre.includes('03');
       <li><strong>Le voisinage</strong>&nbsp;: un village vend peu. Chaque commune est mesurée avec ses voisines, un anneau après l’autre, jusqu’à cent ventes de maisons et quinze de chaque terrain&nbsp;; la page dit combien ont servi.</li>
       <li><strong>L’année de construction</strong>&nbsp;: les ventes ne la disent pas, mais la base nationale des bâtiments du CSTB donne celle de chaque maison, parcelle par parcelle. Sur les ventes ainsi datées, on mesure, région par région, ce que chaque période change au prix d’une maison, à surface, terrain et commune égaux. Mise à l’épreuve, elle réduit l’écart de l’estimation&nbsp;; si vous ne la donnez pas, l’estimation vaut pour une maison ordinaire de la commune.</li>
       <li><strong>L’étiquette énergétique</strong>&nbsp;: les ventes ne la disent pas, mais la base des DPE de l’ADEME donne l’adresse de chaque diagnostic. Une vente de maison est rapprochée d’un DPE de la même commune, à moins de 30&nbsp;m, établi dans les deux ans avant la vente, pour une surface proche. Sur ces ventes, on mesure ce que chaque étiquette change au prix d’une maison, à surface, terrain et commune égaux, par rapport à une maison D. L’écart s’applique à la maison et à son terrain, rapporté aux étiquettes des maisons de la commune&nbsp;: une estimation sans étiquette vaut pour une maison ordinaire du lieu. L’effet est mesuré région par région.</li>
-      <li><strong>La précision</strong>&nbsp;: les ventes de maisons sont partagées en cinq, chaque cinquième estimé par les quatre autres. La fourchette est celle où tombe la moitié de ces ventes. Les ventes ne disent rien de l’état d’une maison&nbsp;: c’est l’essentiel de l’écart, et la raison du curseur. La fourchette affichée, resserrée, large ou très large au choix, est tirée du banc d’essai, qui met le simulateur entier à l’épreuve en dix parts et face à une référence naïve&nbsp;: <a href="/simulateurs/estimation-precision">sa précision, mesurée et publiée</a>.</li>
+      <li><strong>La précision</strong>&nbsp;: les ventes de maisons sont partagées en cinq, chaque cinquième estimé par les quatre autres. La fourchette est celle où tombe la moitié de ces ventes. Les ventes ne disent rien de l’état d’une maison&nbsp;: c’est l’essentiel de l’écart. Vous pouvez l’indiquer vous-même&nbsp;; il déplace alors l’estimation, mais la fourchette reste celle mesurée, faute de pouvoir mesurer ce que vaut ce jugement. La fourchette affichée, resserrée, large ou très large au choix, est tirée du banc d’essai, qui met le simulateur entier à l’épreuve en dix parts et face à une référence naïve&nbsp;: <a href="/simulateurs/estimation-precision">sa précision, mesurée et publiée</a>.</li>
     </ul>
 
     <h2 class="badge">Sources</h2>
@@ -157,6 +161,9 @@ const mayet = !filtre?.length || filtre.includes('03');
   .se-dpe select { font: inherit; color: var(--encre); background: var(--fond-carte); border: 1px solid var(--trait); border-radius: var(--rayon); padding: .35rem .5rem; }
   .se-dpe small { color: var(--encre-douce); font-size: .78rem; }
   .se-etat { display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
+  .se-etat-case { display: flex; align-items: center; gap: .4rem; }
+  .se-etat small { color: var(--encre-douce); font-size: .78rem; }
+  .se-etat-curseur { display: flex; flex-direction: column; gap: .3rem; }
   .se-etat input[type="range"] { accent-color: var(--accent); }
   .se-etat-bornes { display: flex; justify-content: space-between; color: var(--encre-douce); font-size: .78rem; }
   .se-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin: 0 0 .8rem; }

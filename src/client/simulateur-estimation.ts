@@ -61,7 +61,16 @@ export function brancherEstimation(): void {
     const C = champ('constructible');
     const Na = champ('agricole');
     const Nb = champ('bois');
-    const etat = Number((form.elements.namedItem('etat') as HTMLInputElement).value) / 100;
+    // L'état : non renseigné tant que la case n'est pas cochée — l'estimation vaut alors pour une maison dans l'état
+    // moyen de celles vendues autour ; une fois cochée, le curseur part de « moyen ».
+    const etatConnu = (form.elements.namedItem('etatConnu') as HTMLInputElement).checked;
+    const curseur = form.elements.namedItem('etat') as HTMLInputElement;
+    curseur.disabled = !etatConnu;
+    $('se-etat-curseur').hidden = !etatConnu;
+    $('se-etat-aide').textContent = etatConnu
+      ? 'Votre jugement déplace l’estimation ; il ne la rend pas plus sûre aux yeux du simulateur : les ventes ne disent rien de l’état, et l’effet de ce curseur ne peut pas être mesuré.'
+      : 'Non renseigné : l’estimation vaut pour une maison dans l’état moyen de celles vendues autour.';
+    const etat = etatConnu ? Number(curseur.value) / 100 : 0;
     // L'étiquette : le prix d'une maison de cette étiquette, rapporté à celui d'une maison ordinaire de la commune.
     const etiquette = (form.elements.namedItem('dpe') as HTMLSelectElement).value;
     // La période de construction : le prix d'une maison de cette période, rapporté à celui d'une maison ordinaire de la commune.
@@ -86,7 +95,7 @@ export function brancherEstimation(): void {
         : f.dpe
           ? 'Sans étiquette, l’estimation vaut pour une maison ordinaire de la commune.'
           : '';
-    $('se-etat-valeur').textContent = etat === 0 ? 'tel quel' : `${etat > 0 ? '+' : '−'}${Math.abs(Math.round(etat * 100))} % sur le bâti`;
+    $('se-etat-valeur').textContent = etat === 0 ? 'moyen' : `${etat > 0 ? '+' : '−'}${Math.abs(Math.round(etat * 100))} % sur le bâti`;
 
     const lignes: { part: string; surface: string; prix: string; valeur: number | null; note?: string }[] = [];
     const bati = H > 0 || A > 0;
@@ -148,7 +157,9 @@ export function brancherEstimation(): void {
         'Plus la fourchette est large, plus elle a de chances de contenir le prix, et moins elle en dit. ' +
         (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette est celle sans étiquette. ` : '') +
         `Ont servi ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`}. ` +
-        'Le curseur d’état sert à réduire l’écart : les ventes ne disent rien de l’état d’une maison.';
+        (etatConnu
+          ? 'La fourchette ne tient pas compte de l’état que vous indiquez : il déplace l’estimation, mais son effet ne peut pas être mesuré sur les ventes, qui ne disent rien de l’état d’une maison.'
+          : 'L’état d’une maison est l’essentiel de l’écart : les ventes n’en disent rien. Vous pouvez l’indiquer ci-dessus.');
     } else if (bati && precision && !manque && total > 0) {
       const [ecart, bas, haut] = precision;
       fourchette.textContent = `Entre ${euros(arrondi(total * bas))} et ${euros(arrondi(total * haut))}`;
@@ -156,7 +167,7 @@ export function brancherEstimation(): void {
         (f.dpe && etiquette ? `Avec l’étiquette, l’écart médian passe de ${Math.round(f.dpe.ecart[0] * 100)} à ${Math.round(f.dpe.ecart[1] * 100)} % sur les ventes rapprochées d’un DPE (${f.dpe.portee}) ; la fourchette ci-dessus est celle sans étiquette. ` : '') +
         `La moitié des ${nMaisons} ventes de maisons ${anneaux === 0 ? 'de la commune' : `de la commune et de ses voisines (${anneaux} anneau${anneaux > 1 ? 'x' : ''})`} ` +
         `se sont vendues dans cette fourchette autour de leur estimation ; l’écart médian est de ${Math.round(ecart * 100)} %. ` +
-        'Le curseur d’état sert à le réduire : les ventes ne disent rien de l’état d’une maison.';
+        'L’état d’une maison est l’essentiel de l’écart : les ventes n’en disent rien.';
     } else if (!bati && lignes.length) {
       precisionTexte.textContent = `Terrains : les prix sont les médianes de ${e[7]} ventes de terres, ${e[8]} de bois et ${e[9]} de terrain constructible seul, dans la commune et autour. Leur précision n’est pas mesurée, comme celle des maisons : une médiane dit le prix du milieu, pas l’écart autour.`;
     }
