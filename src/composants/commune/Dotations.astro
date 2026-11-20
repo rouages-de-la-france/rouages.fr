@@ -62,6 +62,12 @@ const lignes = p
   </dl>
 )}
 {cn > 0 && <p class="mesure">{`S’y ajoute la dotation des communes nouvelles : ${eur(cn)}.`}</p>}
+{d.voirie && (
+  <p class="mesure">
+    {`La voirie retenue pour le calcul${d.voirie.annee ? ` de ${d.voirie.annee}` : ''} mesure ${(d.voirie.metres / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km : ` +
+      'elle compte dans deux fractions de la dotation de solidarité rurale, et double en montagne.'}
+  </p>
+)}
 <p class="p-strate">
   La dotation globale de fonctionnement des communes réunit la dotation forfaitaire, la dotation de solidarité
   rurale — destinée pour l’essentiel aux communes de moins de 10&nbsp;000 habitants, en trois fractions —, la
@@ -69,5 +75,6 @@ const lignes = p
 </p>
 <p class="p-source-territoire">
   {`D’après les montants notifiés par la Direction générale des collectivités locales, tels que l’OFGL les republie (${d.maj}). ` +
-    'Les comptes, plus haut, disent ce que la commune a encaissé ; ces montants sont ceux que l’État lui a attribués pour l’année.'}
+    'Les comptes, plus haut, disent ce que la commune a encaissé ; ces montants sont ceux que l’État lui a attribués pour l’année.' +
+    (d.voirie ? ` La voirie : d’après les critères de répartition des dotations publiés par la DGCL (lus le ${d.voirie.maj}).` : '')}
 </p>

@@ -45,6 +45,8 @@ type DetailLigne = [
   [number, number | null, number | null, number | null, number | null],
   [number, number | null, number | null],
   [number, number | null, number | null],
+  /** Les maisons vendues avec des terres ou des bois, hors de la médiane : [ventes, prix médian] ; absent d'une ingestion antérieure. */
+  [number, number | null]?,
 ];
 type DvfDep = {
   maj: string;
@@ -94,6 +96,8 @@ type CantinesDep = { maj: string; campagne: number | null; c: Record<string, Can
 const cantinesDep = parDepartement<CantinesDep>('cantines');
 type SteuDep = { maj: string; c: Record<string, [string, number | null, number | null, string, string][]> };
 const steuDep = parDepartement<SteuDep>('steu');
+type VoirieDep = { maj: string; annee: number | null; c: Record<string, number> };
+const voirieDep = parDepartement<VoirieDep>('voirie');
 type ForetsDep = { maj: string; c: Record<string, { f: [string, string, number, 0 | 1][]; b: [number, number, number, number, number, number | null] | null }> };
 const foretsDep = parDepartement<ForetsDep>('forets');
 const parcDep = parDepartement<ParcDep>('parc');
@@ -426,6 +430,8 @@ export interface DetailVentes {
   batir: { ventes: number; m2: number | null; q1: number | null; q3: number | null; surface: number | null };
   terres: { ventes: number; hectare: number | null; surface: number | null };
   bois: { ventes: number; hectare: number | null; surface: number | null };
+  /** Les maisons vendues avec des terres ou des bois, comptées à part de la médiane ; null avant la décision du 20 novembre 2026. */
+  avecTerres: { ventes: number; prix: number | null } | null;
 }
 
 export interface Immobilier {
@@ -553,6 +559,8 @@ export interface Dotations {
     perequation: number;
     cible: number;
   } | null;
+  /** La longueur de voirie retenue pour la DGF, en mètres (`scripts/voirie-emettre.ts`). */
+  voirie: { metres: number; annee: number | null; maj: string } | null;
   maj: string;
 }
 
@@ -1190,13 +1198,14 @@ function ventes(x: PrixLigne): PrixVentes {
 
 function detailVentes(x: DetailLigne | null | undefined): DetailVentes | null {
   if (!x) return null;
-  const [m, a, b, t, w] = x;
+  const [m, a, b, t, w, at] = x;
   return {
     maison: m ? { q1: m[0], q3: m[1], surface: m[2], pieces: m[3], terrain: m[4] || null } : null,
     appartement: a ? { q1: a[0], q3: a[1], surface: a[2], pieces: a[3] } : null,
     batir: { ventes: b[0], m2: b[1], q1: b[2], q3: b[3], surface: b[4] },
     terres: { ventes: t[0], hectare: t[1], surface: t[2] },
     bois: { ventes: w[0], hectare: w[1], surface: w[2] },
+    avecTerres: at ? { ventes: at[0], prix: at[1] } : null,
   };
 }
 
@@ -1306,6 +1315,11 @@ function dotations(c: CommuneFiche): Dotations | null {
     dgf,
     communeNouvelle: cn,
     parts: ok ? { forfaitaire, dsu, dsr, dnp, dacom, bourgCentre, perequation, cible } : null,
+    voirie: (() => {
+      const v = voirieDep.get(c.dep);
+      const m = v?.c[c.code];
+      return v && m ? { metres: m, annee: v.annee, maj: v.maj } : null;
+    })(),
     maj: d.maj,
   };
 }
@@ -1785,6 +1799,22 @@ export function ouverture(code: string, epci: { siren: string; nom: string } | n
     edition: d.edition,
     maj: d.maj,
   };
+}
+
+type ZfeFichier = { licence: string; source: string; maj: string; c: Record<string, [string, number, string, 0 | 1, string][]> };
+const zfeFichier = national<ZfeFichier>('zfe.json');
+
+/** Les zones à faibles émissions en vigueur qui couvrent une commune (`scripts/zfe-emettre.ts`), base sous ODbL. */
+export interface Zfe {
+  zones: { porteur: string; part: number; debut: string; sansRestriction: boolean; site: string }[];
+  maj: string;
+}
+
+export function zfe(code: string): Zfe | null {
+  const d = zfeFichier();
+  const x = d?.c[code];
+  if (!d || !x || x.length === 0) return null;
+  return { zones: x.map(([porteur, part, debut, sans, site]) => ({ porteur, part, debut, sansRestriction: sans === 1, site })), maj: d.maj };
 }
 
 /** Le taux d'accueil du jeune enfant d'une intercommunalité, d'un département ou d'une région. */

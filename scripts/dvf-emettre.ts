@@ -79,6 +79,8 @@ type Vente = {
   pieces: number;
   /** La surface des parcelles vendues avec le logement, en m² ; 0 pour un appartement en copropriété. */
   terrain: number;
+  /** Vendu avec des terres, des prés, des landes, des vignes, des vergers ou des bois : hors de la médiane. */
+  terres: boolean;
 };
 
 /** Une vente de terrain nu, d'une seule nature. */
@@ -99,6 +101,15 @@ const NATURES: Record<string, Genre> = {
   BS: 'bois',
   BT: 'bois',
 };
+/**
+ * Les natures cadastrales qui font d'une maison une « maison avec des terres ou des bois » :
+ * terres, prés, pâtures, landes, vignes, vergers, bois. Décision du 20 novembre 2026 : la
+ * médiane publiée ne compte que les maisons vendues sans elles, les autres sont comptées à part —
+ * leur prix comprend celui des terres, qui relevait de 10 % et plus le prix au m² d'une commune
+ * rurale sur trois dans l'Allier.
+ */
+const TERRES_ET_BOIS = new Set(['T', 'P', 'PA', 'PC', 'PP', 'L', 'LB', 'VI', 'VE', 'B', 'BF', 'BM', 'BP', 'BR', 'BS', 'BT']);
+
 /** Sous ces surfaces, le prix tient aux frais plus qu'au terrain. */
 const SURFACE_MIN: Record<Genre, number> = { batir: 100, terres: 1000, bois: 1000 };
 
@@ -155,6 +166,7 @@ function venteDe(lignes: string[][], col: Record<string, number>, annee: number)
     surface,
     pieces: pieces > 0 ? pieces : 0,
     terrain: type === 'Maison' ? surfaceTerrain(lignes, col) : 0,
+    terres: type === 'Maison' && lignes.some((l) => TERRES_ET_BOIS.has(l[col.code_nature_culture])),
   };
 }
 
@@ -203,7 +215,8 @@ export async function lireVentes(
 }
 
 function resumer(ventes: Vente[], annees: number[]): Prix {
-  const maisons = ventes.filter((v) => v.type === 'Maison');
+  // Les maisons sans terres ni bois : leur prix est celui de la maison et de son jardin.
+  const maisons = ventes.filter((v) => v.type === 'Maison' && !v.terres);
   const apparts = ventes.filter((v) => v.type === 'Appartement');
   const med = (v: number[]) => (v.length >= MINIMUM ? Math.round(mediane(v)!) : null);
   return [
@@ -232,7 +245,8 @@ export function quantile(v: number[], p: number): number | null {
  *   pièces médianes, terrain médian en m²], ou null sous cinq ventes ;
  * - appartements : [1er quartile, 3e quartile, surface médiane, pièces médianes], ou null ;
  * - terrains à bâtir : [ventes, prix médian au m², 1er quartile, 3e quartile, surface médiane en m²] ;
- * - terres et prés, bois : [ventes, prix médian à l'hectare, surface médiane en hectares].
+ * - terres et prés, bois : [ventes, prix médian à l'hectare, surface médiane en hectares] ;
+ * - maisons vendues avec des terres ou des bois, hors de la médiane : [ventes, prix médian].
  * Un nombre de ventes est toujours donné ; les prix, à partir de cinq.
  */
 export type Detail = [
@@ -241,19 +255,21 @@ export type Detail = [
   [number, number | null, number | null, number | null, number | null],
   [number, number | null, number | null],
   [number, number | null, number | null],
+  [number, number | null],
 ];
 
 function detailler(ventes: Vente[], terrains: Terrain[]): Detail {
   const r = (x: number | null, d = 0) => (x === null ? null : Math.round(x * 10 ** d) / 10 ** d);
   const assez = <T,>(l: T[]) => l.length >= MINIMUM;
   const logement = (type: Vente['type']) => {
-    const l = ventes.filter((v) => v.type === type);
+    const l = ventes.filter((v) => v.type === type && !v.terres);
     if (!assez(l)) return null;
     const prix = l.map((v) => v.prix);
     return [r(quantile(prix, 0.25))!, r(quantile(prix, 0.75))!, r(quantile(l.map((v) => v.surface), 0.5))!, r(quantile(l.filter((v) => v.pieces > 0).map((v) => v.pieces), 0.5), 1) ?? 0];
   };
   const maison = logement('Maison');
-  const maisons = ventes.filter((v) => v.type === 'Maison' && v.terrain > 0);
+  const maisons = ventes.filter((v) => v.type === 'Maison' && !v.terres && v.terrain > 0);
+  const avecTerres = ventes.filter((v) => v.type === 'Maison' && v.terres);
   const batir = terrains.filter((t) => t.genre === 'batir');
   const m2 = batir.map((t) => t.prix / t.surface);
   const hectare = (g: Genre): [number, number | null, number | null] => {
@@ -270,6 +286,7 @@ function detailler(ventes: Vente[], terrains: Terrain[]): Detail {
       : [batir.length, null, null, null, null],
     hectare('terres'),
     hectare('bois'),
+    [avecTerres.length, assez(avecTerres) ? r(quantile(avecTerres.map((v) => v.prix), 0.5)) : null],
   ];
 }
 

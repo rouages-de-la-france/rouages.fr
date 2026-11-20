@@ -77,6 +77,7 @@ import Police from '../../composants/commune/Police.astro';
 import Cantines from '../../composants/commune/Cantines.astro';
 import Ouverture from '../../composants/commune/Ouverture.astro';
 import Forets from '../../composants/commune/Forets.astro';
+import Zfe from '../../composants/commune/Zfe.astro';
 import Agriculture from '../../composants/commune/Agriculture.astro';
 import Votes from '../../composants/commune/Votes.astro';
 import Sols from '../../composants/commune/Sols.astro';
@@ -124,7 +125,7 @@ import Culture from '../../composants/commune/Culture.astro';
 import SolsPollues from '../../composants/commune/SolsPollues.astro';
 import Installations from '../../composants/commune/Installations.astro';
 import Lieux from '../../composants/commune/Lieux.astro';
-import { complementsVie, ouverture } from '../../modele/fiche-vie.ts';
+import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
 export function getStaticPaths() {
   // `ROUAGES_DEPS` restreint la génération à quelques départements : engendrer
@@ -154,6 +155,7 @@ const siegesCc = siegesCommunautaires(fiche);
 const acheteurCommune = plus.marches.find((a) => a.natureLibelle === 'la commune');
 const epciFp = fiche?.structures.find((x) => intercommunalite(x.siren));
 const acheteurEpci = epciFp ? plus.marches.find((a) => a.siren === epciFp.siren) : undefined;
+const zfeIci = zfe(commune.code);
 const ouvertureIci = ouverture(commune.code, epciFp ? { siren: epciFp.siren, nom: epciFp.nom } : null);
 const rapprochementsParElu = new Map<string, Rapprochement[]>();
 for (const d of fiche?.declarations ?? []) {
@@ -420,6 +422,7 @@ const sommaire: [string, string, unknown][] = [
   ['route', 'Les accidents de la route', vie.route],
   ['gares', 'Le train', vie.gares],
   ['transports', 'Transports en commun', vie.transports],
+  ['zfe', 'La zone à faibles émissions', zfeIci],
   ['recharge', 'Recharge et covoiturage', vie.recharge],
   ['agriculture', 'L’agriculture', vie.agriculture],
   ['appellations', 'Les appellations', vie.appellations],
@@ -462,7 +465,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'quotidien',
     nom: 'Au quotidien',
-    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'reseaux', 'gares', 'transports', 'recharge', 'mobile', 'securite', 'route'],
+    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'reseaux', 'gares', 'transports', 'zfe', 'recharge', 'mobile', 'securite', 'route'],
   },
   {
     id: 'environnement',
@@ -1332,6 +1335,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
         <h2 class="badge">Les transports en commun</h2>
         <Transports t={vie.transports} code={commune.code} />
         {vie.acces?.arrets && <Distances a={vie.acces} quoi="arrets" />}
+      </section>
+    )}
+
+    {zfeIci && (
+      <section id="zfe">
+        <h2 class="badge">La zone à faibles émissions</h2>
+        <Zfe z={zfeIci} />
       </section>
     )}
 
