@@ -44,8 +44,20 @@ const mayet = !filtre?.length || filtre.includes('03');
           <label>Terres et prés <small>non constructibles</small> <span><input type="number" min="0" step="100" inputmode="numeric" name="agricole" value="0" /> m²</span></label>
           <label>Bois <span><input type="number" min="0" step="100" inputmode="numeric" name="bois" value="0" /> m²</span></label>
           <label>Local d’activité, grange, atelier <span><input type="number" min="0" step="1" inputmode="numeric" name="activite" value="0" /> m²</span></label>
-          <label>Il compte pour <span><input type="number" min="0" max="100" step="5" inputmode="numeric" name="part" value="25" /> % de l’habitable</span></label>
         </div>
+        <details class="se-reglage">
+          <summary>Réglage : ce que vaut un local d’activité, une grange, un atelier</summary>
+          <p>
+            Les ventes ne permettent pas de mesurer le prix d’une grange ou d’un atelier : il y en a trop peu, et leur surface n’est
+            pas toujours déclarée. Le simulateur suppose donc qu’un mètre carré de local vaut une part du mètre carré habitable —
+            un quart par défaut. Avec 100 m² de grange, c’est comme 25 m² habitables de plus.
+          </p>
+          <p>
+            Montez la part si le local est sain, clos, facile à transformer en logement ; baissez-la s’il est en ruine ou n’a
+            d’usage que pour stocker. Sans local, ce réglage ne change rien.
+          </p>
+          <label>Un mètre carré de local vaut <span><input type="number" min="0" max="100" step="5" inputmode="numeric" name="part" value="25" /> % d’un mètre carré habitable</span></label>
+        </details>
         <label class="se-dpe" id="se-dpe-bloc" hidden>
           L’étiquette énergétique de la maison (DPE)
           <select name="dpe">
@@ -62,6 +74,12 @@ const mayet = !filtre?.length || filtre.includes('03');
       </form>
 
       <section id="se-resultat" class="jeu-carte" hidden aria-live="polite">
+        <fieldset class="se-niveau" id="se-niveau" form="se-form">
+          <legend>La fourchette</legend>
+          <label><input type="radio" name="niveau" value="0.5" form="se-form" /> Resserrée : une vente sur deux y tombe</label>
+          <label><input type="radio" name="niveau" value="0.8" form="se-form" checked /> Large : huit ventes sur dix</label>
+          <label><input type="radio" name="niveau" value="0.9" form="se-form" /> Très large : neuf ventes sur dix</label>
+        </fieldset>
         <table class="se-table">
           <thead><tr><th>Part</th><th>Surface</th><th class="se-col-prix">Prix relevé</th><th>Valeur</th></tr></thead>
           <tbody id="se-lignes"></tbody>
@@ -81,7 +99,7 @@ const mayet = !filtre?.length || filtre.includes('03');
       <li><strong>Les locaux d’activité</strong>&nbsp;: les ventes ne permettent pas de les mesurer — trop peu de ventes, et aucune surface pour les dépendances. Ils comptent pour une part de l’habitable, un quart par défaut&nbsp;: une hypothèse, à votre réglage.</li>
       <li><strong>Le voisinage</strong>&nbsp;: un village vend peu. Chaque commune est mesurée avec ses voisines, un anneau après l’autre, jusqu’à cent ventes de maisons et quinze de chaque terrain&nbsp;; la page dit combien ont servi.</li>
       <li><strong>L’étiquette énergétique</strong>&nbsp;: les ventes ne la disent pas, mais la base des DPE de l’ADEME donne l’adresse de chaque diagnostic. Une vente de maison est rapprochée d’un DPE de la même commune, à moins de 30&nbsp;m, établi dans les deux ans avant la vente, pour une surface proche. Sur ces ventes, on mesure ce que chaque étiquette change au prix d’une maison, à surface, terrain et commune égaux, par rapport à une maison D. L’écart s’applique à la maison et à son terrain, rapporté aux étiquettes des maisons de la commune&nbsp;: une estimation sans étiquette vaut pour une maison ordinaire du lieu. L’effet est mesuré région par région.</li>
-      <li><strong>La précision</strong>&nbsp;: les ventes de maisons sont partagées en cinq, chaque cinquième estimé par les quatre autres. La fourchette est celle où tombe la moitié de ces ventes. Les ventes ne disent rien de l’état d’une maison&nbsp;: c’est l’essentiel de l’écart, et la raison du curseur. Le simulateur entier est aussi mis à l’épreuve, en dix parts et face à une référence naïve&nbsp;: <a href="/simulateurs/estimation-precision">sa précision, mesurée et publiée</a>.</li>
+      <li><strong>La précision</strong>&nbsp;: les ventes de maisons sont partagées en cinq, chaque cinquième estimé par les quatre autres. La fourchette est celle où tombe la moitié de ces ventes. Les ventes ne disent rien de l’état d’une maison&nbsp;: c’est l’essentiel de l’écart, et la raison du curseur. La fourchette affichée, resserrée, large ou très large au choix, est tirée du banc d’essai, qui met le simulateur entier à l’épreuve en dix parts et face à une référence naïve&nbsp;: <a href="/simulateurs/estimation-precision">sa précision, mesurée et publiée</a>.</li>
     </ul>
 
     <h2 class="badge">Sources</h2>
@@ -117,6 +135,13 @@ const mayet = !filtre?.length || filtre.includes('03');
     font: inherit; color: var(--encre); background: var(--fond-carte); border: 1px solid var(--trait);
     border-radius: var(--rayon); padding: .35rem .5rem; width: 7.5rem; font-variant-numeric: tabular-nums;
   }
+  .se-reglage { margin: 0 0 1rem; font-size: .9rem; }
+  .se-reglage summary { cursor: pointer; color: var(--encre-douce); }
+  .se-reglage p { margin: .4rem 0; max-width: 40rem; }
+  .se-reglage label { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+  .se-reglage input { font: inherit; color: var(--encre); background: var(--fond-carte); border: 1px solid var(--trait); border-radius: var(--rayon); padding: .35rem .5rem; width: 5rem; }
+  .se-niveau { border: 0; padding: 0; margin: 0 0 .8rem; display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .9rem; }
+  .se-niveau legend { font-weight: 600; margin-bottom: .2rem; }
   .se-dpe { display: flex; flex-direction: column; gap: .25rem; font-size: .9rem; margin: 0 0 1rem; max-width: 20rem; }
   .se-dpe select { font: inherit; color: var(--encre); background: var(--fond-carte); border: 1px solid var(--trait); border-radius: var(--rayon); padding: .35rem .5rem; }
   .se-dpe small { color: var(--encre-douce); font-size: .78rem; }
