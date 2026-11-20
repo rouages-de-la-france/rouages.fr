@@ -48,6 +48,7 @@ const PAGES = [
   '/jeux/qui-decide',
   '/simulateurs/frais-achat',
   '/simulateurs/estimation-precision',
+  '/sources',
   '/simulateurs/autorisation?travaux=extension',
   '/simulateurs/ma-parcelle',
   '/n/du-ble-a-la-baguette',
