@@ -9,15 +9,16 @@
  * signalent un défaut d'installation, pas un danger, et la réglementation les
  * distingue.
  */
-import type { Assainissement, EauRobinet, Energie, Fibre, ServiceAssainissement } from '../../modele/fiche-vie.ts';
+import type { Stations, Assainissement, EauRobinet, Energie, Fibre, ServiceAssainissement } from '../../modele/fiche-vie.ts';
 
 interface Props {
   eau: EauRobinet | null;
   assainissement?: Assainissement | null;
+  stations?: Stations | null;
   fibre: Fibre | null;
   energie: Energie | null;
 }
-const { eau, assainissement = null, fibre, energie } = Astro.props;
+const { eau, assainissement = null, stations = null, fibre, energie } = Astro.props;
 const entier = (v: number) => Math.round(v).toLocaleString('fr-FR');
 const pc = (v: number) => `${Math.round(v * 100).toLocaleString('fr-FR')} %`;
 const date = (iso: string) =>
@@ -83,23 +84,47 @@ const liste = (l: ServiceAssainissement[]) => l.map(gestion).join(' ; ');
     </p>
   </>
 )}
-{assainissement && (
+{(assainissement || stations) && (
   <>
     <h3 class="p-titre-echelon">Les eaux usées</h3>
-    <p class="mesure">
+    {assainissement && <p class="mesure">
       {assainissement.collectif.length > 0
         ? `L’assainissement collectif — le réseau d’égouts et la station d’épuration — relève de ${liste(assainissement.collectif)}. `
         : 'Aucun service d’assainissement collectif n’est déclaré pour la commune : les maisons y ont leur propre installation. '}
       {assainissement.nonCollectif.length > 0 &&
         `Le contrôle des installations individuelles, celles que le réseau ne dessert pas, revient au service public d’assainissement non collectif (SPANC) : ${liste(assainissement.nonCollectif)}.`}
-    </p>
+    </p>}
+    {stations && (
+      <p class="mesure">
+        {(stations.stations.length > 1
+          ? `${stations.stations.length.toLocaleString('fr-FR')} stations d’épuration en service se trouvent sur la commune : `
+          : 'Une station d’épuration en service se trouve sur la commune : ') +
+          stations.stations
+            .map(
+              (st) =>
+                `${st.nom}` +
+                [st.capacite !== null && `${entier(st.capacite)} équivalents-habitants`, st.annee !== null && `en service depuis ${st.annee}`]
+                  .filter(Boolean)
+                  .map((x, i) => (i === 0 ? ` (${x}` : `, ${x}`))
+                  .join('') +
+                (st.capacite !== null || st.annee !== null ? ')' : ''),
+            )
+            .join(' ; ') +
+          '. Une station traite souvent les eaux de plusieurs communes.'}
+      </p>
+    )}
     <p class="p-strate">
       {'Qui peut en avoir la charge, et comment la compétence passe de la commune à l’intercommunalité : '}<a href="/n/assainissement">l’assainissement</a>{'.'}
     </p>
-    <p class="p-source-territoire">
+    {assainissement && <p class="p-source-territoire">
       {`D’après la composition communale des services du système d’information SISPEA de l’Office français de la biodiversité, exercice ${assainissement.exercices.AC}, ` +
         `sous Licence Ouverte (${assainissement.maj}). Le prix, la conformité de la station et les autres indicateurs de chaque service sont publiés sur `}<a href="https://www.services.eaufrance.fr/" target="_blank" rel="noopener">l’Observatoire des services d’eau et d’assainissement</a>{'.'}
-    </p>
+    </p>}
+    {stations && (
+      <p class="p-source-territoire">
+        {`Stations : d’après le référentiel des stations de traitement des eaux usées du Sandre (base des eaux résiduaires urbaines du ministère de la Transition écologique), lu le ${stations.maj}.`}
+      </p>
+    )}
   </>
 )}
 {fibre && (

@@ -92,6 +92,10 @@ const policeDep = parDepartement<PoliceDep>('police');
 type CantineBrute = [string, string, 0 | 1 | null, 0 | 1 | null, string, number | null, string, number | null, number | null, 0 | 1 | null];
 type CantinesDep = { maj: string; campagne: number | null; c: Record<string, CantineBrute[]> };
 const cantinesDep = parDepartement<CantinesDep>('cantines');
+type SteuDep = { maj: string; c: Record<string, [string, number | null, number | null, string, string][]> };
+const steuDep = parDepartement<SteuDep>('steu');
+type ForetsDep = { maj: string; c: Record<string, { f: [string, string, number, 0 | 1][]; b: [number, number, number, number, number, number | null] | null }> };
+const foretsDep = parDepartement<ForetsDep>('forets');
 const parcDep = parDepartement<ParcDep>('parc');
 const emploiDep = parDepartement<EmploiDep>('emploi');
 const dvfDep = parDepartement<DvfDep>('dvf');
@@ -285,6 +289,19 @@ export interface Assainissement {
   collectif: ServiceAssainissement[];
   nonCollectif: ServiceAssainissement[];
   exercices: { AC: number; ANC: number };
+  maj: string;
+}
+
+/** Les stations d'épuration situées dans la commune, d'après le Sandre (`scripts/steu-emettre.ts`). */
+export interface Stations {
+  stations: { nom: string; capacite: number | null; annee: number | null; principale: string }[];
+  maj: string;
+}
+
+/** Les forêts de la commune : les forêts publiques de l'ONF et le taux de boisement (`scripts/forets-emettre.ts`). */
+export interface Forets {
+  publiques: { nom: string; id: string; part: number; domaniale: boolean }[];
+  boisement: { hectares: number; taux: number; feuillus: number; coniferes: number; mixtes: number; annee: number | null } | null;
   maj: string;
 }
 
@@ -956,6 +973,8 @@ export interface ComplementsVie {
   sante: Sante | null;
   eau: EauRobinet | null;
   assainissement: Assainissement | null;
+  stations: Stations | null;
+  forets: Forets | null;
   decheteries: Decheteries | null;
   vacance: Vacance | null;
   batiments: Batiments | null;
@@ -1037,6 +1056,25 @@ function assainissement(c: CommuneFiche): Assainissement | null {
     entite, collectivite, siren, mode, statut, operateur, debut, fin,
   });
   return { collectif: x[0].map(service), nonCollectif: x[1].map(service), exercices: d.exercices, maj: d.maj };
+}
+
+function forets(c: CommuneFiche): Forets | null {
+  const d = foretsDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || (x.f.length === 0 && !x.b)) return null;
+  const b = x.b;
+  return {
+    publiques: x.f.map(([nom, id, part, domaniale]) => ({ nom, id, part, domaniale: domaniale === 1 })),
+    boisement: b ? { hectares: b[0], taux: b[1], feuillus: b[2], coniferes: b[3], mixtes: b[4], annee: b[5] } : null,
+    maj: d.maj,
+  };
+}
+
+function stations(c: CommuneFiche): Stations | null {
+  const d = steuDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x || x.length === 0) return null;
+  return { stations: x.map(([nom, capacite, annee, , principale]) => ({ nom, capacite, annee, principale })), maj: d.maj };
 }
 
 function batiments(c: CommuneFiche): Batiments | null {
@@ -1701,6 +1739,54 @@ export function secoursDepartement(dep: string): Secours | null {
   return { services, annees: d.annees, familles: d.familles, maj: d.maj };
 }
 
+type OuvertureFichier = {
+  maj: string;
+  edition: string;
+  organisations: Record<string, [string, string, string, string, number | null, string, number | null]>;
+  communes: Record<string, string>;
+};
+const ouvertureFichier = national<OuvertureFichier>('opendata.json');
+
+/** Ce que l'Observatoire open data des territoires disait d'une organisation (`scripts/opendata-emettre.ts`). */
+export interface Publication {
+  plateforme: string;
+  adressePlateforme: string;
+  jeuxPlateforme: number | null;
+  adresseDatagouv: string;
+  jeuxDatagouv: number | null;
+}
+export interface Ouverture {
+  /** null : la commune ne figurait pas à l'observatoire. */
+  commune: Publication | null;
+  /** L'intercommunalité, quand elle figurait à l'observatoire. */
+  epci: (Publication & { nom: string }) | null;
+  edition: string;
+  maj: string;
+}
+
+const publication = (o: OuvertureFichier['organisations'][string]): Publication => ({
+  plateforme: o[2],
+  adressePlateforme: o[3],
+  jeuxPlateforme: o[4],
+  adresseDatagouv: o[5],
+  jeuxDatagouv: o[6],
+});
+
+/** La commune et son intercommunalité à l'Observatoire open data des territoires. */
+export function ouverture(code: string, epci: { siren: string; nom: string } | null): Ouverture | null {
+  const d = ouvertureFichier();
+  if (!d) return null;
+  const sirenCommune = d.communes[code];
+  const oc = sirenCommune ? d.organisations[sirenCommune] : undefined;
+  const oe = epci ? d.organisations[epci.siren] : undefined;
+  return {
+    commune: oc ? publication(oc) : null,
+    epci: oe && epci ? { ...publication(oe), nom: epci.nom } : null,
+    edition: d.edition,
+    maj: d.maj,
+  };
+}
+
 /** Le taux d'accueil du jeune enfant d'une intercommunalité, d'un département ou d'une région. */
 export function petiteEnfanceCollectivite(echelon: 'intercommunalite' | 'departement' | 'region', cle: string): PetiteEnfance | null {
   const d = petiteEnfanceFichier();
@@ -1842,6 +1928,8 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     sante: sante(c),
     eau: eau(c),
     assainissement: assainissement(c),
+    stations: stations(c),
+    forets: forets(c),
     decheteries: decheteries(c),
     vacance: vacance(c),
     batiments: batiments(c),
