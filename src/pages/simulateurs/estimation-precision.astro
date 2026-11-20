@@ -21,6 +21,7 @@ type Banc = {
   departements: Record<string, Record<string, Mesure>>;
   tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
   intervalles?: { niveaux: number[]; classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }> };
+  intervallesPeriode?: { niveaux: number[]; classes: Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }> };
 };
 const base = join(process.cwd(), 'public', 'territoires');
 const lire = <T,>(f: string): T | null => (existsSync(join(base, f)) ? (JSON.parse(readFileSync(join(base, f), 'utf8')) as T) : null);
@@ -32,6 +33,10 @@ const r2 = (x: number | null) => (x === null ? '—' : x.toLocaleString('fr-FR',
 const entier = (n: number) => n.toLocaleString('fr-FR');
 const f = banc?.france;
 const gain = f && f.surface.ecartMedian !== null && f.naif.ecartMedian !== null ? f.naif.ecartMedian - f.surface.ecartMedian : null;
+type JeuFourchettes = NonNullable<Banc['intervalles']>;
+const fourchettes: { k: 'seule' | 'voisines'; jeu: JeuFourchettes; note: string }[] = [];
+if (banc?.intervalles) for (const k of ['seule', 'voisines'] as const) fourchettes.push({ k, jeu: banc.intervalles, note: '' });
+if (banc?.intervallesPeriode) for (const k of ['seule', 'voisines'] as const) fourchettes.push({ k, jeu: banc.intervallesPeriode, note: ', période donnée' });
 const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].localeCompare(b[0])) : [];
 ---
 <Base
@@ -60,6 +65,8 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
             (gain >= 0.01
               ? `La référence naïve — le prix médian au mètre carré de la commune, multiplié par la surface — s’écarte de ${pc(f.naif.ecartMedian)} : le simulateur fait mieux de ${(Math.round(gain * 1000) / 10).toLocaleString('fr-FR')} point${gain >= 0.02 ? 's' : ''}.`
               : `La référence naïve — le prix médian au mètre carré de la commune, multiplié par la surface — s’écarte de ${pc(f.naif.ecartMedian)} : le simulateur ne fait pas nettement mieux qu’elle.`)}
+          {f.periode && f.periode.ecartMedian !== null &&
+            ` Quand on lui donne l’année de construction de la maison, que la base nationale des bâtiments permet de mesurer, l’écart tombe à ${pc(f.periode.ecartMedian)}, et ${pc(f.periode.a20)} des ventes tombent à 20 % près.`}
         </p>
         <div class="cpt-defile" tabindex="0" role="region" aria-label="Le résultat — le tableau défile sur les petits écrans">
           <table class="cpt-tableau">
@@ -94,7 +101,7 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
           <table class="cpt-tableau">
             <caption>Écart médian, par nombre de ventes de maisons dans la commune</caption>
             <thead>
-              <tr><th scope="col">Commune</th><th scope="col">Ventes</th>{banc.modeles.map((m) => <th scope="col">{m.id === 'surface' ? 'Simulateur' : 'Référence naïve'}</th>)}</tr>
+              <tr><th scope="col">Commune</th><th scope="col">Ventes</th>{banc.modeles.map((m) => <th scope="col">{m.id === 'surface' ? 'Simulateur' : m.id === 'periode' ? 'Avec la période' : 'Référence naïve'}</th>)}</tr>
             </thead>
             <tbody>
               {banc.tailles.map((t) => (
@@ -124,14 +131,14 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
                   <tr><th scope="col">Commune mesurée</th><th scope="col">Fourchette</th><th scope="col">Bornes</th><th scope="col">Annoncé</th><th scope="col">Contrôlé</th></tr>
                 </thead>
                 <tbody>
-                  {(['seule', 'voisines'] as const).flatMap((k) =>
-                    banc.intervalles!.niveaux.map((n, i) => (
+                  {fourchettes.flatMap(({ k, jeu, note }) =>
+                    jeu.niveaux.map((n, i) => (
                       <tr>
-                        <th scope="row">{k === 'seule' ? 'seule' : 'avec ses voisines'}</th>
+                        <th scope="row">{`${k === 'seule' ? 'seule' : 'avec ses voisines'}${note}`}</th>
                         <td>{n === 0.5 ? 'resserrée' : n === 0.8 ? 'large' : 'très large'}</td>
-                        <td>{`${r2(banc.intervalles!.classes[k].bornes[i][0])} à ${r2(banc.intervalles!.classes[k].bornes[i][1])}`}</td>
+                        <td>{`${r2(jeu.classes[k].bornes[i][0])} à ${r2(jeu.classes[k].bornes[i][1])}`}</td>
                         <td>{pc(n)}</td>
-                        <td>{pc(banc.intervalles!.classes[k].tenue[i])}</td>
+                        <td>{pc(jeu.classes[k].tenue[i])}</td>
                       </tr>
                     )),
                   )}

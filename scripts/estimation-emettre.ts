@@ -38,6 +38,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { communeDe, departementDe } from './par-departement.ts';
 import { fichierCache, type DpeMaison } from './dpe-maisons-emettre.ts';
+import { anneesParcelles, fichierAnnees, PERIODES as PERIODES_BDNB } from './batiments-emettre.ts';
 
 /** Une vente lue pour l'estimation : surfaces en m². */
 export type Bien = {
@@ -56,6 +57,10 @@ export type Bien = {
   lat: number | null;
   lon: number | null;
   jour: string;
+  /** La parcelle de la maison, pour la rapprocher de son bâtiment dans la BDNB. */
+  parcelle?: string;
+  /** L'année de construction de la maison, d'après la BDNB (`batiments-emettre.ts`) ; absente si inconnue. */
+  annee?: number;
 };
 
 const CONSTRUCTIBLE = new Set(['S', 'AG', 'AB', 'J']);
@@ -74,13 +79,17 @@ export function bienDe(lignes: string[][], col: Record<string, number>): Bien | 
   const prix = Number(lignes[0][col.valeur_fonciere]);
   if (!(prix >= 1000)) return null;
   const maisons = new Map<string, number>();
+  let parcelle = '';
   const locaux = new Map<string, number>();
   const terrains = new Map<string, [string, number]>();
   for (const l of lignes) {
     const type = l[col.type_local];
     const bati = Number(l[col.surface_reelle_bati]) || 0;
     if (type === 'Appartement') return null;
-    if (type === 'Maison') maisons.set(`${l[col.id_parcelle]}|${bati}|${l[col.lot1_numero]}`, bati);
+    if (type === 'Maison') {
+      maisons.set(`${l[col.id_parcelle]}|${bati}|${l[col.lot1_numero]}`, bati);
+      parcelle = l[col.id_parcelle];
+    }
     else if (type && type.startsWith('Local')) locaux.set(`${l[col.id_parcelle]}|${bati}`, bati);
     const s = Number(l[col.surface_terrain]) || 0;
     const n = l[col.code_nature_culture];
@@ -103,7 +112,7 @@ export function bienDe(lignes: string[][], col: Record<string, number>): Bien | 
   const lat = col.latitude !== undefined ? Number(lignes[0][col.latitude]) || null : null;
   const lon = col.longitude !== undefined ? Number(lignes[0][col.longitude]) || null : null;
   const jour = col.date_mutation !== undefined ? lignes[0][col.date_mutation] : '';
-  return { commune: communeDe([...communes][0]), prix, habitable, activite, constructible, agricole, bois, lat, lon, jour };
+  return { commune: communeDe([...communes][0]), prix, habitable, activite, constructible, agricole, bois, lat, lon, jour, ...(parcelle ? { parcelle } : {}) };
 }
 
 /** Les bornes des tailles de terrain agricole, en m² : moins d'un demi-hectare, jusqu'à deux, au-delà. */
@@ -198,6 +207,10 @@ export type Estimation = [
   number,
   number,
   /** Le multiplicateur moyen des maisons de la commune, selon leurs étiquettes, là où l'effet du DPE est mesuré. */
+  (number | null)?,
+  /** Le multiplicateur moyen des maisons vendues dans la commune, selon leur période de construction, là où l'effet est mesuré. */
+  (number | null)?,
+  /** Le multiplicateur moyen selon les étiquettes, à période égale : pour qui donne les deux. */
   (number | null)?,
 ];
 
@@ -315,6 +328,12 @@ export type EffetsDpe = {
   ecart: [number, number];
   /** Sur quel territoire l'effet est mesuré. */
   portee: string;
+  /**
+   * L'effet de l'étiquette à période de construction égale, mesuré sur les ventes rapprochées à la
+   * fois d'un DPE et d'un bâtiment : une maison ancienne a souvent une mauvaise étiquette, et qui
+   * donne les deux ne doit pas compter deux fois le même défaut.
+   */
+  sachantPeriode?: Record<string, number>;
 };
 
 const metres = (a: number, b: number, c: number, d: number) =>
@@ -446,7 +465,18 @@ export function mesurerDpe(biens: Bien[], dpe: Map<string, DpeMaison[]>, portee:
   MESUREES.forEach((e, j) => (multiplicateurs[e] = Math.round(Math.exp(m.b[2 + j]) * 1000) / 1000));
   const repartition = Object.fromEntries(ETIQUETTES.map((e) => [e, lignes.filter((l) => l.e === e).length]));
   const r2 = (v: number | null) => Math.round((v ?? 0) * 100) / 100;
-  return { multiplicateurs, ventes: lignes.length, repartition, ecart: [r2(ecartCroise(base, y, groupes)), r2(ecartCroise(avec, y, groupes))], portee };
+  // À période égale : les mêmes ventes, quand leur bâtiment est daté, avec la période en plus.
+  let sachantPeriode: Record<string, number> | undefined;
+  const datees = lignes.filter(({ b }) => b.annee);
+  if (datees.length >= DPE_MIN) {
+    const x = datees.map(({ b, e }) => [Math.log(b.habitable), Math.log1p(b.constructible + b.agricole + b.bois), ...MESUREES.map((m) => (m === e ? 1 : 0)), ...indicatrices(b.annee!)]);
+    const mm = ajusterLog(x, datees.map(({ b }) => Math.log(b.prix)), datees.map(({ b }) => b.commune));
+    if (mm) {
+      sachantPeriode = { D: 1 };
+      MESUREES.forEach((e, j) => (sachantPeriode![e] = Math.round(Math.exp(mm.b[2 + j]) * 1000) / 1000));
+    }
+  }
+  return { multiplicateurs, ventes: lignes.length, repartition, ecart: [r2(ecartCroise(base, y, groupes)), r2(ecartCroise(avec, y, groupes))], portee, ...(sachantPeriode ? { sachantPeriode } : {}) };
 }
 
 /**
@@ -464,6 +494,109 @@ function melanges(sortie: string, dep: string, mult: Record<string, number>): Ma
   };
   const duDep = moyenne(f.dep);
   return new Map(Object.entries(f.c).map(([code, n]) => [code, Math.round((n.reduce((a, b) => a + b, 0) >= 20 ? moyenne(n) : duDep) * 1000) / 1000]));
+}
+
+/* ------------------------------------------------------------------ *
+ * La période de construction (BDNB, voir `batiments-emettre.ts`)
+ * ------------------------------------------------------------------ */
+
+/** Les périodes de la page des bâtiments ; 1971-1990 sert de référence. */
+export const PERIODES = PERIODES_BDNB;
+const BORNES_PERIODES = [1919, 1946, 1971, 1991, 2006];
+const REFERENCE = 3;
+export const periodeDe = (annee: number) => BORNES_PERIODES.filter((b) => annee >= b).length;
+const indicatrices = (annee: number) => PERIODES.map((_, k) => k).filter((k) => k !== REFERENCE).map((k) => (periodeDe(annee) === k ? 1 : 0));
+const PERIODES_MIN = 500;
+
+/** Ce que pèse la période de construction, mesuré sur un territoire. */
+export type EffetsPeriode = {
+  /** Le prix d'une maison de chaque période, rapporté à celui d'une maison de 1971-1990. */
+  multiplicateurs: number[];
+  ventes: number;
+  repartition: number[];
+  /** L'écart médian, sans puis avec la période, sur ces ventes. */
+  ecart: [number, number];
+  portee: string;
+};
+
+/** L'année de construction de chaque maison vendue, d'après les fichiers de la BDNB en cache ; rend le nombre de maisons datées. */
+export function daterBiens(biens: Bien[], cache: string): number {
+  const parDep = new Map<string, Bien[]>();
+  for (const b of biens) if (b.habitable > 0 && b.parcelle) (parDep.get(departementDe(b.commune)) ?? parDep.set(departementDe(b.commune), []).get(departementDe(b.commune))!).push(b);
+  let n = 0;
+  for (const [dep, l] of parDep) {
+    const annees = anneesParcelles(cache, dep);
+    if (!annees) continue;
+    for (const b of l) {
+      const a = annees.get(b.parcelle!);
+      if (a) {
+        b.annee = a;
+        n++;
+      }
+    }
+  }
+  return n;
+}
+
+/** L'effet de la période de construction sur un ensemble de ventes de maisons, ou null s'il y en a trop peu de datées. */
+export function mesurerPeriodes(biens: Bien[], portee: string): EffetsPeriode | null {
+  const lignes = biens.filter((b) => b.habitable > 0 && !(b.activite > 0) && b.annee);
+  if (lignes.length < PERIODES_MIN) return null;
+  const base = lignes.map((b) => [Math.log(b.habitable), Math.log1p(b.constructible + b.agricole + b.bois)]);
+  const avec = lignes.map((b, i) => [...base[i], ...indicatrices(b.annee!)]);
+  const y = lignes.map((b) => Math.log(b.prix));
+  const groupes = lignes.map((b) => b.commune);
+  const m = ajusterLog(avec, y, groupes);
+  if (!m) return null;
+  const autres = PERIODES.map((_, k) => k).filter((k) => k !== REFERENCE);
+  const multiplicateurs = PERIODES.map((_, k) => (k === REFERENCE ? 1 : Math.round(Math.exp(m.b[2 + autres.indexOf(k)]) * 1000) / 1000));
+  const r2 = (v: number | null) => Math.round((v ?? 0) * 100) / 100;
+  return {
+    multiplicateurs,
+    ventes: lignes.length,
+    repartition: PERIODES.map((_, k) => lignes.filter((b) => periodeDe(b.annee!) === k).length),
+    ecart: [r2(ecartCroise(base, y, groupes)), r2(ecartCroise(avec, y, groupes))],
+    portee,
+  };
+}
+
+/**
+ * Le multiplicateur moyen des maisons vendues dans chaque commune, selon leur période : le prix d'une
+ * maison de 1971-1990, c'est le prix estimé divisé par lui. Sous vingt ventes datées, la moyenne du territoire.
+ */
+export function melangesPeriodes(biens: Bien[], mult: number[]): (code: string) => number {
+  const parCommune = new Map<string, number[]>();
+  const tous: number[] = [];
+  for (const b of biens) {
+    if (!(b.habitable > 0) || !b.annee) continue;
+    const v = mult[periodeDe(b.annee)];
+    (parCommune.get(b.commune) ?? parCommune.set(b.commune, []).get(b.commune)!).push(v);
+    tous.push(v);
+  }
+  const moyenne = (l: number[]) => l.reduce((a, b) => a + b, 0) / l.length;
+  const defaut = tous.length ? moyenne(tous) : 1;
+  return (code) => {
+    const l = parCommune.get(code);
+    return Math.round((l && l.length >= 20 ? moyenne(l) : defaut) * 1000) / 1000;
+  };
+}
+
+/** L'effet de la période, région par région, là où tous les départements ont leurs années. */
+function periodesParRegion(sortie: string, biens: Bien[], deps: string[], cache: string): Map<string, EffetsPeriode> {
+  const meta = JSON.parse(readFileSync(join(sortie, 'meta.json'), 'utf8')) as { regions: Record<string, string>; codesRegion: Record<string, string> };
+  const regions = new Map<string, string[]>();
+  for (const dep of deps) {
+    const r = meta.codesRegion[dep];
+    if (r) (regions.get(r) ?? regions.set(r, []).get(r)!).push(dep);
+  }
+  const effets = new Map<string, EffetsPeriode>();
+  for (const membres of regions.values()) {
+    if (!membres.every((d) => existsSync(fichierAnnees(cache, d)))) continue;
+    const dansRegion = new Set(membres);
+    const e = mesurerPeriodes(biens.filter((b) => dansRegion.has(departementDe(b.commune))), `région ${meta.regions[membres[0]]}`);
+    if (e) for (const d of membres) effets.set(d, e);
+  }
+  return effets;
 }
 
 /**
@@ -503,7 +636,10 @@ export function ecrireEstimation(sortie: string, biens: Bien[], annees: number[]
   const dossier = join(sortie, 'simulateurs', 'estimation');
   mkdirSync(dossier, { recursive: true });
   const deps = [...parDep.keys()].filter((dep) => existsSync(join(sortie, 'dep', `${dep}.json`)));
+  // Les maisons datées d'abord : l'effet de l'étiquette se mesure aussi à période égale.
+  if (cache) daterBiens(biens, cache);
   const effets = cache ? effetsParRegion(sortie, biens, deps, cache) : new Map<string, EffetsDpe>();
+  const periodes = cache ? periodesParRegion(sortie, biens, deps, cache) : new Map<string, EffetsPeriode>();
   let n = 0;
   for (const dep of deps) {
     const c = parDep.get(dep)!;
@@ -512,7 +648,22 @@ export function ecrireEstimation(sortie: string, biens: Bien[], annees: number[]
       const m = melanges(sortie, dep, dpe.multiplicateurs);
       for (const [code, e] of Object.entries(c)) e[10] = m.get(code) ?? null;
     }
-    writeFileSync(join(dossier, `${dep}.json`), JSON.stringify({ maj, annees, tailles: TAILLES, partActivite: PART_ACTIVITE, dpe, c }));
+    const periode = periodes.get(dep) ?? null;
+    if (periode) {
+      const m = melangesPeriodes(biens, periode.multiplicateurs);
+      for (const [code, e] of Object.entries(c)) {
+        e[10] = e[10] ?? null;
+        e[11] = m(code);
+      }
+    }
+    if (dpe?.sachantPeriode && periode) {
+      const m = melanges(sortie, dep, dpe.sachantPeriode);
+      for (const [code, e] of Object.entries(c)) e[12] = m.get(code) ?? null;
+    }
+    writeFileSync(
+      join(dossier, `${dep}.json`),
+      JSON.stringify({ maj, annees, tailles: TAILLES, partActivite: PART_ACTIVITE, dpe, periode: periode ? { ...periode, periodes: PERIODES } : null, c }),
+    );
     n++;
   }
   return n;

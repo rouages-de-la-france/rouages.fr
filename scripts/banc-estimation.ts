@@ -36,7 +36,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { anneesDvf, lireVentes } from './dvf-emettre.ts';
-import { estimer, lireVoisines, PART_ACTIVITE, TAILLES, type Bien, type Estimation } from './estimation-emettre.ts';
+import { daterBiens, estimer, lireVoisines, melangesPeriodes, mesurerPeriodes, PART_ACTIVITE, periodeDe, TAILLES, type Bien, type Estimation } from './estimation-emettre.ts';
 import { departementDe, telechargerSiAbsent } from './par-departement.ts';
 
 export const PLIS = 10;
@@ -129,6 +129,8 @@ export interface Banc {
   departements: Record<string, Record<string, Mesure>>;
   tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
   intervalles: Intervalles;
+  /** Les mêmes, pour qui donne la période de construction de sa maison. */
+  intervallesPeriode: Intervalles;
 }
 
 /**
@@ -168,6 +170,7 @@ export function intervalles(lignes: { voisines: boolean; pli: number; surface: n
 
 const MODELES = [
   { id: 'surface', nom: 'Le simulateur : surface pondérée, voisinage compris' },
+  { id: 'periode', nom: 'Le simulateur, avec la période de construction (BDNB)' },
   { id: 'naif', nom: 'Référence naïve : prix médian au m² de la commune × surface habitable' },
 ];
 const TAILLES_MARCHE = [
@@ -176,7 +179,16 @@ const TAILLES_MARCHE = [
   { id: 'grand', nom: 'Cent ventes et plus', max: Infinity },
 ];
 
-export function banc(biens: Bien[], voisines: (code: string) => string[], annees: number[], dire: (m: string) => void, plis = PLIS, graine = GRAINE): Banc {
+export function banc(
+  biens: Bien[],
+  voisines: (code: string) => string[],
+  annees: number[],
+  dire: (m: string) => void,
+  plis = PLIS,
+  graine = GRAINE,
+  /** La région de chaque département : l'effet de la période se mesure par région, comme sur le site. */
+  regionDe: (dep: string) => string = () => 'France',
+): Banc {
   const maisons = biens.map((b, i) => ({ b, i })).filter(({ b }) => b.habitable > 0);
   // Le tirage : chaque maison reçoit une part, toujours la même pour la même liste de ventes.
   const alea = tirage(graine);
@@ -186,11 +198,19 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
   const parCommune = new Map<string, number>();
   for (const { b } of maisons) parCommune.set(b.commune, (parCommune.get(b.commune) ?? 0) + 1);
 
-  const rapports: Record<string, (number | null)[]> = { surface: [], naif: [] };
-  const lignes: { dep: string; taille: number; voisines: boolean; pli: number; surface: number | null; naif: number | null }[] = [];
+  const rapports: Record<string, (number | null)[]> = { surface: [], periode: [], naif: [] };
+  const lignes: { dep: string; taille: number; voisines: boolean; pli: number; datee: boolean; surface: number | null; periode: number | null; naif: number | null }[] = [];
   for (let p = 0; p < plis; p++) {
     const appris = biens.filter((_, i) => part.get(i) !== p);
     const modele = estimer(appris, voisines);
+    // L'effet de la période, appris sur ces ventes seules, région par région ; et le mélange de chaque commune.
+    const parRegion = new Map<string, Bien[]>();
+    for (const b of appris) (parRegion.get(regionDe(departementDe(b.commune))) ?? parRegion.set(regionDe(departementDe(b.commune)), []).get(regionDe(departementDe(b.commune)))!).push(b);
+    const effetPeriode = new Map<string, { mult: number[]; melange: (code: string) => number }>();
+    for (const [r, l] of parRegion) {
+      const m = mesurerPeriodes(l, r);
+      if (m) effetPeriode.set(r, { mult: m.multiplicateurs, melange: melangesPeriodes(l, m.multiplicateurs) });
+    }
     // La référence naïve : la médiane au m² des maisons sans terres ni bois, de la commune puis du département.
     const m2 = new Map<string, number[]>();
     const m2Dep = new Map<string, number[]>();
@@ -207,6 +227,9 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
       if (part.get(i) !== p) continue;
       const est = modele.get(b.commune);
       const e = estimation(est, b);
+      const ep = effetPeriode.get(regionDe(departementDe(b.commune)));
+      // Sans année connue, l'estimation reste celle d'une maison ordinaire de la commune, comme sur la page.
+      const eP = e && ep && b.annee ? (e * ep.mult[periodeDe(b.annee)]) / ep.melange(b.commune) : e;
       const u = medC.get(b.commune) ?? medD.get(departementDe(b.commune)) ?? null;
       const n = u !== null ? u * b.habitable : null;
       const n2 = parCommune.get(b.commune) ?? 0;
@@ -215,8 +238,10 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
         // La commune mesurée seule, ou avec ses voisines : la page le sait, et choisit la fourchette en conséquence.
         voisines: (est?.[5][1] ?? 0) > 0,
         pli: p,
+        datee: !!(ep && b.annee),
         taille: TAILLES_MARCHE.findIndex((t) => n2 < t.max),
         surface: e ? b.prix / e : null,
+        periode: eP ? b.prix / eP : null,
         naif: n ? b.prix / n : null,
       });
     }
@@ -224,12 +249,13 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
   }
   for (const l of lignes) {
     rapports.surface.push(l.surface);
+    rapports.periode.push(l.periode);
     rapports.naif.push(l.naif);
   }
   // Pour un contrôle indépendant des mesures : les rapports eux-mêmes, hors du site.
   if (process.env.ROUAGES_BANC_DETAIL) writeFileSync(process.env.ROUAGES_BANC_DETAIL, JSON.stringify(lignes));
   const parModele = (f: (l: (typeof lignes)[number]) => boolean) =>
-    Object.fromEntries(MODELES.map((m) => [m.id, mesurer(lignes.filter(f).map((l) => l[m.id as 'surface' | 'naif']))]));
+    Object.fromEntries(MODELES.map((m) => [m.id, mesurer(lignes.filter(f).map((l) => l[m.id as 'surface' | 'periode' | 'naif']))]));
   const deps = [...new Set(lignes.map((l) => l.dep))].sort();
   const resultat: Banc = {
     maj: new Date().toISOString().slice(0, 10),
@@ -241,17 +267,22 @@ export function banc(biens: Bien[], voisines: (code: string) => string[], annees
     departements: Object.fromEntries(deps.map((d) => [d, parModele((l) => l.dep === d)])),
     tailles: TAILLES_MARCHE.map((t, k) => ({ id: t.id, nom: t.nom, mesures: parModele((l) => l.taille === k) })),
     intervalles: intervalles(lignes, plis),
+    // Pour qui donne la période : mesurées sur les seules maisons datées, estimées avec leur période.
+    intervallesPeriode: intervalles(
+      lignes.filter((l) => l.datee).map((l) => ({ ...l, surface: l.periode })),
+      plis,
+    ),
   };
   const f = resultat.france;
   dire(
     `Banc d’essai de l’estimation (${plis} parts, graine ${graine}) : ${f.surface.ventes.toLocaleString('fr-FR')} maisons ; ` +
-      `écart médian ${f.surface.ecartMedian} pour le simulateur, ${f.naif.ecartMedian} pour la référence naïve.`,
+      `écart médian ${f.surface.ecartMedian} pour le simulateur, ${f.periode.ecartMedian} avec la période, ${f.naif.ecartMedian} pour la référence naïve.`,
   );
   return resultat;
 }
 
 /** Le banc déjà calculé pour ces années, avec la même méthode : on ne le refait pas — c'est dix fois le simulateur (31 s pour l'Allier). */
-export const VERSION = 2;
+export const VERSION = 3;
 export function bancAJour(sortie: string, annees: number[]): boolean {
   const f = join(sortie, 'simulateurs', 'estimation', 'banc.json');
   if (process.env.ROUAGES_BANC_FORCER || !existsSync(f)) return false;
@@ -268,7 +299,7 @@ export function ecrireBanc(sortie: string, b: Banc): void {
   mkdirSync(dossier, { recursive: true });
   writeFileSync(join(dossier, 'banc.json'), JSON.stringify({ version: VERSION, ...b }));
   // Le petit fichier que lit la page du simulateur pour ses fourchettes.
-  writeFileSync(join(dossier, 'intervalles.json'), JSON.stringify({ maj: b.maj, annees: b.annees, ...b.intervalles }));
+  writeFileSync(join(dossier, 'intervalles.json'), JSON.stringify({ maj: b.maj, annees: b.annees, ...b.intervalles, periode: b.intervallesPeriode.classes }));
 }
 
 // Lancé seul : les ventes déjà en cache.
@@ -277,6 +308,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const annees = anneesDvf().filter((a) => existsSync(join(cache, `dvf-${a}.csv.gz`)));
   const biens: Bien[] = [];
   for (const a of annees) await lireVentes(join(cache, `dvf-${a}.csv.gz`), a, () => {}, () => {}, (b) => biens.push(b));
+  console.log(`${daterBiens(biens, cache)} maisons datées d’après la BDNB.`);
   const debut = Date.now();
   const b = banc(biens, lireVoisines(sortie), annees, console.log, Number(process.env.ROUAGES_BANC_PLIS ?? PLIS));
   console.log(`(${Math.round((Date.now() - debut) / 1000)} s)`);
