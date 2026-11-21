@@ -483,10 +483,10 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
 const familleDe = new Map(FAMILLES.flatMap((f) => f.blocs.map((b) => [b, f.id] as const)));
 const famillesPresentes = FAMILLES.map((f) => ({ ...f, n: entrees.filter(([id]) => familleDe.get(id) === f.id).length })).filter((f) => f.n > 0 || f.id === 'apercu');
 const eau = plus.eau && plus.eau.prix !== null ? plus.eau : null;
-// Les départements dont Rouages Pro collecte les financements
-// (`scripts/financements-emettre.ts` du dépôt pro) : ailleurs, son accès
-// gratuit pour l'ESS refuserait la demande, et le lien n'est pas posé.
-const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58', '63', '71']);
+// Rouages Pro collecte les financements de tous les départements depuis le
+// 17 novembre 2026 (`scripts/financements-emettre.ts` du dépôt pro) : pas les
+// collectivités d'outre-mer hors départements (975, 977, 978, 98x).
+const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
 ---
 
 <Base
@@ -1117,9 +1117,11 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
         <p class="mesure">
           Pour une activité qui n’a pas d’association ici&nbsp;: <a href={`/le-plus-proche?c=${commune.code}`}>la plus proche</a>, domaine par domaine.
         </p>
-        {FINANCEMENTS_PRO.has(commune.dep) && (
+        {financementsPro(commune.dep) && (
           <p class="mesure">
-            <a href="https://pro.rouages.fr/ess">{'Ce que votre association a reçu de l’État, ce qu’ont obtenu les associations comparables du département, et les appels du FDVA'}</a>
+            <a href={`https://pro.rouages.fr/financements/projet?forme=association&commune=${commune.code}`}>{'Ce qu’ont obtenu les associations comparables, pour une association ou un projet d’ici'}</a>
+            {' · '}
+            <a href="https://pro.rouages.fr/ess">{'la fiche de votre association, et ce qu’elle a reçu'}</a>
             {' — Rouages Pro, le service de l’éditeur : gratuit pour les associations et les structures de l’économie sociale et solidaire'}
           </p>
         )}
