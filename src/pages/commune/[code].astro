@@ -78,6 +78,7 @@ import Cantines from '../../composants/commune/Cantines.astro';
 import Ouverture from '../../composants/commune/Ouverture.astro';
 import Forets from '../../composants/commune/Forets.astro';
 import Zfe from '../../composants/commune/Zfe.astro';
+import Marche from '../../composants/commune/Marche.astro';
 import Agriculture from '../../composants/commune/Agriculture.astro';
 import Votes from '../../composants/commune/Votes.astro';
 import Sols from '../../composants/commune/Sols.astro';
@@ -380,6 +381,7 @@ const sommaire: [string, string, unknown][] = [
   ['echelons', 'Les échelons', echelonsMontres],
   ['zonages', 'Programmes et zonages', vie.zonages],
   ['logements', 'Les logements', vie.parc || vie.immobilier],
+  ['marche', 'Le marché du logement', vie.immobilier || vie.vacance || log],
   ['batiments', 'Les bâtiments', vie.batiments],
   ['vacance', 'La vacance', vie.vacance],
   ['loyers', 'Les loyers', vie.loyers],
@@ -460,7 +462,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'logement',
     nom: 'Se loger, construire',
-    blocs: ['zonages', 'logements', 'batiments', 'vacance', 'loyers', 'dpe', 'aides-locales', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
+    blocs: ['zonages', 'logements', 'marche', 'batiments', 'vacance', 'loyers', 'dpe', 'aides-locales', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
   },
   {
     id: 'quotidien',
@@ -829,6 +831,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
       <section id="logements" class="p-logements">
         <h2 class="badge">Ses logements, et ce qu’ils coûtent</h2>
         <Logement parc={vie.parc} immobilier={vie.immobilier} depNom={SEULE_DE_SON_DEPARTEMENT.has(commune.code) ? null : commune.depNom} />
+      </section>
+    )}
+
+    {(vie.immobilier || vie.vacance || log) && (
+      <section id="marche">
+        <h2 class="badge">Le marché du logement, côte à côte</h2>
+        <Marche immobilier={vie.immobilier} batiments={vie.batiments} parc={vie.parc} vacance={vie.vacance} logements={log} depNom={SEULE_DE_SON_DEPARTEMENT.has(commune.code) ? null : commune.depNom} />
       </section>
     )}
 

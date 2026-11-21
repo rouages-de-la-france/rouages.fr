@@ -47,6 +47,8 @@ type DetailLigne = [
   [number, number | null, number | null],
   /** Les maisons vendues avec des terres ou des bois, hors de la médiane : [ventes, prix médian] ; absent d'une ingestion antérieure. */
   [number, number | null]?,
+  /** Année par année : [prix médian au m² des maisons sans terres ni bois, ventes] ; absent d'une ingestion antérieure. */
+  [number | null, number][]?,
 ];
 type DvfDep = {
   maj: string;
@@ -432,6 +434,8 @@ export interface DetailVentes {
   bois: { ventes: number; hectare: number | null; surface: number | null };
   /** Les maisons vendues avec des terres ou des bois, comptées à part de la médiane ; null avant la décision du 20 novembre 2026. */
   avecTerres: { ventes: number; prix: number | null } | null;
+  /** Le prix médian au m² des maisons sans terres ni bois, année par année (null sous dix ventes). */
+  parAnnee: { m2: number | null; ventes: number }[] | null;
 }
 
 export interface Immobilier {
@@ -1198,7 +1202,7 @@ function ventes(x: PrixLigne): PrixVentes {
 
 function detailVentes(x: DetailLigne | null | undefined): DetailVentes | null {
   if (!x) return null;
-  const [m, a, b, t, w, at] = x;
+  const [m, a, b, t, w, at, pa] = x;
   return {
     maison: m ? { q1: m[0], q3: m[1], surface: m[2], pieces: m[3], terrain: m[4] || null } : null,
     appartement: a ? { q1: a[0], q3: a[1], surface: a[2], pieces: a[3] } : null,
@@ -1206,6 +1210,7 @@ function detailVentes(x: DetailLigne | null | undefined): DetailVentes | null {
     terres: { ventes: t[0], hectare: t[1], surface: t[2] },
     bois: { ventes: w[0], hectare: w[1], surface: w[2] },
     avecTerres: at ? { ventes: at[0], prix: at[1] } : null,
+    parAnnee: pa ? pa.map(([m2, ventes]) => ({ m2, ventes })) : null,
   };
 }
 
