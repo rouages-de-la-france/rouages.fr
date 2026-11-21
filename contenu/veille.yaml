@@ -1133,6 +1133,15 @@ surveillances:
     url: "https://www.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions"
     lien: od-zfe
 
+  - id: francetravail
+    nom: "France Travail — référentiel des agences et marché du travail"
+    alimente: "l'agence France Travail de la commune, et les offres et embauches de l'intercommunalité"
+    type: disponibilite
+    licence: etalab-partage-identique
+    fichiers: ["francetravail.json"]
+    url: "https://francetravail.io/produits-partages/catalogue/marche-travail"
+    lien: od-francetravail
+
 decouverte:
   mots_cles:
     - "intercommunalité compétences"

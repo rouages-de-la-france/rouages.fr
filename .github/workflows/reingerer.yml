@@ -53,6 +53,9 @@ jobs:
     timeout-minutes: ${{ inputs.machine == 'auto-hebergee' && 1440 || 350 }}
     env:
       ROUAGES_RETRAITS_SECRET: ${{ secrets.ROUAGES_RETRAITS_SECRET }}
+      # Le compte de francetravail.io (gratuit) : sans lui, la collecte France Travail renonce.
+      FRANCETRAVAIL_IDENTIFIANT: ${{ secrets.FRANCETRAVAIL_IDENTIFIANT }}
+      FRANCETRAVAIL_SECRET: ${{ secrets.FRANCETRAVAIL_SECRET }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

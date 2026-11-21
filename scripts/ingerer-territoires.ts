@@ -927,6 +927,15 @@ async function principal() {
     grise('Interventions des secours écrites.');
   }
 
+  // France Travail : l'agence de chaque commune, les offres et embauches de chaque intercommunalité
+  // (francetravail.io, identifiants requis ; licence à éclaircir : écrites dans un fichier à part).
+  const { collecterFranceTravail, departementsFrance, ecrireFranceTravail } = await import('./francetravail-emettre.ts');
+  const franceTravail = await tenter('France Travail', () => collecterFranceTravail(departementsFrance(), grise));
+  if (franceTravail) {
+    ecrireFranceTravail(SORTIE, franceTravail);
+    grise('France Travail écrit.');
+  }
+
   // Les restaurants collectifs et leurs achats (Ma Cantine, ministère de l'Agriculture).
   const { collecterCantines, ecrireCantines } = await import('./cantines-emettre.ts');
   const cantines = await tenter('Cantines', () =>
