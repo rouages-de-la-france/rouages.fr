@@ -104,6 +104,8 @@ import Loyers from '../../composants/commune/Loyers.astro';
 import Recharge from '../../composants/commune/Recharge.astro';
 import PetiteEnfance from '../../composants/commune/PetiteEnfance.astro';
 import Travail from '../../composants/commune/Travail.astro';
+import FranceTravail from '../../composants/commune/FranceTravail.astro';
+import { franceTravail } from '../../modele/france-travail.ts';
 import Appellations from '../../composants/commune/Appellations.astro';
 import Secheresse from '../../composants/commune/Secheresse.astro';
 import Ailleurs from '../../composants/commune/Ailleurs.astro';
@@ -157,6 +159,7 @@ const acheteurCommune = plus.marches.find((a) => a.natureLibelle === 'la commune
 const epciFp = fiche?.structures.find((x) => intercommunalite(x.siren));
 const acheteurEpci = epciFp ? plus.marches.find((a) => a.siren === epciFp.siren) : undefined;
 const zfeIci = zfe(commune.code);
+const franceTravailIci = franceTravail(commune.code, epciFp ? { siren: epciFp.siren, nom: epciFp.nom } : null);
 const ouvertureIci = ouverture(commune.code, epciFp ? { siren: epciFp.siren, nom: epciFp.nom } : null);
 const rapprochementsParElu = new Map<string, Rapprochement[]>();
 for (const d of fiche?.declarations ?? []) {
@@ -404,6 +407,7 @@ const sommaire: [string, string, unknown][] = [
   ['entreprises', 'Les entreprises', plus.presentes || plus.entreprises],
   ['representants', 'Les représentants d’intérêts', plus.representants],
   ['travail', 'Le travail', vie.travail],
+  ['france-travail', 'France Travail', franceTravailIci],
   ['equipements', 'Ce qu’on trouve sur place', fiche?.equipements || vie.acces?.services.length || vie.decheteries],
   ['services', 'Les services', (fiche?.services.length ?? 0) > 0],
   ['sante', 'Le médecin', vie.sante || vie.acces?.medecin],
@@ -457,7 +461,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'habitants',
     nom: 'Habitants et économie',
-    blocs: ['habitants', 'niveaux', 'travail', 'entreprises', 'representants', 'associations', 'agriculture', 'appellations'],
+    blocs: ['habitants', 'niveaux', 'travail', 'france-travail', 'entreprises', 'representants', 'associations', 'agriculture', 'appellations'],
   },
   {
     id: 'logement',
@@ -1159,6 +1163,13 @@ const FINANCEMENTS_PRO = new Set(['03', '15', '18', '19', '23', '42', '43', '58'
         <h2 class="badge">Le travail sur place</h2>
         <Travail t={vie.travail} />
         <Demarches bloc="travail" />
+      </section>
+    )}
+
+    {franceTravailIci && (
+      <section id="france-travail">
+        <h2 class="badge">France Travail : l’agence et les offres</h2>
+        <FranceTravail f={franceTravailIci} />
       </section>
     )}
 

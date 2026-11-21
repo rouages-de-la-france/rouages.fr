@@ -50,7 +50,7 @@ docker compose run --rm sonde    ce que la connexion de la machine joint
 ```
 
 `npm run territoires` dure une quarantaine de minutes et touche plus de trente
-sources — dont quatre-vingt-dix collectes facultatives, isolées : celle qui échoue laisse en
+sources — dont quatre-vingt-onze collectes facultatives, isolées : celle qui échoue laisse en
 place les fichiers de l'ingestion précédente plutôt que de tout emporter. Ce qui
 reste fatal, ce sont les référentiels dont dépend la structure du réseau,
 BANATIC et le découpage.
@@ -111,6 +111,13 @@ Rejected », connexions coupées. Ils répondent depuis l'hébergement français
 (constaté le 8 octobre 2026). `scripts/georisques-emettre.ts` ne produit donc
 ses fichiers que lancé de là ; partout ailleurs il échoue et laisse les
 précédents en place.
+
+Les API de France Travail (`francetravail.io`) demandent un compte gratuit :
+`FRANCETRAVAIL_IDENTIFIANT` et `FRANCETRAVAIL_SECRET`, dans GitHub Actions et
+dans le `.env` de l'ingestion locale ; sans eux, `scripts/francetravail-emettre.ts`
+renonce. Le jeton se demande en client credentials, et Node ne passe par le
+mandataire de l'environnement qu'avec `NODE_USE_ENV_PROXY=1`. L'API Marché du
+travail refuse l'échelon de la commune : elle sert l'intercommunalité.
 
 L'API de Kohesio (`kohesio.ec.europa.eu/api`) refuse les adresses des
 hébergeurs : la sortie directe d'ici (curl comme Node, 403 d'un répartiteur

@@ -38,6 +38,7 @@ const jeux = [...g.surveillances.values()]
 // qu'elle oblige le site à republier sous la même licence ce qu'il en tire.
 const LICENCES = [
   { code: 'odbl', nom: 'Open Database License (ODbL)', url: 'https://opendatacommons.org/licenses/odbl/1-0/' },
+  { code: 'etalab-partage-identique', nom: 'Licence Etalab avec partage à l’identique, selon les conditions de francetravail.io — à éclaircir', url: 'https://francetravail.io/cgu' },
   { code: 'licence-ouverte-2.0', nom: 'Licence Ouverte 2.0', url: 'https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf' },
   { code: 'licence-ouverte-1.0', nom: 'Licence Ouverte 1.0', url: 'https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf' },
   { code: 'licence-ouverte', nom: 'Licence Ouverte, sans version précisée', url: 'https://www.etalab.gouv.fr/licence-ouverte-open-licence' },
@@ -380,6 +381,15 @@ const ouvertes = nb('licence-ouverte-2.0') + nb('licence-ouverte-1.0') + nb('lic
         département.
       </p>
     )}
+    {nb('etalab-partage-identique') > 0 && (
+      <p class="mesure">
+        Les conditions de francetravail.io placent les données publiques de
+        France Travail sous la « licence Etalab », mais y ajoutent le partage à
+        l’identique et le maintien en accès ouvert des bases redistribuées, qui
+        sont les obligations de l’ODbL. Tant que France Travail ne l’a pas
+        précisé, ce que le site en tire est publié à part, sous ces conditions.
+      </p>
+    )}
     {(nb('variable') > 0 || nb('non-precisee') > 0) && (
       <p class="mesure">
         Deux cas restent à part, et sont dits comme tels&nbsp;: les jeux dont
@@ -406,7 +416,7 @@ const ouvertes = nb('licence-ouverte-2.0') + nb('licence-ouverte-1.0') + nb('lic
               {j.lien ? <a href={j.lien.url}>{j.nom}</a> : <span>{j.nom}</span>}
               <span class="mentions-usage">alimente {j.alimente}</span>
               {j.fichiers.length > 0 && (
-                <span class="mentions-usage">{`republié sous ${j.licence === 'cc-by-sa-4.0' ? 'CC BY-SA 4.0' : 'ODbL'} dans ${j.fichiers.join(', ')}`}</span>
+                <span class="mentions-usage">{`republié sous ${j.licence === 'cc-by-sa-4.0' ? 'CC BY-SA 4.0' : j.licence === 'etalab-partage-identique' ? 'la même licence' : 'ODbL'} dans ${j.fichiers.join(', ')}`}</span>
               )}
             </li>
           ))}

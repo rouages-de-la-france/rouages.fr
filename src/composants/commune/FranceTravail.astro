@@ -1,0 +1,70 @@
+---
+/**
+ * L'agence France Travail dont relève la commune, et les offres et embauches
+ * de son intercommunalité (`src/modele/france-travail.ts`). Le lien vers la
+ * recherche d'offres de France Travail est dit pour ce qu'il est : une
+ * recherche en cours, dans un rayon, qui ne redonne pas le chiffre affiché.
+ */
+import { trimestre, type FranceTravailIci } from '../../modele/france-travail.ts';
+
+interface Props {
+  f: FranceTravailIci;
+}
+const { f } = Astro.props;
+const nf = (v: number) => v.toLocaleString('fr-FR');
+const plages = (l: { jours: string; heures: string }[]) => l.map((x) => `${x.jours}, ${x.heures}`).join(' ; ');
+// Une grande ville relève de plusieurs agences, selon le quartier : au-delà de trois, on donne le nombre sans la liste.
+const nAgences = f.agences.filter((a) => !a.relais).length;
+const plusieurs = nAgences > 3;
+const agence = plusieurs ? undefined : f.agences.find((a) => !a.relais);
+const relais = plusieurs ? [] : f.agences.filter((a) => a.relais);
+---
+{plusieurs && (
+  <p class="mesure">
+    {`La commune relève de ${nAgences} agences France Travail, selon le quartier : l’adresse de chacune est sur `}
+    <a href="https://www.francetravail.fr/annuaire/" target="_blank" rel="noopener">l’annuaire de France Travail</a>
+    {'. Téléphone : 39 49.'}
+  </p>
+)}
+{agence && (
+  <p class="mesure">
+    {'La commune relève de l’'}<strong>{agence.nom.replace(/^Agence /, 'agence ')}</strong>
+    {`, ${[agence.adresse, agence.ville].filter(Boolean).join(', ')}. `}
+    {agence.libre.length > 0 && `Accueil sans rendez-vous ${plages(agence.libre)}. `}
+    {agence.rdv.length > 0 && `Sur rendez-vous ${plages(agence.rdv)}. `}
+    {'Téléphone : 39 49.'}
+  </p>
+)}
+{relais.length > 0 && (
+  <p class="mesure">
+    {`${agence ? 'Elle est aussi dans la zone ' : 'Elle relève '}${relais.length > 1 ? 'des relais' : 'du ' + relais[0].nom.replace(/^Relai /, 'relais ')}`}
+    {relais.length > 1 ? ` : ${relais.map((r) => r.nom.replace(/^Relai /, 'relais ')).join(', ')}` : ''}
+    {`, ${relais.map((r) => [r.adresse, r.ville].filter(Boolean).join(', ')).join(' ; ')}.`}
+  </p>
+)}
+{f.epci?.offres && (
+  <p class="mesure">
+    {`Dans l’intercommunalité (${f.epci.nom}), `}<strong>{`${nf(f.epci.offres.toutes)} offres d’emploi`}</strong>
+    {` ont été publiées sur les douze mois jusqu’au ${trimestre(f.epci.offres.periode)}, dont ${nf(f.epci.offres.francetravail)} déposées à France Travail. `}
+    {`Toutes offres confondues : ${f.epci.offres.contrats.map((c) => `${c.part} % ${c.nom}`).join(', ')}.`}
+  </p>
+)}
+{f.epci?.embauches && (
+  <p class="mesure">
+    {`${nf(f.epci.embauches.toutes)} embauches au ${trimestre(f.epci.embauches.periode)} dans l’intercommunalité, de candidats inscrits à France Travail ou non, dont ${nf(f.epci.embauches.plusDunMois)} sur des contrats de plus d’un mois.`}
+  </p>
+)}
+<p class="mesure">
+  {'Les offres en cours : '}
+  <a href={f.lienOffres} target="_blank" rel="noopener">la recherche de France Travail, à 10 km autour de la commune</a>
+  {'.'}
+</p>
+<p class="p-strate">
+  {'L’agence est celle dont la zone de compétence, publiée par France Travail, comprend la commune. '}
+  {'Les offres et les embauches sont celles de l’intercommunalité : France Travail ne les publie pas pour une commune. Il arrondit ces nombres à la dizaine. « Toutes offres » est le nom que l’API donne à l’ensemble, offres déposées à France Travail comprises. '}
+  {'La recherche de France Travail porte sur les offres ouvertes aujourd’hui, dans un rayon autour de la commune : son nombre ne redonne pas celui des douze derniers mois.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après les API Référentiel des agences et Marché du travail de France Travail (francetravail.io), lues le ${f.maj}. `}
+  {'Elles sont publiées sous la licence Etalab, que les conditions de francetravail.io assortissent d’un partage à l’identique : ce qui en est tiré est écrit dans un fichier à part.'}
+</p>
