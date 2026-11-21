@@ -48,6 +48,11 @@ entreprises:
   # Reçue le 17 novembre 2026 ; préfère garder le nom commercial.
   - siren: "103725149"
     affichage: commercial
+  # Entrepreneur en diffusion partielle à SIRENE (annuaire des entreprises, constaté
+  # le 21 novembre 2026) : il ne se nomme pas. La copie de SIRENE lue à l'ingestion,
+  # mise à jour le 1er du mois, le disait encore diffusible. Retrait complet :
+  # l'annonce reste comptée.
+  - "103715736"
 elus: []
 declarations: []
 sites: []
