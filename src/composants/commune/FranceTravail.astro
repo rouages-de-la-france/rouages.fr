@@ -13,9 +13,19 @@ interface Props {
 const { f } = Astro.props;
 const nf = (v: number) => v.toLocaleString('fr-FR');
 const plages = (l: { jours: string; heures: string }[]) => l.map((x) => `${x.jours}, ${x.heures}`).join(' ; ');
-const agence = f.agences.find((a) => !a.relais);
-const relais = f.agences.filter((a) => a.relais);
+// Une grande ville relève de plusieurs agences, selon le quartier : au-delà de trois, on donne le nombre sans la liste.
+const nAgences = f.agences.filter((a) => !a.relais).length;
+const plusieurs = nAgences > 3;
+const agence = plusieurs ? undefined : f.agences.find((a) => !a.relais);
+const relais = plusieurs ? [] : f.agences.filter((a) => a.relais);
 ---
+{plusieurs && (
+  <p class="mesure">
+    {`La commune relève de ${nAgences} agences France Travail, selon le quartier : l’adresse de chacune est sur `}
+    <a href="https://www.francetravail.fr/annuaire/" target="_blank" rel="noopener">l’annuaire de France Travail</a>
+    {'. Téléphone : 39 49.'}
+  </p>
+)}
 {agence && (
   <p class="mesure">
     {'La commune relève de l’'}<strong>{agence.nom.replace(/^Agence /, 'agence ')}</strong>
