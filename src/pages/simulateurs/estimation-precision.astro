@@ -172,6 +172,12 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
           </>
         )}
 
+        <h2 class="badge">Les autres simulateurs</h2>
+        <ul class="accueil-themes">
+          <li><strong><a href="/simulateurs/locatif">Louer</a></strong>&nbsp;: le prix est celui que vous saisissez — ou celui de ce simulateur, avec sa fourchette. Le loyer vient de la carte des loyers de l’ANIL, dont le modèle est le sien&nbsp;: la page en reprend l’intervalle, appliqué au rendement. Aucun loyer réel n’étant publié logement par logement, sa précision ne peut pas être mesurée ici.</li>
+          <li><strong><a href="/simulateurs/renovation">Rénover</a></strong>&nbsp;: le reste à charge suit les barèmes publiés de l’Anah, sans estimation. Le gain de valeur vient de l’effet de l’étiquette énergétique sur le prix, mesuré sur les ventes rapprochées d’un diagnostic, avec l’écart de l’estimation sans puis avec l’étiquette — la page du simulateur le dit pour chaque région.</li>
+        </ul>
+
         <h2 class="badge">La méthode</h2>
         <ul class="accueil-themes">
           <li><strong>Dix parts</strong>&nbsp;: {`les ventes de maisons sont réparties en ${banc.plis} parts par un tirage pseudo-aléatoire, de graine ${banc.graine} : le tirage se refait à l’identique.`}</li>

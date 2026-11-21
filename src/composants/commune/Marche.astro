@@ -1,0 +1,47 @@
+---
+/**
+ * Le marché du logement, côte à côte : la rotation du parc, l'évolution du prix
+ * des maisons, la vacance de longue durée et les logements autorisés. Chacun
+ * avec sa source, à côté des autres — sans indice composé : en pondérer les
+ * morceaux serait un choix du site, donc une opinion. Le détail de chacun est
+ * dans sa section, plus bas.
+ */
+import { lignesMarche } from '../../modele/marche.ts';
+import type { Batiments, Immobilier, Parc, Vacance } from '../../modele/fiche-vie.ts';
+import type { Fiche } from '../../modele/territoires.ts';
+
+interface Props {
+  immobilier: Immobilier | null;
+  batiments: Batiments | null;
+  parc: Parc | null;
+  vacance: Vacance | null;
+  logements: NonNullable<Fiche['logements']> | null;
+  depNom: string | null;
+}
+const { immobilier, batiments, parc, vacance, logements, depNom } = Astro.props;
+const lignes = lignesMarche(immobilier, batiments, parc, vacance, logements, depNom);
+---
+{lignes.length >= 2 ? (
+  <div class="marche-bloc">
+    <dl class="mesure marche">
+      {lignes.map((l) => (
+        <div>
+          <dt>{l.nom}</dt>
+          <dd><strong>{l.valeur}</strong>{` — ${l.detail}`}</dd>
+        </div>
+      ))}
+    </dl>
+    <p class="p-strate">
+      {'Ces chiffres se lisent ensemble, sans se résumer en un indice : beaucoup de vacance et peu de ventes ne disent pas la même chose qu’un parc qui tourne vite avec des prix qui montent. '}
+      {'Chacun vient de sa source, détaillée dans sa section.'}
+    </p>
+    <p class="p-source-territoire">
+      {'Demandes de valeurs foncières de la DGFiP (ventes et prix) ; fichiers fonciers, d’après la base nationale des bâtiments, ou recensement de l’INSEE (parc) ; LOVAC (vacance) ; Sitadel (logements autorisés).'}
+    </p>
+  </div>
+) : null}
+<style>
+  .marche { display: grid; gap: .6rem; margin: 0 0 1rem; }
+  .marche dt { font-weight: 600; }
+  .marche dd { margin: .15rem 0 0; }
+</style>

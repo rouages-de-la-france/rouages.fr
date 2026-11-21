@@ -246,7 +246,10 @@ export function quantile(v: number[], p: number): number | null {
  * - appartements : [1er quartile, 3e quartile, surface médiane, pièces médianes], ou null ;
  * - terrains à bâtir : [ventes, prix médian au m², 1er quartile, 3e quartile, surface médiane en m²] ;
  * - terres et prés, bois : [ventes, prix médian à l'hectare, surface médiane en hectares] ;
- * - maisons vendues avec des terres ou des bois, hors de la médiane : [ventes, prix médian].
+ * - maisons vendues avec des terres ou des bois, hors de la médiane : [ventes, prix médian] ;
+ * - année par année, les maisons sans terres ni bois : [prix médian au m², ventes], le prix à partir
+ *   de vingt ventes dans l'année — en deçà, une médiane annuelle dirait le hasard des maisons vendues
+ *   (au Mayet-de-Montagne, 16 ventes en 2023 et 19 en 2025 donnaient « +20 % »).
  * Un nombre de ventes est toujours donné ; les prix, à partir de cinq.
  */
 export type Detail = [
@@ -256,9 +259,13 @@ export type Detail = [
   [number, number | null, number | null],
   [number, number | null, number | null],
   [number, number | null],
+  [number | null, number][],
 ];
 
-function detailler(ventes: Vente[], terrains: Terrain[]): Detail {
+/** Sous ce nombre de ventes de maisons dans l'année, pas de prix annuel. */
+export const MINIMUM_ANNUEL = 20;
+
+function detailler(ventes: Vente[], terrains: Terrain[], annees: number[]): Detail {
   const r = (x: number | null, d = 0) => (x === null ? null : Math.round(x * 10 ** d) / 10 ** d);
   const assez = <T,>(l: T[]) => l.length >= MINIMUM;
   const logement = (type: Vente['type']) => {
@@ -287,6 +294,10 @@ function detailler(ventes: Vente[], terrains: Terrain[]): Detail {
     hectare('terres'),
     hectare('bois'),
     [avecTerres.length, assez(avecTerres) ? r(quantile(avecTerres.map((v) => v.prix), 0.5)) : null],
+    annees.map((a) => {
+      const l = ventes.filter((v) => v.type === 'Maison' && !v.terres && v.annee === a);
+      return [l.length >= MINIMUM_ANNUEL ? r(quantile(l.map((v) => v.prix / v.surface), 0.5)) : null, l.length];
+    }),
   ];
 }
 
@@ -350,11 +361,11 @@ export async function collecterDvf(
     terrainsParDep.get(dep)!.push(...t);
   }
   for (const code of new Set([...parCommune.keys(), ...terrainsParCommune.keys()])) {
-    details.set(code, detailler(parCommune.get(code) ?? [], terrainsParCommune.get(code) ?? []));
+    details.set(code, detailler(parCommune.get(code) ?? [], terrainsParCommune.get(code) ?? [], annees));
   }
   const detailsDep = new Map<string, Detail>();
   for (const dep of new Set([...parDep.keys(), ...terrainsParDep.keys()])) {
-    detailsDep.set(dep, detailler(parDep.get(dep) ?? [], terrainsParDep.get(dep) ?? []));
+    detailsDep.set(dep, detailler(parDep.get(dep) ?? [], terrainsParDep.get(dep) ?? [], annees));
   }
   return { maj: new Date().toISOString().slice(0, 10), annees, communes, departements, details, detailsDep, ventes: parCommune, biens };
 }
