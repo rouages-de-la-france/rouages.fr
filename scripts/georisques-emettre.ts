@@ -40,7 +40,7 @@
  * Lancé seul — `npx tsx scripts/georisques-emettre.ts` —, il réécrit
  * `public/territoires/dep/XX-sols-pollues.json` et `dep/XX-icpe.json`.
  */
-import { createReadStream } from 'node:fs';
+import { createReadStream, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
@@ -154,12 +154,23 @@ export async function collecterGeorisques(
     }
     const vers = join(cache, `georisques-${nom}.csv`);
     await telecharger(couche(nom), vers);
-    let lues = 0;
-    for await (const r of lireCouche(vers, requises)) {
-      lues++;
-      f(r);
+    const compter = async () => {
+      let n = 0;
+      for await (const _ of lireCouche(vers, requises)) n++;
+      return n;
+    };
+    // Le fichier peut venir du cache d'un jour précédent, quand le nombre annoncé est
+    // celui du jour : la réingestion du 21 novembre 2026 a lu 349 066 lignes pour
+    // 347 989 annoncées. On le retélécharge une fois avant de conclure.
+    let lues = await compter();
+    if (lues !== annonce) {
+      dire(`  ${nom} : ${lues} lignes en cache pour ${annonce} annoncées, on retélécharge`);
+      rmSync(vers, { force: true });
+      await telecharger(couche(nom), vers);
+      lues = await compter();
     }
-    if (lues !== annonce) throw new Error(`${nom} : ${lues} lignes lues pour ${annonce} annoncées — fichier tronqué`);
+    if (lues !== annonce) throw new Error(`${nom} : ${lues} lignes lues pour ${annonce} annoncées — fichier tronqué ou couche modifiée pendant la lecture`);
+    for await (const r of lireCouche(vers, requises)) f(r);
     dire(`  ${nom} : ${lues.toLocaleString('fr-FR')} lignes`);
   }
 
