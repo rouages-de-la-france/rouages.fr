@@ -1118,6 +1118,11 @@ async function principal() {
   const dotations = await tenter('Dotations de l’État', () => collecterDotations(obstine, lireJson, grise));
   if (dotations) grise(`${ecrireDotations(SORTIE, dotations)} départements de dotations écrits.`);
 
+  // La voirie retenue pour la dotation de solidarité rurale : le critère de la DGCL, que l'OFGL republie.
+  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
+  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(obstine, lireJson, grise));
+  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
+
   const { collecterCaf, ecrireCaf } = await import('./caf-emettre.ts');
   const caf = await tenter('Allocataires de la CAF', () => collecterCaf(obstine, grise));
   if (caf) grise(`${ecrireCaf(SORTIE, caf)} départements d’allocataires de la CAF écrits.`);
@@ -1230,12 +1235,6 @@ async function principal() {
     ecrireZfe(SORTIE, zones);
     grise('Zones à faibles émissions écrites.');
   }
-
-  // La voirie retenue pour la DGF : les tronçons que l'IGN publie, découpés sur les contours des communes
-  // (recalculée à la parution d'une nouvelle année seulement).
-  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
-  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(SORTIE, grise));
-  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
 
   // Le patrimoine mondial : la liste de l'UNESCO et les périmètres régionaux, croisés avec les mêmes contours.
   const { collecterPatrimoineMondial, ecrirePatrimoineMondial } = await import('./patrimoine-mondial-emettre.ts');

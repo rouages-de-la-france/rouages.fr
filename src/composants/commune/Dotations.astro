@@ -43,6 +43,7 @@ const lignes = p
       ['Dotation d’aménagement des communes d’outre-mer', p.dacom, null],
     ] as [string, number, string | null][]).filter(([, v]) => v > 0)
   : [];
+const km = (m: number) => `${(m / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km`;
 ---
 <p class="mesure">
   {total > 0
@@ -64,8 +65,9 @@ const lignes = p
 {cn > 0 && <p class="mesure">{`S’y ajoute la dotation des communes nouvelles : ${eur(cn)}.`}</p>}
 {d.voirie && (
   <p class="mesure">
-    {`La voirie retenue pour la dotation${d.voirie.annee ? ` de ${d.voirie.annee}` : ''} mesure environ ${Math.round(d.voirie.metres / 1000).toLocaleString('fr-FR')} km : ` +
-      'les routes à une ou deux chaussées, les bretelles et les ronds-points que l’IGN recense dans la commune — ni chemins, ni sentiers, ni routes empierrées. Elle entre dans le calcul de la dotation de solidarité rurale.'}
+    {`La voirie retenue pour la dotation de solidarité rurale${d.voirie.annee ? ` de ${d.voirie.annee}` : ''} mesure ${km(d.voirie.metres)}` +
+      (d.voirie.avant !== null && d.voirie.annee && Math.abs(d.voirie.avant - d.voirie.metres) >= 100 ? ` (${km(d.voirie.avant)} en ${d.voirie.annee - 1})` : '') +
+      ' : les routes à une ou deux chaussées, les bretelles et les ronds-points que l’IGN recense dans la commune — ni chemins, ni sentiers, ni routes empierrées.'}
   </p>
 )}
 <p class="p-strate">
@@ -77,6 +79,6 @@ const lignes = p
   {`D’après les montants notifiés par la Direction générale des collectivités locales, tels que l’OFGL les republie (${d.maj}). ` +
     'Les comptes, plus haut, disent ce que la commune a encaissé ; ces montants sont ceux que l’État lui a attribués pour l’année.' +
     (d.voirie
-      ? ` La voirie : d’après les tronçons retenus pour la DGF que l’IGN publie (couche « VOIRIE DGF », Géoplateforme, sous Licence Ouverte 2.0, lue le ${d.voirie.maj}), mesurés sur les contours des communes ; la longueur est approchée, à 2 % près sur les communes vérifiées. Le chiffre qui fait foi est celui de la fiche de la commune sur le site des dotations de la DGCL.`
+      ? ` La voirie : le critère de répartition que la DGCL publie, tel que l’OFGL le republie (lu le ${d.voirie.maj}). Depuis la loi de finances pour 2025, ce sont les voies que l’IGN recense, et non plus la voirie classée que la commune déclarait.`
       : '')}
 </p>

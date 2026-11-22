@@ -524,7 +524,7 @@ surveillances:
 
   - id: ofgl-dotations-communes
     nom: "OFGL — dotations des communes"
-    alimente: "la dotation globale de fonctionnement et ses parts"
+    alimente: "la dotation globale de fonctionnement et ses parts, et la longueur de voirie retenue"
     type: disponibilite
     licence: non-precisee
     url: "https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/dotations-communes/records?select=exercice&group_by=exercice&limit=20"
@@ -1132,14 +1132,6 @@ surveillances:
     fichiers: ["zfe.json"]
     url: "https://www.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions"
     lien: od-zfe
-
-  - id: voirie-dgf
-    nom: "IGN — voirie retenue pour la dotation globale de fonctionnement"
-    alimente: "la longueur de voirie retenue pour la dotation de solidarité rurale"
-    type: disponibilite
-    licence: licence-ouverte-2.0
-    url: "https://www.data.gouv.fr/api/2/datasets/6917c533b6998ec1d07b95f5/"
-    lien: od-voirie-dgf
 
   - id: francetravail
     nom: "France Travail — référentiel des agences et marché du travail"
