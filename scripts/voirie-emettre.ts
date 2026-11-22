@@ -90,7 +90,7 @@ export function repartir(lignes: number[][][], zones: Zone[], parCommune: Map<st
       const y = ((l[i - 1][1] + l[i][1]) / 2) * ECHELLE;
       const dans = (z: Zone) => x >= z.cadre[0] && x <= z.cadre[2] && y >= z.cadre[1] && y <= z.cadre[3] && dedans(x, y, z.anneaux);
       // Les morceaux d'un tronçon tombent presque toujours dans la même commune : on la teste d'abord.
-      const z = derniere && dans(derniere) ? derniere : zones.find(dans);
+      const z: Zone | undefined = derniere && dans(derniere) ? derniere : zones.find(dans);
       if (!z) continue;
       parCommune.set(z.code, (parCommune.get(z.code) ?? 0) + haversine(l[i - 1], l[i]));
       derniere = z;
