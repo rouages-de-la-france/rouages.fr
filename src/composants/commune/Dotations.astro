@@ -64,8 +64,8 @@ const lignes = p
 {cn > 0 && <p class="mesure">{`S’y ajoute la dotation des communes nouvelles : ${eur(cn)}.`}</p>}
 {d.voirie && (
   <p class="mesure">
-    {`La voirie retenue pour le calcul${d.voirie.annee ? ` de ${d.voirie.annee}` : ''} mesure ${(d.voirie.metres / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km : ` +
-      'elle compte dans deux fractions de la dotation de solidarité rurale, et double en montagne.'}
+    {`La voirie retenue pour la dotation${d.voirie.annee ? ` de ${d.voirie.annee}` : ''} mesure environ ${Math.round(d.voirie.metres / 1000).toLocaleString('fr-FR')} km : ` +
+      'les routes à une ou deux chaussées, les bretelles et les ronds-points que l’IGN recense dans la commune — ni chemins, ni sentiers, ni routes empierrées. Elle entre dans le calcul de la dotation de solidarité rurale.'}
   </p>
 )}
 <p class="p-strate">
@@ -76,5 +76,7 @@ const lignes = p
 <p class="p-source-territoire">
   {`D’après les montants notifiés par la Direction générale des collectivités locales, tels que l’OFGL les republie (${d.maj}). ` +
     'Les comptes, plus haut, disent ce que la commune a encaissé ; ces montants sont ceux que l’État lui a attribués pour l’année.' +
-    (d.voirie ? ` La voirie : d’après les critères de répartition des dotations publiés par la DGCL (lus le ${d.voirie.maj}).` : '')}
+    (d.voirie
+      ? ` La voirie : d’après les tronçons retenus pour la DGF que l’IGN publie (couche « VOIRIE DGF », Géoplateforme, sous Licence Ouverte 2.0, lue le ${d.voirie.maj}), mesurés sur les contours des communes ; la longueur est approchée, à 2 % près sur les communes vérifiées. Le chiffre qui fait foi est celui de la fiche de la commune sur le site des dotations de la DGCL.`
+      : '')}
 </p>

@@ -958,11 +958,6 @@ async function principal() {
   const stations = await tenter('Stations d’épuration', () => collecterStations(CACHE, grise));
   if (stations) grise(`${ecrireStations(SORTIE, stations)} départements de stations d’épuration écrits.`);
 
-  // La voirie retenue pour la DGF (critères de la DGCL) — à l'essai : le site ne répond pas depuis le développement.
-  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
-  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(enCache('Critères de répartition de la DGCL'), CACHE, grise));
-  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
-
   // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
   // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
   const { collecterBatiments } = await import('./batiments-emettre.ts');
@@ -1235,6 +1230,12 @@ async function principal() {
     ecrireZfe(SORTIE, zones);
     grise('Zones à faibles émissions écrites.');
   }
+
+  // La voirie retenue pour la DGF : les tronçons que l'IGN publie, découpés sur les contours des communes
+  // (recalculée à la parution d'une nouvelle année seulement).
+  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
+  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(SORTIE, grise));
+  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
 
   // Le patrimoine mondial : la liste de l'UNESCO et les périmètres régionaux, croisés avec les mêmes contours.
   const { collecterPatrimoineMondial, ecrirePatrimoineMondial } = await import('./patrimoine-mondial-emettre.ts');

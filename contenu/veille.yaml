@@ -1133,6 +1133,14 @@ surveillances:
     url: "https://www.data.gouv.fr/datasets/base-nationale-consolidee-des-zones-a-faibles-emissions"
     lien: od-zfe
 
+  - id: voirie-dgf
+    nom: "IGN — voirie retenue pour la dotation globale de fonctionnement"
+    alimente: "la longueur de voirie retenue pour la dotation de solidarité rurale"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/api/2/datasets/6917c533b6998ec1d07b95f5/"
+    lien: od-voirie-dgf
+
   - id: francetravail
     nom: "France Travail — référentiel des agences et marché du travail"
     alimente: "l'agence France Travail de la commune, et les offres et embauches de l'intercommunalité"
