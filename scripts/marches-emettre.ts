@@ -597,7 +597,7 @@ export async function collecterMarches(
   if (texte) {
     const tous = new Set<string>();
     for (const ids of titulaires.values()) for (const id of ids) if (!id.startsWith('?')) tous.add(id);
-    const noms = await nomsSirene(texte, tous);
+    const noms = await nomsSirene(texte, tous, dire);
     for (const [s, n] of noms) if (n.cessee) cessees.add(s);
     const retires = retraits().entreprises;
     let nommes = 0;

@@ -11,8 +11,12 @@
  * c'est le refus qui est le cas par défaut.
  *
  * La copie lue est celle d'Opendatasoft, qui sert le répertoire par
- * établissement ; on y regroupe par SIREN.
+ * établissement ; on y regroupe par SIREN. Elle n'est mise à jour qu'au 1er
+ * du mois : le statut des entrepreneurs est relu à l'INSEE
+ * (`diffusion-insee.ts`).
  */
+import { refusesAJour } from './diffusion-insee.ts';
+
 const SIRENE = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/economicref-france-sirene-v3/exports/csv';
 
 const CHAMPS = [
@@ -76,8 +80,12 @@ export interface NomSirene {
  * Les noms publiables, par SIREN, pour ceux qu'on soumet. Un SIREN absent du
  * résultat ne doit pas être nommé.
  */
-export async function nomsSirene(texte: (url: string) => Promise<string>, sirens: Iterable<string>): Promise<Map<string, NomSirene>> {
-  return (await diffusionSirene(texte, sirens)).noms;
+export async function nomsSirene(
+  texte: (url: string) => Promise<string>,
+  sirens: Iterable<string>,
+  dire: (m: string) => void = console.log,
+): Promise<Map<string, NomSirene>> {
+  return (await diffusionSirene(texte, sirens, dire)).noms;
 }
 
 /**
@@ -88,6 +96,7 @@ export async function nomsSirene(texte: (url: string) => Promise<string>, sirens
 export async function diffusionSirene(
   texte: (url: string) => Promise<string>,
   sirens: Iterable<string>,
+  dire: (m: string) => void = console.log,
 ): Promise<{ noms: Map<string, NomSirene>; refuses: Set<string> }> {
   const noms = new Map<string, NomSirene>();
   const tousRefuses = new Set<string>();
@@ -119,6 +128,15 @@ export async function diffusionSirene(
     }
     for (const [siren, n] of vus) if (!refuses.has(siren)) noms.set(siren, n);
     for (const siren of refuses) tousRefuses.add(siren);
+  }
+  // Les entrepreneurs, relus à l'INSEE : la copie a jusqu'à un mois de retard.
+  const ei = [...noms].filter(([, n]) => n.ei).map(([s]) => s);
+  const refusAJour = await refusesAJour(ei, dire);
+  if (refusAJour) {
+    for (const s of refusAJour) {
+      noms.delete(s);
+      tousRefuses.add(s);
+    }
   }
   return { noms, refuses: tousRefuses };
 }

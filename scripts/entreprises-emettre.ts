@@ -41,6 +41,7 @@ import { normaliser } from '../src/client/recherche-commune.ts';
 import { retraits } from './retraits.ts';
 import { anonymat, commercialNomme } from '../src/modele/retraits-entreprises.ts';
 import { indisponible } from './echecs.ts';
+import { refusesAJour } from './diffusion-insee.ts';
 
 /** Le lien d'une annonce sur bodacc.fr, depuis son identifiant. */
 export const ANNONCE = 'https://www.bodacc.fr/pages/annonces-commerciales-detail/?q.id=id:';
@@ -430,6 +431,9 @@ export async function collecterEntreprises(
   // Le statut de diffusion de chaque entrepreneur candidat, relu dans SIRENE.
   const aVerifier = [...candidates.values()].flatMap((l) => l.flatMap((x) => x.sirensPp));
   const ok = await diffusibles(texte, aVerifier);
+  // La copie mensuelle, corrigée du statut du jour quand l'INSEE répond.
+  const refusAJour = await refusesAJour(aVerifier, dire);
+  if (refusAJour) for (const s of refusAJour) ok.delete(s);
   const recentes = new Map<string, Recente[]>();
   let nommees = 0;
   let entrepreneurs = 0;

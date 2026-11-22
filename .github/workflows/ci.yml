@@ -41,6 +41,8 @@ jobs:
         run: npm run verifier-rattachement
       - name: Oppositions des entreprises (nom commercial, annonce anonyme)
         run: npm run verifier-retraits
+      - name: La relecture de la diffusion des entrepreneurs à l’INSEE
+        run: npm run verifier-diffusion
       - name: Collecte des marchés indépendante de l'ordre de lecture
         run: npm run verifier-marches
       - name: Liens venus des registres, en http(s) seulement

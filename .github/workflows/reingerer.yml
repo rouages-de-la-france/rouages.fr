@@ -56,6 +56,8 @@ jobs:
       # Le compte de francetravail.io (gratuit) : sans lui, la collecte France Travail renonce.
       FRANCETRAVAIL_IDENTIFIANT: ${{ secrets.FRANCETRAVAIL_IDENTIFIANT }}
       FRANCETRAVAIL_SECRET: ${{ secrets.FRANCETRAVAIL_SECRET }}
+      # La clé de l'API Sirene de l'INSEE (gratuite) : le statut de diffusion des entrepreneurs, relu du jour.
+      INSEE_SIRENE_CLE: ${{ secrets.INSEE_SIRENE_CLE }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

@@ -299,7 +299,7 @@ export async function collecterGeorisques(
     ...[...parCommuneIcpe.values()].flatMap((l) => l.slice(0, MAX_LISTE)),
   ];
   const sirens = montres.map((x) => x.siret.slice(0, 9)).filter((x) => /^\d{9}$/.test(x));
-  const { noms, refuses } = await diffusionSirene(texte, sirens);
+  const { noms, refuses } = await diffusionSirene(texte, sirens, dire);
   const r = retraits();
   let nommes = 0;
   let tus = 0;
