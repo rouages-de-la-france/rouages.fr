@@ -216,6 +216,15 @@ const titre = c.echelon === 'departement' ? c.nom : `${c.nom}${unique ? '' : ' (
         <Investissement i={investissement} echelon="departement" />
       </section>
     )}
+    {c.echelon === 'departement' && deps.length === 1 && !/^(97[5789]|98)/.test(deps[0]) && (
+      <section id="associations">
+        <h2 class="badge">Les financements des associations</h2>
+        <p class="mesure">
+          <a href={`https://pro.rouages.fr/associations/${deps[0]}`}>{'Ce qu’obtiennent les associations du département, dispositif par dispositif'}</a>
+          {' — de l’État, de l’ADEME et des collectivités qui publient leurs subventions. Sur Rouages Pro, le service de l’éditeur, gratuit pour les associations et les structures de l’économie sociale et solidaire.'}
+        </p>
+      </section>
+    )}
     {marches && (
       <section id="marches" class="p-marches">
         <h2 class="badge">Ses marchés publics</h2>
