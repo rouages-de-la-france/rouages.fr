@@ -841,7 +841,7 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
     {(vie.immobilier || vie.vacance || log) && (
       <section id="marche">
         <h2 class="badge">Le marché du logement, côte à côte</h2>
-        <Marche immobilier={vie.immobilier} batiments={vie.batiments} parc={vie.parc} vacance={vie.vacance} logements={log} depNom={SEULE_DE_SON_DEPARTEMENT.has(commune.code) ? null : commune.depNom} />
+        <Marche immobilier={vie.immobilier} batiments={vie.batiments} parc={vie.parc} vacance={vie.vacance} logements={log} depNom={SEULE_DE_SON_DEPARTEMENT.has(commune.code) ? null : commune.depNom} dep={commune.dep} abc={vie.zonages?.abc ?? null} />
       </section>
     )}
 

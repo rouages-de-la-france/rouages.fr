@@ -9,10 +9,34 @@ import Base from '../../layouts/Base.astro';
 import ChampLieuJeu from '../../composants/jeux/ChampLieuJeu.astro';
 import { ETIQUETTES, SOURCES as SR } from '../../modele/bareme-renovation.ts';
 import { SOURCES as SA } from '../../modele/bareme-achat.ts';
+import { indicesFichier, trimestre } from '../../modele/indices.ts';
 import '../../styles/jeux.css';
 
 const filtre = process.env.ROUAGES_DEPS?.split(',').map((d) => d.trim()).filter(Boolean);
 const mayet = !filtre?.length || filtre.includes('03');
+
+// L'indice de référence des loyers, les huit derniers trimestres (`scripts/indices-emettre.ts`).
+const indices = indicesFichier();
+const irl = indices
+  ? indices.irl.hexagone.serie.slice(-8).map(([p, v, , jo]) => ({
+      p,
+      v,
+      jo,
+      variation: indices.irl.hexagone.variation.find((x) => x[0] === p)?.[1] ?? null,
+    }))
+  : [];
+const dernier = (s: 'corse' | 'outremer') => indices?.irl[s].serie.at(-1) ?? null;
+const nombre = (x: number, d = 2) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const jour = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// Pour le calcul : chaque trimestre et celui de l'année d'avant, dans les trois séries.
+const paires = indices
+  ? Object.fromEntries(
+      (['hexagone', 'corse', 'outremer'] as const).map((k) => {
+        const serie = indices.irl[k].serie;
+        return [k, serie.filter(([p]) => serie.some(([q]) => q === `${Number(p.slice(0, 4)) - 1}${p.slice(4)}`)).map(([p, v]) => [p, v, serie.find(([q]) => q === `${Number(p.slice(0, 4)) - 1}${p.slice(4)}`)![1]])];
+      }),
+    )
+  : null;
 ---
 <Base
   titre="Louer : ce que ça rapporte"
@@ -100,6 +124,45 @@ const mayet = !filtre?.length || filtre.includes('03');
       <noscript><p class="mesure">Le simulateur a besoin de JavaScript.</p></noscript>
     </div>
 
+    {irl.length > 0 && (
+      <>
+        <h2 class="badge" id="revision">Réviser le loyer</h2>
+        <p class="mesure">
+          {'Si une clause du bail le prévoit, le loyer d’un logement loué peut être révisé une fois par an, à la date indiquée au bail ou, à défaut, à sa date anniversaire. '}
+          {'Le nouveau loyer hors charges est l’ancien, multiplié par l’indice de référence des loyers (IRL) du trimestre que fixe le bail, et divisé par l’IRL du même trimestre un an plus tôt. '}
+          {'Si le bail ne fixe pas de trimestre, c’est celui du dernier indice publié à la date de sa signature. '}
+          {'La révision n’est pas automatique : elle vaut à compter de la demande du bailleur, sans effet rétroactif, et le bailleur qui ne la demande pas dans l’année est réputé y avoir renoncé pour l’année écoulée. '}
+          {'Depuis le 24 août 2022, elle n’est possible que si le logement est classé de A à E au diagnostic de performance énergétique.'}
+        </p>
+        <div class="jeu-carte sr-bloc" id="irl-calcul" data-paires={JSON.stringify(paires)}>
+          <h3 class="sr-bloc-titre">Le calcul</h3>
+          <div class="sr-champs">
+            <label>Loyer mensuel hors charges <span><input type="number" name="loyer" min="0" step="1" inputmode="decimal" value="500" /> €</span></label>
+            <label>Trimestre de référence du bail
+              <select name="trimestre">{[...(paires?.hexagone ?? [])].reverse().map(([p]) => <option value={p as string}>{trimestre(p as string)}</option>)}</select>
+            </label>
+            <label>Le logement
+              <select name="serie"><option value="hexagone">dans l’hexagone</option><option value="corse">en Corse</option><option value="outremer">en outre-mer</option></select>
+            </label>
+          </div>
+          <p class="jeu-contexte" id="irl-resultat" aria-live="polite"></p>
+        </div>
+        <table class="mesure irl-table">
+          <caption>L’indice de référence des loyers, dans l’hexagone</caption>
+          <thead><tr><th scope="col">Trimestre</th><th scope="col">IRL</th><th scope="col">Sur un an</th><th scope="col">Publié au Journal officiel le</th></tr></thead>
+          <tbody>
+            {[...irl].reverse().map((r) => (
+              <tr><th scope="row">{trimestre(r.p)}</th><td>{nombre(r.v)}</td><td>{r.variation !== null ? `${r.variation < 0 ? '−' : '+'}${nombre(Math.abs(r.variation))} %` : '—'}</td><td>{r.jo ? jour(r.jo) : '—'}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="mesure">
+          {`La Corse et l’outre-mer ont leur propre indice : ${trimestre(dernier('corse')![0])}, ${nombre(dernier('corse')![1])} en Corse et ${nombre(dernier('outremer')![1])} dans les départements et régions d’outre-mer. `}
+          {'Ce calcul dit le plafond de la révision ; il ne dit pas si le bail la prévoit, ni si elle a été demandée à temps.'}
+        </p>
+      </>
+    )}
+
     <h2 class="badge">La méthode</h2>
     <ul class="accueil-themes">
       <li><strong>Le prix</strong>&nbsp;: la surface multipliée par le prix médian au mètre carré des ventes de la commune, ou du département quand elle en compte trop peu. À remplacer par le prix réel.</li>
@@ -116,6 +179,8 @@ const mayet = !filtre?.length || filtre.includes('03');
       <li><a href="https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees" target="_blank" rel="noopener">Etalab — Demandes de valeurs foncières géolocalisées</a>{' : les prix au mètre carré.'}</li>
       <li><a href={SA.taux.url} target="_blank" rel="noopener">{SA.taux.titre}</a></li>
       <li><a href={SR.decence.url} target="_blank" rel="noopener">{SR.decence.titre}</a></li>
+      {indices && <li><a href="https://www.insee.fr/fr/statistiques/serie/001515333" target="_blank" rel="noopener">INSEE — Indice de référence des loyers</a>{` : la série et sa variation annuelle, banque de données macro-économiques, lue le ${jour(indices.maj)}.`}</li>}
+      {indices && <li><a href="https://www.anil.org/aj-irl-revision-loyers/" target="_blank" rel="noopener">ANIL — Indice de référence des loyers et révision annuelle</a>{' : les règles de la révision (loi du 6 juillet 1989, article 17-1 ; code de la construction et de l’habitation, article L. 173-1-1).'}</li>}
     </ul>
   </div>
 </Base>
@@ -123,9 +188,38 @@ const mayet = !filtre?.length || filtre.includes('03');
 <script>
   import { brancherLocatif } from '../../client/simulateur-locatif.ts';
   brancherLocatif();
+
+  // La révision du loyer : loyer × IRL du trimestre ÷ IRL du même trimestre un an plus tôt.
+  const bloc = document.getElementById('irl-calcul');
+  if (bloc) {
+    const paires = JSON.parse(bloc.dataset.paires ?? 'null') as Record<string, [string, number, number][]> | null;
+    const champ = (n: string) => bloc.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${n}"]`)!;
+    const sortie = document.getElementById('irl-resultat')!;
+    const euros = (x: number) => x.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    const calculer = () => {
+      const loyer = Number(champ('loyer').value);
+      const p = champ('trimestre').value;
+      const l = paires?.[champ('serie').value]?.find((x) => x[0] === p);
+      if (!l || !(loyer > 0)) {
+        sortie.textContent = '';
+        return;
+      }
+      const [, nouveau, ancien] = l;
+      const an = p.slice(0, 4);
+      sortie.textContent =
+        `${euros(loyer)} × ${nouveau.toLocaleString('fr-FR')} ÷ ${ancien.toLocaleString('fr-FR')} = ${euros(Math.round((loyer * nouveau) / ancien * 100) / 100)} au plus, ` +
+        `soit ${(Math.round((nouveau / ancien - 1) * 10000) / 100).toLocaleString('fr-FR')} % — l’indice du trimestre de ${an} sur celui de ${Number(an) - 1}.`;
+    };
+    bloc.addEventListener('input', calculer);
+    calculer();
+  }
 </script>
 
 <style is:global>
   .sl-non { color: var(--defavorable); }
   .sl-bientot { color: var(--alerte); }
+  .irl-table { border-collapse: collapse; margin: 1rem 0; font-variant-numeric: tabular-nums; }
+  .irl-table caption { text-align: left; font-weight: 600; margin-bottom: .4rem; }
+  .irl-table th, .irl-table td { padding: .25rem .8rem .25rem 0; text-align: left; border-bottom: 1px solid var(--trait, currentColor); }
+  .irl-table td { text-align: right; }
 </style>

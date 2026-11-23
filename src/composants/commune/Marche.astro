@@ -7,6 +7,7 @@
  * dans sa section, plus bas.
  */
 import { lignesMarche } from '../../modele/marche.ts';
+import { tendancePrix } from '../../modele/indices.ts';
 import type { Batiments, Immobilier, Parc, Vacance } from '../../modele/fiche-vie.ts';
 import type { Fiche } from '../../modele/territoires.ts';
 
@@ -17,9 +18,13 @@ interface Props {
   vacance: Vacance | null;
   logements: NonNullable<Fiche['logements']> | null;
   depNom: string | null;
+  dep: string;
+  /** La zone ABC de la commune. */
+  abc: string | null;
 }
-const { immobilier, batiments, parc, vacance, logements, depNom } = Astro.props;
-const lignes = lignesMarche(immobilier, batiments, parc, vacance, logements, depNom);
+const { immobilier, batiments, parc, vacance, logements, depNom, dep, abc } = Astro.props;
+const tendance = tendancePrix(dep, abc);
+const lignes = lignesMarche(immobilier, batiments, parc, vacance, logements, depNom, tendance);
 ---
 {lignes.length >= 2 ? (
   <div class="marche-bloc">
@@ -36,7 +41,7 @@ const lignes = lignesMarche(immobilier, batiments, parc, vacance, logements, dep
       {'Chacun vient de sa source, détaillée dans sa section.'}
     </p>
     <p class="p-source-territoire">
-      {'Demandes de valeurs foncières de la DGFiP (ventes et prix) ; fichiers fonciers, d’après la base nationale des bâtiments, ou recensement de l’INSEE (parc) ; LOVAC (vacance) ; Sitadel (logements autorisés).'}
+      {'Demandes de valeurs foncières de la DGFiP (ventes et prix) ; fichiers fonciers, d’après la base nationale des bâtiments, ou recensement de l’INSEE (parc) ; LOVAC (vacance) ; Sitadel (logements autorisés)' + (tendance ? ' ; indices Notaires-INSEE des prix des logements anciens, séries brutes de la banque de données macro-économiques de l’INSEE.' : '.')}
     </p>
   </div>
 ) : null}
