@@ -1,0 +1,48 @@
+# Rouages
+
+> Rouages dit qui décide quoi, près de chez vous, et avec quel argent. Pour chaque commune de France, et pour son intercommunalité, son département et sa région : qui exerce chaque compétence (l'école, l'eau, les déchets, les routes, le permis de construire), les comptes publics, l'élection, les services, les risques. Le site ne rédige pas : il relie. Une phrase par nœud, puis un lien vers la page qui fait autorité (Wikipédia, Légifrance, service-public.fr, data.gouv.fr) et vers le jeu de données d'origine. Chaque chiffre porte sa source et sa date.
+
+Rouages est édité par MayetCo SAS (marque MayetSoft), au Mayet-de-Montagne (Allier), et sera porté par l'association Forge des communs, en cours de formation. Site statique, hébergé en France, sans compte ni cookie : une seule chose est conservée, dans le navigateur, la commune choisie. Contenu éditorial sous CC BY-SA 4.0, code sous AGPL 3.0, données republiées sous la licence de leur producteur (Licence Ouverte ou ODbL, dite jeu par jeu). Le site n'a pas d'opinion : il montre des recoupements de données sourcées, et nomme les personnes seulement quand un registre public le fait, avec la source, la date et un droit de retrait.
+
+Les adresses d'une commune sont de la forme https://rouages.fr/commune/<code INSEE>, par exemple https://rouages.fr/commune/03165 pour Le Mayet-de-Montagne. Les intercommunalités sont sous /intercommunalite/<SIREN>, les départements sous /departement/<code>, les régions sous /region/<code>. Les pages de nœuds du réseau sont sous /n/<identifiant>.
+
+## Par où entrer
+
+- [Accueil](https://rouages.fr/) : les questions que l'on se pose, et les portes d'entrée.
+- [Les données de chez moi](https://rouages.fr/chez-moi) : choisir sa commune, puis lire qui y exerce quoi, ses comptes, ses écoles, ses services, ses risques, son élection.
+- [Toutes les communes](https://rouages.fr/communes) : les communes de France, département par département, chacune sa page.
+- [Le réseau des acteurs publics](https://rouages.fr/fonctionnement) : les institutions et leurs liens, qui décide, qui finance, qui contrôle.
+- [Les branches du pouvoir](https://rouages.fr/etat) : les entités de l'État.
+- [L'argent public](https://rouages.fr/argent-public) : ce que l'État dépense, mission par mission, programme par programme, le budget voté et le projet suivant.
+- [Les dispositifs](https://rouages.fr/dispositif) : programmes de l'État, contrats, programmes européens, zonages, désignations internationales.
+- [Comparer des communes](https://rouages.fr/comparer) : de deux à cinq communes côte à côte, bloc par bloc.
+- [Trouver des communes](https://rouages.fr/trouver-des-communes) : les communes qui répondent à des critères, population, département, équipements, écoles.
+- [Le plus proche](https://rouages.fr/le-plus-proche) : depuis une commune, le service ou l'équipement le plus proche.
+- [Chercher dans les délibérations](https://rouages.fr/deliberations) : les délibérations publiées en données ouvertes au schéma du socle commun des données locales, sur vingt-quatre mois.
+
+## Jeux et simulateurs
+
+- [Jeux](https://rouages.fr/jeux) : des jeux sur les données publiques, dès 8 ans, un défi par jour, le même pour tout le monde. Parmi eux : la commune mystère, qui décide, à qui je demande, le budget de ma commune, le puzzle de la carte, la silhouette, plus ou moins, devine la courbe, l'élection de la classe, vrai ou faux le maire peut-il.
+- [Simulateurs](https://rouages.fr/simulateurs) : estimer une maison, un terrain, un pré ou un bois d'après les ventes réelles, avec la précision mesurée du modèle ; quelle autorisation pour ses travaux.
+
+## Méthode et confiance
+
+- [La méthode](https://rouages.fr/methode) : les règles vérifiées à chaque publication, un nœud sans lien sortant n'existe pas, une phrase par nœud, chaque relation existe des deux côtés, chaque nœud porte sa date de vérification. Ce que la résolution territoriale affirme, et ce qu'elle ne dit pas.
+- [Les sources](https://rouages.fr/sources) : chaque jeu de données lu, ce qu'il alimente, sa licence, son état au dernier contrôle.
+- [Glossaire](https://rouages.fr/glossaire) : les sigles employés, développés en une phrase.
+- [Signaler une erreur](https://rouages.fr/signaler) : la correction reste publique, dans le dépôt.
+- [Participer](https://rouages.fr/participer) : suggérer une source, donner un avis, ce que le site ne sait pas encore lire.
+- [Mentions légales](https://rouages.fr/mentions) : l'éditeur, ce que le site sait de vous, les licences jeu par jeu.
+- [Remerciements](https://rouages.fr/remerciements)
+
+## Le projet
+
+- [Dépôt du code](https://github.com/rouages-de-la-france/rouages.fr) : Astro, contenu en YAML versionné, données territoriales versionnées, build reproductible hors ligne, validation éditoriale mécanique.
+- [Charte de contribution](https://github.com/rouages-de-la-france/rouages.fr/blob/main/CONTRIBUTING.md)
+- [Rouages Pro](https://pro.rouages.fr/) : les services professionnels autour des données, assurés par MayetCo SAS.
+- [MayetCo](https://mayetco.fr/) : la maison mère. [MayetSoft](https://mayetsoft.fr/) : le studio logiciel qui réalise le site.
+
+## Optional
+
+- [Sitemap](https://rouages.fr/sitemap.xml)
+- [security.txt](https://rouages.fr/.well-known/security.txt)
