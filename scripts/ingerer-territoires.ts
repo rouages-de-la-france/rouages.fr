@@ -958,11 +958,6 @@ async function principal() {
   const stations = await tenter('Stations d’épuration', () => collecterStations(CACHE, grise));
   if (stations) grise(`${ecrireStations(SORTIE, stations)} départements de stations d’épuration écrits.`);
 
-  // La voirie retenue pour la DGF (critères de la DGCL) — à l'essai : le site ne répond pas depuis le développement.
-  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
-  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(enCache('Critères de répartition de la DGCL'), CACHE, grise));
-  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
-
   // Les bâtiments (BDNB) : un fichier par département, 40 Go pour la France, effacé dès qu'il est lu ;
   // recalculés seulement quand le CSTB publie un nouveau millésime, trois fois par an.
   const { collecterBatiments } = await import('./batiments-emettre.ts');
@@ -1122,6 +1117,11 @@ async function principal() {
   const { collecterDotations, ecrireDotations } = await import('./dotations-emettre.ts');
   const dotations = await tenter('Dotations de l’État', () => collecterDotations(obstine, lireJson, grise));
   if (dotations) grise(`${ecrireDotations(SORTIE, dotations)} départements de dotations écrits.`);
+
+  // La voirie retenue pour la dotation de solidarité rurale : le critère de la DGCL, que l'OFGL republie.
+  const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
+  const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(obstine, lireJson, grise));
+  if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
 
   const { collecterCaf, ecrireCaf } = await import('./caf-emettre.ts');
   const caf = await tenter('Allocataires de la CAF', () => collecterCaf(obstine, grise));

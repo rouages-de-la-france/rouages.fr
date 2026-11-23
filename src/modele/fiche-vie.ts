@@ -98,7 +98,7 @@ type CantinesDep = { maj: string; campagne: number | null; c: Record<string, Can
 const cantinesDep = parDepartement<CantinesDep>('cantines');
 type SteuDep = { maj: string; c: Record<string, [string, number | null, number | null, string, string][]> };
 const steuDep = parDepartement<SteuDep>('steu');
-type VoirieDep = { maj: string; annee: number | null; c: Record<string, number> };
+type VoirieDep = { maj: string; annee: number | null; c: Record<string, number | [number, number | null]> };
 const voirieDep = parDepartement<VoirieDep>('voirie');
 type ForetsDep = { maj: string; c: Record<string, { f: [string, string, number, 0 | 1][]; b: [number, number, number, number, number, number | null] | null }> };
 const foretsDep = parDepartement<ForetsDep>('forets');
@@ -563,8 +563,8 @@ export interface Dotations {
     perequation: number;
     cible: number;
   } | null;
-  /** La longueur de voirie retenue pour la DGF, en mètres (`scripts/voirie-emettre.ts`). */
-  voirie: { metres: number; annee: number | null; maj: string } | null;
+  /** La longueur de voirie retenue pour la DSR, en mètres, et l'année d'avant (`scripts/voirie-emettre.ts`). */
+  voirie: { metres: number; avant: number | null; annee: number | null; maj: string } | null;
   maj: string;
 }
 
@@ -1322,8 +1322,9 @@ function dotations(c: CommuneFiche): Dotations | null {
     parts: ok ? { forfaitaire, dsu, dsr, dnp, dacom, bourgCentre, perequation, cible } : null,
     voirie: (() => {
       const v = voirieDep.get(c.dep);
-      const m = v?.c[c.code];
-      return v && m ? { metres: m, annee: v.annee, maj: v.maj } : null;
+      const x = v?.c[c.code];
+      const [m, avant] = Array.isArray(x) ? x : [x, null];
+      return v && m ? { metres: m, avant, annee: v.annee, maj: v.maj } : null;
     })(),
     maj: d.maj,
   };
