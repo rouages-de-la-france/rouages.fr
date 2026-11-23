@@ -530,6 +530,14 @@ surveillances:
     url: "https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/dotations-communes/records?select=exercice&group_by=exercice&limit=20"
     lien: od-ofgl-dotations-communes
 
+  - id: ofgl-dotations-departements
+    nom: "OFGL — dotations des départements"
+    alimente: "la voirie retenue pour les dotations du département"
+    type: disponibilite
+    licence: non-precisee
+    url: "https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/dotations-departements/records?select=exercice&group_by=exercice&limit=20"
+    lien: od-ofgl-dotations-departements
+
   - id: cnaf-prestations-communes
     nom: "CNAF — allocataires par commune"
     alimente: "les foyers allocataires de la CAF"

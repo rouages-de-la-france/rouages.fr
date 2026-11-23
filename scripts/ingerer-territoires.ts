@@ -1122,6 +1122,9 @@ async function principal() {
   const { collecterVoirie, ecrireVoirie } = await import('./voirie-emettre.ts');
   const voirie = await tenter('Voirie de la DGF', () => collecterVoirie(obstine, lireJson, grise));
   if (voirie) grise(`${ecrireVoirie(SORTIE, voirie)} départements de voirie écrits.`);
+  const { collecterVoirieDepartements, ecrireVoirieDepartements } = await import('./voirie-emettre.ts');
+  const voirieDeps = await tenter('Voirie des départements', () => collecterVoirieDepartements(obstine, lireJson, grise));
+  if (voirieDeps) ecrireVoirieDepartements(SORTIE, voirieDeps);
 
   const { collecterCaf, ecrireCaf } = await import('./caf-emettre.ts');
   const caf = await tenter('Allocataires de la CAF', () => collecterCaf(obstine, grise));

@@ -17,9 +17,15 @@
  * communes : il s'écartait de 4,6 % du chiffre officiel au Mayet-de-Montagne.
  * Le chiffre de la DGCL est celui qui compte.
  *
+ * **Les départements.** Le jeu jumeau `dotations-departements` donne la
+ * voirie de chaque département, en deux longueurs : hors montagne et en
+ * montagne. La DGCL s'en sert pour la dotation de fonctionnement minimale
+ * (DFM), composante de la DGF des départements (jeu « VOIRIE DGF » de l'IGN).
+ *
  * Lancé seul — `tsx scripts/voirie-emettre.ts` —, il réécrit
- * `public/territoires/dep/XX-voirie.json`.
+ * `public/territoires/dep/XX-voirie.json` et `voirie-departements.json`.
  */
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { indisponible } from './echecs.ts';
@@ -87,6 +93,58 @@ export function ecrireVoirie(sortie: string, v: Voirie): number {
   return ecrireParDepartement(sortie, 'voirie', v.communes, () => ({ maj: v.maj, annee: v.annee }));
 }
 
+const BASE_DEP = 'https://data.ofgl.fr/api/explore/v2.1/catalog/datasets/dotations-departements';
+const VARIABLES_DEP = ['Longueur de voirie hors montagne en mètres', 'Longueur de voirie montagne en mètres'] as const;
+
+export interface VoirieDepartements {
+  annee: number;
+  maj: string;
+  /** Par département : hors montagne et en montagne, en mètres, la dernière année puis l'année d'avant (null si absente). */
+  departements: Record<string, [number, number, number | null, number | null]>;
+}
+
+export async function collecterVoirieDepartements(
+  obstine: (url: string) => Promise<Response>,
+  lireJson: (url: string) => Promise<unknown>,
+  dire: (m: string) => void,
+): Promise<VoirieDepartements | null> {
+  const filtre = `variable in (${VARIABLES_DEP.map((v) => `"${v}"`).join(',')})`;
+  const g = (await lireJson(`${BASE_DEP}/records?select=exercice&group_by=exercice&where=${encodeURIComponent(filtre)}&limit=50`)) as {
+    results?: { exercice: string }[];
+  };
+  const annees = (g.results ?? []).map((r) => Number(r.exercice.slice(0, 4))).filter((a) => a > 2000).sort();
+  if (!annees.length) return indisponible(dire, 'Voirie des départements : l’OFGL ne la publie plus.');
+  const annee = annees.at(-1)!;
+  const ou = `exercice>=${annee - 1} and exercice<=${annee} and ${filtre}`;
+  const url = `${BASE_DEP}/exports/csv?select=exercice,code_departement,variable,valeur&delimiter=%3B&where=${encodeURIComponent(ou)}`;
+  const texte = (await (await obstine(url)).text()).replace(/^﻿/, '');
+  const d: Record<string, [number, number, number | null, number | null]> = {};
+  let col: Record<string, number> | null = null;
+  for await (const v of lignesCsv([new TextEncoder().encode(texte)], ';')) {
+    if (!col) {
+      col = Object.fromEntries(v.map((n, i) => [n.trim(), i]));
+      continue;
+    }
+    const k = VARIABLES_DEP.indexOf(v[col.variable] as (typeof VARIABLES_DEP)[number]);
+    const m = Number(v[col.valeur]);
+    if (k < 0 || !(m >= 0)) continue;
+    // La Métropole de Lyon a son code chez l'OFGL ; le site la connaît sous 691.
+    const dep = v[col.code_departement] === 'MET69' ? '691' : v[col.code_departement];
+    const decalage = Number(String(v[col.exercice]).slice(0, 4)) === annee ? 0 : 2;
+    d[dep] ??= [0, 0, null, null];
+    d[dep][k + decalage] = Math.round(m);
+  }
+  if (Object.keys(d).length < 90) {
+    return indisponible(dire, `Voirie des départements : ${Object.keys(d).length} départements seulement, on garde l’ingestion précédente.`);
+  }
+  dire(`Voirie des départements ${annee} (DGCL, d’après l’OFGL) : ${Object.keys(d).length} départements.`);
+  return { annee, maj: new Date().toISOString().slice(0, 10), departements: d };
+}
+
+export function ecrireVoirieDepartements(sortie: string, v: VoirieDepartements): void {
+  writeFileSync(join(sortie, 'voirie-departements.json'), JSON.stringify({ maj: v.maj, annee: v.annee, d: v.departements }));
+}
+
 // Lancé seul.
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const { sortie, lireJson } = telechargerSiAbsent(join(fileURLToPath(new URL('.', import.meta.url)), '..'));
@@ -104,4 +162,6 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   };
   const v = await collecterVoirie(obstine, lireJson as (url: string) => Promise<unknown>, console.log);
   if (v) console.log(`${ecrireVoirie(sortie, v)} départements écrits.`);
+  const vd = await collecterVoirieDepartements(obstine, lireJson as (url: string) => Promise<unknown>, console.log);
+  if (vd) ecrireVoirieDepartements(sortie, vd);
 }

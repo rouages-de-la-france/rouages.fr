@@ -1742,6 +1742,24 @@ export interface Secours {
 
 const PETITE_COURONNE = new Set(['75', '92', '93', '94']);
 
+const voirieDepartementsFichier = national<{ maj: string; annee: number; d: Record<string, [number, number, number | null, number | null]> }>('voirie-departements.json');
+
+/** La voirie d'un département, hors montagne et en montagne, que la DGCL retient (`scripts/voirie-emettre.ts`). */
+export interface VoirieDepartement {
+  horsMontagne: number;
+  montagne: number;
+  avant: { horsMontagne: number | null; montagne: number | null };
+  annee: number;
+  maj: string;
+}
+
+export function voirieDepartement(dep: string): VoirieDepartement | null {
+  const f = voirieDepartementsFichier();
+  const x = f?.d[dep];
+  if (!f || !x || x[0] + x[1] <= 0) return null;
+  return { horsMontagne: x[0], montagne: x[1], avant: { horsMontagne: x[2], montagne: x[3] }, annee: f.annee, maj: f.maj };
+}
+
 /** Les services d'incendie et de secours qui interviennent dans un département. */
 export function secoursDepartement(dep: string): Secours | null {
   const d = secoursFichier();
