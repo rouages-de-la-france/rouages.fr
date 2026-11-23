@@ -16,7 +16,7 @@ type Banc = {
   annees: number[];
   plis: number;
   graine: number;
-  modeles: { id: string; nom: string }[];
+  modeles: { id: string; nom: string; essai?: boolean }[];
   france: Record<string, Mesure>;
   departements: Record<string, Record<string, Mesure>>;
   tailles: { id: string; nom: string; mesures: Record<string, Mesure> }[];
@@ -25,7 +25,9 @@ type Banc = {
 };
 const base = join(process.cwd(), 'public', 'territoires');
 const lire = <T,>(f: string): T | null => (existsSync(join(base, f)) ? (JSON.parse(readFileSync(join(base, f), 'utf8')) as T) : null);
-const banc = lire<Banc>('simulateurs/estimation/banc.json');
+const brut = lire<Banc>('simulateurs/estimation/banc.json');
+// Un modèle « à l'essai » est mesuré au banc, mais ni utilisé par le simulateur ni montré ici.
+const banc = brut ? { ...brut, modeles: brut.modeles.filter((m) => !m.essai) } : null;
 const index = lire<{ deps: Record<string, string> }>('index.json');
 // Au dixième : l'écart entre les deux modèles se joue parfois à un ou deux points.
 const pc = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString('fr-FR')} %`);

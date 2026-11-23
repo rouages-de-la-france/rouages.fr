@@ -172,6 +172,8 @@ const MODELES = [
   { id: 'surface', nom: 'Le simulateur : surface pondérée, voisinage compris' },
   { id: 'periode', nom: 'Le simulateur, avec la période de construction (BDNB)' },
   { id: 'naif', nom: 'Référence naïve : prix médian au m² de la commune × surface habitable' },
+  // À l'essai (note du dépôt privé du 22 novembre 2026) : mesuré et écrit, ni utilisé par le simulateur ni montré sur la page.
+  { id: 'melange', nom: 'Essai : moyenne des estimations du simulateur avec période et de la référence naïve', essai: true },
 ];
 const TAILLES_MARCHE = [
   { id: 'petit', nom: 'Moins de 20 ventes de maisons dans la commune', max: 20 },
@@ -198,8 +200,8 @@ export function banc(
   const parCommune = new Map<string, number>();
   for (const { b } of maisons) parCommune.set(b.commune, (parCommune.get(b.commune) ?? 0) + 1);
 
-  const rapports: Record<string, (number | null)[]> = { surface: [], periode: [], naif: [] };
-  const lignes: { dep: string; taille: number; voisines: boolean; pli: number; datee: boolean; surface: number | null; periode: number | null; naif: number | null }[] = [];
+  const rapports: Record<string, (number | null)[]> = { surface: [], periode: [], naif: [], melange: [] };
+  const lignes: { dep: string; taille: number; voisines: boolean; pli: number; datee: boolean; surface: number | null; periode: number | null; naif: number | null; melange: number | null }[] = [];
   for (let p = 0; p < plis; p++) {
     const appris = biens.filter((_, i) => part.get(i) !== p);
     const modele = estimer(appris, voisines);
@@ -243,6 +245,8 @@ export function banc(
         surface: e ? b.prix / e : null,
         periode: eP ? b.prix / eP : null,
         naif: n ? b.prix / n : null,
+        // La moyenne des deux estimations, à parts égales (le poids appris sur cinq départements).
+        melange: eP && n ? b.prix / ((eP + n) / 2) : null,
       });
     }
     dire(`  banc d’essai : part ${p + 1} sur ${plis}`);
@@ -251,11 +255,12 @@ export function banc(
     rapports.surface.push(l.surface);
     rapports.periode.push(l.periode);
     rapports.naif.push(l.naif);
+    rapports.melange.push(l.melange);
   }
   // Pour un contrôle indépendant des mesures : les rapports eux-mêmes, hors du site.
   if (process.env.ROUAGES_BANC_DETAIL) writeFileSync(process.env.ROUAGES_BANC_DETAIL, JSON.stringify(lignes));
   const parModele = (f: (l: (typeof lignes)[number]) => boolean) =>
-    Object.fromEntries(MODELES.map((m) => [m.id, mesurer(lignes.filter(f).map((l) => l[m.id as 'surface' | 'periode' | 'naif']))]));
+    Object.fromEntries(MODELES.map((m) => [m.id, mesurer(lignes.filter(f).map((l) => l[m.id as 'surface' | 'periode' | 'naif' | 'melange']))]));
   const deps = [...new Set(lignes.map((l) => l.dep))].sort();
   const resultat: Banc = {
     maj: new Date().toISOString().slice(0, 10),
@@ -282,7 +287,7 @@ export function banc(
 }
 
 /** Le banc déjà calculé pour ces années, avec la même méthode : on ne le refait pas — c'est dix fois le simulateur (31 s pour l'Allier). */
-export const VERSION = 3;
+export const VERSION = 4;
 export function bancAJour(sortie: string, annees: number[]): boolean {
   const f = join(sortie, 'simulateurs', 'estimation', 'banc.json');
   if (process.env.ROUAGES_BANC_FORCER || !existsSync(f)) return false;
