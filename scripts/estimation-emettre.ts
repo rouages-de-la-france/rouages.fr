@@ -626,7 +626,7 @@ function effetsParRegion(sortie: string, biens: Bien[], deps: string[], cache: s
   return effets;
 }
 
-export function ecrireEstimation(sortie: string, biens: Bien[], annees: number[], maj: string, cache?: string): number {
+export function ecrireEstimation(sortie: string, biens: Bien[], annees: number[], maj: string, cache?: string, fin?: string): number {
   const estimations = estimer(biens, lireVoisines(sortie));
   const parDep = new Map<string, Record<string, Estimation>>();
   for (const [code, e] of [...estimations].sort((a, b) => a[0].localeCompare(b[0]))) {
@@ -662,7 +662,7 @@ export function ecrireEstimation(sortie: string, biens: Bien[], annees: number[]
     }
     writeFileSync(
       join(dossier, `${dep}.json`),
-      JSON.stringify({ maj, annees, tailles: TAILLES, partActivite: PART_ACTIVITE, dpe, periode: periode ? { ...periode, periodes: PERIODES } : null, c }),
+      JSON.stringify({ maj, annees, ...(fin ? { fin } : {}), tailles: TAILLES, partActivite: PART_ACTIVITE, dpe, periode: periode ? { ...periode, periodes: PERIODES } : null, c }),
     );
     n++;
   }

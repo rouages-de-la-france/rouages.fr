@@ -37,6 +37,12 @@
  * fois. Ces ventes-là n'ont pas de coordonnées ; le rapprochement avec les
  * diagnostics énergétiques, qui en a besoin, les laisse de côté.
  *
+ * **Le semestre publié de l'année en cours.** La DGFiP publie en octobre le
+ * premier semestre de l'année en cours, dans son seul fichier brut (« Valeurs
+ * foncières 2026 - Premier semestre ») : il s'ajoute aux trois années pleines,
+ * et le fichier dit jusqu'où il va (`fin`, « 2026-06 »). L'année pleine le
+ * remplace quand elle paraît (`anneesDvf`).
+ *
  * DVF ne couvre ni l'Alsace ni la Moselle, où le livre foncier tient ce rôle,
  * ni Mayotte. Paris, Lyon et Marseille y sont par arrondissement : ils sont
  * réunis sous leur commune.
@@ -61,17 +67,21 @@ export const ADRESSE = (annee: number) => `https://files.data.gouv.fr/geo-dvf/la
 /** Le jeu de la DGFiP sur data.gouv.fr : un fichier par année, « Valeurs foncières AAAA ». */
 const JEU_BRUT = '5c4ae55a634f4117716d5656';
 
-/** Les fichiers bruts de la DGFiP par année pleine, d'après les titres des ressources du jeu. */
-async function adressesBrut(): Promise<Map<number, string>> {
+/** Les fichiers bruts de la DGFiP : par année pleine, et le semestre publié d'une année en cours. */
+async function adressesBrut(): Promise<{ pleines: Map<number, string>; semestres: Map<number, string> }> {
   const r = await fetch(`https://www.data.gouv.fr/api/2/datasets/${JEU_BRUT}/resources/?page_size=50`, { signal: AbortSignal.timeout(60_000) });
   if (!r.ok) throw new Error(`data.gouv.fr : ${r.status}`);
   const d = (await r.json()) as { data?: { title?: string; url?: string }[] };
-  const m = new Map<number, string>();
+  const pleines = new Map<number, string>();
+  const semestres = new Map<number, string>();
   for (const x of d.data ?? []) {
-    const a = /^Valeurs foncières (20\d\d)$/.exec((x.title ?? '').trim());
-    if (a && x.url) m.set(Number(a[1]), x.url);
+    const titre = (x.title ?? '').trim();
+    const a = /^Valeurs foncières (20\d\d)$/.exec(titre);
+    if (a && x.url) pleines.set(Number(a[1]), x.url);
+    const s = /^Valeurs foncières (20\d\d) - Premier semestre$/.exec(titre);
+    if (s && x.url) semestres.set(Number(s[1]), x.url);
   }
-  return m;
+  return { pleines, semestres };
 }
 /** Sous ce nombre de ventes, la médiane serait celle de trois maisons. */
 export const MINIMUM = 5;
@@ -86,6 +96,8 @@ export type Prix = [number, number | null, number | null, number, number | null,
 export interface Dvf {
   maj: string;
   annees: number[];
+  /** Le dernier mois couvert quand la dernière année n'est qu'un semestre : « 2026-06 ». */
+  fin?: string;
   communes: Map<string, Prix>;
   departements: Map<string, Prix>;
   details: Map<string, Detail>;
@@ -444,18 +456,20 @@ function detailler(ventes: Vente[], terrains: Terrain[], annees: number[]): Deta
 }
 
 export async function collecterDvf(
-  annees: number[],
+  anneesPleines: number[],
   telecharger: (url: string, vers: string) => Promise<void>,
   cache: string,
   dire: (m: string) => void,
 ): Promise<Dvf | null> {
+  let annees = anneesPleines;
   const parCommune = new Map<string, Vente[]>();
   const terrainsParCommune = new Map<string, Terrain[]>();
   const biens: Bien[] = [];
   const lues: number[] = [];
   let bruts = new Map<number, string>();
+  let semestres = new Map<number, string>();
   try {
-    bruts = await adressesBrut();
+    ({ pleines: bruts, semestres } = await adressesBrut());
   } catch (e) {
     dire(`Ventes immobilières : fichiers bruts de la DGFiP introuvables (${String(e).slice(0, 80)}) ; la version géolocalisée seule.`);
   }
@@ -524,6 +538,39 @@ export async function collecterDvf(
   if (lues.length !== annees.length) {
     return indisponible(dire, 'Ventes immobilières : une année manque, l’ingestion précédente reste en place.');
   }
+  // Le premier semestre de l'année qui suit, quand la DGFiP l'a publié : il s'ajoute, l'année pleine le remplacera.
+  let fin: string | undefined;
+  const suivante = annees[annees.length - 1] + 1;
+  const semestre = semestres.get(suivante);
+  if (semestre) {
+    try {
+      const zip = join(cache, `dvf-brut-${suivante}-s1.zip`);
+      await telecharger(semestre, zip);
+      let n = 0;
+      const ajoutees = await lireComplement(
+        zip,
+        suivante,
+        new Set(),
+        (v) => {
+          if (!parCommune.has(v.commune)) parCommune.set(v.commune, []);
+          parCommune.get(v.commune)!.push(v);
+          n++;
+        },
+        (t) => {
+          if (!terrainsParCommune.has(t.commune)) terrainsParCommune.set(t.commune, []);
+          terrainsParCommune.get(t.commune)!.push(t);
+        },
+        (b) => biens.push(b),
+      );
+      if (ajoutees > 0) {
+        annees = [...annees, suivante];
+        fin = `${suivante}-06`;
+        dire(`Ventes immobilières, premier semestre ${suivante} (fichier brut de la DGFiP) : ${n.toLocaleString('fr-FR')} ventes d’un seul logement.`);
+      }
+    } catch (e) {
+      dire(`Ventes immobilières : le premier semestre ${suivante} n’a pas pu être lu (${String(e).slice(0, 80)}) ; les années pleines seules.`);
+    }
+  }
   const communes = new Map<string, Prix>();
   const parDep = new Map<string, Vente[]>();
   for (const [code, ventes] of parCommune) {
@@ -547,7 +594,7 @@ export async function collecterDvf(
   for (const dep of new Set([...parDep.keys(), ...terrainsParDep.keys()])) {
     detailsDep.set(dep, detailler(parDep.get(dep) ?? [], terrainsParDep.get(dep) ?? [], annees));
   }
-  return { maj: new Date().toISOString().slice(0, 10), annees, communes, departements, details, detailsDep, ventes: parCommune, biens };
+  return { maj: new Date().toISOString().slice(0, 10), annees, ...(fin ? { fin } : {}), communes, departements, details, detailsDep, ventes: parCommune, biens };
 }
 
 /** Les trois dernières années complètes : la base est publiée au printemps et en automne. */
@@ -570,6 +617,7 @@ export function ecrireDvf(sortie: string, d: Dvf): number {
   return ecrireParDepartement(sortie, 'dvf', communes, (dep) => ({
     maj: d.maj,
     annees: d.annees,
+    ...(d.fin ? { fin: d.fin } : {}),
     minimum: MINIMUM,
     dep: d.departements.get(dep) ?? null,
     xdep: d.detailsDep.get(dep) ?? null,
@@ -667,7 +715,7 @@ export function ecrireVentesJeu(sortie: string, d: Dvf): number {
   let ecrits = 0;
   for (const [dep, c] of parDep) {
     if (!existsSync(join(sortie, 'dep', `${dep}.json`))) continue;
-    writeFileSync(join(dossier, `${dep}.json`), JSON.stringify({ maj: d.maj, annees: d.annees, c }));
+    writeFileSync(join(dossier, `${dep}.json`), JSON.stringify({ maj: d.maj, annees: d.annees, ...(d.fin ? { fin: d.fin } : {}), c }));
     ecrits++;
   }
   return ecrits;
@@ -680,6 +728,6 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   if (d) {
     console.log(`${ecrireDvf(sortie, d)} départements écrits.`);
     console.log(`${ecrireVentesJeu(sortie, d)} départements écrits pour le jeu des prix.`);
-    console.log(`${ecrireEstimation(sortie, d.biens, d.annees, d.maj, cache)} départements écrits pour le simulateur d’estimation.`);
+    console.log(`${ecrireEstimation(sortie, d.biens, d.annees, d.maj, cache, d.fin)} départements écrits pour le simulateur d’estimation.`);
   }
 }

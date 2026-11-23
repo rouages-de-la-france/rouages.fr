@@ -9,11 +9,12 @@ import { fraisAchat } from '../modele/bareme-achat.ts';
 import { finDeLocation } from '../modele/bareme-renovation.ts';
 import { brancherRapport, restaurerSaisie } from './rapport.ts';
 import { brancherChampLieu, quandLieu, resoudre, retenirLieu, type Lieu, type OptionsLieu } from './jeux-lieu.ts';
+import { periodeVentes } from '../modele/periode-ventes.ts';
 
 type Loyer = [number, number, number, 0 | 1] | null;
 type Fichier = {
   loyers: { millesime: number; maj: string } | null;
-  ventes: { annees: number[]; minimum: number } | null;
+  ventes: { annees: number[]; fin?: string; minimum: number } | null;
   dep: [number | null, number | null];
   c: Record<string, [Loyer, Loyer, number | null, number | null]>;
 };
@@ -76,7 +77,7 @@ export function brancherLocatif(): void {
     const cout = prix + frais + travaux;
 
     $('sl-references').textContent = [
-      m2 ? `Prix médian au m² des ${maison ? 'maisons vendues' : 'appartements vendus'} ${m2Commune ? aLieu(lieu!.nom) : 'dans le département'} : ${euros(m2)} (${f.ventes?.annees[0]} à ${f.ventes?.annees.at(-1)}).` : '',
+      m2 ? `Prix médian au m² des ${maison ? 'maisons vendues' : 'appartements vendus'} ${m2Commune ? aLieu(lieu!.nom) : 'dans le département'} : ${euros(m2)} (${f.ventes ? periodeVentes(f.ventes.annees, f.ventes.fin).replace(/^de /, '') : ''}).` : '',
       l ? `Loyer d’annonce estimé ${aLieu(lieu!.nom)} : ${l[0].toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €/m² charges comprises, entre ${l[1].toLocaleString('fr-FR')} et ${l[2].toLocaleString('fr-FR')} €${l[3] ? ' — estimation fragile, sur peu d’annonces' : ''}.` : 'Pas de loyer estimé ici par la carte des loyers.',
     ]
       .filter(Boolean)

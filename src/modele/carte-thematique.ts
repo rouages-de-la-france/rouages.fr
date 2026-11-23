@@ -8,8 +8,9 @@
  * ou sous le seuil de la source, reste en blanc.
  */
 import { parDepartement } from './fiche-commune.ts';
+import { periodeVentes } from './periode-ventes.ts';
 
-type DvfDep = { annees: number[]; minimum: number; c: Record<string, [number, number | null, number | null, ...unknown[]]> };
+type DvfDep = { annees: number[]; fin?: string; minimum: number; c: Record<string, [number, number | null, number | null, ...unknown[]]> };
 type DpeDep = { base: string; c: Record<string, number[]> };
 type FibreDep = { trimestre: string; c: Record<string, [number, number, ...unknown[]]> };
 type SanteDep = { annees: number[]; c: Record<string, [number | null, number | null][]> };
@@ -58,7 +59,7 @@ export function thematiquesDepartement(dep: string, codes: string[]): Thematique
       {
         id: 'prix',
         nom: 'Prix d’une maison',
-        source: `Le prix médian d’une maison vendue de ${d.annees[0]} à ${d.annees.at(-1)}, d’après les demandes de valeurs foncières (DGFiP), là où il y a eu au moins ${d.minimum} ventes.`,
+        source: `Le prix médian d’une maison vendue ${periodeVentes(d.annees, d.fin)}, d’après les demandes de valeurs foncières (DGFiP), là où il y a eu au moins ${d.minimum} ventes.`,
       },
       quintiles(codes, (c) => d.c[c]?.[2] ?? null, (v) => `${nb(Math.round(v / 1000) * 1000)} €`),
     );

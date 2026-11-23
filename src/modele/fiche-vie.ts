@@ -53,6 +53,7 @@ type DetailLigne = [
 type DvfDep = {
   maj: string;
   annees: number[];
+  fin?: string;
   minimum: number;
   dep: PrixLigne | null;
   c: Record<string, PrixLigne>;
@@ -440,6 +441,8 @@ export interface DetailVentes {
 
 export interface Immobilier {
   annees: number[];
+  /** Le dernier mois couvert quand la dernière année n'est qu'un semestre (`src/modele/periode-ventes.ts`). */
+  fin: string | null;
   minimum: number;
   commune: PrixVentes;
   departement: PrixVentes | null;
@@ -1220,6 +1223,7 @@ function immobilier(c: CommuneFiche): Immobilier | null {
   if (!d || !x) return null;
   return {
     annees: d.annees,
+    fin: d.fin ?? null,
     minimum: d.minimum,
     commune: ventes(x),
     departement: d.dep ? ventes(d.dep) : null,

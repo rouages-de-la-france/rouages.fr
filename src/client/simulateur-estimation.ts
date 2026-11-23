@@ -6,6 +6,7 @@
 import { aLieu } from '../modele/signalement.ts';
 import { brancherRapport, restaurerSaisie } from './rapport.ts';
 import { brancherChampLieu, quandLieu, resoudre, retenirLieu, type Lieu, type OptionsLieu } from './jeux-lieu.ts';
+import { periodeVentes } from '../modele/periode-ventes.ts';
 
 /** Voir `Estimation` dans `scripts/estimation-emettre.ts`. */
 type Estimation = [
@@ -27,7 +28,7 @@ type EffetsDpe = { multiplicateurs: Record<string, number>; ventes: number; repa
 type EffetsPeriode = { multiplicateurs: number[]; periodes: string[]; ventes: number; ecart: [number, number]; portee: string };
 type ClassesIntervalles = Record<'seule' | 'voisines', { ventes: number; bornes: [number, number][]; tenue: number[] }>;
 type Intervalles = { niveaux: number[]; classes: ClassesIntervalles; periode?: ClassesIntervalles };
-type Fichier = { maj: string; annees: number[]; tailles: [number, number]; partActivite: number; dpe: EffetsDpe | null; periode?: EffetsPeriode | null; c: Record<string, Estimation> };
+type Fichier = { maj: string; annees: number[]; fin?: string; tailles: [number, number]; partActivite: number; dpe: EffetsDpe | null; periode?: EffetsPeriode | null; c: Record<string, Estimation> };
 
 const LIEUX: OptionsLieu = { source: '/jeux/territoires.json', genres: ['commune'] };
 const euros = (x: number) => `${Math.round(x).toLocaleString('fr-FR')} €`;
@@ -248,7 +249,7 @@ export function brancherEstimation(): void {
     if (!f.c[code]) return message(`Trop peu de ventes ${aLieu(lieu.nom)} et autour pour une estimation.`);
     e = f.c[code];
     message('');
-    $('se-titre').textContent = `${aLieu(lieu.nom).replace(/^./, (x) => x.toUpperCase())}, ventes de ${f.annees[0]} à ${f.annees[f.annees.length - 1]}`;
+    $('se-titre').textContent = `${aLieu(lieu.nom).replace(/^./, (x) => x.toUpperCase())}, ventes ${periodeVentes(f.annees, f.fin)}`;
     (form.elements.namedItem('part') as HTMLInputElement).value = String(Math.round(f.partActivite * 100));
     $('se-dpe-bloc').hidden = !(f.dpe && e[10]);
     // La période : les choix de la base des bâtiments, quand l'effet est mesuré pour ce département.

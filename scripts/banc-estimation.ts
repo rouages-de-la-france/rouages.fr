@@ -121,6 +121,8 @@ export function mesurer(rapports: (number | null)[]): Mesure {
 export interface Banc {
   maj: string;
   annees: number[];
+  /** Le dernier mois couvert quand la dernière année n'est qu'un semestre. */
+  fin?: string;
   plis: number;
   graine: number;
   modeles: { id: string; nom: string }[];

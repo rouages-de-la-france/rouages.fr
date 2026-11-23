@@ -16,12 +16,13 @@
 import { aLieu } from '../modele/signalement.ts';
 import { brancherChampLieu, quandLieu, resoudre, retenirLieu, type Lieu, type OptionsLieu } from './jeux-lieu.ts';
 import { brancherPartage, EMOJI, hasard, jourDuJeu, memoire, progression, type Case, type Resultat } from './jeux-commun.ts';
+import { periodeVentes } from '../modele/periode-ventes.ts';
 
 /** [année, 0 maison ou 1 appartement, prix, surface, pièces, terrain] — voir `ventesDuJeu`. */
 type VenteJeu = [number, 0 | 1, number, number, number, number];
 /** Par commune : le nom, [prix médian d'une maison, prix médian au m² d'un appartement], les ventes. */
 type CommuneJeu = { n: string; m: [number | null, number | null]; v: VenteJeu[] };
-type FichierJeu = { maj: string; annees: number[]; c: Record<string, CommuneJeu> };
+type FichierJeu = { maj: string; annees: number[]; fin?: string; c: Record<string, CommuneJeu> };
 
 type Manche = { code: string; vente: VenteJeu; essai?: number; points?: number };
 /** Ce que le navigateur garde d'un défi joué : les essais, rien d'autre. */
@@ -130,6 +131,7 @@ export function brancherJeuPrix(): void {
   let lieu: Lieu | null = null;
   let communes: Record<string, CommuneJeu> = {};
   let annees: number[] = [];
+  let finVentes: string | undefined;
   /** Le haut du curseur : la vente la plus chère du périmètre, arrondie, 300 000 € au moins. */
   let plafond = 500_000;
   let partie: Manche[] = [];
@@ -225,6 +227,7 @@ export function brancherJeuPrix(): void {
       const lus = await Promise.all(lieu.deps.map(chargerDep));
       communes = Object.assign({}, ...lus.map((f) => f.c));
       annees = lus[0]?.annees ?? [];
+      finVentes = lus[0]?.fin;
       const codes = (lieu.communes ?? Object.keys(communes)).filter((c) => communes[c]);
       const cher = Math.max(0, ...codes.flatMap((c) => communes[c].v.map((v) => v[2])));
       plafond = Math.max(300_000, Math.ceil((cher * 1.2) / 50_000) * 50_000);
@@ -282,7 +285,7 @@ export function brancherJeuPrix(): void {
     contexte.innerHTML = '';
     // Les médianes que la page de la commune publie déjà : un repère, sur les trois ans.
     const { n, m: [mediane, m2Median] } = communes[m.code];
-    const periode = annees.length ? `de ${annees[0]} à ${annees[annees.length - 1]}` : '';
+    const periode = annees.length ? periodeVentes(annees, finVentes) : '';
     if (m.vente[1] === 0 && mediane) contexte.append(`Prix médian d’une maison ${aLieu(n)} ${periode} : ${euros(mediane)}, le trait gris. `);
     else if (m.vente[1] === 1 && m2Median) contexte.append(`Prix médian d’un appartement ${aLieu(n)} ${periode} : ${euros(m2Median)} le m². `);
     contexte.append(Object.assign(document.createElement('a'), { href: `/commune/${m.code}`, textContent: 'La page de la commune' }), '.');
