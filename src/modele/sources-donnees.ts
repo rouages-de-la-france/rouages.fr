@@ -60,6 +60,10 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /indices Notaires-INSEE des prix des logements anciens/i,
+    liens: [{ titre: 'Indices Notaires-INSEE des prix des logements anciens (INSEE, BDM)', url: 'https://www.insee.fr/fr/statistiques/serie/010760744' }],
+  },
+  {
     motif: /droits de mutation|\bDMTO\b|recettes mensuelles publiées par la direction générale des finances publiques/i,
     liens: [{ titre: 'Droits de mutation à titre onéreux (DGFiP)', url: 'https://data.economie.gouv.fr/explore/dataset/dmto_attrib/' }],
   },

@@ -7,6 +7,7 @@
 import type { Batiments, Immobilier, Parc, Vacance } from './fiche-vie.ts';
 import type { Fiche } from './territoires.ts';
 import { anneesPleines, anneeVentes } from './periode-ventes.ts';
+import { trimestre, type TendancePrix } from './indices.ts';
 
 export interface LigneMarche {
   nom: string;
@@ -21,9 +22,11 @@ export function lignesMarche(
   vacance: Vacance | null,
   logements: NonNullable<Fiche['logements']> | null,
   depNom: string | null,
+  /** L'indice Notaires-INSEE de la zone ABC de la commune, ou de son département en Île-de-France. */
+  tendance: TendancePrix | null = null,
 ): LigneMarche[] {
   const pc = (x: number, d = 0) => `${(Math.round(x * 100 * 10 ** d) / 10 ** d).toLocaleString('fr-FR')} %`;
-  const signe = (x: number) => (x < 0 ? '−' : '+') + pc(Math.abs(x));
+  const signe = (x: number, d = 0) => (x < 0 ? '−' : '+') + pc(Math.abs(x), d);
   const dixieme = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // La rotation : les ventes d'un seul logement par an, rapportées au parc des fichiers fonciers, ou du recensement.
@@ -62,6 +65,14 @@ export function lignesMarche(
       nom: `Prix des maisons, de ${prixDep.de} à ${prixDep.a}`,
       valeur: `${signe(prixDep.variation)} dans le département`,
       detail: `Trop peu de ventes chaque année dans la commune — moins de vingt — pour en dire l’évolution : c’est celle du prix médian au mètre carré des maisons du département (${depNom}), vendues sans terres ni bois.`,
+    },
+    tendance && {
+      nom: `Prix des logements anciens, ${/^\d/.test(tendance.cle) ? 'dans le département' : `zone ${tendance.cle}`}`,
+      valeur: `${signe(tendance.unAn, 1)} en un an`,
+      detail:
+        `L’indice Notaires-INSEE des prix des logements anciens pour ${tendance.nom}, du ${trimestre(tendance.de)} au ${trimestre(tendance.a)}` +
+        `${tendance.provisoire ? ' (provisoire)' : ''}${tendance.cinqAns !== null ? ` ; ${signe(tendance.cinqAns, 1)} en cinq ans` : ''}. ` +
+        'C’est la tendance des logements vendus dans ' + (/^\d/.test(tendance.cle) ? 'tout le département' : 'toutes les communes de la même zone') + ', pas un indice de la commune.',
     },
     complet && {
       nom: 'Logements vacants depuis plus de deux ans',

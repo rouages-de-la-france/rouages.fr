@@ -927,6 +927,16 @@ async function principal() {
     grise('Interventions des secours écrites.');
   }
 
+  // Les indices de l'INSEE pour le logement : l'IRL et les prix des logements anciens (BDM, SDMX).
+  const { collecterIndices, ecrireIndices } = await import('./indices-emettre.ts');
+  const indices = await tenter('Indices de l’INSEE (IRL, prix des logements anciens)', () =>
+    collecterIndices(async (url) => (await obstine(url)).text(), grise),
+  );
+  if (indices) {
+    ecrireIndices(SORTIE, indices);
+    grise('Indices de l’INSEE écrits.');
+  }
+
   // France Travail : l'agence de chaque commune, les offres et embauches de chaque intercommunalité
   // (francetravail.io, identifiants requis ; licence à éclaircir : écrites dans un fichier à part).
   const { collecterFranceTravail, departementsFrance, ecrireFranceTravail } = await import('./francetravail-emettre.ts');
