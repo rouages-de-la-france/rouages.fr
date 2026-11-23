@@ -1,0 +1,24 @@
+---
+/**
+ * La voirie d'un département que la DGCL retient dans les critères de ses
+ * dotations, hors montagne et en montagne (`scripts/voirie-emettre.ts`).
+ */
+import type { VoirieDepartement } from '../modele/fiche-vie.ts';
+
+interface Props {
+  v: VoirieDepartement;
+}
+const { v } = Astro.props;
+const km = (m: number) => `${Math.round(m / 1000).toLocaleString('fr-FR')} km`;
+const total = v.horsMontagne + v.montagne;
+const avant = v.avant.horsMontagne !== null && v.avant.montagne !== null ? v.avant.horsMontagne + v.avant.montagne : null;
+---
+<p class="mesure">
+  {`La DGCL retient ${km(total)} de voirie pour le département en ${v.annee}` +
+    (v.montagne > 0 && v.horsMontagne > 0 ? `, dont ${km(v.montagne)} en zone de montagne` : v.montagne > 0 ? `, toute en zone de montagne` : '') +
+    (avant !== null && Math.abs(avant - total) >= 1000 ? ` (${km(avant)} en ${v.annee - 1})` : '') +
+    '. C’est l’un des critères de la dotation de fonctionnement minimale, une part de la dotation globale de fonctionnement des départements.'}
+</p>
+<p class="p-source-territoire">
+  {`D’après les critères de répartition des dotations des départements publiés par la DGCL, tels que l’OFGL les republie (lus le ${v.maj}).`}
+</p>
