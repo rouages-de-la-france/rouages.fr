@@ -26,6 +26,7 @@ npm run verifier-recherche   le classement des communes homonymes
 npm run verifier-journal     la fenêtre et les plafonds du journal
 npm run verifier-rattachement  les annonces du BODACC rattachées à la bonne commune
 npm run verifier-retraits    une opposition : annonce retirée, sous le nom commercial seul, ou anonyme
+npm run verifier-diffusion   le statut de diffusion des entrepreneurs, relu à l'INSEE
 npm run verifier-marches     les fichiers des marchés, identiques quel que soit l'ordre de lecture
 npm run verifier-liens       une adresse venue d'un registre ne devient un lien qu'en http(s)
 npm run verifier-ressources  une ressource data.gouv.fr se trouve par son titre, puis par son adresse
@@ -240,8 +241,9 @@ Ce qui est autorisé à ce jour :
   que publié, l'activité, la commune, le lien vers la fiche ou l'annonce.
   Jamais un entrepreneur en **diffusion partielle** au répertoire SIRENE — il
   a exercé son droit d'opposition (article R123-232-1 du code de commerce) :
-  le statut se relit à chaque ingestion, et un établissement non diffusible
-  est compté, pas nommé ;
+  le statut se relit à chaque ingestion — dans l'API Sirene de l'INSEE
+  (`INSEE_SIRENE_CLE`), la copie d'Opendatasoft n'étant mise à jour qu'au 1er
+  du mois —, et un établissement non diffusible est compté, pas nommé ;
 - **la situation des titulaires des marchés**, entrepreneurs individuels
   compris (décision du 8 octobre 2026, justifiée dans `docs/07-risques.md`) :
   le dernier jugement de procédure collective publié au BODACC dans les
