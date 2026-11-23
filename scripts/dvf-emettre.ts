@@ -28,6 +28,15 @@
  * dit pas ce que le plan local d'urbanisme permet. Les vignes et les vergers,
  * dont le prix tient à l'appellation, ne sont pas mêlés aux terres.
  *
+ * **Le complément du fichier brut.** La version géolocalisée suit avec retard
+ * les publications de la DGFiP : celle de mai 2026 manquait 13 % des ventes de
+ * décembre 2025, que le fichier brut d'octobre donnait (actes enregistrés
+ * tard). Chaque année est donc lue dans la version géolocalisée, puis
+ * complétée des seules mutations que le fichier brut de la DGFiP ajoute —
+ * même date, même valeur, même commune, même nature : rien n'est compté deux
+ * fois. Ces ventes-là n'ont pas de coordonnées ; le rapprochement avec les
+ * diagnostics énergétiques, qui en a besoin, les laisse de côté.
+ *
  * DVF ne couvre ni l'Alsace ni la Moselle, où le livre foncier tient ce rôle,
  * ni Mayotte. Paris, Lyon et Marseille y sont par arrondissement : ils sont
  * réunis sous leur commune.
@@ -37,7 +46,9 @@
  * `public/territoires/jeux/dvf/XX.json`, et ceux du simulateur d'estimation,
  * `public/territoires/simulateurs/estimation/XX.json`.
  */
+import { spawn } from 'node:child_process';
 import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createInterface } from 'node:readline';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,6 +58,21 @@ import { bienDe, ecrireEstimation, type Bien } from './estimation-emettre.ts';
 import { indisponible } from './echecs.ts';
 
 export const ADRESSE = (annee: number) => `https://files.data.gouv.fr/geo-dvf/latest/csv/${annee}/full.csv.gz`;
+/** Le jeu de la DGFiP sur data.gouv.fr : un fichier par année, « Valeurs foncières AAAA ». */
+const JEU_BRUT = '5c4ae55a634f4117716d5656';
+
+/** Les fichiers bruts de la DGFiP par année pleine, d'après les titres des ressources du jeu. */
+async function adressesBrut(): Promise<Map<number, string>> {
+  const r = await fetch(`https://www.data.gouv.fr/api/2/datasets/${JEU_BRUT}/resources/?page_size=50`, { signal: AbortSignal.timeout(60_000) });
+  if (!r.ok) throw new Error(`data.gouv.fr : ${r.status}`);
+  const d = (await r.json()) as { data?: { title?: string; url?: string }[] };
+  const m = new Map<number, string>();
+  for (const x of d.data ?? []) {
+    const a = /^Valeurs foncières (20\d\d)$/.exec((x.title ?? '').trim());
+    if (a && x.url) m.set(Number(a[1]), x.url);
+  }
+  return m;
+}
 /** Sous ce nombre de ventes, la médiane serait celle de trois maisons. */
 export const MINIMUM = 5;
 
@@ -176,6 +202,8 @@ export async function lireVentes(
   ajouter: (v: Vente) => void,
   ajouterTerrain: (t: Terrain) => void = () => {},
   ajouterBien: (b: Bien) => void = () => {},
+  /** Pour le complément du fichier brut : la clé de chaque ligne lue (`cleLigne`). */
+  cles?: Set<string>,
 ): Promise<void> {
   let col: Record<string, number> | null = null;
   let id = '';
@@ -210,8 +238,122 @@ export async function lireVentes(
       lignes = [];
     }
     lignes.push(v);
+    cles?.add(cleLigne(v[col.date_mutation], v[col.valeur_fonciere], v[col.code_commune], v[col.nature_mutation]));
   }
   clore();
+}
+
+/** Une ligne, pour reconnaître la même mutation dans les deux fichiers : date ISO, valeur, commune, nature. */
+export const cleLigne = (date: string, valeur: string, commune: string, nature: string) =>
+  `${date}|${Number(String(valeur).replace(',', '.'))}|${commune}|${nature}`;
+
+/** Les colonnes du fichier géolocalisé que la lecture utilise, dans l'ordre où le complément les écrit. */
+const COLONNES = [
+  'id_mutation', 'date_mutation', 'nature_mutation', 'valeur_fonciere', 'code_commune', 'id_parcelle', 'lot1_numero',
+  'type_local', 'surface_reelle_bati', 'nombre_pieces_principales', 'code_nature_culture', 'code_nature_culture_speciale',
+  'surface_terrain', 'longitude', 'latitude',
+] as const;
+
+/** Une ligne du fichier brut de la DGFiP, mise au format du fichier géolocalisé ; null si elle est illisible. */
+export function ligneDuBrut(l: string[], i: Record<string, number>, id: string): string[] | null {
+  const date = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(l[i['Date mutation']] ?? '');
+  const dep = (l[i['Code departement']] ?? '').trim();
+  const com = (l[i['Code commune']] ?? '').trim();
+  if (!date || !dep || !com) return null;
+  // La commune sur cinq caractères : 03 + 165, ou 971 + 01 outre-mer.
+  const commune = dep.length === 3 ? dep + com.padStart(2, '0') : dep.padStart(2, '0') + com.padStart(3, '0');
+  const section = (l[i['Section']] ?? '').trim();
+  const plan = (l[i['No plan']] ?? '').trim();
+  const parcelle = section && plan ? commune + (l[i['Prefixe de section']] ?? '').trim().padStart(3, '0') + section.padStart(2, '0') + plan.padStart(4, '0') : '';
+  const nombre = (x: string | undefined) => (x ?? '').trim().replace(',', '.');
+  const v: Record<(typeof COLONNES)[number], string> = {
+    id_mutation: id,
+    date_mutation: `${date[3]}-${date[2]}-${date[1]}`,
+    nature_mutation: (l[i['Nature mutation']] ?? '').trim(),
+    valeur_fonciere: nombre(l[i['Valeur fonciere']]),
+    code_commune: commune,
+    id_parcelle: parcelle,
+    lot1_numero: (l[i['1er lot']] ?? '').trim(),
+    type_local: (l[i['Type local']] ?? '').trim(),
+    surface_reelle_bati: nombre(l[i['Surface reelle bati']]),
+    nombre_pieces_principales: nombre(l[i['Nombre pieces principales']]),
+    code_nature_culture: (l[i['Nature culture']] ?? '').trim(),
+    code_nature_culture_speciale: (l[i['Nature culture speciale']] ?? '').trim(),
+    surface_terrain: nombre(l[i['Surface terrain']]),
+    longitude: '',
+    latitude: '',
+  };
+  return COLONNES.map((c) => v[c]);
+}
+
+/**
+ * Les mutations du fichier brut de la DGFiP qui manquent au fichier
+ * géolocalisé déjà lu (`cles`), passées aux mêmes lectures. Une mutation du
+ * fichier brut réunit les lignes de même date, valeur, nature et département ;
+ * elle est gardée si aucune de ses lignes n'est dans le fichier géolocalisé.
+ * Rend le nombre de mutations ajoutées.
+ */
+export async function lireComplement(
+  zip: string,
+  annee: number,
+  cles: Set<string>,
+  ajouter: (v: Vente) => void,
+  ajouterTerrain: (t: Terrain) => void,
+  ajouterBien: (b: Bien) => void,
+): Promise<number> {
+  const membre = await new Promise<string>((ok, ko) => {
+    const p = spawn('unzip', ['-Z1', zip]);
+    let s = '';
+    p.stdout.on('data', (b) => (s += b));
+    p.on('close', (c) => (c ? ko(new Error(`${zip} illisible`)) : ok(s.split('\n').find((n) => /\.txt$/i.test(n.trim()))?.trim() ?? '')));
+  });
+  if (!membre) throw new Error(`${zip} : aucun fichier texte dans l’archive`);
+  const col = Object.fromEntries(COLONNES.map((c, k) => [c, k])) as Record<string, number>;
+  // On ne garde que les lignes absentes du fichier géolocalisé ; pour les autres, la clé de leur mutation suffit.
+  const candidates = new Map<string, string[][]>();
+  const presentes = new Set<string>();
+  let i: Record<string, number> | null = null;
+  let n = 0;
+  const p = spawn('unzip', ['-p', zip, membre]);
+  for await (const brute of createInterface({ input: p.stdout, crlfDelay: Infinity })) {
+    const champs = brute.replace(/^\uFEFF/, '').split('|');
+    if (!i) {
+      i = Object.fromEntries(champs.map((c, k) => [c.trim(), k]));
+      for (const c of ['Date mutation', 'Nature mutation', 'Valeur fonciere', 'Code departement', 'Code commune', 'Section', 'No plan', 'Type local', 'Surface terrain', 'Nature culture']) {
+        if (i[c] === undefined) throw new Error(`DVF brut ${annee} : colonne « ${c} » absente`);
+      }
+      continue;
+    }
+    const cle = `${champs[i['Date mutation']]}|${champs[i['Valeur fonciere']]}|${champs[i['Nature mutation']]}|${champs[i['Code departement']]}`;
+    if (presentes.has(cle)) continue;
+    const ligne = ligneDuBrut(champs, i, `brut-${annee}-${n}`);
+    if (!ligne) continue;
+    if (cles.has(cleLigne(ligne[col.date_mutation], ligne[col.valeur_fonciere], ligne[col.code_commune], ligne[col.nature_mutation]))) {
+      presentes.add(cle);
+      candidates.delete(cle);
+      continue;
+    }
+    let m = candidates.get(cle);
+    if (!m) {
+      candidates.set(cle, (m = []));
+      n++;
+    } else ligne[col.id_mutation] = m[0][col.id_mutation];
+    m.push(ligne);
+  }
+  let ajoutees = 0;
+  for (const [cle, lignes] of candidates) {
+    if (presentes.has(cle) || !lignes.every((l) => l[col.date_mutation].startsWith(String(annee)))) continue;
+    ajoutees++;
+    const b = bienDe(lignes, col);
+    if (b) ajouterBien(b);
+    const v = venteDe(lignes, col, annee);
+    if (v) ajouter(v);
+    else {
+      const t = terrainDe(lignes, col, annee);
+      if (t) ajouterTerrain(t);
+    }
+  }
+  return ajoutees;
 }
 
 function resumer(ventes: Vente[], annees: number[]): Prix {
@@ -311,6 +453,12 @@ export async function collecterDvf(
   const terrainsParCommune = new Map<string, Terrain[]>();
   const biens: Bien[] = [];
   const lues: number[] = [];
+  let bruts = new Map<number, string>();
+  try {
+    bruts = await adressesBrut();
+  } catch (e) {
+    dire(`Ventes immobilières : fichiers bruts de la DGFiP introuvables (${String(e).slice(0, 80)}) ; la version géolocalisée seule.`);
+  }
   for (const annee of annees) {
     const vers = join(cache, `dvf-${annee}.csv.gz`);
     try {
@@ -321,6 +469,7 @@ export async function collecterDvf(
     }
     let n = 0;
     let nt = 0;
+    const cles = new Set<string>();
     await lireVentes(
       vers,
       annee,
@@ -335,8 +484,39 @@ export async function collecterDvf(
         nt++;
       },
       (b) => biens.push(b),
+      cles,
     );
-    dire(`Ventes immobilières ${annee} : ${n.toLocaleString('fr-FR')} ventes d’un seul logement, ${nt.toLocaleString('fr-FR')} de terrain nu.`);
+    // Le complément du fichier brut, quand la version géolocalisée a du retard ; sans lui, on garde la lecture.
+    let ajoutees = 0;
+    const brut = bruts.get(annee);
+    if (brut) {
+      try {
+        const zip = join(cache, `dvf-brut-${annee}.zip`);
+        await telecharger(brut, zip);
+        ajoutees = await lireComplement(
+          zip,
+          annee,
+          cles,
+          (v) => {
+            if (!parCommune.has(v.commune)) parCommune.set(v.commune, []);
+            parCommune.get(v.commune)!.push(v);
+            n++;
+          },
+          (t) => {
+            if (!terrainsParCommune.has(t.commune)) terrainsParCommune.set(t.commune, []);
+            terrainsParCommune.get(t.commune)!.push(t);
+            nt++;
+          },
+          (b) => biens.push(b),
+        );
+      } catch (e) {
+        dire(`Ventes immobilières ${annee} : le fichier brut de la DGFiP n’a pas pu être lu (${String(e).slice(0, 80)}) ; la version géolocalisée seule.`);
+      }
+    }
+    dire(
+      `Ventes immobilières ${annee} : ${n.toLocaleString('fr-FR')} ventes d’un seul logement, ${nt.toLocaleString('fr-FR')} de terrain nu` +
+        (ajoutees ? ` ; ${ajoutees.toLocaleString('fr-FR')} mutations ajoutées du fichier brut de la DGFiP.` : '.'),
+    );
     lues.push(annee);
   }
   // Trois années ou rien : une médiane sur deux ans ne se comparerait pas à
