@@ -6,6 +6,7 @@
  */
 import type { Batiments, Immobilier, Parc, Vacance } from './fiche-vie.ts';
 import type { Fiche } from './territoires.ts';
+import { anneesPleines, anneeVentes } from './periode-ventes.ts';
 
 export interface LigneMarche {
   nom: string;
@@ -26,7 +27,9 @@ export function lignesMarche(
   const dixieme = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   // La rotation : les ventes d'un seul logement par an, rapportées au parc des fichiers fonciers, ou du recensement.
-  const ventesParAn = immobilier ? immobilier.commune.parAnnee.reduce((a, b) => a + b, 0) / immobilier.annees.length : null;
+  // Les années pleines seules : le semestre en cours est encore incomplet.
+  const pleines = immobilier ? anneesPleines(immobilier.annees, immobilier.fin) : [];
+  const ventesParAn = immobilier ? immobilier.commune.parAnnee.slice(0, pleines.length).reduce((a, b) => a + b, 0) / pleines.length : null;
   const parcLogements = batiments?.logements || parc?.commune[0]?.[0] || null;
   const rotation = ventesParAn !== null && parcLogements ? ventesParAn / parcLogements : null;
 
@@ -35,7 +38,7 @@ export function lignesMarche(
     if (!l) return null;
     const i = l.findIndex((x) => x.m2 !== null);
     const j = l.findLastIndex((x) => x.m2 !== null);
-    return i >= 0 && j > i ? { de: annees[i], a: annees[j], variation: l[j].m2! / l[i].m2! - 1 } : null;
+    return i >= 0 && j > i ? { de: annees[i], a: anneeVentes(annees[j], annees, immobilier?.fin), variation: l[j].m2! / l[i].m2! - 1 } : null;
   };
   const prix = immobilier ? evolution(immobilier.detail?.parAnnee, immobilier.annees) : null;
   const prixDep = immobilier ? evolution(immobilier.detailDepartement?.parAnnee, immobilier.annees) : null;
@@ -47,7 +50,7 @@ export function lignesMarche(
     rotation !== null && {
       nom: 'Logements vendus chaque année',
       valeur: `${pc(rotation, 1)} du parc`,
-      detail: `${dixieme(ventesParAn!)} ventes d’un seul logement par an, de ${immobilier!.annees[0]} à ${immobilier!.annees.at(-1)}, pour ${Math.round(parcLogements!).toLocaleString('fr-FR')} logements${batiments?.logements ? ' aux fichiers fonciers' : ' au recensement'}. Les ventes de plusieurs logements à la fois ne sont pas comptées.`,
+      detail: `${dixieme(ventesParAn!)} ventes d’un seul logement par an, de ${pleines[0]} à ${pleines.at(-1)}, pour ${Math.round(parcLogements!).toLocaleString('fr-FR')} logements${batiments?.logements ? ' aux fichiers fonciers' : ' au recensement'}. Les ventes de plusieurs logements à la fois ne sont pas comptées.`,
     },
     prix && {
       nom: `Prix des maisons, de ${prix.de} à ${prix.a}`,

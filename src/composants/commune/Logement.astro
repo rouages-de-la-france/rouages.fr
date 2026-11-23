@@ -9,6 +9,7 @@
  * effectifs du recensement sont des estimations, d'où l'arrondi.
  */
 import type { Immobilier, Parc } from '../../modele/fiche-vie.ts';
+import { anneeVentes, periodeVentes } from '../../modele/periode-ventes.ts';
 
 interface Props {
   parc: Parc | null;
@@ -81,7 +82,7 @@ const terrainsNus = x ? x.batir.ventes + x.terres.ventes + x.bois.ventes : 0;
 )}
 {m && (m.maisons > 0 || m.appartements > 0 || terrainsNus > 0) && (
   <>
-    <h3 class="p-titre-echelon">{`Ce qu’ils se vendent, de ${immobilier!.annees[0]} à ${immobilier!.annees.at(-1)}`}</h3>
+    <h3 class="p-titre-echelon">{`Ce qu’ils se vendent, ${periodeVentes(immobilier!.annees, immobilier!.fin)}`}</h3>
     <p class="mesure">
       {m.maisons > 0 &&
         `${entier(m.maisons)} maison${m.maisons > 1 ? 's vendues' : ' vendue'}${x?.avecTerres ? ' sans terres ni bois' : ''}` +
@@ -140,7 +141,7 @@ const terrainsNus = x ? x.batir.ventes + x.terres.ventes + x.bois.ventes : 0;
       </p>
     )}
     <p class="p-strate">
-      {`Ventes de logements, année par année : ${immobilier!.annees.map((a, i) => `${entier(m.parAnnee[i] ?? 0)} en ${a}`).join(', ')}.`}
+      {`Ventes de logements, année par année : ${immobilier!.annees.map((a, i) => `${entier(m.parAnnee[i] ?? 0)} en ${anneeVentes(a, immobilier!.annees, immobilier!.fin)}`).join(', ')}.`}
       {' Chaque vente passe devant un '}<a href="/n/notaire">notaire</a>{', qui collecte les droits de mutation : l’essentiel revient au département, une part aux communes, une autre à l’État.'}
     </p>
     <p class="p-source-territoire">

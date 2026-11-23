@@ -20,7 +20,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 
 type LoyerBrut = [number, number, number, number, number, number];
 type Loyers = { millesime: number; maj: string; c: Record<string, [LoyerBrut | null, LoyerBrut | null]> };
-type Dvf = { annees: number[]; minimum: number; dep: (number | null)[] | null; c: Record<string, (number | null)[]> };
+type Dvf = { annees: number[]; fin?: string; minimum: number; dep: (number | null)[] | null; c: Record<string, (number | null)[]> };
 const loyers = parDepartement<Loyers>('loyers');
 const dvf = parDepartement<Dvf>('dvf');
 
@@ -45,7 +45,7 @@ export const GET: APIRoute = ({ params }) => {
   return new Response(
     JSON.stringify({
       loyers: l ? { millesime: l.millesime, maj: l.maj } : null,
-      ventes: v ? { annees: v.annees, minimum: v.minimum } : null,
+      ventes: v ? { annees: v.annees, ...(v.fin ? { fin: v.fin } : {}), minimum: v.minimum } : null,
       dep: [v?.dep?.[1] ?? null, v?.dep?.[4] ?? null],
       c,
     }),

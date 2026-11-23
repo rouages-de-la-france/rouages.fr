@@ -9,11 +9,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Base from '../../layouts/Base.astro';
+import { periodeVentes } from '../../modele/periode-ventes.ts';
 
 type Mesure = { ventes: number; couverture: number; ecartMedian: number | null; q1: number | null; q3: number | null; a10: number | null; a20: number | null };
 type Banc = {
   maj: string;
   annees: number[];
+  fin?: string;
   plis: number;
   graine: number;
   modeles: { id: string; nom: string; essai?: boolean }[];
@@ -60,7 +62,7 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
       <>
         <h2 class="badge">Le résultat</h2>
         <p class="mesure">
-          {`Sur ${entier(f.surface.ventes)} ventes de maisons de ${banc.annees[0]} à ${banc.annees.at(-1)}, l’estimation du simulateur s’écarte du prix réel de ${pc(f.surface.ecartMedian)} en médiane : `}
+          {`Sur ${entier(f.surface.ventes)} ventes de maisons ${periodeVentes(banc.annees, banc.fin)}, l’estimation du simulateur s’écarte du prix réel de ${pc(f.surface.ecartMedian)} en médiane : `}
           {`une vente sur deux s’est vendue à moins de ${pc(f.surface.ecartMedian)} au-dessus ou au-dessous de son estimation, l’autre plus loin. `}
           {`${pc(f.surface.a10)} des ventes tombent à 10 % près, ${pc(f.surface.a20)} à 20 % près. `}
           {gain !== null &&
@@ -190,7 +192,7 @@ const deps = banc ? Object.entries(banc.departements).sort((a, b) => a[0].locale
           <li><strong>Un contrôle indépendant</strong>&nbsp;: les mesures ont été recalculées par un programme distinct, à partir des mêmes rapports, et le tirage refait dans un autre langage.</li>
         </ul>
         <p class="p-source-territoire">
-          {`Calculé le ${banc.maj} sur les demandes de valeurs foncières de la DGFiP (version géolocalisée d’Etalab, Licence Ouverte), ventes de ${banc.annees[0]} à ${banc.annees.at(-1)}. Le code du banc d’essai est public : scripts/banc-estimation.ts.`}
+          {`Calculé le ${banc.maj} sur les demandes de valeurs foncières de la DGFiP (version géolocalisée d’Etalab, complétée du fichier brut de la DGFiP, Licence Ouverte), ventes ${periodeVentes(banc.annees, banc.fin)}. Le code du banc d’essai est public : scripts/banc-estimation.ts.`}
         </p>
       </>
     )}

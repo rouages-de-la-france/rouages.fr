@@ -21,6 +21,7 @@ import { RACINE } from '../../../modele/graphe.ts';
 import { parDepartement } from '../../../modele/fiche-commune.ts';
 import { NATURES_FISCALITE_PROPRE } from '../../../modele/schemas.ts';
 import { communes, metaTerritoires } from '../../../modele/territoires.ts';
+import { periodeVentes } from '../../../modele/periode-ventes.ts';
 
 export const getStaticPaths: GetStaticPaths = () => {
   const filtre = process.env.ROUAGES_DEPS?.split(',').map((d) => d.trim()).filter(Boolean);
@@ -31,7 +32,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 type Contours = { millesime: string; c: Record<string, [number[][], string[], number[][]?]> };
 type Population = { annees: number[]; c: Record<string, [number[], number, number]> };
 type Revenus = { millesime: number; c: Record<string, [number | null, number | null]> };
-type Dvf = { annees: number[]; c: Record<string, (number | null)[]> };
+type Dvf = { annees: number[]; fin?: string; c: Record<string, (number | null)[]> };
 type Gares = { annee: number; c: Record<string, { g: unknown[] } | { p: [string, string, number, number] }> };
 type Services = { c: Record<string, [number, string, ...unknown[]][]> };
 type Structure = { g: [string, string, string, string[]][]; c: [string, string, number, number[], string][] };
@@ -83,7 +84,7 @@ export const GET: APIRoute = ({ params }) => {
     ['habitants', 'Habitants', 'hab.', `INSEE, recensement ${pop?.annees[derniere] ?? ''}`],
     ['habitants1901', 'Habitants en 1901', 'hab.', 'INSEE, séries historiques du recensement'],
     ['niveauDeVie', 'Niveau de vie médian', '€ par an', `INSEE, Filosofi ${rev?.millesime ?? ''}`],
-    ['prixMaison', 'Prix médian d’une maison', '€', `DGFiP, ventes de ${ventes?.annees[0] ?? ''} à ${ventes?.annees.at(-1) ?? ''}`],
+    ['prixMaison', 'Prix médian d’une maison', '€', `DGFiP, ventes ${ventes ? periodeVentes(ventes.annees, ventes.fin) : ''}`],
     ['gare', 'Distance à la gare SNCF la plus proche', 'km', `SNCF Gares & Connexions, ${gr?.annee ?? ''}`],
     ['ecoles', 'Écoles', '', 'Ministère de l’Éducation nationale, annuaire de l’éducation'],
   ];

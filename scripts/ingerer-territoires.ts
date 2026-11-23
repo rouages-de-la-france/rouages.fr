@@ -989,7 +989,7 @@ async function principal() {
     const { collecterDpeMaisons, tousLesDepartements } = await import('./dpe-maisons-emettre.ts');
     await tenter('DPE des maisons', () => collecterDpeMaisons(CACHE, tousLesDepartements(SORTIE), lireJson, grise, reutiliser));
     const { ecrireEstimation } = await import('./estimation-emettre.ts');
-    grise(`${ecrireEstimation(SORTIE, dvf.biens, dvf.annees, dvf.maj, CACHE)} départements écrits pour le simulateur d’estimation.`);
+    grise(`${ecrireEstimation(SORTIE, dvf.biens, dvf.annees, dvf.maj, CACHE, dvf.fin)} départements écrits pour le simulateur d’estimation.`);
     // Le banc d'essai : dix fois le simulateur, recalculé seulement quand les années de ventes changent.
     const { banc, bancAJour, ecrireBanc } = await import('./banc-estimation.ts');
     if (bancAJour(SORTIE, dvf.annees)) grise('Banc d’essai de l’estimation : déjà calculé pour ces années.');
@@ -997,6 +997,7 @@ async function principal() {
       const { lireVoisines } = await import('./estimation-emettre.ts');
       const meta = JSON.parse(readFileSync(join(SORTIE, 'meta.json'), 'utf8')) as { codesRegion: Record<string, string> };
       const b = banc(dvf.biens, lireVoisines(SORTIE), dvf.annees, grise, undefined, undefined, (d) => meta.codesRegion[d] ?? d);
+      if (dvf.fin) b.fin = dvf.fin;
       ecrireBanc(SORTIE, b);
       return b;
     });

@@ -18,6 +18,7 @@ import PartageJeu from '../../composants/jeux/PartageJeu.astro';
 import '../../styles/jeux.css';
 import { RACINE, formaterDate } from '../../modele/graphe.ts';
 import { collectivitesPour } from '../../modele/fiche-commune.ts';
+import { periodeVentes } from '../../modele/periode-ventes.ts';
 
 const dossier = join(RACINE, 'public', 'territoires', 'jeux', 'dvf');
 const disponibles = new Set(
@@ -33,7 +34,7 @@ const mayet = parDefaut === '03';
 
 // La date et les années, lues dans un fichier : elles valent pour tous.
 const entete = parDefaut
-  ? (JSON.parse(readFileSync(join(dossier, `${parDefaut}.json`), 'utf8')) as { maj: string; annees: number[] })
+  ? (JSON.parse(readFileSync(join(dossier, `${parDefaut}.json`), 'utf8')) as { maj: string; annees: number[]; fin?: string })
   : null;
 ---
 <Base
@@ -119,7 +120,7 @@ const entete = parDefaut
     <ul class="mesure b-sources">
       <li>
         <a href="https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees" target="_blank" rel="noopener">Etalab — Demandes de valeurs foncières géolocalisées</a>{entete
-          ? `, d’après les demandes de valeurs foncières de la DGFiP, Licence Ouverte, lu le ${formaterDate(new Date(entete.maj))} : les ventes de ${entete.annees[0]} à ${entete.annees[entete.annees.length - 1]}, d’un seul logement, maison ou appartement, avec ses seules dépendances.`
+          ? `, d’après les demandes de valeurs foncières de la DGFiP, Licence Ouverte, lu le ${formaterDate(new Date(entete.maj))} : les ventes ${periodeVentes(entete.annees, entete.fin)}, d’un seul logement, maison ou appartement, avec ses seules dépendances.`
           : ', d’après les demandes de valeurs foncières de la DGFiP, Licence Ouverte.'}
       </li>
       <li>
