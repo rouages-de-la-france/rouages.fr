@@ -862,7 +862,7 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
     {vie.loyers && (
       <section id="loyers">
         <h2 class="badge">Les loyers</h2>
-        <Loyers l={vie.loyers} />
+        <Loyers l={vie.loyers} dep={commune.dep} />
       </section>
     )}
 

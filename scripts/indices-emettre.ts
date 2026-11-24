@@ -1,5 +1,5 @@
 /**
- * Deux indices de l'INSEE pour le logement, lus dans sa banque de données
+ * Trois indices de l'INSEE pour le logement, lus dans sa banque de données
  * macro-économiques (BDM), en SDMX, sans clé :
  *
  * - **l'indice de référence des loyers (IRL)**, trimestriel, publié au Journal
@@ -13,7 +13,9 @@
  *   petite couronne, Paris (appartements seulement, la seule série publiée), et
  *   la France métropolitaine. La page de commune montre celle de sa zone, ou de
  *   son département en Île-de-France : une tendance de communes semblables,
- *   jamais un indice de la commune.
+ *   jamais un indice de la commune ;
+ * - **l'indice des loyers**, ce que paient les locataires en place, secteur
+ *   libre et secteur social (voir `LOYERS`).
  *
  * Le dernier trimestre des prix est provisoire (statut « P » de l'INSEE) : il
  * est marqué comme tel. Un seul fichier national, `public/territoires/indices.json`.
@@ -51,6 +53,24 @@ export const PRIX: [string, string, string][] = [
   ['FM', '010567058', 'la France métropolitaine'],
 ];
 
+/**
+ * Les loyers en place : l'indice des loyers de l'INSEE (base 100 en janvier 2019), ce que paient les
+ * locataires, secteur libre et secteur social. La métropole n'est découpée qu'entre l'agglomération
+ * parisienne et le reste, sans liste des communes dans le dépôt : on garde la France métropolitaine.
+ * Clé : `FM`, ou le département d'outre-mer ; puis le secteur.
+ */
+export const LOYERS: [string, string, string][] = [
+  ['FM-libre', '010600351', 'en France métropolitaine'],
+  ['FM-social', '010600358', 'en France métropolitaine'],
+  ['971-libre', '010600354', 'en Guadeloupe'],
+  ['971-social', '010600361', 'en Guadeloupe'],
+  ['972-libre', '010600355', 'en Martinique'],
+  ['972-social', '010600362', 'en Martinique'],
+  ['973-tous', '010600370', 'en Guyane'],
+  ['974-libre', '010600357', 'à La Réunion'],
+  ['974-social', '010600364', 'à La Réunion'],
+];
+
 /** Vingt-quatre trimestres : de quoi dire un an et cinq ans, et réviser un loyer. */
 const TRIMESTRES = 24;
 
@@ -61,6 +81,7 @@ export interface Indices {
   maj: string;
   irl: Record<keyof typeof IRL, { serie: Point[]; variation: Point[] }>;
   prix: Record<string, { nom: string; serie: Point[] }>;
+  loyers: Record<string, { nom: string; serie: Point[] }>;
 }
 
 /** Les séries d'une réponse SDMX de la BDM, par identifiant, du plus ancien au plus récent. */
@@ -84,7 +105,7 @@ export function lireSdmx(xml: string): Map<string, Point[]> {
 }
 
 export async function collecterIndices(texte: (url: string) => Promise<string>, dire: (m: string) => void): Promise<Indices | null> {
-  const ids = [...Object.values(IRL).flat(), ...PRIX.map((p) => p[1])];
+  const ids = [...Object.values(IRL).flat(), ...PRIX.map((p) => p[1]), ...LOYERS.map((p) => p[1])];
   // Sept ans en arrière suffisent aux vingt-quatre trimestres.
   const debut = `${new Date().getFullYear() - 7}-Q1`;
   const series = lireSdmx(await texte(`${BDM}${ids.join('+')}?startPeriod=${debut}`));
@@ -95,12 +116,14 @@ export async function collecterIndices(texte: (url: string) => Promise<string>, 
     Object.entries(IRL).map(([cle, [serie, variation]]) => [cle, { serie: series.get(serie)!, variation: series.get(variation)! }]),
   ) as Indices['irl'];
   const prix = Object.fromEntries(PRIX.map(([cle, id, nom]) => [cle, { nom, serie: series.get(id)! }]));
+  const loyers = Object.fromEntries(LOYERS.map(([cle, id, nom]) => [cle, { nom, serie: series.get(id)! }]));
   const dernier = irl.hexagone.serie.at(-1)!;
   dire(
     `Indices de l’INSEE : IRL ${dernier[0]} = ${dernier[1]} (${irl.hexagone.variation.at(-1)![1]} % sur un an) ; ` +
-      `prix des logements anciens jusqu’à ${prix.FM.serie.at(-1)![0]}, ${PRIX.length} séries.`,
+      `prix des logements anciens jusqu’à ${prix.FM.serie.at(-1)![0]}, ${PRIX.length} séries ; ` +
+      `loyers en place jusqu’à ${loyers['FM-libre'].serie.at(-1)![0]}, ${LOYERS.length} séries.`,
   );
-  return { maj: new Date().toISOString().slice(0, 10), irl, prix };
+  return { maj: new Date().toISOString().slice(0, 10), irl, prix, loyers };
 }
 
 export function ecrireIndices(sortie: string, i: Indices): void {
