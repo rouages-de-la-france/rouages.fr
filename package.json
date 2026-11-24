@@ -19,6 +19,8 @@
     "territoires": "tsx scripts/ingerer-territoires.ts",
     "verifier-recherche": "tsx scripts/verifier-recherche.ts",
     "verifier-journal": "tsx scripts/verifier-journal.ts",
+    "comparer-reingestion": "tsx scripts/comparer-reingestion.ts",
+    "verifier-comparaison": "tsx scripts/verifier-comparaison.ts",
     "verifier-rattachement": "tsx scripts/verifier-rattachement.ts",
     "verifier-retraits": "tsx scripts/verifier-retraits.ts",
     "verifier-diffusion": "tsx scripts/verifier-diffusion.ts",

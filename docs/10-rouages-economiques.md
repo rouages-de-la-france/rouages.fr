@@ -351,6 +351,33 @@ de ses PDF par section renvoient désormais vers sa page. La source de la
 baguette pointe donc, comme celle du lait, vers le rapport complet, identique
 octet pour octet à celui lu le 19 octobre 2026 ; seule l'adresse a changé.
 
+## Le lot 6 : recevoir les aides de la PAC (24 novembre 2026)
+
+Le processus `recevoir-les-aides-de-la-pac` suit une demande d'aides de la
+politique agricole commune, de la télédéclaration du printemps sur Telepac au
+solde de décembre, puis à la publication des bénéficiaires. Deux acteurs
+entrent : l'exploitation agricole, archétype, et l'Agence de services et de
+paiement, organisme payeur ; la DDT, la Région et l'État y retrouvent un
+rôle. Deux sigles au glossaire : FEAGA, ASP.
+
+**Les sources** : la notice Telepac « Dispositions générales » de la campagne
+2026, six pages du ministère de l'Agriculture (ouverture de la campagne,
+questions-réponses, avances 2026, solde 2025, aides des Régions, bénéficiaires),
+deux documents de « La PAC 2023-2027 en un coup d'œil », et l'article 98 du
+règlement 2021/2116, lu dans sa version d'origine sur le site de l'Office des
+publications : EUR-Lex oppose un défi anti-robot, que nous ne contournons pas.
+Les chiffres sont datés : 75 % d'avance et 5,04 milliards d'euros versés en
+octobre 2026, 1 % de réduction par jour ouvré de retard d'après la notice
+2026, le seuil de 1 250 € fixé par le règlement.
+
+**Ce qui n'est pas écrit** : que la DDT « instruit » le dossier — les textes
+lus disent qu'elle relève les anomalies et propose des corrections ; qui fait
+les contrôles sur place des surfaces, que la notice dit seulement
+« effectués » ; le calendrier de paiement du second pilier, faute de source
+officielle lue. **Le site ne montre pas encore les bénéficiaires** : la
+décision du 8 octobre 2026 (`CLAUDE.md`) les autorise, aucune collecte ne les
+lit. La fiche renvoie au registre du ministère.
+
 ## Ce qui n'est pas fait : métiers et secteurs (4 novembre 2026)
 
 Relier les métiers du graphe aux effectifs salariés par secteur supposait une

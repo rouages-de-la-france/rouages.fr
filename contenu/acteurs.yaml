@@ -1410,6 +1410,28 @@ acteurs:
     verifie_le: 2026-11-12
     confiance: variable_selon_organisation
 
+  - id: exploitation-agricole
+    nom: "L'exploitation agricole"
+    nom_court: "Exploitation agricole"
+    type: entreprise
+    echelon: prive
+    resume: "L'agriculteur actif qui déclare chaque printemps ses surfaces et ses demandes d'aides de la PAC sur Telepac, et reçoit les aides du premier pilier et les aides surfaciques du second."
+    liens: [telepac-notice-2026, agri-psn-architecture]
+    verifie_le: 2026-11-24
+    confiance: variable_selon_organisation
+
+  - id: asp
+    nom: "L'Agence de services et de paiement"
+    nom_court: "ASP"
+    type: service_administratif
+    echelon: etat
+    pouvoirs: [executif]
+    releve_de: etat
+    resume: "L'organisme payeur des aides de la PAC : il verse l'avance d'octobre et le solde de décembre ; les Régions paient par délégation les aides du FEADER qu'elles gèrent."
+    liens: [agri-pac-avances-2026, agri-aides-regions]
+    verifie_le: 2026-11-24
+    confiance: etabli
+
   - id: exploitation-laitiere
     nom: "L'exploitation laitière"
     nom_court: "Exploitation laitière"

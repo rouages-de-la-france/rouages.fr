@@ -4,11 +4,17 @@
  * d'après la carte des loyers — voir `scripts/loyers-emettre.ts`.
  */
 import type { Loyers, LoyerEstime } from '../../modele/fiche-vie.ts';
+import { loyersEnPlace, trimestre } from '../../modele/indices.ts';
 
 interface Props {
   l: Loyers;
+  dep: string;
 }
-const { l } = Astro.props;
+const { l, dep } = Astro.props;
+// Ce que paient les locataires en place : l'indice des loyers de l'INSEE, sur un an.
+const enPlace = loyersEnPlace(dep);
+const signe = (x: number) => `${x < 0 ? '−' : '+'}${(Math.round(Math.abs(x) * 1000) / 10).toLocaleString('fr-FR')} %`;
+const SECTEUR = { libre: 'dans le secteur libre', social: 'dans le logement social', tous: 'tous secteurs confondus' } as const;
 const e = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const lignes = (
   [
@@ -42,6 +48,14 @@ const fragile = lignes.some(([, x]) => x.fragile);
   place, et ni une moyenne ni une médiane, mais la prédiction d’un modèle pour un logement type. Il permet de comparer
   des communes entre elles, pas de suivre une évolution&nbsp;: les groupes de communes changent d’une année à l’autre.
 </p>
+{enPlace && (
+  <p class="mesure">
+    {`Le loyer que paient les locataires en place, lui, a évolué ainsi ${enPlace.ou}, du ${trimestre(enPlace.de)} au ${trimestre(enPlace.a)} : ` +
+      enPlace.secteurs.map((x) => `${signe(x.unAn)} ${SECTEUR[x.secteur]}`).join(', ') +
+      ' — d’après l’indice des loyers de l’INSEE, qu’il ne publie pas commune par commune.'}
+  </p>
+)}
 <p class="p-source-territoire">
-  {`D’après la carte des loyers ${l.millesime} du ministère chargé du logement : estimations ANIL, à partir des données du Groupe SeLoger et de leboncoin, pour une annonce du troisième trimestre (${l.maj}).`}
+  {`D’après la carte des loyers ${l.millesime} du ministère chargé du logement : estimations ANIL, à partir des données du Groupe SeLoger et de leboncoin, pour une annonce du troisième trimestre (${l.maj}).` +
+    (enPlace ? ' Les loyers en place : indice des loyers de l’INSEE, base 100 en janvier 2019, banque de données macro-économiques.' : '')}
 </p>

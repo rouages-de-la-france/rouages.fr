@@ -37,6 +37,8 @@ jobs:
         run: npm run verifier-recherche
       - name: Fenêtre et plafonds du journal
         run: npm run verifier-journal
+      - name: Comparaison d'une réingestion à la précédente
+        run: npm run verifier-comparaison
       - name: Rattachement des annonces du BODACC
         run: npm run verifier-rattachement
       - name: Oppositions des entreprises (nom commercial, annonce anonyme)

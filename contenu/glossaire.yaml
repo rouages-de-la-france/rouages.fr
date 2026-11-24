@@ -222,6 +222,18 @@ sigles:
     definition: "La politique agricole de l'Union : aides aux revenus des agriculteurs (premier pilier) et développement rural, par le FEADER (second pilier)."
     liens: [psn-feader-regions]
 
+  - id: sigle-feaga
+    sigle: FEAGA
+    developpe: "Fonds européen agricole de garantie"
+    definition: "Le fonds qui finance le premier pilier de la PAC : les aides découplées au revenu et les aides couplées, versées aux agriculteurs par l'ASP."
+    liens: [agri-psn-architecture]
+
+  - id: sigle-asp
+    sigle: ASP
+    developpe: "Agence de services et de paiement"
+    definition: "L'organisme payeur des aides de la PAC en France : il verse les aides du premier pilier et les aides surfaciques du second ; les Régions paient les autres par sa délégation."
+    liens: [agri-pac-avances-2026, agri-aides-regions]
+
   - id: sigle-leader
     sigle: LEADER
     developpe: "Liaison entre actions de développement de l'économie rurale"

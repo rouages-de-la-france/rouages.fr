@@ -1,0 +1,100 @@
+# Recevoir les aides de la PAC.
+# Lot 6 des rouages économiques (docs/10-rouages-economiques.md) : le circuit
+# d'une demande d'aides de la politique agricole commune, de la déclaration
+# du printemps au paiement de l'hiver et à la publication des bénéficiaires.
+# Les règles et les dates sont celles de la campagne 2026, d'après la notice
+# Telepac « Dispositions générales » et les pages du ministère de
+# l'Agriculture, lues le 24 novembre 2026 ; la publication, d'après l'article
+# 98 du règlement (UE) 2021/2116, dans sa version d'origine (EUR-Lex refuse
+# les lectures automatiques : la version consolidée n'a pas été lue).
+#
+# Ce qui n'est pas écrit : que la DDT « instruit » le dossier — les textes lus
+# disent qu'elle relève les anomalies et propose des corrections, pas
+# davantage ; qui fait les contrôles sur place des surfaces — la notice les
+# dit « effectués », sans nommer le service ; le calendrier de paiement des
+# aides du second pilier, faute de source officielle lue.
+processus:
+  - id: recevoir-les-aides-de-la-pac
+    nom: "Recevoir les aides de la PAC"
+    famille: economiques
+    resume: "Au printemps, l'agriculteur déclare ses surfaces et ses demandes d'aides sur Telepac ; l'administration contrôle, par satellite surtout ; l'ASP verse une avance en octobre et le solde en décembre ; chaque printemps, l'État publie les bénéficiaires."
+    declencheur: "L'ouverture de la télédéclaration du dossier PAC, au printemps"
+    sortie: "Les aides versées, et le nom du bénéficiaire publié l'année suivante, s'il a reçu plus de 1 250 €"
+    decideur: etat
+    liens: [telepac-notice-2026, agri-psn-architecture, agri-beneficiaires-pac]
+    verifie_le: 2026-11-24
+    # La notice change à chaque campagne : la fiche se relit au printemps suivant.
+    perime_apres_mois: 6
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: exploitation-agricole
+        action: "Télédéclarer le dossier PAC sur Telepac"
+        note: "Pour la campagne 2026, la télédéclaration était ouverte du 1er avril au 15 mai, sans pénalité jusqu'au 18 mai, le 15 tombant le lendemain de l'Ascension ; les aides bovines se déclaraient du 1er janvier au 15 mai. L'agriculteur, qui doit être « actif », déclare dans son registre parcellaire toutes les surfaces qu'il exploite au 15 mai, îlot par îlot et parcelle par parcelle, et dit pour chaque aide s'il la demande. C'est la signature électronique qui vaut dépôt."
+        liens: [telepac-notice-2026, agri-telepac-2026, agri-telepac-faq-2026]
+        confiance: etabli
+      - ordre: 2
+        acteur: exploitation-agricole
+        action: "Ce que couvre le dossier : les aides du premier pilier et les aides surfaciques du second"
+        note: "Le premier pilier, financé par le FEAGA, verse les aides découplées — aide de base au revenu, aide redistributive, écorégime, aide complémentaire aux jeunes agriculteurs — et les aides couplées. Le second, financé par le FEADER et des crédits nationaux, comprend l'indemnité compensatoire de handicaps naturels, les mesures agroenvironnementales et climatiques et l'aide à l'agriculture biologique. L'État gère le premier pilier et les mesures du second qui dépendent des surfaces."
+        liens: [agri-psn-architecture, agri-telepac-2026]
+        confiance: etabli
+      - ordre: 3
+        acteur: region
+        action: "Les autres aides du FEADER se demandent à la Région"
+        conditionnelle: true
+        note: "Depuis 2023, les Régions gèrent les aides du FEADER qui ne dépendent pas des surfaces — installation, investissements, forêt, LEADER — et les paient par délégation de l'ASP ; les DDT n'y interviennent plus. En Corse, la collectivité gère tout le second pilier, que paie l'Office du développement agricole de Corse."
+        liens: [agri-aides-regions, agri-psn-architecture]
+        confiance: etabli
+      - ordre: 4
+        acteur: ddt
+        action: "Relecture du dossier : anomalies, oublis, propositions de correction"
+        note: "La direction départementale des territoires (et de la mer) — la direction de l'alimentation, de l'agriculture et de la forêt outre-mer — peut contacter l'agriculteur si elle relève des anomalies, des oublis ou des incohérences, et lui proposer de modifier sa déclaration."
+        liens: [telepac-notice-2026, agri-telepac-2026]
+        confiance: etabli
+      - ordre: 5
+        acteur: etat
+        action: "Contrôles : images satellitaires d'abord, visite sur place au besoin"
+        note: "Un suivi des surfaces en temps réel compare les déclarations aux images des satellites Sentinel ; les contrôles s'appuient aussi sur les pièces justificatives et les photographies aériennes, et, quand elles ne suffisent pas, sur une visite ou un drone. Le contrôle porte aussi sur la conditionnalité : environnement, bonnes conditions agricoles, santé des végétaux et des animaux, bien-être animal. Refuser un contrôle expose à perdre toutes les aides contrôlées."
+        liens: [telepac-notice-2026, agri-pac-coup-oeil, ue-reglement-2021-2116]
+        confiance: etabli
+      - ordre: 6
+        acteur: asp
+        action: "Avance des aides, à partir du 16 octobre"
+        note: "En 2026, l'avance portait sur 75 % des aides découplées du premier pilier et 85 % de l'indemnité de handicaps naturels : plus de 5,04 milliards d'euros versés entre le 16 et le 20 octobre, d'après le ministère."
+        liens: [agri-pac-avances-2026]
+        confiance: etabli
+      - ordre: 7
+        acteur: asp
+        action: "Solde, à partir de la première quinzaine de décembre"
+        note: "Le solde des aides découplées et de l'indemnité de handicaps naturels suit en décembre — dès le 3 décembre pour la campagne 2025 ; les aides couplées végétales et le solde de l'aide bovine devaient s'étaler, pour 2025, sur le premier trimestre de l'année suivante."
+        liens: [agri-pac-avances-2026, agri-pac-solde-2025]
+        confiance: etabli
+      - ordre: 8
+        acteur: etat
+        action: "Publication des bénéficiaires, chaque printemps, pour deux ans"
+        note: "L'Union impose de publier chaque année les bénéficiaires du FEAGA et du FEADER. La France publie au printemps la liste de l'année budgétaire précédente : la dénomination du bénéficiaire, sa commune et son code postal, les montants par mesure. Un bénéficiaire qui a reçu 1 250 € ou moins dans l'année est anonymisé ; la liste reste en ligne deux ans."
+        liens: [agri-beneficiaires-pac, ue-reglement-2021-2116]
+        confiance: etabli
+
+    leviers:
+      - id: deposer-le-dossier-pac-a-temps
+        acteur: exploitation-agricole
+        quoi: "Signer le dossier PAC sur Telepac avant la date limite"
+        quand: "Au plus tard le 15 mai, ou à la date que fixe la notice de la campagne"
+        aupres_de: "Telepac, le service en ligne du ministère de l'Agriculture"
+        difficulte: faible
+        ancre_etape: 1
+        piege: "D'après la notice de la campagne 2026, un dépôt en retard réduit les aides de 1 % par jour ouvré, et au-delà de vingt-cinq jours calendaires — le 9 juin 2026 — il n'ouvre droit à aucun paiement."
+        liens: [telepac-notice-2026]
+        confiance: etabli
+      - id: corriger-sa-declaration
+        acteur: exploitation-agricole
+        quoi: "Répondre à la DDT qui signale une anomalie, et corriger sa déclaration"
+        quand: "Dès que la DDT prend contact, après le dépôt"
+        aupres_de: "La direction départementale des territoires, ou Telepac"
+        difficulte: faible
+        ancre_etape: 4
+        liens: [telepac-notice-2026]
+        confiance: etabli
