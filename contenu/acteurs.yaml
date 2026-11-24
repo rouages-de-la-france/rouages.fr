@@ -1481,6 +1481,26 @@ acteurs:
     verifie_le: 2026-09-22
     confiance: etabli
 
+  - id: bailleur-prive
+    nom: "Le propriétaire bailleur"
+    nom_court: "Bailleur privé"
+    type: personne
+    echelon: prive
+    resume: "Le particulier qui loue un logement vide : il signe un bail de trois ans au moins, encaisse le dépôt de garantie, peut réviser le loyer une fois par an, et donne congé six mois avant l'échéance."
+    liens: [sp-bail-redaction, sp-conge-bailleur]
+    verifie_le: 2026-11-24
+    confiance: etabli
+
+  - id: commission-departementale-conciliation
+    nom: "La commission départementale de conciliation"
+    nom_court: "Conciliation locative"
+    type: organe_collegial
+    echelon: departement
+    resume: "Elle aide gratuitement bailleur et locataire à trouver une solution amiable : dépôt de garantie, état des lieux, logement non décent, charges, congé."
+    liens: [sp-cdc]
+    verifie_le: 2026-11-24
+    confiance: etabli
+
   - id: commissaire-justice
     nom: "Le commissaire de justice"
     nom_court: "Commissaire de justice"

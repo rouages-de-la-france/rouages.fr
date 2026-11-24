@@ -1,0 +1,111 @@
+# Louer un logement vide comme résidence principale, du bail à la
+# restitution du dépôt de garantie. Le pendant du simulateur locatif et de la
+# révision du loyer (/simulateurs/locatif) : ce qui se passe entre un
+# propriétaire particulier et son locataire, d'après les fiches de
+# service-public.fr et la page du ministère de la Transition écologique sur
+# les passoires énergétiques, relues sur leur texte le 24 novembre 2026.
+#
+# Ce qui n'est pas écrit : la liste complète des mentions du bail et celle
+# des justificatifs autorisés, que les fiches détaillent et vers lesquelles la
+# fiche renvoie ; l'encadrement des loyers, qui ne vaut que dans certaines
+# communes ; la location meublée, qui a ses propres règles.
+processus:
+  - id: louer-un-logement-vide
+    nom: "Louer un logement vide"
+    famille: quotidien
+    resume: "Le bail écrit et ses diagnostics, le dépôt de garantie, l'état des lieux, la révision annuelle du loyer, le congé de l'un ou de l'autre, et la restitution du dépôt — entre un propriétaire particulier et son locataire."
+    declencheur: "Un propriétaire particulier met en location un logement vide, qui sera la résidence principale du locataire"
+    sortie: "Un bail de trois ans au moins, et à la fin le dépôt de garantie rendu dans les délais"
+    decideur: bailleur-prive
+    liens: [sp-bail-redaction, sp-depot-garantie-vide, sp-conge-locataire, sp-cdc]
+    verifie_le: 2026-11-24
+    perime_apres_mois: 12
+    confiance: etabli
+
+    etapes:
+      - ordre: 1
+        acteur: bailleur-prive
+        action: "Vérifier que le logement peut être loué"
+        note: "Un logement doit être décent pour être loué. En métropole, un bail signé, renouvelé ou reconduit de 2025 à 2027 ne peut porter que sur un logement classé de A à F au diagnostic de performance énergétique ; de 2028 à 2033, de A à E ; à partir de 2034, de A à D."
+        liens: [sp-logement-decent-dpe]
+        confiance: etabli
+      - ordre: 2
+        acteur: bailleur-prive
+        action: "Choisir le locataire sur les seuls justificatifs autorisés"
+        note: "Le propriétaire peut vérifier l'identité, le domicile, la situation professionnelle et les revenus du candidat, sur une liste fermée de justificatifs : il lui est interdit d'en exiger d'autres, sous peine d'une amende pouvant aller jusqu'à 3 000 € pour un particulier. Aucune somme ne peut être réclamée avant la signature du bail."
+        liens: [sp-justificatifs-locataire]
+        confiance: etabli
+      - ordre: 3
+        acteur: bailleur-prive
+        action: "Signer un bail écrit, conforme au modèle réglementaire, avec ses diagnostics"
+        note: "Le bail est écrit, en autant d'exemplaires que de parties, et suit le modèle de bail réglementaire. Il dure trois ans au moins quand le propriétaire est un particulier, six ans quand c'est une personne morale. Le dossier de diagnostic technique y est annexé : performance énergétique, et selon le logement plomb, électricité, gaz, risques, bruit des aéroports."
+        liens: [sp-bail-redaction, sp-diagnostics-location]
+        confiance: etabli
+      - ordre: 4
+        acteur: citoyen
+        action: "Verser le dépôt de garantie, un mois de loyer hors charges au plus"
+        note: "Son montant est écrit dans le bail et ne peut pas dépasser un mois de loyer hors charges."
+        liens: [sp-depot-garantie-vide]
+        confiance: etabli
+      - ordre: 5
+        acteur: citoyen
+        action: "Faire l'état des lieux d'entrée, ensemble, à la remise des clés"
+        note: "Propriétaire et locataire le font ensemble, de façon contradictoire. Si l'un refuse de venir, de le faire ou de le signer, l'autre peut faire appel à un commissaire de justice, dont les frais, réglementés, sont partagés par moitié."
+        liens: [sp-etat-lieux-entree]
+        confiance: etabli
+      - ordre: 6
+        acteur: bailleur-prive
+        action: "Réviser le loyer une fois par an, si le bail le prévoit"
+        conditionnelle: true
+        note: "Sans clause de révision, le loyer ne peut pas être révisé. La hausse suit l'indice de référence des loyers, que le simulateur locatif calcule. La révision est interdite pour un logement classé F ou G dont le bail a été signé, renouvelé ou reconduit depuis le 24 août 2022 : c'est le gel des loyers des passoires énergétiques."
+        liens: [sp-revision-loyer-vide, ecologie-gel-loyers]
+        confiance: etabli
+      - ordre: 7
+        acteur: citoyen
+        action: "Donner congé : trois mois de préavis, ou un mois dans les cas prévus"
+        conditionnelle: true
+        note: "Le locataire donne congé avec un préavis de trois mois, réduit à un mois en zone tendue, pour un logement social obtenu, une perte d'emploi, le RSA ou l'allocation aux adultes handicapés, ou un état de santé — à condition de l'écrire dans la lettre de congé et d'en joindre le justificatif. Le congé part en lettre recommandée, par commissaire de justice ou en main propre contre récépissé."
+        liens: [sp-conge-locataire]
+        confiance: etabli
+      - ordre: 8
+        acteur: bailleur-prive
+        action: "Ou donner congé à l'échéance : six mois avant, pour un motif limité"
+        conditionnelle: true
+        note: "Le propriétaire ne peut donner congé que pour la fin du bail, et le locataire doit recevoir la lettre six mois avant l'échéance au moins : pour vendre, pour reprendre le logement — l'habiter ou y loger un proche —, ou pour un motif légitime et sérieux, comme une faute du locataire."
+        liens: [sp-conge-bailleur]
+        confiance: etabli
+      - ordre: 9
+        acteur: bailleur-prive
+        action: "État des lieux de sortie, puis restitution du dépôt de garantie"
+        delai: { valeur: 2, unite: mois, nature: maximum_legal }
+        note: "L'état des lieux de sortie se fait à la remise des clés. Le dépôt est rendu dans un mois au plus quand l'état des lieux de sortie est conforme à celui d'entrée, dans deux mois sinon, à compter du jour où les clés sont rendues. Chaque mois de retard commencé l'augmente de 10 % du loyer mensuel hors charges."
+        liens: [sp-etat-lieux-sortie, sp-depot-garantie-vide]
+        confiance: etabli
+      - ordre: 10
+        acteur: commission-departementale-conciliation
+        action: "En cas de litige, une conciliation gratuite"
+        conditionnelle: true
+        note: "Bailleur ou locataire saisit la commission du département où se trouve le logement : dépôt de garantie, état des lieux, logement non décent, charges, congé. Elle cherche une solution amiable, gratuitement."
+        liens: [sp-cdc]
+        confiance: etabli
+
+    leviers:
+      - id: saisir-la-conciliation-locative
+        acteur: citoyen
+        quoi: "Saisir la commission départementale de conciliation, gratuitement"
+        quand: "En cas de désaccord sur le dépôt de garantie, l'état des lieux, la décence, les charges ou le congé"
+        aupres_de: "La commission du département où se trouve le logement ; l'agence départementale pour l'information sur le logement renseigne"
+        difficulte: faible
+        ancre_etape: 10
+        liens: [sp-cdc]
+        confiance: etabli
+      - id: reclamer-la-penalite-de-retard
+        acteur: citoyen
+        quoi: "Réclamer la majoration de 10 % par mois de retard sur le dépôt de garantie"
+        quand: "Passé le délai d'un ou deux mois après la remise des clés"
+        aupres_de: "Le propriétaire, puis la commission de conciliation"
+        difficulte: faible
+        ancre_etape: 9
+        piege: "La pénalité ne s'applique pas quand le retard vient du locataire, parce qu'il n'a pas donné sa nouvelle adresse en rendant les clés."
+        liens: [sp-depot-garantie-vide]
+        confiance: etabli
