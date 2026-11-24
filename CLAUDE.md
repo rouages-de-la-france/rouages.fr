@@ -24,6 +24,8 @@ de moins à la rentrée 2021), commune non soumise à l'article 55 de la loi SRU
 npm run valider              structure, références, règles éditoriales
 npm run verifier-recherche   le classement des communes homonymes
 npm run verifier-journal     la fenêtre et les plafonds du journal
+npm run comparer-reingestion  ce qu'une réingestion a changé, jeu par jeu, contre HEAD (repris dans sa PR)
+npm run verifier-comparaison  les alertes de cette comparaison : baisses, fichiers vidés ou supprimés
 npm run verifier-rattachement  les annonces du BODACC rattachées à la bonne commune
 npm run verifier-retraits    une opposition : annonce retirée, sous le nom commercial seul, ou anonyme
 npm run verifier-diffusion   le statut de diffusion des entrepreneurs, relu à l'INSEE

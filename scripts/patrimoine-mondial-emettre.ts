@@ -358,12 +358,14 @@ export async function collecterPatrimoineMondial(sortie: string, lireJson: LireJ
   const sources: PatrimoineMondial['sources'] = [];
   const traces = new Map<string, TraceMondial[]>();
   const MARGE = 5;
+  const injoignables: string[] = [];
   for (const src of PERIMETRES) {
     let entites: Entite[];
     try {
       entites = await entitesDe(src, lireJson, cache);
     } catch (e) {
-      dire(`  ${src.id} : injoignable (${(e as Error).message}) — ignorée`);
+      dire(`  ${src.id} : injoignable (${(e as Error).message})`);
+      injoignables.push(src.id);
       continue;
     }
     let gardees = 0;
@@ -429,6 +431,13 @@ export async function collecterPatrimoineMondial(sortie: string, lireJson: LireJ
     }
     sources.push({ id: src.id, producteur: src.producteur, licence: src.licence, url: src.url, entites: gardees, ecartees });
     dire(`  ${src.id} : ${gardees} périmètres rattachés${ecartees ? `, ${ecartees} écartés` : ''}`);
+  }
+
+  // Un périmètre qui manque retirerait ses communes : la réingestion du 21 novembre 2026 en a
+  // perdu 562 sur 1 247 (Occitanie, Nouvelle-Aquitaine, Pays de la Loire injoignables), sans
+  // que rien ne le dise. On garde plutôt les fichiers précédents, et l'échec est compté.
+  if (injoignables.length > 0) {
+    throw new Error(`Patrimoine mondial : ${injoignables.length} périmètre${injoignables.length > 1 ? 's' : ''} régiona${injoignables.length > 1 ? 'ux' : 'l'} injoignable${injoignables.length > 1 ? 's' : ''} (${injoignables.join(', ')})`);
   }
 
   for (const liste of Object.values(c)) liste.sort((a, b) => a[0] - b[0]);
