@@ -158,6 +158,18 @@ const DANS_ECHELON: Record<Echelon, string> = {
 
 let cache: Reseau | undefined;
 let cacheComplet: Reseau | undefined;
+const cacheVue = new Map<Vue, Reseau>();
+
+/**
+ * Deux cartes d'un même graphe — décision du 25 novembre 2026 : les rouages de
+ * l'économie, avec leurs acteurs privés, alourdissaient le réseau des acteurs
+ * publics. `public` (`/fonctionnement`) en retire les processus de la famille
+ * `economiques` et ce qui n'existe que pour eux ; `economie` (`/economie`) ne
+ * garde qu'eux, leurs voisins immédiats et les entités dont ces voisins
+ * relèvent, pour que la carte garde ses boîtes. Les pages des nœuds, la
+ * recherche et le plan du site lisent toujours le réseau entier.
+ */
+export type Vue = 'public' | 'economie';
 
 /**
  * Le réseau tel qu'on le publie, sans les familles encore cachées
@@ -165,7 +177,11 @@ let cacheComplet: Reseau | undefined;
  * construit les pages de ces nœuds, et leur voisinage.
  */
 
-export function construireReseau(g: Graphe = chargerGraphe(), { complet = false }: { complet?: boolean } = {}): Reseau {
+export function construireReseau(g: Graphe = chargerGraphe(), { complet = false, vue }: { complet?: boolean; vue?: Vue } = {}): Reseau {
+  if (vue) {
+    if (!cacheVue.has(vue)) cacheVue.set(vue, restreindre(g, construireReseau(g), vue));
+    return cacheVue.get(vue)!;
+  }
   if (complet ? cacheComplet : cache) return (complet ? cacheComplet : cache)!;
 
   const liensDe = (ids: string[]): Lien[] =>
@@ -276,6 +292,54 @@ export function construireReseau(g: Graphe = chargerGraphe(), { complet = false 
   if (complet) cacheComplet = reseau;
   else cache = reseau;
   return reseau;
+}
+
+/** Le réseau publié, restreint à l'une des deux cartes (voir `Vue`). */
+function restreindre(g: Graphe, r: Reseau, vue: Vue): Reseau {
+  const economiques = new Set([...g.processus.values()].filter((p) => p.famille === 'economiques').map((p) => p.id));
+  const voisins = (id: string) => r.aretes.filter((a) => a.de === id || a.vers === id).map((a) => (a.de === id ? a.vers : a.de));
+  const gardes = new Set<string>();
+  if (vue === 'public') {
+    // Comme pour les familles cachées : ôter les processus, puis, jusqu'à ce que
+    // rien ne bouge, tout nœud dont chaque voisin est déjà ôté.
+    const otes = new Set(economiques);
+    for (let change = true; change; ) {
+      change = false;
+      for (const n of r.noeuds) {
+        if (otes.has(n.id)) continue;
+        const v = voisins(n.id);
+        if (v.length && v.every((x) => otes.has(x))) {
+          otes.add(n.id);
+          change = true;
+        }
+      }
+    }
+    for (const n of r.noeuds) if (!otes.has(n.id)) gardes.add(n.id);
+  } else {
+    for (const id of economiques) {
+      gardes.add(id);
+      for (const v of voisins(id)) gardes.add(v);
+    }
+    // Les entités dont relèvent les acteurs gardés : l'Urssaf reste dans la boîte de l'État.
+    const parId = new Map(r.noeuds.map((n) => [n.id, n]));
+    for (let change = true; change; ) {
+      change = false;
+      for (const id of [...gardes]) {
+        const p = parId.get(id)?.releveDe;
+        if (p && parId.has(p) && !gardes.has(p)) {
+          gardes.add(p);
+          change = true;
+        }
+      }
+    }
+  }
+  const aretes = r.aretes.filter((a) => gardes.has(a.de) && gardes.has(a.vers));
+  const noeuds = new Map(r.noeuds.filter((n) => gardes.has(n.id)).map((n) => [n.id, { ...n, degre: 0 }]));
+  for (const a of aretes) {
+    noeuds.get(a.de)!.degre++;
+    noeuds.get(a.vers)!.degre++;
+  }
+  return { noeuds: [...noeuds.values()], aretes, sigles: r.sigles, carte: disposerCarte(noeuds, aretes) };
 }
 
 /**

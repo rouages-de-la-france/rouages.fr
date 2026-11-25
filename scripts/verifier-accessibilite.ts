@@ -56,6 +56,8 @@ const PAGES = [
   '/signaler',
   '/participer',
   '/remerciements',
+  '/fonctionnement',
+  '/economie',
 ];
 // La recherche dans les délibérations, avec des résultats quand un index est publié.
 const indexDelib = join(racine, 'territoires', 'recherche-deliberations');

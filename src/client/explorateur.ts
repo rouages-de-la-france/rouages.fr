@@ -125,7 +125,10 @@ function demarrer(reseau: Reseau) {
       transform: `translate(${b.x - b.l / 2} ${b.y - b.h / 2})`,
       tabindex: 0,
       role: 'button',
-      'aria-label': `${LIBELLE_TYPE_NOEUD[b.noeud.type]} : ${b.noeud.nom}`,
+      // Le nom accessible commence par l'étiquette affichée (WCAG 2.5.3) : « Bailleur privé — acteur : Le propriétaire bailleur ».
+      'aria-label': b.noeud.nom.toLowerCase().includes(b.noeud.court.toLowerCase())
+        ? `${LIBELLE_TYPE_NOEUD[b.noeud.type]} : ${b.noeud.nom}`
+        : `${b.noeud.court} — ${LIBELLE_TYPE_NOEUD[b.noeud.type].toLowerCase()} : ${b.noeud.nom}`,
       'data-id': b.noeud.id,
     });
 
@@ -854,7 +857,7 @@ function demarrer(reseau: Reseau) {
     const signaler = document.createElement('p');
     signaler.className = 'p-signaler';
     const vers = document.createElement('a');
-    vers.href = urlSignaler(undefined, territoire?.commune.code, '/fonctionnement');
+    vers.href = urlSignaler(undefined, territoire?.commune.code, location.pathname);
     vers.textContent = 'Signaler une erreur';
     signaler.append(vers);
     panneau.append(signaler);

@@ -27,7 +27,7 @@ interface Props {
    */
   section?: 'accueil' | 'fonctionnement' | 'chez-moi' | 'argent-public' | 'jeux' | 'simulateurs';
   /** Dans la section fonctionnement, la page courante du sous-menu. */
-  sousPage?: 'carte' | 'pouvoirs' | 'glossaire' | 'methode';
+  sousPage?: 'carte' | 'economie' | 'pouvoirs' | 'glossaire' | 'methode';
   /**
    * Faux pour une page que les moteurs ne doivent pas indexer : le jeu des
    * prix, dont DVF interdit l'indexation (docs/07-risques.md).
@@ -122,6 +122,7 @@ const datesDonnees = ingestion
       {section === 'fonctionnement' && (
         <nav class="sous-nav" aria-label="Le fonctionnement">
           <a href="/fonctionnement" aria-current={sousCourant('carte')}>Le réseau</a>
+          <a href="/economie" aria-current={sousCourant('economie')}>L’économie</a>
           <a href="/etat" aria-current={sousCourant('pouvoirs')}>Les pouvoirs</a>
           <a href="/glossaire" aria-current={sousCourant('glossaire')}>Glossaire</a>
           <a href="/methode" aria-current={sousCourant('methode')}>La méthode</a>

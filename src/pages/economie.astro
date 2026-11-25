@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import Explorateur from '../composants/Explorateur.astro';
+import { construireReseau } from '../modele/reseau.ts';
+
+// Les processus de la famille « economiques », leurs acteurs, et les organismes publics qu'ils croisent.
+const reseau = construireReseau(undefined, { vue: 'economie' });
+---
+
+<Base
+  titre="Les rouages de l’économie"
+  description="Comment une entreprise se crée, embauche, facture, répond à un marché public ou fait faillite ; du blé à la baguette, du lait au litre de lait : les circuits de l’économie et les organismes publics qu’ils croisent."
+  plein
+  section="fonctionnement"
+  sousPage="economie"
+>
+  <Explorateur
+    reseau={reseau}
+    titre="Les rouages de l’économie"
+    etiquette="Réseau des circuits de l’économie et de leurs acteurs"
+    placeholder="Chercher : facture, lait, embauche…"
+    avant={'Les acteurs publics et leurs compétences ont leur carte : <a href="/fonctionnement">le réseau des acteurs publics</a>.'}
+  />
+</Base>
