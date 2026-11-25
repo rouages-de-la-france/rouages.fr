@@ -334,7 +334,7 @@ sources:
   - { id: vp-competences, type: page_officielle, titre: "Qui fait quoi ? La répartition des compétences — vie-publique.fr", url: "https://www.vie-publique.fr/fiches/qui-fait-quoi-collectivites-territoriales", consulte_le: 2026-09-05 }
   - { id: cl-gouv, type: page_officielle, titre: "Portail des collectivités locales — collectivites-locales.gouv.fr", url: "https://www.collectivites-locales.gouv.fr/", consulte_le: 2026-09-05 }
   - { id: sp-permis, type: page_officielle, titre: "Permis de construire — service-public.fr", url: "https://www.service-public.fr/particuliers/vosdroits/N319", consulte_le: 2026-09-05 }
-  - { id: sp-recours-urbanisme, type: page_officielle, titre: "Contester une autorisation d'urbanisme — service-public.fr", url: "https://www.service-public.fr/particuliers/vosdroits/F19811", consulte_le: 2026-09-05 }
+  - { id: sp-recours-urbanisme, type: page_officielle, titre: "Service-public.fr — peut-on contester une autorisation d'urbanisme accordée au voisin ? (vérifié le 1er avril 2026 ; l'ancienne fiche F19811 répond 404)", url: "https://www.service-public.gouv.fr/particuliers/vosdroits/F20567", consulte_le: 2026-11-25 }
   - { id: sp-taxe-amenagement, type: page_officielle, titre: "Taxe d'aménagement — service-public.fr", url: "https://www.service-public.fr/particuliers/vosdroits/F23263", consulte_le: 2026-09-05 }
   - { id: sp-taxe-fonciere, type: page_officielle, titre: "Taxe foncière sur les propriétés bâties — service-public.fr", url: "https://www.service-public.fr/particuliers/vosdroits/F59", consulte_le: 2026-09-05 }
   - { id: cada, type: page_officielle, titre: "Commission d'accès aux documents administratifs", url: "https://www.cada.fr/", consulte_le: 2026-09-05 }

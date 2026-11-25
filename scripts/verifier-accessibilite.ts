@@ -58,6 +58,7 @@ const PAGES = [
   '/remerciements',
   '/fonctionnement',
   '/economie',
+  '/economie?filiere=lait',
 ];
 // La recherche dans les délibérations, avec des résultats quand un index est publié.
 const indexDelib = join(racine, 'territoires', 'recherche-deliberations');
