@@ -18,6 +18,7 @@ import { DOMAINES, LIBELLE_DOMAINE, LIBELLE_ECHELON, LIBELLE_POUVOIR, ECHELONS, 
 import { chargerGraphe, type Graphe } from './graphe.ts';
 import { largeurPastille } from '../vues/formes.ts';
 import { familleCachee } from './familles.ts';
+import { FILIERES, filiereDe, type Filiere } from './filieres.ts';
 
 export type TypeNoeud = 'acteur' | 'competence' | 'processus' | 'document';
 
@@ -47,6 +48,8 @@ export interface Noeud {
   pouvoir?: Pouvoir;
   /** Le domaine d'action d'une organisation internationale. */
   domaine?: Domaine;
+  /** Sur la carte de l'économie : les filières où le nœud intervient. */
+  filieres?: string[];
   /** Position sur la carte d'ensemble (acteurs uniquement). */
   x?: number;
   y?: number;
@@ -69,6 +72,8 @@ export interface BoiteCarte {
   libelle?: string;
   /** Le nœud qui sert d'en-tête, pour une boîte `entite`. */
   entete?: string;
+  /** Sur la carte de l'économie : la filière de la boîte, pour le filtre. */
+  filiere?: string;
 }
 
 export type TypeArete =
@@ -88,6 +93,8 @@ export interface Arete {
   /** Nombre de relations agrégées, pour l'épaisseur du trait. */
   poids: number;
   nature?: string;
+  /** Sur la carte de l'économie : la filière du circuit que l'arête suit. */
+  filiere?: string;
 }
 
 export interface Reseau {
@@ -95,6 +102,8 @@ export interface Reseau {
   aretes: Arete[];
   /** Le glossaire voyage avec le réseau : le panneau en a besoin côté client. */
   sigles: Sigle[];
+  /** Sur la carte de l'économie seulement : ses filières, qui font ses colonnes et ses filtres. */
+  filieres?: Filiere[];
   /** Arêtes acteur↔acteur de la carte d'ensemble, déjà agrégées. */
   carte: {
     aretes: Arete[];
@@ -103,10 +112,14 @@ export interface Reseau {
     /** Étendue verticale réellement occupée par des nœuds. */
     hautNoeuds: number;
     basNoeuds: number;
-    colonnes: { echelon: Echelon; libelle: string; x: number; largeur: number; haut: number; bas: number }[];
+    colonnes: { echelon: Echelon; libelle: string; x: number; largeur: number; haut: number; bas: number; filiere?: string }[];
     /** Les boîtes : chaque entité contient ses organes. */
     boites: BoiteCarte[];
+    /** Les positions des acteurs, quand elles ne sont pas portées par les nœuds (carte d'une filière). */
+    positions?: Record<string, [number, number]>;
   };
+  /** Sur la carte de l'économie : une carte par filière, disposée pour elle seule. */
+  cartesFilieres?: Record<string, Reseau['carte']>;
 }
 
 export const LIBELLE_ARETE: Record<TypeArete, string> = {
@@ -339,7 +352,120 @@ function restreindre(g: Graphe, r: Reseau, vue: Vue): Reseau {
     noeuds.get(a.de)!.degre++;
     noeuds.get(a.vers)!.degre++;
   }
+  if (vue === 'economie') {
+    const carte = disposerEconomie(g, noeuds);
+    for (const n of noeuds.values()) if (carte.positions?.[n.id]) [n.x, n.y] = carte.positions[n.id];
+    delete carte.positions;
+    const cartesFilieres = Object.fromEntries(FILIERES.map((f) => [f.id, disposerEconomie(g, noeuds, f.id)]));
+    // Les sources d'une filière : celles de ses processus, de leurs étapes et de leurs leviers.
+    const filieres = FILIERES.map((f) => {
+      const ids = f.processus.flatMap((id) => {
+        const p = g.processus.get(id);
+        return p ? [...p.liens, ...p.etapes.flatMap((e) => e.liens ?? []), ...p.leviers.flatMap((l) => l.liens ?? [])] : [];
+      });
+      const sources = [...new Map(ids.map((id) => g.sources.get(id)).filter((x) => !!x).map((x) => [x!.url, { type: x!.type, titre: x!.titre, url: x!.url }])).values()];
+      return { ...f, sources };
+    });
+    return { noeuds: [...noeuds.values()], aretes, sigles: r.sigles, filieres, carte, cartesFilieres };
+  }
   return { noeuds: [...noeuds.values()], aretes, sigles: r.sigles, carte: disposerCarte(noeuds, aretes) };
+}
+
+/**
+ * La carte de l'économie : une colonne pour les organismes publics, puis une
+ * colonne par filière, et dans chacune une boîte par processus, ses acteurs
+ * dans l'ordre de leurs étapes. Un acteur de plusieurs circuits est placé au
+ * premier ; les arêtes suivent chaque circuit d'un acteur au suivant, ce qui
+ * relie aussi les organismes publics aux acteurs privés qu'ils croisent.
+ */
+function disposerEconomie(g: Graphe, noeuds: Map<string, Noeud>, seule?: string): Reseau['carte'] {
+  const economiques = [...g.processus.values()].filter((p) => p.famille === 'economiques');
+  for (const p of economiques) filiereDe(p.id); // un processus sans filière arrête le build
+  const ajouterFiliere = (id: string, f: string) => {
+    const n = noeuds.get(id);
+    if (n && !(n.filieres ??= []).includes(f)) n.filieres.push(f);
+  };
+
+  // Les circuits : les acteurs de chaque processus dans l'ordre des étapes.
+  const circuits = economiques.filter((p) => !seule || filiereDe(p.id).id === seule).map((p) => {
+    const f = filiereDe(p.id).id;
+    const suite = [...p.etapes].sort((a, b) => a.ordre - b.ordre).map((e) => e.acteur).filter((a, i, l) => noeuds.has(a) && a !== l[i - 1]);
+    const leviers = p.leviers.map((l) => l.acteur).filter((a) => noeuds.has(a));
+    if (!seule) {
+      ajouterFiliere(p.id, f);
+      for (const a of [...suite, ...leviers]) ajouterFiliere(a, f);
+    }
+    return { p, f, suite, membres: [...new Set([...suite, ...leviers])] };
+  });
+
+  const paires = new Map<string, Arete>();
+  for (const c of circuits) {
+    for (let i = 0; i + 1 < c.suite.length; i++) {
+      const [de, vers] = [c.suite[i], c.suite[i + 1]];
+      const cle = `${c.f}:${de}|${vers}`;
+      const existante = paires.get(cle);
+      if (existante) existante.poids++;
+      else paires.set(cle, { de, vers, type: 'intervient', label: c.p.nom, poids: 1, filiere: c.f });
+    }
+  }
+
+  // Les colonnes : les organismes publics, puis une par filière.
+  // Pour une filière seule, ses acteurs seulement.
+  const dansCircuits = new Set(circuits.flatMap((c) => c.membres));
+  const acteurs = [...noeuds.values()].filter((n) => n.type === 'acteur' && (!seule || dansCircuits.has(n.id)));
+  const publics = acteurs.filter((a) => a.echelon !== 'prive' && a.echelon !== 'citoyen');
+  const places = new Set(publics.map((a) => a.id));
+  type Colonne = { echelon: Echelon; libelle: string; filiere?: string; boites: { libelle: string; membres: Noeud[] }[] };
+  const colonnes: Colonne[] = [
+    { echelon: 'etat', libelle: 'Organismes publics', boites: [{ libelle: 'Ceux que les circuits croisent', membres: publics.sort((a, b) => b.degre - a.degre || a.nom.localeCompare(b.nom, 'fr')) }] },
+  ];
+  for (const f of FILIERES.filter((x) => !seule || x.id === seule)) {
+    const boites: Colonne['boites'] = [];
+    for (const c of circuits.filter((x) => x.f === f.id).sort((a, b) => f.processus.indexOf(a.p.id) - f.processus.indexOf(b.p.id))) {
+      const membres = c.membres.filter((id) => !places.has(id)).map((id) => noeuds.get(id)!).filter((n) => n.type === 'acteur');
+      for (const m of membres) places.add(m.id);
+      if (membres.length) boites.push({ libelle: c.p.nom, membres });
+    }
+    if (boites.length) colonnes.push({ echelon: 'prive', libelle: f.libelle, filiere: f.id, boites });
+  }
+  // Un acteur gardé que nul circuit ne place rejoint les organismes publics, plutôt que de manquer.
+  for (const a of acteurs) if (!places.has(a.id)) colonnes[0].boites[0].membres.push(a);
+  if (!colonnes[0].boites[0].membres.length) colonnes.shift();
+  const positions: Record<string, [number, number]> = {};
+
+  const LIGNE = HAUTEUR_LIGNE * 0.6;
+  const boites: BoiteCarte[] = [];
+  const sorties: Reseau['carte']['colonnes'] = [];
+  let curseur = ECART_COLONNES;
+  let bas = 0;
+  for (const c of colonnes) {
+    const largeur = Math.max(150, ...c.boites.flatMap((b) => [...b.membres.map((m) => largeurPastille(m.court)), b.libelle.length * 6.6 + 24])) + 2 * MARGE_BOITE;
+    let y = MARGE_HAUT;
+    for (const b of c.boites) {
+      const haut = y;
+      y += MARGE_BOITE + HAUTEUR_INTITULE;
+      for (const m of b.membres) {
+        positions[m.id] = [Math.round(curseur + largeur / 2), Math.round(y + 17)];
+        y += LIGNE;
+      }
+      y += MARGE_BOITE;
+      boites.push({ style: 'domaine', x: Math.round(curseur), y: Math.round(haut), l: Math.round(largeur), h: Math.round(y - haut), libelle: b.libelle, ...(c.filiere ? { filiere: c.filiere } : {}) });
+      y += ECART_BOITES;
+    }
+    sorties.push({ echelon: c.echelon, libelle: c.libelle, x: Math.round(curseur + largeur / 2), largeur: Math.round(largeur), haut: MARGE_HAUT, bas: Math.round(y - ECART_BOITES), ...(c.filiere ? { filiere: c.filiere } : {}) });
+    bas = Math.max(bas, y - ECART_BOITES);
+    curseur += largeur + ECART_COLONNES;
+  }
+  return {
+    aretes: [...paires.values()],
+    largeur: Math.round(curseur),
+    hauteur: Math.round(bas + 34),
+    hautNoeuds: MARGE_HAUT - 30 + 17,
+    basNoeuds: Math.round(bas + 30 - 17),
+    colonnes: sorties,
+    boites,
+    positions,
+  };
 }
 
 /**

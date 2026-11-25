@@ -289,6 +289,11 @@ button.plat {
 button.plat:hover { background: var(--accent-doux); }
 .zooms { display: inline-flex; gap: .35rem; margin-left: auto; }
 .carte-renvoi { flex-basis: 100%; font-size: .84rem; color: var(--encre-douce); margin: 0; }
+.hors-filiere { display: none; }
+.filtres-filiere .cle[aria-pressed="false"] { opacity: 1; color: var(--encre-douce); }
+.filtres-filiere .cle[aria-pressed="true"] { font-weight: 600; text-decoration: underline; text-underline-offset: .2em; color: var(--encre); }
+.p-sources-filiere { margin: .4rem 0 1rem; font-size: .86rem; }
+.p-sources-filiere li { margin-bottom: .3rem; }
 button.rond { width: 1.9rem; padding: .1rem 0; font-size: 1rem; line-height: 1.3; }
 
 /* --- « Chez moi » --------------------------------------------------- */

@@ -22,7 +22,13 @@ interface Props {
 const { reseau, titre, etiquette, placeholder, avant } = Astro.props;
 
 // Repli sans JavaScript et pour les moteurs : le réseau en texte, par échelon.
-const parEchelon = reseau.carte.colonnes.map((c) => ({
+// La carte de l'économie se lit par filière : ses processus, puis leurs sources.
+const parId = new Map(reseau.noeuds.map((n) => [n.id, n]));
+const parFiliere = (reseau.filieres ?? []).map((f) => {
+  const processus = f.processus.map((id) => parId.get(id)).filter((n): n is NonNullable<typeof n> => !!n);
+  return { ...f, noeuds: processus, sources: f.sources ?? [] };
+});
+const parEchelon = reseau.filieres ? [] : reseau.carte.colonnes.map((c) => ({
   libelle: LIBELLE_ECHELON[c.echelon],
   noeuds: reseau.noeuds
     .filter((n) => n.type === 'acteur' && n.echelon === c.echelon)
@@ -81,6 +87,15 @@ const parEchelon = reseau.carte.colonnes.map((c) => ({
     <button type="button" class="plat rond" id="zoom-plus" aria-label="Zoomer">+</button>
     <button type="button" class="plat" id="ajuster">Recadrer</button>
   </span>
+  {reseau.filieres && (
+    <fieldset class="legende filtres-filiere">
+      <legend>Filières</legend>
+      <button type="button" class="cle filtre-filiere" data-filiere="" aria-pressed="true">Toutes</button>
+      {reseau.filieres.map((f) => (
+        <button type="button" class="cle filtre-filiere" data-filiere={f.id} aria-pressed="false" title={f.resume}>{f.libelle}</button>
+      ))}
+    </fieldset>
+  )}
   {avant && <span class="carte-renvoi"><Fragment set:html={avant} /></span>}
 </div>
 
@@ -107,6 +122,25 @@ const parEchelon = reseau.carte.colonnes.map((c) => ({
       Le réseau interactif demande JavaScript. Voici la même matière, en liste :
       chaque acteur a sa page, avec ses relations et ses liens de référence.
     </p>
+    {parFiliere.map((f) => (
+      <section>
+        <h3 class="badge">{f.libelle}</h3>
+        <p><Glose texte={f.resume} /></p>
+        <ul>
+          {f.noeuds.map((n) => (
+            <li>
+              <a href={`/n/${n.id}`}><Glose texte={n.nom} /></a> — <Glose texte={n.resume} />
+            </li>
+          ))}
+        </ul>
+        <p>Sources :</p>
+        <ul>
+          {f.sources.map((l) => (
+            <li><a href={l.url}>{l.titre}</a></li>
+          ))}
+        </ul>
+      </section>
+    ))}
     {parEchelon.map((c) => (
       <section>
         <h3 class="badge">{c.libelle}</h3>

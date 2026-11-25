@@ -398,6 +398,29 @@ rien dire du fonctionnement des institutions.
   contenu, les pages des nœuds, la recherche et le plan du site lisent
   toujours le réseau entier. Les deux cartes se renvoient l'une à l'autre.
 
+## La carte de l'économie, par filière (25 novembre 2026)
+
+Demande du mainteneur : organiser la vue d'ensemble de `/economie`, la filtrer
+par filière, et y montrer les sources.
+
+- **Les filières** (`src/modele/filieres.ts`) : la vie d'une entreprise, la
+  commande publique, du blé au pain, le lait, la viande, les aides agricoles.
+  Chaque processus économique en a une, et une seule ; un processus sans
+  filière arrête le build.
+- **La vue d'ensemble** : les organismes publics en première colonne, puis
+  une colonne par filière, une boîte par circuit, ses acteurs dans l'ordre de
+  leurs étapes. Un trait relie chaque acteur au suivant, ce qui relie aussi
+  les organismes publics aux acteurs privés qu'ils croisent.
+- **Le filtre** : une carte disposée pour chaque filière seule, et l'adresse
+  la garde (`/economie?filiere=lait`).
+- **Les sources** : le panneau liste, par filière, toutes celles que citent
+  ses processus, leurs étapes et leurs leviers ; le repli sans JavaScript
+  aussi. Les 88 adresses ont été essayées le 25 novembre 2026. Une seule
+  était morte, hors de l'économie : la fiche F19811 de service-public.fr sur
+  la contestation d'une autorisation d'urbanisme, remplacée par F20567,
+  relue. Légifrance (403) et quelques serveurs lents (data.gouv.fr, le
+  BODACC, l'Urssaf) ne répondent pas d'ici : ce n'est pas un lien mort.
+
 ## Ce qui n'est pas fait : métiers et secteurs (4 novembre 2026)
 
 Relier les métiers du graphe aux effectifs salariés par secteur supposait une

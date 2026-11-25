@@ -105,6 +105,11 @@ function demarrer(reseau: Reseau) {
     familleDepliee: null,
   };
   let vue = { x: 0, y: 0, l: reseau.carte.largeur, h: reseau.carte.hauteur };
+  /** La carte affichée : celle de la filière retenue, ou la carte d'ensemble. */
+  const carteActive = () => (filiere && reseau.cartesFilieres?.[filiere]) || reseau.carte;
+  /** Sur la carte de l'économie : la filière retenue par le filtre, ou toutes. */
+  const filiereDemandee = new URL(location.href).searchParams.get('filiere');
+  let filiere: string | null = reseau.filieres?.some((f) => f.id === filiereDemandee) ? filiereDemandee : null;
 
   /* ---------------------------------------------------------------- *
    * Fabrication d'éléments SVG
@@ -287,7 +292,7 @@ function demarrer(reseau: Reseau) {
       if (a.de === id) proches.add(a.vers);
       else if (a.vers === id) proches.add(a.de);
     }
-    for (const a of reseau.carte.aretes) {
+    for (const a of carteActive().aretes) {
       if (a.de === id) proches.add(a.vers);
       else if (a.vers === id) proches.add(a.de);
     }
@@ -313,13 +318,93 @@ function demarrer(reseau: Reseau) {
   }
 
   /* ---------------------------------------------------------------- *
+   * Les filières (carte de l'économie)
+   * ---------------------------------------------------------------- */
+
+  /** Ne garder, sur la carte d'ensemble, que la filière retenue : ses colonnes, ses circuits, ses acteurs. */
+  function appliquerFiliere() {
+    if (!reseau.filieres) return;
+    for (const e of toile.querySelectorAll<SVGElement>('[data-filiere]')) {
+      e.classList.toggle('hors-filiere', filiere !== null && e.dataset.filiere !== filiere);
+    }
+    for (const n of toile.querySelectorAll<SVGGElement>('.couche-noeuds .n[data-filieres]')) {
+      n.classList.toggle('hors-filiere', filiere !== null && !(n.dataset.filieres ?? '').split(' ').includes(filiere));
+    }
+  }
+
+  const boutonsFiliere = [...document.querySelectorAll<HTMLButtonElement>('.filtre-filiere')];
+  function choisirFiliere(f: string | null) {
+    filiere = f;
+    for (const b of boutonsFiliere) b.setAttribute('aria-pressed', String((b.dataset.filiere || null) === f));
+    const url = new URL(location.href);
+    if (f) url.searchParams.set('filiere', f);
+    else url.searchParams.delete('filiere');
+    history.replaceState(history.state, '', url);
+    if (etat.mode === 'carte') rendreCarte();
+  }
+  for (const b of boutonsFiliere) {
+    b.setAttribute('aria-pressed', String((b.dataset.filiere || null) === filiere));
+    b.addEventListener('click', () => {
+      choisirFiliere(b.dataset.filiere || null);
+      if (etat.mode !== 'carte') rendreCarte();
+    });
+  }
+
+  /** Sur la carte de l'économie, le panneau d'accueil présente les filières et leurs sources. */
+  function blocFilieres(): HTMLElement[] {
+    const blocs: HTMLElement[] = [];
+    for (const f of reseau.filieres ?? []) {
+      if (filiere && f.id !== filiere) continue;
+      blocs.push(ligne('h3', 'p-titre-section', f.libelle), glose('p', 'p-intro', f.resume));
+      const ul = document.createElement('ul');
+      ul.className = 'p-procedures';
+      const sources = new Map<string, string>();
+      for (const id of f.processus) {
+        const n = index.get(id);
+        if (!n) continue;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.append(fragmentGlose(n.nom));
+        b.addEventListener('click', () => ouvrir(n.id));
+        const li = document.createElement('li');
+        li.append(b, glose('span', 'v-nature', n.resume));
+        ul.append(li);
+      }
+      for (const l of f.sources ?? []) sources.set(l.url, l.titre);
+      blocs.push(ul);
+      // Les sources de la filière : toutes celles que citent ses processus, leurs étapes et leurs leviers.
+      const details = document.createElement('details');
+      details.className = 'p-sources-filiere';
+      details.open = filiere === f.id;
+      const resume = document.createElement('summary');
+      resume.textContent = `Sources (${sources.size})`;
+      details.append(resume);
+      const liste = document.createElement('ul');
+      for (const [url, titre] of sources) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.textContent = titre;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        const li = document.createElement('li');
+        li.append(a);
+        liste.append(li);
+      }
+      details.append(liste);
+      blocs.push(details);
+    }
+    return blocs;
+  }
+
+  /* ---------------------------------------------------------------- *
    * La carte d'ensemble
    * ---------------------------------------------------------------- */
 
   function rendreCarte() {
     toile.textContent = '';
     rallumer();
-    const { colonnes, aretes, hautNoeuds } = reseau.carte;
+    const carte = carteActive();
+    const { colonnes, aretes, hautNoeuds } = carte;
     cadrerCarte();
     appliquerVue();
 
@@ -331,7 +416,7 @@ function demarrer(reseau: Reseau) {
     // Les boîtes : une entité contient ses organes, et son nœud en est
     // l'en-tête. Les pointillés disent « présent ici, mais relève d'ailleurs » ;
     // les branches du pouvoir subdivisent la boîte de l'État.
-    for (const k of reseau.carte.boites) {
+    for (const k of carte.boites) {
       gBandes.append(
         el('rect', {
           class: `c-boite c-boite--${k.style}`,
@@ -340,25 +425,29 @@ function demarrer(reseau: Reseau) {
           width: k.l,
           height: k.h,
           rx: k.style === 'branche' || (k.style === 'entite' && k.l < 220) ? 10 : 16,
+          ...(k.filiere ? { 'data-filiere': k.filiere } : {}),
         }),
       );
       if (k.libelle) {
-        const t = el('text', { class: `c-boite-titre c-boite-titre--${k.style}`, x: k.x + k.l / 2, y: k.y + 20, 'text-anchor': 'middle' });
+        const t = el('text', { class: `c-boite-titre c-boite-titre--${k.style}`, x: k.x + k.l / 2, y: k.y + 20, 'text-anchor': 'middle', ...(k.filiere ? { 'data-filiere': k.filiere } : {}) });
         t.textContent = k.libelle;
         gBandes.append(t);
       }
     }
     colonnes.forEach((col) => {
-      const t = el('text', { class: 'c-colonne', x: col.x, y: hautNoeuds - 12, 'text-anchor': 'middle' });
+      const t = el('text', { class: 'c-colonne', x: col.x, y: hautNoeuds - 12, 'text-anchor': 'middle', ...(col.filiere ? { 'data-filiere': col.filiere } : {}) });
       t.textContent = col.libelle;
       gBandes.append(t);
     });
-    const entetes = new Set(reseau.carte.boites.map((k) => k.entete).filter(Boolean));
+    const entetes = new Set(carte.boites.map((k) => k.entete).filter(Boolean));
 
     const boites = new Map<string, Boite>();
     for (const n of reseau.noeuds) {
-      if (n.type !== 'acteur' || n.x === undefined || n.y === undefined) continue;
-      boites.set(n.id, { noeud: n, x: n.x, y: n.y, l: largeurPastille(n.court), h: 34 });
+      if (n.type !== 'acteur') continue;
+      // La carte d'une filière porte ses propres positions, et n'y place que ses acteurs.
+      const [x, y] = carte.positions ? (carte.positions[n.id] ?? []) : [n.x, n.y];
+      if (x === undefined || y === undefined) continue;
+      boites.set(n.id, { noeud: n, x, y, l: largeurPastille(n.court), h: 34 });
     }
 
     for (const a of aretes) {
@@ -373,23 +462,30 @@ function demarrer(reseau: Reseau) {
       const versDroite = d.x <= v.x;
       const depart = versDroite ? d.x + d.l / 2 : d.x - d.l / 2;
       const arrivee = versDroite ? v.x - v.l / 2 : v.x + v.l / 2;
+      // Deux acteurs d'une même pile (les circuits de la carte de l'économie) : un trait vertical, de l'un à l'autre.
+      const empiles = Math.abs(d.x - v.x) < 4;
+      const haut = d.y < v.y;
 
       const infobulle =
         fam === 'partage'
           ? `${d.noeud.nom} et ${v.noeud.nom} partagent ${a.poids} compétence${a.poids > 1 ? 's' : ''}`
           : `${d.noeud.nom} → ${v.noeud.nom}`;
-      const chemin = dessinerArete(courbe(depart, d.y, arrivee, v.y), fam, infobulle, { poids: a.poids });
+      const trace = empiles ? `M${d.x},${d.y + (haut ? 17 : -17)} L${v.x},${v.y + (haut ? -17 : 17)}` : courbe(depart, d.y, arrivee, v.y);
+      const chemin = dessinerArete(trace, fam, infobulle, { poids: a.poids });
       chemin.dataset.de = a.de;
       chemin.dataset.vers = a.vers;
+      if (a.filiere) chemin.dataset.filiere = a.filiere;
       gAretes.append(chemin);
     }
 
     for (const b of boites.values()) {
       const g = dessinerNoeud(b);
       if (entetes.has(b.noeud.id)) g.classList.add('n--entete');
+      if (reseau.filieres) g.dataset.filieres = (b.noeud.filieres ?? []).join(' ');
       gNoeuds.append(g);
     }
     toile.append(gBandes, gAretes, gNoeuds);
+    appliquerFiliere();
     retour?.setAttribute('hidden', '');
     ecrirePanneauAccueil();
   }
@@ -788,7 +884,9 @@ function demarrer(reseau: Reseau) {
       ligne(
         'p',
         'p-intro',
-        'Chaque colonne est un échelon, chaque pastille un acteur. Une boîte réunit une entité — la commune, la région, l’État, l’Union — et ses organes : l’en-tête est l’entité elle-même ; en pointillés, ce qui relève d’une autre colonne mais agit dans celle-ci. Survolez une famille de relations dans la légende pour ne garder qu’elle ; survolez un acteur pour ne garder que son voisinage.',
+        reseau.filieres
+          ? 'La première colonne réunit les organismes publics que les circuits croisent ; chaque autre colonne est une filière, chaque boîte un circuit, ses acteurs dans l’ordre des étapes. Un trait relie chaque acteur au suivant. Choisissez une filière pour ne garder qu’elle.'
+          : 'Chaque colonne est un échelon, chaque pastille un acteur. Une boîte réunit une entité — la commune, la région, l’État, l’Union — et ses organes : l’en-tête est l’entité elle-même ; en pointillés, ce qui relève d’une autre colonne mais agit dans celle-ci. Survolez une famille de relations dans la légende pour ne garder qu’elle ; survolez un acteur pour ne garder que son voisinage.',
       ),
       ligne('p', 'p-intro', 'Cliquez sur un acteur pour déplier ses rouages.'),
     );
@@ -797,7 +895,9 @@ function demarrer(reseau: Reseau) {
     chiffres.className = 'p-chiffres';
     const compte: [string, number][] = [
       ['Acteurs', reseau.noeuds.filter((n) => n.type === 'acteur').length],
-      ['Compétences', reseau.noeuds.filter((n) => n.type === 'competence').length],
+      reseau.filieres
+        ? ['Circuits', reseau.noeuds.filter((n) => n.type === 'processus').length]
+        : ['Compétences', reseau.noeuds.filter((n) => n.type === 'competence').length],
       ['Relations', reseau.aretes.length],
       ['Pages liées', new Set(reseau.noeuds.flatMap((n) => n.liens.map((l) => l.url))).size],
     ];
@@ -813,8 +913,9 @@ function demarrer(reseau: Reseau) {
 
     // Les procédures ne sont pas sur la carte, qui ne montre que des acteurs :
     // sans cette liste, le contenu le plus utile du site serait invisible.
+    if (reseau.filieres) panneau.append(...blocFilieres());
     const procedures = reseau.noeuds
-      .filter((n) => n.type === 'processus')
+      .filter((n) => n.type === 'processus' && !reseau.filieres)
       .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
     if (procedures.length > 0) {
       panneau.append(ligne('h3', 'p-titre-section', 'Où vous pouvez agir'));
@@ -1191,13 +1292,14 @@ function demarrer(reseau: Reseau) {
    * chez soi — la commune — et on se déplace.
    */
   function cadrerCarte() {
-    const { largeur, hauteur, colonnes } = reseau.carte;
+    const carte = carteActive();
+    const { largeur, hauteur, colonnes } = carte;
     const r = toile.getBoundingClientRect();
     if (r.width >= 760 || r.width === 0) {
       // Cadré sur ce qui est réellement dessiné : la hauteur nominale de la
       // carte inclut des marges que personne n'a besoin de voir.
-      const haut = reseau.carte.hautNoeuds - 22;
-      vue = { x: 0, y: haut, l: largeur, h: reseau.carte.basNoeuds + 46 - haut };
+      const haut = carte.hautNoeuds - 22;
+      vue = { x: 0, y: haut, l: largeur, h: carte.basNoeuds + 46 - haut };
       return;
     }
     const l = 620;
