@@ -1,0 +1,128 @@
+---
+/**
+ * L'explorateur du réseau : la carte d'ensemble, la recherche, la légende des
+ * relations, « Chez moi » et le repli en liste sans JavaScript. Deux pages s'en
+ * servent, chacune avec sa carte (`Vue` dans `src/modele/reseau.ts`) : le
+ * réseau des acteurs publics (`/fonctionnement`) et les rouages de l'économie
+ * (`/economie`).
+ */
+import { LIBELLE_ECHELON } from '../modele/schemas.ts';
+import { FAMILLES } from '../modele/relations.ts';
+import type { Reseau } from '../modele/reseau.ts';
+import Glose from './Glose.astro';
+
+interface Props {
+  reseau: Reseau;
+  titre: string;
+  etiquette: string;
+  placeholder: string;
+  /** Une ligne au-dessus de la carte, en HTML : le renvoi vers l'autre carte. */
+  avant?: string;
+}
+const { reseau, titre, etiquette, placeholder, avant } = Astro.props;
+
+// Repli sans JavaScript et pour les moteurs : le réseau en texte, par échelon.
+const parEchelon = reseau.carte.colonnes.map((c) => ({
+  libelle: LIBELLE_ECHELON[c.echelon],
+  noeuds: reseau.noeuds
+    .filter((n) => n.type === 'acteur' && n.echelon === c.echelon)
+    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
+}));
+---
+{/* Le réseau n'a pas de titre visible — l'en-tête et la légende en tiennent
+    lieu —, mais un lecteur d'écran qui parcourt les titres doit en trouver
+    un. Le repli sans JavaScript passe donc au second niveau. */}
+<h1 class="visuellement-cache">{titre}</h1>
+<div class="outils">
+  <div class="champ-recherche">
+    <label class="visuellement-cache" for="recherche">Chercher un acteur, une compétence</label>
+    <input id="recherche" type="search" placeholder={placeholder} autocomplete="off" />
+    <ul id="resultats"></ul>
+  </div>
+
+  {/* La légende n'est pas décorative : elle commande l'affichage.
+      Survoler une clé éteint les autres familles, cliquer la retire. */}
+  {/* « Chez moi » : le site répond « variable selon le territoire » partout ;
+      ici il répond vraiment. L'index n'est chargé qu'à l'ouverture. */}
+  <div class="champ-commune">
+    <button type="button" class="plat" id="ouvrir-commune" aria-expanded="false">
+      <span id="etiquette-commune">Chez moi</span>
+    </button>
+    <div id="choix-commune" hidden>
+      <label for="recherche-commune">Votre commune, ou son code postal</label>
+      <input id="recherche-commune" type="search" placeholder="Mayet, 72360…" autocomplete="off" />
+      <ul id="resultats-commune"></ul>
+      <button type="button" class="lien-plat" id="oublier-commune" hidden>Oublier ma commune</button>
+    </div>
+  </div>
+
+  <fieldset class="legende">
+    <legend>Relations</legend>
+    {FAMILLES.map((f) => (
+      <button type="button" class="cle" data-famille={f.id} aria-pressed="true" title={f.aide}>
+        <svg width="24" height="10" viewBox="0 0 24 10" aria-hidden="true">
+          <line
+            class={`cle-trait cle-trait--${f.id}`}
+            x1="1"
+            y1="5"
+            x2="23"
+            y2="5"
+            stroke-dasharray={f.tirets}
+          />
+        </svg>
+        {f.libelle}
+      </button>
+    ))}
+  </fieldset>
+
+  <button type="button" class="plat" id="retour-carte" hidden>← Vue d’ensemble</button>
+  <span class="zooms">
+    <button type="button" class="plat rond" id="zoom-moins" aria-label="Dézoomer">−</button>
+    <button type="button" class="plat rond" id="zoom-plus" aria-label="Zoomer">+</button>
+    <button type="button" class="plat" id="ajuster">Recadrer</button>
+  </span>
+  {avant && <span class="carte-renvoi"><Fragment set:html={avant} /></span>}
+</div>
+
+<div class="explorateur">
+  <div class="scene">
+    <svg id="toile" role="application" aria-label={etiquette}></svg>
+    {/* Le geste n'est pas le même au doigt et à la souris : on le dit
+        différemment plutôt que de parler de survol à qui ne survole pas. */}
+    <p class="aide" id="aide">
+      <span class="aide-defaut">
+        <span class="si-survol">Survolez pour isoler une couche · cliquez un nœud pour l’ouvrir · Échap pour revenir</span>
+        <span class="si-tactile">Touchez une famille pour la masquer · un nœud pour l’ouvrir</span>
+      </span>
+      <span id="aide-famille"></span>
+    </p>
+  </div>
+  <aside id="panneau" aria-live="polite"></aside>
+</div>
+
+<noscript>
+  <div class="page">
+    <h2>{titre}, en liste</h2>
+    <p class="resume">
+      Le réseau interactif demande JavaScript. Voici la même matière, en liste :
+      chaque acteur a sa page, avec ses relations et ses liens de référence.
+    </p>
+    {parEchelon.map((c) => (
+      <section>
+        <h3 class="badge">{c.libelle}</h3>
+        <ul>
+          {c.noeuds.map((n) => (
+            <li>
+              <a href={`/n/${n.id}`}><Glose texte={n.nom} /></a> — <Glose texte={n.resume} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</noscript>
+
+<script is:inline type="application/json" id="donnees-reseau" set:html={JSON.stringify(reseau)} />
+<script>
+  import '../client/explorateur.ts';
+</script>

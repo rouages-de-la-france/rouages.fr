@@ -378,6 +378,26 @@ officielle lue. **Le site ne montre pas encore les bénéficiaires** : la
 décision du 8 octobre 2026 (`CLAUDE.md`) les autorise, aucune collecte ne les
 lit. La fiche renvoie au registre du ministère.
 
+## Deux cartes : le réseau public et l'économie (25 novembre 2026)
+
+**Décision du mainteneur** : les rouages de l'économie ont leur propre carte.
+Leurs acteurs privés — trente-six sur cent trente acteurs, dont une trentaine
+n'existaient que pour eux — alourdissaient le réseau des acteurs publics sans
+rien dire du fonctionnement des institutions.
+
+- `/fonctionnement` ne montre plus les processus de la famille `economiques`,
+  ni les nœuds dont tous les voisins sont dans cette famille : 97 acteurs au
+  lieu de 130. Il garde les acteurs privés d'un circuit public — délégataire
+  de l'eau, bailleur social, Enedis, l'employeur qui paie le versement
+  mobilité, le notaire, le commissaire de justice.
+- `/economie`, « Les rouages de l'économie », sous « Fonctionnement des
+  institutions » : les neuf processus économiques, leurs voisins immédiats et
+  les entités dont ceux-ci relèvent — l'Urssaf, l'INSEE, l'INPI, la DDT, l'ASP
+  restent dans la boîte de l'État, passerelles vers l'autre carte.
+- Ce n'est qu'un filtre d'affichage (`Vue`, `src/modele/reseau.ts`) : le
+  contenu, les pages des nœuds, la recherche et le plan du site lisent
+  toujours le réseau entier. Les deux cartes se renvoient l'une à l'autre.
+
 ## Ce qui n'est pas fait : métiers et secteurs (4 novembre 2026)
 
 Relier les métiers du graphe aux effectifs salariés par secteur supposait une
