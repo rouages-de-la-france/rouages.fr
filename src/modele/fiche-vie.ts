@@ -66,6 +66,8 @@ type IpsDep = {
   maj: string;
   rentrees: Record<'école' | 'collège', string>;
   references: Record<'école' | 'collège', Reference> | null;
+  /** Les indicateurs du brevet, par UAI (`scripts/ips-emettre.ts`) ; absents des fichiers d'avant le 26 novembre 2026. */
+  brevet?: { session: string; u: Record<string, [number | null, number | null, number | null, number | null, number | null, number | null]> };
   c: Record<string, [string, string, 'public' | 'privé', number, 'école' | 'collège'][]>;
 };
 type DelinquanceDep = {
@@ -459,9 +461,28 @@ export interface Etablissement {
   type: 'école' | 'collège';
 }
 
+/** Le brevet d'un collège, série générale, d'après les indicateurs de valeur ajoutée de la DEPP. */
+export interface BrevetCollege {
+  uai: string;
+  nom: string;
+  secteur: 'public' | 'privé';
+  candidats: number | null;
+  /** Taux de réussite, en %. */
+  taux: number | null;
+  /** Sa valeur ajoutée, en points : constaté moins attendu ; null sous quarante candidats. */
+  vaTaux: number | null;
+  /** Note moyenne aux épreuves écrites, sur 20. */
+  note: number | null;
+  vaNote: number | null;
+  /** Taux d'accès de la sixième à la troisième, en %. */
+  acces: number | null;
+}
+
 export interface Ecoles {
   rentrees: Record<'école' | 'collège', string>;
   etablissements: Etablissement[];
+  /** La session du brevet, et ses collèges de la commune. */
+  brevet: { session: string; colleges: BrevetCollege[] } | null;
   references: Record<'école' | 'collège', Reference> | null;
   maj: string;
 }
@@ -1240,6 +1261,17 @@ function ecoles(c: CommuneFiche): Ecoles | null {
   return {
     rentrees: d.rentrees,
     etablissements: x.map(([uai, nom, secteur, ips, type]) => ({ uai, nom, secteur, ips, type })),
+    brevet: d.brevet
+      ? {
+          session: d.brevet.session,
+          colleges: x
+            .filter(([uai, , , , type]) => type === 'collège' && d.brevet!.u[uai])
+            .map(([uai, nom, secteur]) => {
+              const [candidats, taux, vaTaux, note, vaNote, acces] = d.brevet!.u[uai];
+              return { uai, nom, secteur, candidats, taux, vaTaux, note, vaNote, acces };
+            }),
+        }
+      : null,
     references: d.references,
     maj: d.maj,
   };

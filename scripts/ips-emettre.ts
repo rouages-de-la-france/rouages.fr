@@ -12,19 +12,32 @@
  * France, public et privé à part : la page compare à ces valeurs-là, pas à un
  * calcul d'ici.
  *
- * Les résultats au brevet par établissement ne sont pas repris : le jeu national
- * s'arrête à la session 2021.
+ * Les résultats au brevet viennent des **indicateurs de valeur ajoutée des
+ * collèges** (IVAC) de la DEPP, dernière session publiée : en série générale,
+ * le nombre de candidats, le taux de réussite et la note moyenne à l'écrit,
+ * leur valeur ajoutée — l'écart à ce qu'on attendait des élèves accueillis,
+ * d'après un modèle de la DEPP —, et le taux d'accès de la sixième à la
+ * troisième. La valeur ajoutée n'est pas calculée sous quarante candidats en
+ * série générale (guide méthodologique IVAC 2025) : elle reste vide. Le jeu
+ * « brevet par établissement », lui, s'arrête à la session 2021.
  *
  * Lancé seul — `tsx scripts/ips-emettre.ts` —, il réécrit les fichiers
  * `public/territoires/dep/XX-ips.json`.
  */
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
+import { codeCommune, communeDe, departementDe, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
 import { indisponible } from './echecs.ts';
 
 const API = 'https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets';
 export const JEUX = { ecole: 'fr-en-ips-ecoles-ap2022', college: 'fr-en-ips-colleges-ap2023' } as const;
+export const JEU_IVAC = 'fr-en-indicateurs-valeur-ajoutee-colleges';
+
+/**
+ * Le brevet d'un collège, série générale : candidats, taux de réussite (%), sa valeur ajoutée (points),
+ * note moyenne à l'écrit (/20), sa valeur ajoutée, taux d'accès de la 6e à la 3e (%). `null` : non publié.
+ */
+export type Brevet = [number | null, number | null, number | null, number | null, number | null, number | null];
 
 /** Un établissement : UAI, nom, public ou privé, IPS, école ou collège. */
 export type Etablissement = [string, string, 'public' | 'privé', number, 'école' | 'collège'];
@@ -36,6 +49,8 @@ export interface Ips {
   rentrees: Record<'école' | 'collège', string>;
   communes: Map<string, Etablissement[]>;
   references: Map<string, Record<'école' | 'collège', Reference>>;
+  /** Les indicateurs du brevet, par UAI, à la dernière session publiée. */
+  brevet: { session: string; parUai: Map<string, Brevet> };
 }
 
 /** La dernière rentrée publiée d'un jeu. */
@@ -109,6 +124,26 @@ export async function collecterIps(
   } catch {
     return indisponible(dire, 'Indices de position sociale indisponibles : ceux de l’ingestion précédente restent en place.');
   }
+  // Le brevet : les indicateurs de valeur ajoutée des collèges, dernière session.
+  let brevet: Ips['brevet'];
+  try {
+    const s = (await lireJson(`${API}/${JEU_IVAC}/records?select=session&group_by=session&order_by=session%20desc&limit=1`)) as { results?: { session?: string }[] };
+    const session = String(s.results?.[0]?.session ?? '').slice(0, 4);
+    if (!/^\d{4}$/.test(session)) throw new Error('aucune session');
+    const champs = 'uai,nb_candidats_g,taux_de_reussite_g,va_du_taux_de_reussite_g,note_a_l_ecrit_g,va_de_la_note_g,taux_d_acces_6eme_3eme';
+    const lignes = (await lireJson(`${API}/${JEU_IVAC}/exports/json?select=${champs}&where=${encodeURIComponent(`session=date'${session}'`)}`)) as Record<string, unknown>[];
+    const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+    const parUai = new Map<string, Brevet>();
+    for (const l of lignes) {
+      if (typeof l.uai !== 'string') continue;
+      parUai.set(l.uai, [num(l.nb_candidats_g), num(l.taux_de_reussite_g), num(l.va_du_taux_de_reussite_g), num(l.note_a_l_ecrit_g), num(l.va_de_la_note_g), num(l.taux_d_acces_6eme_3eme)]);
+    }
+    if (parUai.size < 5000) throw new Error(`${parUai.size} collèges seulement`);
+    brevet = { session, parUai };
+    dire(`Brevet, session ${session} (indicateurs de valeur ajoutée des collèges) : ${parUai.size.toLocaleString('fr-FR')} collèges.`);
+  } catch (e) {
+    return indisponible(dire, `Indicateurs du brevet indisponibles (${(e as Error).message}) : les fichiers d’IPS de l’ingestion précédente restent en place.`);
+  }
   const i = await lireIps(chemins, lireFlux);
   const n = [...i.communes.values()].reduce((s, e) => s + e.length, 0);
   if (n < 30000) {
@@ -118,14 +153,24 @@ export async function collecterIps(
     `Indices de position sociale, écoles ${rentrees.école} et collèges ${rentrees.collège} : ` +
       `${n.toLocaleString('fr-FR')} établissements dans ${i.communes.size.toLocaleString('fr-FR')} communes.`,
   );
-  return { maj: new Date().toISOString().slice(0, 10), rentrees, ...i };
+  return { maj: new Date().toISOString().slice(0, 10), rentrees, ...i, brevet };
 }
 
 export function ecrireIps(sortie: string, i: Ips): number {
+  // Le brevet de chaque collège du département, rangé par UAI dans l'en-tête de son fichier.
+  const uaiParDep = new Map<string, Record<string, Brevet>>();
+  for (const [commune, etablissements] of i.communes) {
+    const dep = departementDe(commune);
+    for (const [uai, , , , type] of etablissements) {
+      const b = type === 'collège' ? i.brevet.parUai.get(uai) : undefined;
+      if (b) (uaiParDep.get(dep) ?? uaiParDep.set(dep, {}).get(dep)!)[uai] = b;
+    }
+  }
   return ecrireParDepartement(sortie, 'ips', i.communes, (dep) => ({
     maj: i.maj,
     rentrees: i.rentrees,
     references: i.references.get(dep) ?? null,
+    brevet: { session: i.brevet.session, u: uaiParDep.get(dep) ?? {} },
   }));
 }
 

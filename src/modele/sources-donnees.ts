@@ -265,6 +265,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /valeur ajoutée des collèges/i,
+    liens: [
+      { titre: 'Indicateurs de valeur ajoutée des collèges (DEPP)', url: 'https://data.education.gouv.fr/explore/dataset/fr-en-indicateurs-valeur-ajoutee-colleges/' },
+      { titre: 'Guide méthodologique des IVAC, session 2025 (DEPP)', url: 'https://www.education.gouv.fr/sites/default/files/document/Depp_Guide_m%C3%A9thodologique_IVAC_2025.pdf-515492.pdf' },
+    ],
+  },
+  {
     motif: /Géo.DAE|défibrillateurs/i,
     liens: [{ titre: 'Géo’DAE, la base nationale des défibrillateurs', url: dg('61556e1e9d6adb2df86eb0fc') }],
   },

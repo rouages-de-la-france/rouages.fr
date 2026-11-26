@@ -28,6 +28,10 @@ const libelle = (x: { nom: string; secteur: string }) => {
   return /\b(publique?|privée?)\b/i.test(n) ? n : `${n} (${x.secteur})`;
 };
 const rentrees = [...new Set(e.etablissements.map((x) => e.rentrees[x.type]))];
+const entier = (v: number) => Math.round(v).toLocaleString('fr-FR');
+// La valeur ajoutée, signée ; « non calculée » sous quarante candidats, la règle de la DEPP.
+const va = (v: number | null, candidats: number | null, unite: string) =>
+  v != null ? `${v > 0 ? '+' : v < 0 ? '−' : ''}${n(Math.abs(v)).replace(',0', '')}${unite}` : candidats != null && candidats < 40 ? 'non calculée' : 'non publiée';
 // Au-delà de vingt établissements — Paris en compte près de huit cents —, un
 // tableau pèserait plus que tout le reste de la page : on donne l'étendue.
 const LIMITE = 20;
@@ -73,6 +77,43 @@ const etendue = (type: 'école' | 'collège') => {
 </table>
 </div>
 )}
+{e.brevet && e.brevet.colleges.length > 0 && (
+  <div class="cpt-defile" tabindex="0" role="region" aria-label="Le brevet des collèges — le tableau défile sur les petits écrans">
+  <table class="cpt-tableau">
+    <caption>{`Le brevet, session ${e.brevet.session}, série générale`}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Collège</th>
+        <th scope="col">Candidats</th>
+        <th scope="col">Réussite</th>
+        <th scope="col">Sa valeur ajoutée</th>
+        <th scope="col">Note à l’écrit</th>
+        <th scope="col">Sa valeur ajoutée</th>
+        <th scope="col">De la 6<sup>e</sup> à la 3<sup>e</sup></th>
+      </tr>
+    </thead>
+    <tbody>
+      {e.brevet.colleges.map((x) => (
+        <tr>
+          <th scope="row">{libelle(x)}</th>
+          <td>{x.candidats ?? '—'}</td>
+          <td>{x.taux == null ? '—' : `${entier(x.taux)} %`}</td>
+          <td>{va(x.vaTaux, x.candidats, ' points')}</td>
+          <td>{x.note == null ? '—' : `${n(x.note)} / 20`}</td>
+          <td>{va(x.vaNote, x.candidats, '')}</td>
+          <td>{x.acces == null ? '—' : `${entier(x.acces)} %`}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  </div>
+)}
+{e.brevet && e.brevet.colleges.length > 0 && (
+  <p class="p-strate">
+    {'La valeur ajoutée est l’écart entre le résultat constaté et celui qu’on attendait des élèves accueillis — leur âge, leur sexe, leur origine sociale, leur niveau à l’entrée en sixième, et la composition du collège —, d’après un modèle de la DEPP : positive, le collège fait mieux que prévu ; négative, moins bien. '}
+    {'Elle n’est pas calculée sous quarante candidats en série générale, ni quand les scores aux évaluations de sixième ou la profession des parents manquent pour plus d’un quart d’entre eux. Le taux d’accès dit la probabilité, pour un élève de sixième, d’arriver en troisième en restant dans le collège, quel que soit le nombre d’années.'}
+  </p>
+)}
 <p class="p-strate">
   {'L’indice résume les conditions sociales et culturelles des familles des élèves, d’après la profession de leurs parents surtout : ' +
     'plus il est haut, plus les élèves viennent de milieux favorisés. Il décrit qui fréquente l’établissement, pas ce qu’on y enseigne. ' +
@@ -82,5 +123,5 @@ const etendue = (type: 'école' | 'collège') => {
 </p>
 <p class="p-source-territoire">
   {`D’après les indices de position sociale publiés par le ministère de l’Éducation nationale (${e.maj}). ` +
-    'Les résultats au brevet par établissement ne sont pas repris : le jeu national s’arrête à la session 2021.'}
+    (e.brevet ? `Le brevet : indicateurs de valeur ajoutée des collèges de la DEPP, session ${e.brevet.session}.` : '')}
 </p>
