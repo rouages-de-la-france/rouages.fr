@@ -293,8 +293,9 @@ function demarrer(reseau: Reseau) {
       else if (a.vers === id) proches.add(a.de);
     }
     for (const a of carteActive().aretes) {
-      if (a.de === id) proches.add(a.vers);
-      else if (a.vers === id) proches.add(a.de);
+      const [de, vers] = [a.de.split('#')[0], a.vers.split('#')[0]];
+      if (de === id) proches.add(vers);
+      else if (vers === id) proches.add(de);
     }
     for (const n of toile.querySelectorAll<SVGGElement>('.couche-noeuds .n')) {
       const proche = proches.has(n.dataset.id ?? '');
@@ -442,12 +443,18 @@ function demarrer(reseau: Reseau) {
     const entetes = new Set(carte.boites.map((k) => k.entete).filter(Boolean));
 
     const boites = new Map<string, Boite>();
-    for (const n of reseau.noeuds) {
-      if (n.type !== 'acteur') continue;
-      // La carte d'une filière porte ses propres positions, et n'y place que ses acteurs.
-      const [x, y] = carte.positions ? (carte.positions[n.id] ?? []) : [n.x, n.y];
-      if (x === undefined || y === undefined) continue;
-      boites.set(n.id, { noeud: n, x, y, l: largeurPastille(n.court), h: 34 });
+    if (carte.positions) {
+      // La carte de l'économie porte ses positions : un acteur privé y a une pastille par circuit,
+      // sous la clé « acteur#processus ». Toutes renvoient au même nœud.
+      for (const [cle, [x, y]] of Object.entries(carte.positions)) {
+        const n = index.get(cle.split('#')[0]);
+        if (n) boites.set(cle, { noeud: n, x, y, l: largeurPastille(n.court), h: 34 });
+      }
+    } else {
+      for (const n of reseau.noeuds) {
+        if (n.type !== 'acteur' || n.x === undefined || n.y === undefined) continue;
+        boites.set(n.id, { noeud: n, x: n.x, y: n.y, l: largeurPastille(n.court), h: 34 });
+      }
     }
 
     for (const a of aretes) {
@@ -472,8 +479,9 @@ function demarrer(reseau: Reseau) {
           : `${d.noeud.nom} → ${v.noeud.nom}`;
       const trace = empiles ? `M${d.x},${d.y + (haut ? 17 : -17)} L${v.x},${v.y + (haut ? -17 : 17)}` : courbe(depart, d.y, arrivee, v.y);
       const chemin = dessinerArete(trace, fam, infobulle, { poids: a.poids });
-      chemin.dataset.de = a.de;
-      chemin.dataset.vers = a.vers;
+      // L'arête dit les nœuds, pas les pastilles : survoler une occurrence allume les autres.
+      chemin.dataset.de = a.de.split('#')[0];
+      chemin.dataset.vers = a.vers.split('#')[0];
       if (a.filiere) chemin.dataset.filiere = a.filiere;
       gAretes.append(chemin);
     }
