@@ -265,6 +265,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /hébergements touristiques classés/i,
+    liens: [
+      { titre: 'Hébergements touristiques classés en France (Atout France)', url: dg('59c36c6a88ee3826d5998a35') },
+      { titre: 'Le fichier, mis à jour chaque jour', url: 'https://data.classement.atout-france.fr/static/exportHebergementsClasses/hebergements_classes.csv' },
+    ],
+  },
+  {
     motif: /valeur ajoutée des collèges/i,
     liens: [
       { titre: 'Indicateurs de valeur ajoutée des collèges (DEPP)', url: 'https://data.education.gouv.fr/explore/dataset/fr-en-indicateurs-valeur-ajoutee-colleges/' },

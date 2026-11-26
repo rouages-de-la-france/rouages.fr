@@ -128,6 +128,7 @@ import Culture from '../../composants/commune/Culture.astro';
 import SolsPollues from '../../composants/commune/SolsPollues.astro';
 import Installations from '../../composants/commune/Installations.astro';
 import Lieux from '../../composants/commune/Lieux.astro';
+import Hebergements from '../../composants/commune/Hebergements.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
 export function getStaticPaths() {
@@ -424,6 +425,7 @@ const sommaire: [string, string, unknown][] = [
   ['culture', 'Les lieux culturels', vie.culture],
   ['monuments', 'Les monuments historiques', vie.monuments],
   ['a-voir', 'À voir', vie.lieux],
+  ['hebergements', 'Les hébergements classés', vie.hebergements],
   ['securite', 'La sécurité', vie.delinquance || vie.police],
   ['route', 'Les accidents de la route', vie.route],
   ['gares', 'Le train', vie.gares],
@@ -476,7 +478,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'environnement',
     nom: 'Environnement et patrimoine',
-    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'forets', 'production', 'culture', 'monuments', 'a-voir'],
+    blocs: ['risques', 'installations', 'sols-pollues', 'secheresse', 'nature', 'forets', 'production', 'culture', 'monuments', 'a-voir', 'hebergements'],
   },
   { id: 'suivre', nom: 'Suivre la commune', blocs: ['journal', 'ailleurs'] },
 ];
@@ -1322,6 +1324,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="a-voir">
         <h2 class="badge">À voir</h2>
         <Lieux l={vie.lieux} />
+      </section>
+    )}
+
+    {vie.hebergements && (
+      <section id="hebergements">
+        <h2 class="badge">Les hébergements classés</h2>
+        <Hebergements h={vie.hebergements} />
       </section>
     )}
 

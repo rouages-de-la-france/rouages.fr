@@ -244,6 +244,8 @@ const zonagesDep = parDepartement<ZonagesDep>('zonages');
 type LieuDep = string | [string, string];
 type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[]]> };
 const lieuxDep = parDepartement<LieuxDep>('lieux');
+type HebergementsDep = { maj: string; c: Record<string, [string, string, string, string, number | null][]> };
+const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
 
 /* ------------------------------------------------------------------ *
  * Les formes, telles que la page les affiche.
@@ -873,6 +875,21 @@ export interface Lieu {
   fiche: string | null;
 }
 
+/** Un hébergement touristique classé, d'après Atout France (`scripts/hebergements-emettre.ts`). */
+export interface Hebergement {
+  nom: string;
+  type: string;
+  classement: string;
+  /** Date du classement, ISO ; vide si le fichier ne la donne pas. */
+  date: string;
+  capacite: number | null;
+}
+
+export interface Hebergements {
+  liste: Hebergement[];
+  maj: string;
+}
+
 export interface Lieux {
   patrimoine: Lieu[];
   nature: Lieu[];
@@ -1045,6 +1062,7 @@ export interface ComplementsVie {
   europe: Europe | null;
   installations: Installations | null;
   lieux: Lieux | null;
+  hebergements: Hebergements | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1657,6 +1675,13 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function hebergements(c: CommuneFiche): Hebergements | null {
+  const d = hebergementsDep.get(c.dep);
+  if (!d) return null;
+  const x = d.c[c.code] ?? [];
+  return { liste: x.map(([nom, type, classement, date, capacite]) => ({ nom, type, classement, date, capacite })), maj: d.maj };
+}
+
 function zonages(c: CommuneFiche): Zonages | null {
   const d = zonagesDep.get(c.dep);
   if (!d) return null;
@@ -2054,6 +2079,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     europe: europe(c),
     installations: installations(c),
     lieux: lieux(c),
+    hebergements: hebergements(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

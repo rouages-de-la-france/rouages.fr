@@ -1,0 +1,48 @@
+---
+/**
+ * Les hébergements touristiques classés de la commune, d'après la liste
+ * qu'Atout France publie : le classement est volontaire, et un hébergement
+ * non classé n'y figure pas — la page le dit. Voir `scripts/hebergements-emettre.ts`.
+ */
+import type { Hebergements } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  h: Hebergements;
+}
+const { h } = Astro.props;
+const MONTRES = 20;
+const entier = (v: number) => v.toLocaleString('fr-FR');
+const date = (d: string) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
+// Par type : combien, et combien de places.
+const parType = [...new Set(h.liste.map((x) => x.type))].map((t) => {
+  const l = h.liste.filter((x) => x.type === t);
+  return { type: t, n: l.length, places: l.reduce((s, x) => s + (x.capacite ?? 0), 0) };
+});
+const places = h.liste.reduce((s, x) => s + (x.capacite ?? 0), 0);
+// Un nom commercial en capitales se lit mal : on garde la casse quand le fichier en a une.
+const nom = (n: string) => (n === n.toUpperCase() ? n.toLowerCase().replace(/(^|[\s'’(-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : n);
+---
+{h.liste.length === 0 ? (
+  <p class="mesure">Aucun hébergement de la commune ne figure sur la liste des hébergements classés.</p>
+) : (
+  <>
+    <p class="mesure">
+      {`${entier(h.liste.length)} hébergement${h.liste.length > 1 ? 's' : ''} classé${h.liste.length > 1 ? 's' : ''}, pour ${entier(places)} personnes : ` +
+        parType.map((t) => `${t.type.toLowerCase()}${t.n > 1 ? ` (${t.n})` : ''}, ${entier(t.places)} places`).join(' ; ') + '.'}
+    </p>
+    <ul class="c-structures">
+      {h.liste.slice(0, MONTRES).map((x) => (
+        <li>{`${nom(x.nom)} — ${x.type.toLowerCase()}${x.classement && x.classement !== '-' ? `, ${x.classement}` : ''}${x.capacite ? `, ${entier(x.capacite)} personnes` : ''}${x.date ? ` (classé en ${date(x.date)})` : ''}`}</li>
+      ))}
+    </ul>
+    {h.liste.length > MONTRES && <p class="p-strate">{`Et ${h.liste.length - MONTRES} autres.`}</p>}
+  </>
+)}
+<p class="p-strate">
+  Le classement est volontaire : un hôtel, un camping ou une résidence qui ne l’a pas demandé n’est pas sur la liste. Elle
+  ne couvre que les hôtels de tourisme, les campings, les résidences de tourisme, les villages de vacances, les parcs
+  résidentiels de loisirs et les auberges collectives : ni les meublés de tourisme, ni les chambres d’hôtes.
+</p>
+<p class="p-source-territoire">
+  {`D’après la liste des hébergements touristiques classés publiée par Atout France (${h.maj}) : nom commercial, type, classement, date de classement et capacité, tels que publiés.`}
+</p>
