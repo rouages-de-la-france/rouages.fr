@@ -19,6 +19,27 @@ export interface Filiere {
    * sans doublon ; calculées avec la carte (`src/modele/reseau.ts`).
    */
   sources?: { type: string; titre: string; url: string }[];
+  /**
+   * La décomposition du prix au détail que publie l'Observatoire de la formation des prix et des
+   * marges, pour la page de la filière : les montants tels que les fiches des processus les citent
+   * (déjà recoupés contre le rapport), l'année, et la source.
+   */
+  prix?: PrixDecompose[];
+}
+
+export interface PrixDecompose {
+  produit: string;
+  /** « le kilo », « le litre ». */
+  unite: string;
+  /** Où ce prix est relevé : « en grande surface », « tous circuits de vente confondus ». */
+  ou: string;
+  annee: number;
+  /** Le prix moyen publié, toutes taxes comprises, en euros. */
+  total: number;
+  /** Les parts, dans l'ordre de la chaîne : [libellé, euros]. */
+  parts: [string, number][];
+  /** L'identifiant de la source dans `contenu/sources.yaml`. */
+  source: string;
 }
 
 export const FILIERES: Filiere[] = [
@@ -39,18 +60,30 @@ export const FILIERES: Filiere[] = [
     libelle: 'Du blé au pain',
     resume: 'Du champ au comptoir : qui intervient entre le blé et la baguette, et comment se décompose le prix d’un kilo de baguette.',
     processus: ['du-ble-a-la-baguette'],
+    prix: [
+      { produit: 'La baguette', unite: 'le kilo', ou: 'tous circuits de vente confondus', annee: 2025, total: 4.05, parts: [['Blé', 0.24], ['Marge brute de la meunerie', 0.27], ['Marge brute en aval (boulangerie, distribution)', 3.33], ['TVA', 0.21]], source: 'ofpm-rapport-2026-pain' },
+    ],
   },
   {
     id: 'lait',
     libelle: 'Le lait',
     resume: 'De l’étable au rayon : la laiterie, la grande surface, et la décomposition du prix du lait, du yaourt et de l’emmental.',
     processus: ['du-lait-au-litre-de-lait'],
+    prix: [
+      { produit: 'Le lait demi-écrémé UHT', unite: 'le litre', ou: 'en grande surface', annee: 2025, total: 1.11, parts: [['Matière première', 0.31], ['Marge brute de l’industrie', 0.43], ['Marge brute de la grande surface', 0.31], ['TVA', 0.06]], source: 'ofpm-rapport-2026-lait' },
+      { produit: 'Le yaourt nature', unite: 'le kilo', ou: 'en grande surface', annee: 2025, total: 2.36, parts: [['Matière première', 0.3], ['Marge brute de l’industrie', 1.15], ['Marge brute de la grande surface', 0.78], ['TVA', 0.12]], source: 'ofpm-rapport-2026-lait' },
+      { produit: 'L’emmental', unite: 'le kilo', ou: 'en grande surface', annee: 2025, total: 9.12, parts: [['Matière première', 4.43], ['Marge brute de l’industrie', 1.59], ['Marge brute de la grande surface', 2.63], ['TVA', 0.48]], source: 'ofpm-rapport-2026-lait' },
+    ],
   },
   {
     id: 'viande',
     libelle: 'La viande',
     resume: 'De l’élevage au rayon : qui intervient entre l’animal et la barquette, et comment se décompose le prix du steak haché et du jambon cuit.',
     processus: ['de-l-elevage-a-la-viande-en-rayon'],
+    prix: [
+      { produit: 'La viande de bœuf hachée (15 % de matière grasse)', unite: 'le kilo', ou: 'en grande surface', annee: 2025, total: 14.38, parts: [['Matière première', 8.2], ['Marge brute de l’abattage-découpe', 2.48], ['Marge brute de la grande surface', 2.94], ['TVA', 0.75]], source: 'ofpm-rapport-2026-viande' },
+      { produit: 'Le jambon cuit', unite: 'le kilo', ou: 'en grande surface', annee: 2025, total: 13.6, parts: [['Matière première', 4.4], ['Marge brute de l’abattage-découpe', 1.42], ['Marge brute de la charcuterie', 4.89], ['Marge brute de la grande surface', 2.18], ['TVA', 0.71]], source: 'ofpm-rapport-2026-viande' },
+    ],
   },
   {
     id: 'pac',

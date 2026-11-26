@@ -356,7 +356,12 @@ function demarrer(reseau: Reseau) {
     const blocs: HTMLElement[] = [];
     for (const f of reseau.filieres ?? []) {
       if (filiere && f.id !== filiere) continue;
-      blocs.push(ligne('h3', 'p-titre-section', f.libelle), glose('p', 'p-intro', f.resume));
+      const page = document.createElement('p');
+      const lien = document.createElement('a');
+      lien.href = `/economie/${f.id}`;
+      lien.textContent = f.prix?.length ? 'La page de la filière, et ce qui compose le prix' : 'La page de la filière';
+      page.append(lien);
+      blocs.push(ligne('h3', 'p-titre-section', f.libelle), glose('p', 'p-intro', f.resume), page);
       const ul = document.createElement('ul');
       ul.className = 'p-procedures';
       const sources = new Map<string, string>();

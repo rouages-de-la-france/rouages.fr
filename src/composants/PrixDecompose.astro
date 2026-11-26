@@ -1,0 +1,123 @@
+---
+/**
+ * La décomposition d'un prix au détail, d'après l'Observatoire de la formation
+ * des prix et des marges : une barre par produit, chaque part à sa largeur.
+ *
+ * La couleur suit le rôle de la part, pas sa place : la matière première en
+ * bleu, la transformation en orange, l'aval et la distribution en aqua, la TVA
+ * — un impôt, pas un maillon — en gris. Trois teintes seulement : ce sont les
+ * seules qui se distinguent toutes deux à deux, en vision normale comme
+ * daltonienne, en clair comme en sombre (validées le 26 novembre 2026). Une
+ * seconde transformation — la charcuterie après l'abattage — garde l'orange
+ * et prend des hachures. Chaque barre a sa légende chiffrée et son tableau :
+ * l'identité ne repose jamais sur la couleur seule.
+ */
+import type { PrixDecompose } from '../modele/filieres.ts';
+
+interface Props {
+  prix: PrixDecompose[];
+}
+const { prix } = Astro.props;
+
+type Role = 'matiere' | 'transformation' | 'transformation2' | 'aval' | 'tva';
+const role = (libelle: string, vus: Set<Role>): Role => {
+  if (/^TVA$/.test(libelle)) return 'tva';
+  if (/^(Blé|Matière)/.test(libelle)) return 'matiere';
+  if (/grande surface|aval/i.test(libelle)) return 'aval';
+  return vus.has('transformation') ? 'transformation2' : 'transformation';
+};
+const euros = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const pc = (v: number) => `${Math.round(v * 100).toLocaleString('fr-FR')} %`;
+
+const L = 600;
+const H = 26;
+const ECART = 2;
+const lignes = prix.map((p) => {
+  const vus = new Set<Role>();
+  const somme = p.parts.reduce((s, [, v]) => s + v, 0);
+  let x = 0;
+  const segments = p.parts.map(([libelle, v], i) => {
+    const r = role(libelle, vus);
+    vus.add(r);
+    const l = (v / somme) * L;
+    const seg = { libelle, v, part: v / p.total, r, x, l: Math.max(1, l - (i < p.parts.length - 1 ? ECART : 0)) };
+    x += l;
+    return seg;
+  });
+  return { ...p, somme: Math.round(somme * 100) / 100, segments };
+});
+const ecarts = lignes.filter((p) => Math.abs(p.somme - p.total) >= 0.005);
+---
+<div class="prix-dec">
+  {lignes.map((p) => (
+    <figure class="prix-dec-figure">
+      <figcaption class="prix-dec-titre">{`${p.produit} : ${euros(p.total)} ${p.unite} ${p.ou}, en ${p.annee}`}</figcaption>
+      <svg viewBox={`0 0 ${L} ${H}`} class="prix-dec-svg" role="img" aria-label={`${p.produit}, ${euros(p.total)} : ` + p.segments.map((s) => `${s.libelle} ${euros(s.v)}`).join(', ')}>
+        <defs>
+          <pattern id={`hachures-${p.produit.length}-${p.total}`} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+            <rect width="6" height="6" class="prix-dec-r--transformation" />
+            <line x1="0" y1="0" x2="0" y2="6" class="prix-dec-hachure" />
+          </pattern>
+        </defs>
+        {p.segments.map((s, i) => (
+          <rect
+            x={s.x.toFixed(1)}
+            y="0"
+            width={s.l.toFixed(1)}
+            height={H}
+            rx={i === 0 || i === p.segments.length - 1 ? 4 : 0}
+            class={`prix-dec-r--${s.r}`}
+            fill={s.r === 'transformation2' ? `url(#hachures-${p.produit.length}-${p.total})` : undefined}
+          >
+            <title>{`${s.libelle} : ${euros(s.v)}, ${pc(s.part)} du prix`}</title>
+          </rect>
+        ))}
+      </svg>
+      <ul class="prix-dec-legende">
+        {p.segments.map((s) => (
+          <li><span class={`prix-dec-cle prix-dec-cle--${s.r}`} aria-hidden="true"></span>{`${s.libelle} : ${euros(s.v)} (${pc(s.part)})`}</li>
+        ))}
+      </ul>
+    </figure>
+  ))}
+  <details class="p-service-groupe">
+    <summary class="p-service-famille">Les chiffres, produit par produit</summary>
+    <div class="cpt-defile" tabindex="0" role="region" aria-label="La décomposition des prix — le tableau défile sur les petits écrans">
+      <table class="cpt-tableau">
+        <thead><tr><th scope="col">Produit</th><th scope="col">Part</th><th scope="col">Euros</th><th scope="col">Du prix</th></tr></thead>
+        <tbody>
+          {lignes.flatMap((p) => p.segments.map((s, i) => (
+            <tr>{i === 0 ? <th scope="row" rowspan={p.segments.length}>{`${p.produit} (${euros(p.total)} ${p.unite}, ${p.annee})`}</th> : null}<td>{s.libelle}</td><td>{euros(s.v)}</td><td>{pc(s.part)}</td></tr>
+          )))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+  {ecarts.length > 0 && (
+    <p class="mesure">
+      {`Les parts sont publiées arrondies au centime : ${ecarts.map((p) => `${p.produit.charAt(0).toLowerCase()}${p.produit.slice(1)}, ${euros(p.somme)} au lieu de ${euros(p.total)}`).join(' ; ')}.`}
+    </p>
+  )}
+</div>
+
+<style>
+  .prix-dec { --pd-matiere: #257de0; --pd-transformation: #f47230; --pd-aval: #00b894; --pd-tva: #9a958c; --pd-hachure: #ffffff; }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light'])) .prix-dec { --pd-matiere: #338ced; --pd-transformation: #e76624; --pd-aval: #00a888; --pd-tva: #6f6a62; --pd-hachure: #1d2024; }
+  }
+  .prix-dec-figure { margin: 0 0 1.4rem; }
+  .prix-dec-titre { font-weight: 600; margin-bottom: .4rem; }
+  .prix-dec-svg { width: 100%; max-width: 40rem; height: auto; display: block; }
+  .prix-dec-r--matiere { fill: var(--pd-matiere); }
+  .prix-dec-r--transformation { fill: var(--pd-transformation); }
+  .prix-dec-r--aval { fill: var(--pd-aval); }
+  .prix-dec-r--tva { fill: var(--pd-tva); }
+  .prix-dec-hachure { stroke: var(--pd-hachure); stroke-width: 2.5; }
+  .prix-dec-legende { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; font-size: .9rem; }
+  .prix-dec-cle { display: inline-block; width: .9rem; height: .9rem; border-radius: 3px; margin-right: .4rem; vertical-align: -.1rem; }
+  .prix-dec-cle--matiere { background: var(--pd-matiere); }
+  .prix-dec-cle--transformation { background: var(--pd-transformation); }
+  .prix-dec-cle--transformation2 { background: repeating-linear-gradient(45deg, var(--pd-transformation) 0 3px, var(--pd-hachure) 3px 5px); }
+  .prix-dec-cle--aval { background: var(--pd-aval); }
+  .prix-dec-cle--tva { background: var(--pd-tva); }
+</style>
