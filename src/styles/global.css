@@ -1605,6 +1605,12 @@ a.p-sommaire-lien { text-decoration: none; }
  * ------------------------------------------------------------------ */
 
 .b-tuiles { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .7rem; }
+/* L’onglet « Se loger, construire » en bref (src/composants/commune/LogementBref.astro). */
+.logement-bref a { display: block; background: var(--fond-doux); border-radius: var(--rayon); padding: .6rem .8rem; text-decoration: none; color: var(--encre); height: 100%; }
+.logement-bref a:hover, .logement-bref a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.logement-bref-nom { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--encre-douce); }
+.logement-bref-valeur { display: block; font-size: 1.35rem; font-weight: 650; letter-spacing: -0.02em; margin: .1rem 0; }
+.logement-bref-detail { display: block; font-size: .82rem; color: var(--encre-douce); }
 .b-tuile { border: 1px solid var(--trait); border-radius: var(--rayon); background: var(--fond-carte); padding: .7rem .9rem; display: grid; gap: .15rem; }
 .b-tuile-titre { font-size: .8rem; color: var(--encre-douce); }
 .b-tuile-nombre { font-size: 1.6rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }

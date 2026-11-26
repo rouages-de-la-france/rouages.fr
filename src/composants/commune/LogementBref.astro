@@ -1,0 +1,43 @@
+---
+/**
+ * L'onglet « Se loger, construire » en un coup d'œil : quelques chiffres
+ * déjà montrés plus bas, chacun avec son lien vers sa section, qui en donne
+ * la source et la méthode. Rien n'est calculé ici qui ne le soit déjà dans
+ * la section — c'est un sommaire, pas un indicateur de plus.
+ */
+import type { Immobilier, Loyers, Parc, Vacance } from '../../modele/fiche-vie.ts';
+import { finVentes } from '../../modele/periode-ventes.ts';
+
+interface Props {
+  parc: Parc | null;
+  immobilier: Immobilier | null;
+  loyers: Loyers | null;
+  vacance: Vacance | null;
+}
+const { parc, immobilier, loyers, vacance } = Astro.props;
+const entier = (v: number) => Math.round(v).toLocaleString('fr-FR');
+const pc = (v: number) => `${(Math.round(v * 1000) / 10).toLocaleString('fr-FR')} %`;
+const recent = parc?.commune?.[0] ?? null;
+const m = immobilier?.commune ?? null;
+const longue = vacance ? [...vacance.serie].reverse().find((s) => s.longue !== null && s.parc) : null;
+const tuiles = [
+  recent && recent[0] > 0 && { nom: 'Logements', valeur: entier(recent[0]), detail: `dont ${Math.round((Number(recent[2]) / Number(recent[0])) * 100).toLocaleString('fr-FR')} % de résidences secondaires, au recensement de ${parc!.millesimes[0]}`, ancre: '#logements' },
+  m?.prixMaison != null && { nom: 'Une maison', valeur: `${entier(m.m2Maison!)} €/m²`, detail: `prix médian sans terres ni bois, ventes jusqu’à ${finVentes(immobilier!.annees, immobilier!.fin)}`, ancre: '#logements' },
+  m?.m2Appartement != null && { nom: 'Un appartement', valeur: `${entier(m.m2Appartement)} €/m²`, detail: `prix médian, ventes jusqu’à ${finVentes(immobilier!.annees, immobilier!.fin)}`, ancre: '#logements' },
+  loyers?.appartement && { nom: 'Le loyer d’annonce', valeur: `${loyers.appartement.euros.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/m²`, detail: `un appartement type, charges comprises, carte des loyers ${loyers.millesime}`, ancre: '#loyers' },
+  longue && { nom: 'Vacants depuis plus de deux ans', valeur: pc(Number(longue.longue) / Number(longue.parc)), detail: `du parc privé, LOVAC ${longue.millesime}`, ancre: '#vacance' },
+].filter((x): x is { nom: string; valeur: string; detail: string; ancre: string } => !!x);
+---
+{tuiles.length >= 2 && (
+  <ul class="b-tuiles logement-bref">
+    {tuiles.map((t) => (
+      <li>
+        <a href={t.ancre}>
+          <span class="logement-bref-nom">{t.nom}</span>
+          <strong class="logement-bref-valeur">{t.valeur}</strong>
+          <span class="logement-bref-detail">{t.detail}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
