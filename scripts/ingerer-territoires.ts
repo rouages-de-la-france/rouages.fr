@@ -1171,6 +1171,16 @@ async function principal() {
   );
   if (culture) grise(`${ecrireCulture(SORTIE, culture)} départements de lieux culturels écrits.`);
 
+  // Les sites de baignade et leur classement (rapportage de la saison balnéaire, ministère chargé de la santé).
+  const { collecterBaignade, ecrireBaignade } = await import('./baignade-emettre.ts');
+  const baignade = await tenter('Baignade', () => collecterBaignade(lireJson, enCache('Saison balnéaire — sites et classements (1 Mo)'), CACHE, grise));
+  if (baignade) grise(`${ecrireBaignade(SORTIE, baignade)} départements de baignade écrits.`);
+
+  // Les hébergements touristiques classés (Atout France), retrouvés par le code postal et le nom.
+  const { collecterHebergements, ecrireHebergements } = await import('./hebergements-emettre.ts');
+  const hebergements = await tenter('Hébergements classés', () => collecterHebergements(enCache('Atout France — hébergements classés (4 Mo)'), CACHE, grise));
+  if (hebergements) grise(`${ecrireHebergements(SORTIE, hebergements)} départements d’hébergements écrits.`);
+
   const { collecterLieux, ecrireLieux } = await import('./lieux-emettre.ts');
   const lieux = await tenter('Lieux à voir', () =>
     collecterLieux(lireJson, enCache('DATAtourisme — lieux, par région (400 Mo)'), CACHE, grise),

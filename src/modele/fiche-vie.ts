@@ -66,6 +66,8 @@ type IpsDep = {
   maj: string;
   rentrees: Record<'école' | 'collège', string>;
   references: Record<'école' | 'collège', Reference> | null;
+  /** Les indicateurs du brevet, par UAI (`scripts/ips-emettre.ts`) ; absents des fichiers d'avant le 26 novembre 2026. */
+  brevet?: { session: string; u: Record<string, [number | null, number | null, number | null, number | null, number | null, number | null]> };
   c: Record<string, [string, string, 'public' | 'privé', number, 'école' | 'collège'][]>;
 };
 type DelinquanceDep = {
@@ -242,6 +244,10 @@ const zonagesDep = parDepartement<ZonagesDep>('zonages');
 type LieuDep = string | [string, string];
 type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[]]> };
 const lieuxDep = parDepartement<LieuxDep>('lieux');
+type HebergementsDep = { maj: string; c: Record<string, [string, string, string, string, number | null][]> };
+const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
+type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
+const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
 /* ------------------------------------------------------------------ *
  * Les formes, telles que la page les affiche.
@@ -459,9 +465,28 @@ export interface Etablissement {
   type: 'école' | 'collège';
 }
 
+/** Le brevet d'un collège, série générale, d'après les indicateurs de valeur ajoutée de la DEPP. */
+export interface BrevetCollege {
+  uai: string;
+  nom: string;
+  secteur: 'public' | 'privé';
+  candidats: number | null;
+  /** Taux de réussite, en %. */
+  taux: number | null;
+  /** Sa valeur ajoutée, en points : constaté moins attendu ; null sous quarante candidats. */
+  vaTaux: number | null;
+  /** Note moyenne aux épreuves écrites, sur 20. */
+  note: number | null;
+  vaNote: number | null;
+  /** Taux d'accès de la sixième à la troisième, en %. */
+  acces: number | null;
+}
+
 export interface Ecoles {
   rentrees: Record<'école' | 'collège', string>;
   etablissements: Etablissement[];
+  /** La session du brevet, et ses collèges de la commune. */
+  brevet: { session: string; colleges: BrevetCollege[] } | null;
   references: Record<'école' | 'collège', Reference> | null;
   maj: string;
 }
@@ -852,6 +877,36 @@ export interface Lieu {
   fiche: string | null;
 }
 
+/** Un hébergement touristique classé, d'après Atout France (`scripts/hebergements-emettre.ts`). */
+export interface Hebergement {
+  nom: string;
+  type: string;
+  classement: string;
+  /** Date du classement, ISO ; vide si le fichier ne la donne pas. */
+  date: string;
+  capacite: number | null;
+}
+
+/** Un site de baignade et son classement, d'après le rapportage de la saison balnéaire (`scripts/baignade-emettre.ts`). */
+export interface SiteBaignade {
+  nom: string;
+  typeEau: string;
+  /** Le code du ministère : 1 excellent … 7 ; vide s'il n'y en a pas de publié. */
+  classement: string;
+  profil: string | null;
+}
+
+export interface Baignade {
+  saison: number;
+  sites: SiteBaignade[];
+  maj: string;
+}
+
+export interface Hebergements {
+  liste: Hebergement[];
+  maj: string;
+}
+
 export interface Lieux {
   patrimoine: Lieu[];
   nature: Lieu[];
@@ -1024,6 +1079,8 @@ export interface ComplementsVie {
   europe: Europe | null;
   installations: Installations | null;
   lieux: Lieux | null;
+  hebergements: Hebergements | null;
+  baignade: Baignade | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1240,6 +1297,17 @@ function ecoles(c: CommuneFiche): Ecoles | null {
   return {
     rentrees: d.rentrees,
     etablissements: x.map(([uai, nom, secteur, ips, type]) => ({ uai, nom, secteur, ips, type })),
+    brevet: d.brevet
+      ? {
+          session: d.brevet.session,
+          colleges: x
+            .filter(([uai, , , , type]) => type === 'collège' && d.brevet!.u[uai])
+            .map(([uai, nom, secteur]) => {
+              const [candidats, taux, vaTaux, note, vaNote, acces] = d.brevet!.u[uai];
+              return { uai, nom, secteur, candidats, taux, vaTaux, note, vaNote, acces };
+            }),
+        }
+      : null,
     references: d.references,
     maj: d.maj,
   };
@@ -1623,6 +1691,20 @@ function lieux(c: CommuneFiche): Lieux | null {
     typeof x === 'string' ? { nom: x, fiche: null } : { nom: x[0], fiche: x[1] ? `https://data.datatourisme.fr/${x[1]}` : null };
   const [patrimoine, nature, itineraires] = d.c[c.code] ?? [[], [], []];
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
+}
+
+function baignade(c: CommuneFiche): Baignade | null {
+  const d = baignadeDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x?.length) return null;
+  return { saison: d.saison, sites: x.map(([nom, typeEau, classement, profil]) => ({ nom, typeEau, classement, profil: profil || null })), maj: d.maj };
+}
+
+function hebergements(c: CommuneFiche): Hebergements | null {
+  const d = hebergementsDep.get(c.dep);
+  if (!d) return null;
+  const x = d.c[c.code] ?? [];
+  return { liste: x.map(([nom, type, classement, date, capacite]) => ({ nom, type, classement, date, capacite })), maj: d.maj };
 }
 
 function zonages(c: CommuneFiche): Zonages | null {
@@ -2022,6 +2104,8 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     europe: europe(c),
     installations: installations(c),
     lieux: lieux(c),
+    hebergements: hebergements(c),
+    baignade: baignade(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

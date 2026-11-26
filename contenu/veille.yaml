@@ -1150,6 +1150,38 @@ surveillances:
     url: "https://francetravail.io/produits-partages/catalogue/marche-travail"
     lien: od-francetravail
 
+  - id: insee-bdm
+    nom: "INSEE — banque de données macro-économiques"
+    alimente: "la révision du loyer (IRL), la tendance des prix des logements anciens et des loyers en place"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/001515333?lastNObservations=1"
+    lien: od-insee-bdm
+
+  - id: ivac
+    nom: "Éducation nationale — indicateurs de valeur ajoutée des collèges"
+    alimente: "le brevet des collèges de la commune et sa valeur ajoutée"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-indicateurs-valeur-ajoutee-colleges"
+    lien: od-ivac
+
+  - id: atout-france-hebergements
+    nom: "Atout France — hébergements touristiques classés"
+    alimente: "les hébergements classés de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.classement.atout-france.fr/static/exportHebergementsClasses/hebergements_classes.csv"
+    lien: od-atout-france-hebergements
+
+  - id: baignade
+    nom: "Ministère chargé de la santé — rapportage de la saison balnéaire"
+    alimente: "les sites de baignade de la commune et leur classement"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/api/1/datasets/57fce28ac751df0e4079df72/"
+    lien: od-baignade
+
 decouverte:
   mots_cles:
     - "intercommunalité compétences"

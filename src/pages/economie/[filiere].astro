@@ -1,0 +1,59 @@
+---
+/**
+ * La page d'une filière de la carte de l'économie : ses circuits, la
+ * décomposition du prix quand l'Observatoire la publie, et toutes ses sources.
+ * Les filières et leurs chiffres : `src/modele/filieres.ts`.
+ */
+import Base from '../../layouts/Base.astro';
+import Glose from '../../composants/Glose.astro';
+import PrixDecompose from '../../composants/PrixDecompose.astro';
+import { construireReseau } from '../../modele/reseau.ts';
+import type { Filiere } from '../../modele/filieres.ts';
+
+export function getStaticPaths() {
+  const r = construireReseau(undefined, { vue: 'economie' });
+  return (r.filieres ?? []).map((f) => ({ params: { filiere: f.id }, props: { f } }));
+}
+interface Props {
+  f: Filiere;
+}
+const { f } = Astro.props;
+const reseau = construireReseau(undefined, { vue: 'economie' });
+const circuits = f.processus.map((id) => reseau.noeuds.find((n) => n.id === id)).filter((n) => !!n);
+const citees = f.sources ?? [];
+---
+<Base titre={f.libelle} description={f.resume} section="fonctionnement" sousPage="economie">
+  <div class="page page--etroite">
+    <p class="badge"><a href="/economie">Les rouages de l’économie</a></p>
+    <h1>{f.libelle}</h1>
+    <p class="resume"><Glose texte={f.resume} /></p>
+    <p class="mesure"><a href={`/economie?filiere=${f.id}`}>Voir la filière sur la carte</a>{', acteur par acteur.'}</p>
+
+    <h2 class="badge">{circuits.length > 1 ? 'Les circuits' : 'Le circuit'}</h2>
+    <ul class="accueil-themes">
+      {circuits.map((n) => (
+        <li><a href={`/n/${n!.id}`}><Glose texte={n!.nom} /></a>{' — '}<Glose texte={n!.resume} /></li>
+      ))}
+    </ul>
+
+    {f.prix && f.prix.length > 0 && (
+      <>
+        <h2 class="badge">Ce qui compose le prix</h2>
+        <p class="mesure">
+          Le prix moyen payé en caisse, et ce qui en revient à chaque maillon, tel que l’Observatoire de la formation des
+          prix et des marges le publie. Une marge brute n’est pas un bénéfice : elle doit couvrir les coûts de celui qui
+          la perçoit — fabriquer, transformer, vendre, dont l’énergie et les salaires.
+        </p>
+        <PrixDecompose prix={f.prix} />
+      </>
+    )}
+
+    <h2 class="badge">Sources</h2>
+    <p class="mesure">{`Toutes celles que citent ${circuits.length > 1 ? 'ces circuits' : 'ce circuit'}, leurs étapes et leurs leviers.`}</p>
+    <ul class="mesure b-sources">
+      {citees.map((s) => (
+        <li><a href={s.url} target="_blank" rel="noopener">{s.titre}</a></li>
+      ))}
+    </ul>
+  </div>
+</Base>

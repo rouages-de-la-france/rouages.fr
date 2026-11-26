@@ -124,7 +124,7 @@ const parEchelon = reseau.filieres ? [] : reseau.carte.colonnes.map((c) => ({
     </p>
     {parFiliere.map((f) => (
       <section>
-        <h3 class="badge">{f.libelle}</h3>
+        <h3 class="badge"><a href={`/economie/${f.id}`}>{f.libelle}</a></h3>
         <p><Glose texte={f.resume} /></p>
         <ul>
           {f.noeuds.map((n) => (

@@ -1,0 +1,47 @@
+---
+/**
+ * Les sites de baignade de la commune et leur classement, d'après le
+ * contrôle sanitaire des agences régionales de santé — voir
+ * `scripts/baignade-emettre.ts`, et la légende des codes qui y est sourcée.
+ */
+import type { Baignade } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  b: Baignade;
+}
+const { b } = Astro.props;
+const CLASSEMENTS: Record<string, string> = {
+  '1': 'excellent',
+  '2': 'bon',
+  '3': 'suffisant',
+  '4': 'insuffisant',
+  '5': 'insuffisance de prélèvements',
+  '6': 'nouvelle baignade',
+  '7': 'changement qui affecte la qualité de l’eau',
+};
+// Un nom en capitales se lit mal : chaque mot reprend sa majuscule, sauf les articles et les prépositions.
+const PETITS = new Set(['de', 'du', 'des', 'la', 'le', 'les', 'et', 'à', 'au', 'aux', 'en', 'sur', 'sous', "d'", "l'"]);
+const nom = (n: string) =>
+  n !== n.toUpperCase()
+    ? n
+    : n
+        .toLowerCase()
+        .split(' ')
+        .map((m, i) => (i > 0 && PETITS.has(m) ? m : m.replace(/^(d'|l')?(\p{L})/u, (_, a = '', c) => (i > 0 && a ? a : a.toUpperCase()) + c.toUpperCase())))
+        .join(' ');
+---
+<ul class="c-structures">
+  {b.sites.map((x) => (
+    <li>
+      {`${nom(x.nom)}${x.typeEau ? ` (${x.typeEau.toLowerCase()})` : ''} — `}
+      {x.classement && CLASSEMENTS[x.classement] ? <strong>{CLASSEMENTS[x.classement]}</strong> : 'sans classement publié pour cette saison'}
+      {x.profil && <>{' · '}<a href={x.profil} target="_blank" rel="noopener">son profil de baignade</a></>}
+    </li>
+  ))}
+</ul>
+<p class="p-strate">
+  {`Le classement de la saison ${b.saison}, établi par l’agence régionale de santé d’après le contrôle sanitaire de l’eau — deux paramètres microbiologiques, Escherichia coli et entérocoques intestinaux —, au titre de la directive européenne sur les eaux de baignade. `}
+</p>
+<p class="p-source-territoire">
+  {`D’après les données de rapportage de la saison balnéaire du ministère chargé de la santé (${b.maj}).`}
+</p>

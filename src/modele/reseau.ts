@@ -115,7 +115,10 @@ export interface Reseau {
     colonnes: { echelon: Echelon; libelle: string; x: number; largeur: number; haut: number; bas: number; filiere?: string }[];
     /** Les boîtes : chaque entité contient ses organes. */
     boites: BoiteCarte[];
-    /** Les positions des acteurs, quand elles ne sont pas portées par les nœuds (carte d'une filière). */
+    /**
+     * Les positions des acteurs, quand elles ne sont pas portées par les nœuds (carte de l'économie) :
+     * la clé est l'identifiant, ou « identifiant#processus » pour un acteur dessiné dans chaque circuit.
+     */
     positions?: Record<string, [number, number]>;
   };
   /** Sur la carte de l'économie : une carte par filière, disposée pour elle seule. */
@@ -354,8 +357,6 @@ function restreindre(g: Graphe, r: Reseau, vue: Vue): Reseau {
   }
   if (vue === 'economie') {
     const carte = disposerEconomie(g, noeuds);
-    for (const n of noeuds.values()) if (carte.positions?.[n.id]) [n.x, n.y] = carte.positions[n.id];
-    delete carte.positions;
     const cartesFilieres = Object.fromEntries(FILIERES.map((f) => [f.id, disposerEconomie(g, noeuds, f.id)]));
     // Les sources d'une filière : celles de ses processus, de leurs étapes et de leurs leviers.
     const filieres = FILIERES.map((f) => {
@@ -398,10 +399,18 @@ function disposerEconomie(g: Graphe, noeuds: Map<string, Noeud>, seule?: string)
     return { p, f, suite, membres: [...new Set([...suite, ...leviers])] };
   });
 
+  // Un acteur privé est dessiné dans chaque circuit où il intervient : sa pastille y porte la clé
+  // « acteur#processus ». Un organisme public n'a qu'une pastille, dans sa colonne.
+  const estPublic = (id: string) => {
+    const e = noeuds.get(id)?.echelon;
+    return e !== 'prive' && e !== 'citoyen';
+  };
+  const instance = (id: string, processus: string) => (estPublic(id) ? id : `${id}#${processus}`);
+
   const paires = new Map<string, Arete>();
   for (const c of circuits) {
     for (let i = 0; i + 1 < c.suite.length; i++) {
-      const [de, vers] = [c.suite[i], c.suite[i + 1]];
+      const [de, vers] = [instance(c.suite[i], c.p.id), instance(c.suite[i + 1], c.p.id)];
       const cle = `${c.f}:${de}|${vers}`;
       const existante = paires.get(cle);
       if (existante) existante.poids++;
@@ -415,16 +424,16 @@ function disposerEconomie(g: Graphe, noeuds: Map<string, Noeud>, seule?: string)
   const acteurs = [...noeuds.values()].filter((n) => n.type === 'acteur' && (!seule || dansCircuits.has(n.id)));
   const publics = acteurs.filter((a) => a.echelon !== 'prive' && a.echelon !== 'citoyen');
   const places = new Set(publics.map((a) => a.id));
-  type Colonne = { echelon: Echelon; libelle: string; filiere?: string; boites: { libelle: string; membres: Noeud[] }[] };
+  type Colonne = { echelon: Echelon; libelle: string; filiere?: string; boites: { libelle: string; membres: Noeud[]; processus?: string }[] };
   const colonnes: Colonne[] = [
     { echelon: 'etat', libelle: 'Organismes publics', boites: [{ libelle: 'Ceux que les circuits croisent', membres: publics.sort((a, b) => b.degre - a.degre || a.nom.localeCompare(b.nom, 'fr')) }] },
   ];
   for (const f of FILIERES.filter((x) => !seule || x.id === seule)) {
     const boites: Colonne['boites'] = [];
     for (const c of circuits.filter((x) => x.f === f.id).sort((a, b) => f.processus.indexOf(a.p.id) - f.processus.indexOf(b.p.id))) {
-      const membres = c.membres.filter((id) => !places.has(id)).map((id) => noeuds.get(id)!).filter((n) => n.type === 'acteur');
+      const membres = c.membres.filter((id) => !estPublic(id)).map((id) => noeuds.get(id)!).filter((n) => n.type === 'acteur');
       for (const m of membres) places.add(m.id);
-      if (membres.length) boites.push({ libelle: c.p.nom, membres });
+      if (membres.length) boites.push({ libelle: c.p.nom, membres, processus: c.p.id });
     }
     if (boites.length) colonnes.push({ echelon: 'prive', libelle: f.libelle, filiere: f.id, boites });
   }
@@ -445,7 +454,7 @@ function disposerEconomie(g: Graphe, noeuds: Map<string, Noeud>, seule?: string)
       const haut = y;
       y += MARGE_BOITE + HAUTEUR_INTITULE;
       for (const m of b.membres) {
-        positions[m.id] = [Math.round(curseur + largeur / 2), Math.round(y + 17)];
+        positions[b.processus ? `${m.id}#${b.processus}` : m.id] = [Math.round(curseur + largeur / 2), Math.round(y + 17)];
         y += LIGNE;
       }
       y += MARGE_BOITE;

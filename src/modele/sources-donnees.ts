@@ -265,6 +265,24 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /rapportage de la saison balnéaire/i,
+    liens: [{ titre: 'Données de rapportage de la saison balnéaire (ministère chargé de la santé)', url: dg('57fce28ac751df0e4079df72') }],
+  },
+  {
+    motif: /hébergements touristiques classés/i,
+    liens: [
+      { titre: 'Hébergements touristiques classés en France (Atout France)', url: dg('59c36c6a88ee3826d5998a35') },
+      { titre: 'Le fichier, mis à jour chaque jour', url: 'https://data.classement.atout-france.fr/static/exportHebergementsClasses/hebergements_classes.csv' },
+    ],
+  },
+  {
+    motif: /valeur ajoutée des collèges/i,
+    liens: [
+      { titre: 'Indicateurs de valeur ajoutée des collèges (DEPP)', url: 'https://data.education.gouv.fr/explore/dataset/fr-en-indicateurs-valeur-ajoutee-colleges/' },
+      { titre: 'Guide méthodologique des IVAC, session 2025 (DEPP)', url: 'https://www.education.gouv.fr/sites/default/files/document/Depp_Guide_m%C3%A9thodologique_IVAC_2025.pdf-515492.pdf' },
+    ],
+  },
+  {
     motif: /Géo.DAE|défibrillateurs/i,
     liens: [{ titre: 'Géo’DAE, la base nationale des défibrillateurs', url: dg('61556e1e9d6adb2df86eb0fc') }],
   },
