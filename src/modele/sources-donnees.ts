@@ -265,6 +265,10 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /rapportage de la saison balnéaire/i,
+    liens: [{ titre: 'Données de rapportage de la saison balnéaire (ministère chargé de la santé)', url: dg('57fce28ac751df0e4079df72') }],
+  },
+  {
     motif: /hébergements touristiques classés/i,
     liens: [
       { titre: 'Hébergements touristiques classés en France (Atout France)', url: dg('59c36c6a88ee3826d5998a35') },

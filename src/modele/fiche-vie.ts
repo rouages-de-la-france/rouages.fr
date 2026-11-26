@@ -246,6 +246,8 @@ type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[
 const lieuxDep = parDepartement<LieuxDep>('lieux');
 type HebergementsDep = { maj: string; c: Record<string, [string, string, string, string, number | null][]> };
 const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
+type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
+const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
 /* ------------------------------------------------------------------ *
  * Les formes, telles que la page les affiche.
@@ -885,6 +887,21 @@ export interface Hebergement {
   capacite: number | null;
 }
 
+/** Un site de baignade et son classement, d'après le rapportage de la saison balnéaire (`scripts/baignade-emettre.ts`). */
+export interface SiteBaignade {
+  nom: string;
+  typeEau: string;
+  /** Le code du ministère : 1 excellent … 7 ; vide s'il n'y en a pas de publié. */
+  classement: string;
+  profil: string | null;
+}
+
+export interface Baignade {
+  saison: number;
+  sites: SiteBaignade[];
+  maj: string;
+}
+
 export interface Hebergements {
   liste: Hebergement[];
   maj: string;
@@ -1063,6 +1080,7 @@ export interface ComplementsVie {
   installations: Installations | null;
   lieux: Lieux | null;
   hebergements: Hebergements | null;
+  baignade: Baignade | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1675,6 +1693,13 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function baignade(c: CommuneFiche): Baignade | null {
+  const d = baignadeDep.get(c.dep);
+  const x = d?.c[c.code];
+  if (!d || !x?.length) return null;
+  return { saison: d.saison, sites: x.map(([nom, typeEau, classement, profil]) => ({ nom, typeEau, classement, profil: profil || null })), maj: d.maj };
+}
+
 function hebergements(c: CommuneFiche): Hebergements | null {
   const d = hebergementsDep.get(c.dep);
   if (!d) return null;
@@ -2080,6 +2105,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     installations: installations(c),
     lieux: lieux(c),
     hebergements: hebergements(c),
+    baignade: baignade(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),
