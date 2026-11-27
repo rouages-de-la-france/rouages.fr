@@ -1,0 +1,79 @@
+---
+/**
+ * Les toilettes publiques de la commune, d'après OpenStreetMap : une carte et
+ * une liste. Voir `scripts/toilettes-emettre.ts` — la source, sa licence
+ * (ODbL), et pourquoi il n'y en a pas d'officielle.
+ *
+ * La catégorie passe par la forme et par la couleur à la fois : un rond plein
+ * pour les gratuites, un carré pour les payantes, un triangle pour celles
+ * réservées à la clientèle, un rond creux quand OpenStreetMap ne le dit pas.
+ * Trois teintes, validées deux à deux en clair et en sombre ; la légende et la
+ * liste disent la même chose en mots.
+ */
+import { cadrerSurCommune, projectionSurCommune, type Anneau } from '../../modele/carte.ts';
+import type { Toilettes } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  t: Toilettes;
+  contour: Anneau[] | null;
+  nom: string;
+}
+const { t, contour, nom } = Astro.props;
+const W = 560;
+const H = 360;
+const LIBELLE = { gratuit: 'gratuite', payant: 'payante', clientele: 'réservée à la clientèle', inconnu: 'accès non précisé' } as const;
+const PLURIEL = { gratuit: 'gratuites', payant: 'payantes', clientele: 'réservées à la clientèle', inconnu: 'sans précision sur l’accès' } as const;
+const ORDRE = ['gratuit', 'payant', 'clientele', 'inconnu'] as const;
+const compte = ORDRE.map((a) => ({ a, n: t.liste.filter((x) => x.acces === a).length })).filter((x) => x.n > 0);
+const vue = contour ? cadrerSurCommune(contour, W, H) : null;
+const p = contour ? projectionSurCommune(contour, W, H) : null;
+const ecran = (x: number, y: number) => [((x * p!.k - p!.x0) * p!.s), ((-y - p!.y0) * p!.s)] as const;
+const lien = (o: string) => `https://www.openstreetmap.org/${({ n: 'node', w: 'way', r: 'relation' } as const)[o[0] as 'n' | 'w' | 'r']}/${o.slice(1)}`;
+const fauteuil = (f: string) => (f === 'yes' ? 'accessible en fauteuil' : f === 'limited' ? 'accès en fauteuil limité' : f === 'no' ? 'non accessible en fauteuil' : '');
+const details = (x: (typeof t.liste)[number]) =>
+  [LIBELLE[x.acces], fauteuil(x.fauteuil), x.langer === 1 ? 'table à langer' : '', x.horaires ? `horaires : ${x.horaires}` : ''].filter(Boolean).join(', ');
+---
+{t.liste.length === 0 ? (
+  <p class="mesure">OpenStreetMap ne recense aucune toilette publique dans la commune — ce qui ne veut pas dire qu’il n’y en a pas : la base est collaborative, et sa couverture inégale.</p>
+) : (
+  <>
+    <p class="mesure">
+      {`${t.liste.length} toilette${t.liste.length > 1 ? 's' : ''} recensée${t.liste.length > 1 ? 's' : ''} : ` + compte.map((c) => `${c.n} ${c.n > 1 ? PLURIEL[c.a] : LIBELLE[c.a]}`).join(', ') + '.'}
+    </p>
+    {vue && (
+      <figure class="wc-carte">
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Carte des toilettes publiques de ${nom} : ` + compte.map((c) => `${c.n} ${c.n > 1 ? PLURIEL[c.a] : LIBELLE[c.a]}`).join(', ') + '.'}>
+          <path class="wc-commune" d={vue(contour!)} />
+          {t.liste.map((x) => {
+            const [cx, cy] = ecran(x.x, x.y);
+            return x.acces === 'payant' ? (
+              <rect class="wc-pt wc-pt--payant" x={(cx - 6).toFixed(1)} y={(cy - 6).toFixed(1)} width="12" height="12" rx="2"><title>{details(x)}</title></rect>
+            ) : x.acces === 'clientele' ? (
+              <path class="wc-pt wc-pt--clientele" d={`M${cx.toFixed(1)} ${(cy - 8).toFixed(1)}l7 12h-14z`}><title>{details(x)}</title></path>
+            ) : (
+              <circle class={`wc-pt wc-pt--${x.acces}`} cx={cx.toFixed(1)} cy={cy.toFixed(1)} r="6.5"><title>{details(x)}</title></circle>
+            );
+          })}
+        </svg>
+        <figcaption class="wc-legende">
+          {compte.map((c) => (
+            <span><svg width="16" height="16" viewBox="-8 -8 16 16" aria-hidden="true">{c.a === 'payant' ? <rect class="wc-pt wc-pt--payant" x="-6" y="-6" width="12" height="12" rx="2" /> : c.a === 'clientele' ? <path class="wc-pt wc-pt--clientele" d="M0 -8l7 12h-14z" /> : <circle class={`wc-pt wc-pt--${c.a}`} r="6" />}</svg>{c.n > 1 ? PLURIEL[c.a] : LIBELLE[c.a]}</span>
+          ))}
+        </figcaption>
+      </figure>
+    )}
+    <ul class="c-structures">
+      {t.liste.map((x) => (
+        <li>{details(x).replace(/^./, (m) => m.toUpperCase())}{' · '}<a href={lien(x.osm)} target="_blank" rel="noopener">sa fiche OpenStreetMap</a></li>
+      ))}
+    </ul>
+  </>
+)}
+<p class="p-strate">
+  Aucune liste nationale officielle des toilettes publiques n’existe : quelques villes publient la leur. Ces points viennent
+  d’OpenStreetMap, une base collaborative que chacun peut compléter — une toilette absente ici peut simplement ne pas y
+  avoir été ajoutée. Celles dont l’accès est privé ne sont pas montrées.
+</p>
+<p class="p-source-territoire">
+  {`D’après OpenStreetMap (© les contributeurs d’OpenStreetMap, données sous licence ODbL), lu le ${t.maj}.`}
+</p>

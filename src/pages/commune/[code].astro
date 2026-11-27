@@ -130,6 +130,7 @@ import Installations from '../../composants/commune/Installations.astro';
 import Lieux from '../../composants/commune/Lieux.astro';
 import Hebergements from '../../composants/commune/Hebergements.astro';
 import Baignade from '../../composants/commune/Baignade.astro';
+import Toilettes from '../../composants/commune/Toilettes.astro';
 import LogementBref from '../../composants/commune/LogementBref.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
@@ -430,6 +431,7 @@ const sommaire: [string, string, unknown][] = [
   ['a-voir', 'À voir', vie.lieux],
   ['hebergements', 'Les hébergements classés', vie.hebergements],
   ['baignade', 'La baignade', vie.baignade],
+  ['toilettes', 'Les toilettes publiques', vie.toilettes],
   ['securite', 'La sécurité', vie.delinquance || vie.police],
   ['route', 'Les accidents de la route', vie.route],
   ['gares', 'Le train', vie.gares],
@@ -477,7 +479,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'quotidien',
     nom: 'Au quotidien',
-    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'reseaux', 'gares', 'transports', 'zfe', 'recharge', 'mobile', 'securite', 'route'],
+    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'toilettes', 'reseaux', 'gares', 'transports', 'zfe', 'recharge', 'mobile', 'securite', 'route'],
   },
   {
     id: 'environnement',
@@ -1335,6 +1337,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="a-voir">
         <h2 class="badge">À voir</h2>
         <Lieux l={vie.lieux} />
+      </section>
+    )}
+
+    {vie.toilettes && (
+      <section id="toilettes">
+        <h2 class="badge">Les toilettes publiques</h2>
+        <Toilettes t={vie.toilettes} contour={contourDe(commune)} nom={commune.nom} />
       </section>
     )}
 

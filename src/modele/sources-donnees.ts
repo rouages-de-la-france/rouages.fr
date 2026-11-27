@@ -265,6 +265,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /D’après OpenStreetMap/i,
+    liens: [
+      { titre: 'OpenStreetMap — les toilettes publiques (amenity=toilets)', url: 'https://wiki.openstreetmap.org/wiki/FR:Tag:amenity%3Dtoilets' },
+      { titre: 'La licence ODbL d’OpenStreetMap', url: 'https://www.openstreetmap.org/copyright/fr' },
+    ],
+  },
+  {
     motif: /rapportage de la saison balnéaire/i,
     liens: [{ titre: 'Données de rapportage de la saison balnéaire (ministère chargé de la santé)', url: dg('57fce28ac751df0e4079df72') }],
   },
