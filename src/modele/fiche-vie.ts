@@ -250,6 +250,10 @@ type ToilettesDep = { maj: string; c: Record<string, [number, number, 'gratuit' 
 const toilettesDep = parDepartement<ToilettesDep>('toilettes');
 type CarburantsDep = { maj: string; services: string[]; c: Record<string, [number, number, string, 0 | 1, 0 | 1, [string, number | null, string, '' | 't' | 'd', string][], number[], number][]> };
 const carburantsDep = parDepartement<CarburantsDep>('carburants');
+type BioDep = { maj: string; annee: number; anneeSurfaces: number; c: Record<string, { o: [number, number][]; a: [number, number, number, number]; p: [string, number][]; s: [number, number | null, number | null, number | null] | null; h: [number, number | null][] }> };
+const bioDep = parDepartement<BioDep>('bio');
+type CovoiturageDep = { maj: string; c: Record<string, [number, number][]> };
+const covoiturageDep = parDepartement<CovoiturageDep>('covoiturage');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -934,6 +938,24 @@ export interface Station {
   id: number;
 }
 
+/** L'agriculture biologique dans la commune, d'après l'Agence Bio (`scripts/bio-emettre.ts`) : des comptes, sans nom. */
+export interface Bio {
+  annee: number;
+  /** Les opérateurs de la dernière année, et par activité principale. */
+  operateurs: number;
+  production: number;
+  transformation: number;
+  distribution: number;
+  importation: number;
+  /** Les producteurs par production principale, du plus nombreux au moins nombreux. */
+  productions: { libelle: string; n: number }[];
+  /** Les opérateurs de chaque année depuis 2008 ; 0 pour une année où la commune n'en avait aucun. */
+  serie: { annees: number[]; valeurs: number[] };
+  /** Les surfaces de la dernière année, en hectares ; null sous le secret statistique. */
+  surfaces: { annee: number; exploitations: number; bio: number | null; certifiee: number | null; conversion: number | null } | null;
+  maj: string;
+}
+
 export interface Carburants {
   stations: Station[];
   /**
@@ -1040,6 +1062,11 @@ export interface Recharge {
   lieuxCovoiturage: number;
   places: number;
   dates: { irve: string; bnlc: string };
+  /**
+   * Les trajets de covoiturage par plateforme au départ de la commune, année par année, d'après le
+   * Registre de preuve de covoiturage (`scripts/covoiturage-emettre.ts`, ODbL) ; null sans le fichier.
+   */
+  trajets: { annees: number[]; valeurs: number[]; maj: string } | null;
   maj: string;
 }
 
@@ -1141,6 +1168,7 @@ export interface ComplementsVie {
   baignade: Baignade | null;
   toilettes: Toilettes | null;
   carburants: Carburants | null;
+  bio: Bio | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1788,6 +1816,30 @@ function medianesCarburants(dep: string, d: CarburantsDep): Record<string, { pri
   return sortie;
 }
 
+function bio(c: CommuneFiche): Bio | null {
+  const d = bioDep.get(c.dep);
+  if (!d) return null;
+  const x = d.c[c.code];
+  const debut = 2008;
+  const annees = Array.from({ length: d.annee - debut + 1 }, (_, i) => debut + i);
+  const par = new Map(x?.o ?? []);
+  const n = par.get(d.annee) ?? 0;
+  const [p, t, di, im] = x?.a ?? [0, 0, 0, 0];
+  const s = x?.s;
+  return {
+    annee: d.annee,
+    operateurs: n,
+    production: p,
+    transformation: t,
+    distribution: di,
+    importation: im,
+    productions: (x?.p ?? []).map(([libelle, k]) => ({ libelle, n: k })),
+    serie: { annees, valeurs: annees.map((a) => par.get(a) ?? 0) },
+    surfaces: s ? { annee: d.anneeSurfaces, exploitations: s[0], bio: s[1], certifiee: s[2], conversion: s[3] } : null,
+    maj: d.maj,
+  };
+}
+
 function toilettes(c: CommuneFiche): Toilettes | null {
   const d = toilettesDep.get(c.dep);
   if (!d) return null;
@@ -1866,7 +1918,10 @@ function recharge(c: CommuneFiche): Recharge | null {
   const d = rechargeDep.get(c.dep);
   if (!d) return null;
   const [stations, points, rapides, lieuxCovoiturage, places] = d.c[c.code] ?? [0, 0, 0, 0, 0];
-  return { stations, points, rapides, lieuxCovoiturage, places, dates: d.dates, maj: d.maj };
+  const cv = covoiturageDep.get(c.dep);
+  const t = cv?.c[c.code];
+  const trajets = cv && t?.length ? { annees: t.map(([a]) => a), valeurs: t.map(([, v]) => v), maj: cv.maj } : null;
+  return { stations, points, rapides, lieuxCovoiturage, places, dates: d.dates, trajets, maj: d.maj };
 }
 
 const taux = ([global, eaje, assistantesMaternelles, ecole, domicile]: Couverture): TauxCouverture => ({
@@ -2209,6 +2264,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     baignade: baignade(c),
     toilettes: toilettes(c),
     carburants: carburants(c),
+    bio: bio(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

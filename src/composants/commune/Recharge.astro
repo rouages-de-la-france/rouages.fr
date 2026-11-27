@@ -12,6 +12,9 @@ const { r } = Astro.props;
 const nf = (v: number) => v.toLocaleString('fr-FR');
 const pl = (n: number, un: string, plusieurs: string) => `${nf(n)} ${n > 1 ? plusieurs : un}`;
 const date = (d: string) => d.split('-').reverse().join('/');
+const t = r.trajets;
+const dernier = t ? t.valeurs[t.valeurs.length - 1] : 0;
+const avant = t && t.valeurs.length > 1 ? t.annees.slice(0, -1).map((a, i) => `${nf(t.valeurs[i])} en ${a}`).reverse().join(', ') : '';
 ---
 <ul class="c-structures">
   <li>
@@ -26,6 +29,14 @@ const date = (d: string) => d.split('-').reverse().join('/');
       : `${pl(r.lieuxCovoiturage, 'lieu de covoiturage', 'lieux de covoiturage')} — aire, parking relais ou arrêt d’autostop organisé` +
         (r.places > 0 ? `, ${pl(r.places, 'place déclarée', 'places déclarées')}.` : '.')}
   </li>
+  {t && (
+    <li>
+      {t.valeurs.every((v) => v === 0)
+        ? `Aucun trajet de covoiturage par plateforme enregistré au départ de la commune depuis ${t.annees[0]}.`
+        : `${dernier === 0 ? 'Aucun trajet' : pl(dernier, 'trajet', 'trajets')} de covoiturage par plateforme au départ de la commune en ${t.annees[t.annees.length - 1]}` +
+          (avant ? ` (${avant}).` : '.')}
+    </li>
+  )}
 </ul>
 <p class="p-strate">
   Un point de charge est une prise utilisable par une voiture à la fois ; une station en réunit plusieurs. Les bases
@@ -33,6 +44,13 @@ const date = (d: string) => d.split('-').reverse().join('/');
   commune ni adresse lisible&nbsp;: les nombres sont des minimums. Une borne réservée à la clientèle d’un commerce y
   figure si elle est déclarée.
 </p>
+{t && (
+  <p class="p-strate">
+    Un trajet de covoiturage est un couple conducteur-passager enregistré par une plateforme partenaire du registre de
+    preuve : le covoiturage organisé entre voisins ou collègues, sans plateforme, n’y est pas. D’après la fiche du jeu, ce
+    covoiturage par plateforme représente 4 % du covoiturage, selon l’enquête Mobilité des personnes de 2022.
+  </p>
+)}
 <p class="p-source-territoire">
   {`D’après la base nationale des infrastructures de recharge pour véhicules électriques consolidée par data.gouv (${date(r.dates.irve)}) et la base nationale des lieux de covoiturage du point d’accès national aux données de transport (${date(r.dates.bnlc)}).`}
 </p>

@@ -1181,6 +1181,11 @@ async function principal() {
   const hebergements = await tenter('Hébergements classés', () => collecterHebergements(enCache('Atout France — hébergements classés (4 Mo)'), CACHE, grise));
   if (hebergements) grise(`${ecrireHebergements(SORTIE, hebergements)} départements d’hébergements écrits.`);
 
+  // L'agriculture biologique (Agence Bio) : opérateurs et surfaces par commune, des comptes sans nom.
+  const { collecterBio, ecrireBio } = await import('./bio-emettre.ts');
+  const bio = await tenter('Agriculture biologique (Agence Bio)', () => collecterBio(lireJson, enCache('Agence Bio — opérateurs et surfaces par commune (180 Mo)'), CACHE, grise));
+  if (bio) grise(`${ecrireBio(SORTIE, bio)} départements d’agriculture biologique écrits.`);
+
   const { collecterLieux, ecrireLieux } = await import('./lieux-emettre.ts');
   const lieux = await tenter('Lieux à voir', () =>
     collecterLieux(lireJson, enCache('DATAtourisme — lieux, par région (400 Mo)'), CACHE, grise),
@@ -1208,6 +1213,11 @@ async function principal() {
     collecterRecharge(lireJson, enCache('IRVE et lieux de covoiturage (160 Mo)'), CACHE, grise),
   );
   if (recharge) grise(`${ecrireRecharge(SORTIE, recharge)} départements de recharge écrits.`);
+
+  // Les trajets de covoiturage par plateforme (registre de preuve), sous ODbL : fichiers à part.
+  const { collecterCovoiturage, ecrireCovoiturage } = await import('./covoiturage-emettre.ts');
+  const covoiturage = await tenter('Trajets de covoiturage', () => collecterCovoiturage(lireJson, enCache('Trajets de covoiturage par commune (8 Mo)'), CACHE, grise));
+  if (covoiturage) grise(`${ecrireCovoiturage(SORTIE, covoiturage)} départements de covoiturage écrits.`);
 
   const { collecterObjets, ecrireObjets } = await import('./objets-emettre.ts');
   const objets = await tenter('Objets protégés', () => collecterObjets(enCache('Palissy — objets protégés (365 Mo)'), CACHE, grise));

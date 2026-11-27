@@ -1190,6 +1190,24 @@ surveillances:
     url: "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2"
     lien: od-prix-carburants
 
+  - id: agence-bio-communes
+    nom: "Agence Bio — opérateurs et surfaces bio par commune"
+    alimente: "les opérateurs certifiés en agriculture biologique et les surfaces bio de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/api/1/datasets/61a6250d8660681353681fa8/"
+    lien: od-agence-bio-communes
+
+  # Calculé sur le Registre de preuve de covoiturage ; la fiche du jeu le déclare sous ODbL : fichiers à part.
+  - id: covoiturage-trajets
+    nom: "Tableau de bord des mobilités durables — trajets en covoiturage intermédié"
+    alimente: "les trajets de covoiturage par plateforme au départ de la commune"
+    type: disponibilite
+    licence: odbl
+    fichiers: ["dep/XX-covoiturage.json"]
+    url: "https://www.data.gouv.fr/api/1/datasets/69b9892671a02fb27d4bd716/"
+    lien: od-covoiturage-trajets
+
   # Aucune liste nationale officielle des toilettes publiques : OpenStreetMap est la seule
   # source qui couvre la France. Base collaborative, sous ODbL : les fichiers sont à part.
   - id: osm-toilettes

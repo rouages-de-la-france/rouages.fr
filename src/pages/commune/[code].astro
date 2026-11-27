@@ -132,6 +132,7 @@ import Hebergements from '../../composants/commune/Hebergements.astro';
 import Baignade from '../../composants/commune/Baignade.astro';
 import Toilettes from '../../composants/commune/Toilettes.astro';
 import Carburants from '../../composants/commune/Carburants.astro';
+import Bio from '../../composants/commune/Bio.astro';
 import LogementBref from '../../composants/commune/LogementBref.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
@@ -441,6 +442,7 @@ const sommaire: [string, string, unknown][] = [
   ['carburants', 'Les stations-service', vie.carburants],
   ['recharge', 'Recharge et covoiturage', vie.recharge],
   ['agriculture', 'L’agriculture', vie.agriculture],
+  ['bio', 'L’agriculture biologique', vie.bio],
   ['appellations', 'Les appellations', vie.appellations],
   ['ailleurs', 'Ailleurs', true],
   ['journal', 'Ce qui a bougé', journal.length > 0],
@@ -471,7 +473,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'habitants',
     nom: 'Habitants et économie',
-    blocs: ['habitants', 'niveaux', 'travail', 'france-travail', 'entreprises', 'representants', 'associations', 'agriculture', 'appellations'],
+    blocs: ['habitants', 'niveaux', 'travail', 'france-travail', 'entreprises', 'representants', 'associations', 'agriculture', 'bio', 'appellations'],
   },
   {
     id: 'logement',
@@ -1423,6 +1425,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="agriculture">
         <h2 class="badge">Sa surface agricole</h2>
         <Agriculture a={vie.agriculture} />
+      </section>
+    )}
+
+    {vie.bio && (
+      <section id="bio">
+        <h2 class="badge">L’agriculture biologique</h2>
+        <Bio b={vie.bio} />
       </section>
     )}
 
