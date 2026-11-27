@@ -252,7 +252,18 @@ Ce qui est autorisé à ce jour :
   vingt-quatre derniers mois — sa nature telle que publiée, sa date, le lien
   vers l'annonce — et la cessation dite par SIRENE. Ni avis de dépôt, ni
   complément du jugement, ni qualificatif. Sur la page de commune, les
-  annonces de procédures collectives restent pour l'instant comptées.
+  annonces de procédures collectives restent pour l'instant comptées ;
+- **les opérateurs certifiés en agriculture biologique**, d'après la liste
+  que l'Agence Bio publie en application de l'article 34, paragraphe 6, du
+  règlement (UE) 2018/848 — décision du 27 novembre 2026, justifiée dans
+  `docs/07-risques.md` : la dénomination d'une personne morale telle que
+  publiée, le nom SIRENE d'un entrepreneur individuel diffusible, les
+  activités certifiées, l'organisme certificateur, la date d'engagement, la
+  commune et le lien vers l'annuaire des entreprises. **Un entrepreneur en
+  diffusion partielle apparaît sous son SIREN seul**, que l'INSEE diffuse :
+  on sait qu'il existe, sans son nom. Ni gérant, ni téléphone, ni courriel,
+  ni adresse. Une opposition s'inscrit par le SIREN dans `retraits.yaml` et
+  ramène l'opérateur à son SIREN seul.
 
 Ce qui reste exclu : les particuliers cités dans les délibérations, les
 dirigeants d'associations hors du répertoire de la HATVP — aucun registre

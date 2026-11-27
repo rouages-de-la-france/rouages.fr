@@ -24,6 +24,15 @@ const activites = [
   b.importation ? pluriel(b.importation, 'importateur', 'importateurs') : null,
 ].filter(Boolean);
 const s = b.surfaces;
+const FICHE = 'https://annuaire-entreprises.data.gouv.fr/entreprise/';
+const l = b.liste;
+const nommes = l ? l.operateurs.filter((o) => o.nom) : [];
+const seuls = l ? l.operateurs.filter((o) => !o.nom) : [];
+const mois = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const detail = (o: { activites: string; organisme: string; depuis: string }) =>
+  [o.activites.toLowerCase(), o.organisme ? (/^dispense/i.test(o.organisme) ? 'dispensé de certification' : `certifié par ${o.organisme}`) : null, o.depuis ? `engagé en ${mois(o.depuis)}` : null]
+    .filter(Boolean)
+    .join(', ');
 ---
 {jamais ? (
   <p class="mesure">{`Aucun opérateur de l’agriculture biologique n’est recensé dans la commune depuis 2008.`}</p>
@@ -33,7 +42,7 @@ const s = b.surfaces;
       <p class="mesure">
         {`En ${b.annee}, ${pluriel(b.operateurs, 'opérateur certifié en agriculture biologique', 'opérateurs certifiés en agriculture biologique')} dans la commune` +
           (activites.length ? ` : ${activites.join(', ')}` : '') + '.' +
-          (b.productions.length ? ` ${b.production > 1 ? 'Production principale des producteurs' : 'Production principale du producteur'} : ${b.productions.map((p) => `${p.libelle.charAt(0).toLowerCase()}${p.libelle.slice(1)}${b.productions.length > 1 ? ` (${p.n})` : ''}`).join(', ')}.` : '')}
+          (b.productions.length ? ` ${b.production > 1 ? 'Production principale des producteurs' : 'Production principale du producteur'} : ${b.productions.map((p) => `${p.libelle.toLowerCase()}${b.productions.length > 1 ? ` (${p.n})` : ''}`).join(', ')}.` : '')}
       </p>
     ) : (
       <p class="mesure">{`Aucun opérateur certifié en agriculture biologique dans la commune en ${b.annee} ; le dernier recensé l’était en ${dernier}.`}</p>
@@ -56,12 +65,41 @@ const s = b.surfaces;
     )}
   </>
 )}
+{l && l.operateurs.length > 0 && (
+  <details class="p-service-groupe" open={l.operateurs.length <= 12}>
+    <summary class="p-service-famille">{`Les ${pluriel(l.operateurs.length, 'opérateur', 'opérateurs')} de la liste de l’Agence Bio au ${l.maj.split('-').reverse().join('/')}`}</summary>
+    <ul class="c-structures">
+      {nommes.map((o) => (
+        <li><a href={`${FICHE}${o.siren}`}>{o.nom}</a>{` — ${detail(o)}`}</li>
+      ))}
+      {seuls.map((o) => (
+        <li><a href={`${FICHE}${o.siren}`}>{`SIREN ${o.siren}`}</a>{` — ${detail(o)}`}</li>
+      ))}
+    </ul>
+    {seuls.length > 0 && (
+      <p class="c-station-detail">
+        Un opérateur montré par son seul numéro SIREN est un entrepreneur individuel qui a demandé que son nom ne soit pas
+        diffusé, ou que le répertoire des entreprises ne permet pas de nommer : on sait qu’il existe, sans son nom.
+      </p>
+    )}
+  </details>
+)}
 <p class="p-strate">
   Un opérateur est une entreprise contrôlée chaque année par un organisme certificateur : une ferme, un atelier de
   transformation, un restaurant, un magasin. Il est compté dans la commune de son site d’activité, à défaut de son siège ;
   les parcelles d’une exploitation peuvent se trouver dans d’autres communes. L’Agence Bio ne publie pas les surfaces
   d’une commune de moins de trois exploitations engagées (« NC » dans ses fichiers).
 </p>
+<p class="p-strate">
+  La liste est celle des opérateurs engagés aujourd’hui ; les comptes ci-dessus sont ceux de la fin de l’année, et une
+  entreprise y est comptée à son site d’activité : les deux ne coïncident pas toujours. Un opérateur qui n’est pas sur la
+  liste n’est pas pour autant « non bio » : elle ne recense que ceux qui se sont notifiés.
+</p>
 <p class="p-source-territoire">
   {`D’après l’historique des surfaces, cheptels et opérateurs par commune publié par l’Agence Bio (${b.maj}), issu des contrôles des organismes certificateurs.`}
 </p>
+{l && (
+  <p class="p-source-territoire">
+    {`Opérateurs : d’après la liste des professionnels engagés en bio publiée par l’Agence Bio (${l.maj}), au titre de l’article 34 du règlement européen 2018/848 ; la commune et le nom d’un entrepreneur individuel d’après le répertoire SIRENE.`}
+  </p>
+)}

@@ -1198,6 +1198,16 @@ surveillances:
     url: "https://www.data.gouv.fr/api/1/datasets/61a6250d8660681353681fa8/"
     lien: od-agence-bio-communes
 
+  # Nomme les opérateurs (décision du 27 novembre 2026, docs/07-risques.md) ; un entrepreneur
+  # en diffusion partielle à SIRENE n'y apparaît que par son SIREN.
+  - id: agence-bio-operateurs
+    nom: "Agence Bio — professionnels engagés en bio"
+    alimente: "la liste des opérateurs certifiés en agriculture biologique de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://www.data.gouv.fr/api/1/datasets/622f52bb6b1fe2b127f0ce64/"
+    lien: od-agence-bio-operateurs
+
   # Calculé sur le Registre de preuve de covoiturage ; la fiche du jeu le déclare sous ODbL : fichiers à part.
   - id: covoiturage-trajets
     nom: "Tableau de bord des mobilités durables — trajets en covoiturage intermédié"

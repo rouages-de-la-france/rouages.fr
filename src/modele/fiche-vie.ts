@@ -252,6 +252,8 @@ type CarburantsDep = { maj: string; services: string[]; c: Record<string, [numbe
 const carburantsDep = parDepartement<CarburantsDep>('carburants');
 type BioDep = { maj: string; annee: number; anneeSurfaces: number; c: Record<string, { o: [number, number][]; a: [number, number, number, number]; p: [string, number][]; s: [number, number | null, number | null, number | null] | null; h: [number, number | null][] }> };
 const bioDep = parDepartement<BioDep>('bio');
+type BioOperateursDep = { maj: string; c: Record<string, [string | null, string, string, string, string][]> };
+const bioOperateursDep = parDepartement<BioOperateursDep>('bio-operateurs');
 type CovoiturageDep = { maj: string; c: Record<string, [number, number][]> };
 const covoiturageDep = parDepartement<CovoiturageDep>('covoiturage');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
@@ -953,6 +955,12 @@ export interface Bio {
   serie: { annees: number[]; valeurs: number[] };
   /** Les surfaces de la dernière année, en hectares ; null sous le secret statistique. */
   surfaces: { annee: number; exploitations: number; bio: number | null; certifiee: number | null; conversion: number | null } | null;
+  /**
+   * Les opérateurs de la liste du jour de l'Agence Bio (`scripts/bio-operateurs-emettre.ts`) : nommés,
+   * ou sous leur seul SIREN (entrepreneur en diffusion partielle, inconnu de SIRENE, ou opposé) ;
+   * null sans le fichier.
+   */
+  liste: { operateurs: { nom: string | null; siren: string; activites: string; organisme: string; depuis: string }[]; maj: string } | null;
   maj: string;
 }
 
@@ -1816,6 +1824,12 @@ function medianesCarburants(dep: string, d: CarburantsDep): Record<string, { pri
   return sortie;
 }
 
+function listeBio(c: CommuneFiche): Bio['liste'] {
+  const d = bioOperateursDep.get(c.dep);
+  if (!d) return null;
+  return { operateurs: (d.c[c.code] ?? []).map(([nom, siren, activites, organisme, depuis]) => ({ nom, siren, activites, organisme, depuis })), maj: d.maj };
+}
+
 function bio(c: CommuneFiche): Bio | null {
   const d = bioDep.get(c.dep);
   if (!d) return null;
@@ -1836,6 +1850,7 @@ function bio(c: CommuneFiche): Bio | null {
     productions: (x?.p ?? []).map(([libelle, k]) => ({ libelle, n: k })),
     serie: { annees, valeurs: annees.map((a) => par.get(a) ?? 0) },
     surfaces: s ? { annee: d.anneeSurfaces, exploitations: s[0], bio: s[1], certifiee: s[2], conversion: s[3] } : null,
+    liste: listeBio(c),
     maj: d.maj,
   };
 }

@@ -49,7 +49,7 @@ const type = (t: string) => {
  * VAL THORENS » est ambigu, « 06160 JUAN LES PINS » non). Un code partagé
  * entre plusieurs communes ne tranche rien : la ligne reste sans commune.
  */
-function communeUniqueParCodePostal(): (cp: string) => string | null {
+export function communeUniqueParCodePostal(): (cp: string) => string | null {
   const chemin = createRequire(import.meta.url).resolve('@etalab/decoupage-administratif/data/communes.json');
   const toutes = JSON.parse(readFileSync(chemin, 'utf8')) as { code: string; type: string; codesPostaux?: string[] }[];
   const par = new Map<string, Set<string>>();

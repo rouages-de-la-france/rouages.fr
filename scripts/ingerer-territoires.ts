@@ -1186,6 +1186,13 @@ async function principal() {
   const bio = await tenter('Agriculture biologique (Agence Bio)', () => collecterBio(lireJson, enCache('Agence Bio — opérateurs et surfaces par commune (180 Mo)'), CACHE, grise));
   if (bio) grise(`${ecrireBio(SORTIE, bio)} départements d’agriculture biologique écrits.`);
 
+  // Les opérateurs bio nommés (décision du 27 novembre 2026) : la commune et le nom d'un entrepreneur d'après SIRENE.
+  const { collecterOperateursBio, ecrireOperateursBio } = await import('./bio-operateurs-emettre.ts');
+  const operateursBio = await tenter('Opérateurs bio (Agence Bio)', () =>
+    collecterOperateursBio(lireJson, enCache('Agence Bio — professionnels engagés en bio (9 Mo)'), async (url) => (await obstine(url)).text(), CACHE, grise),
+  );
+  if (operateursBio) grise(`${ecrireOperateursBio(SORTIE, operateursBio)} départements d’opérateurs bio écrits.`);
+
   const { collecterLieux, ecrireLieux } = await import('./lieux-emettre.ts');
   const lieux = await tenter('Lieux à voir', () =>
     collecterLieux(lireJson, enCache('DATAtourisme — lieux, par région (400 Mo)'), CACHE, grise),
