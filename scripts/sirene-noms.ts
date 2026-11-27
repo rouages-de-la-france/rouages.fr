@@ -140,3 +140,65 @@ export async function diffusionSirene(
   }
   return { noms, refuses: tousRefuses };
 }
+
+const CHAMPS_ETABLISSEMENT = [
+  'siret',
+  'siren',
+  'codecommuneetablissement',
+  'statutdiffusionunitelegale',
+  'categoriejuridiqueunitelegale',
+  'denominationunitelegale',
+  'nomunitelegale',
+  'nomusageunitelegale',
+  'prenomusuelunitelegale',
+  'prenom1unitelegale',
+] as const;
+
+export interface EtablissementSirene {
+  siren: string;
+  /** Le code INSEE de la commune de l'établissement ; vide si le répertoire ne le donne pas. */
+  commune: string;
+  /** Vrai pour un entrepreneur individuel (catégorie juridique 1000). */
+  ei: boolean;
+  /** Le nom publiable ; null pour un entrepreneur que le répertoire ne diffuse pas. */
+  nom: string | null;
+}
+
+/**
+ * Les établissements de ces SIRET : leur commune, et le nom de leur unité
+ * légale quand il peut être publié — une société par sa dénomination, un
+ * entrepreneur individuel par son nom seulement s'il est diffusible, relu à
+ * l'INSEE. Un SIRET absent du résultat est inconnu de la copie du répertoire.
+ */
+export async function etablissementsSirene(
+  texte: (url: string) => Promise<string>,
+  sirets: Iterable<string>,
+  dire: (m: string) => void = console.log,
+  lot = 150,
+): Promise<Map<string, EtablissementSirene>> {
+  const sortie = new Map<string, EtablissementSirene>();
+  const uniques = [...new Set(sirets)].filter((s) => /^\d{14}$/.test(s)).sort();
+  for (let i = 0; i < uniques.length; i += lot) {
+    const morceau = uniques.slice(i, i + lot);
+    const t = await texte(
+      `${SIRENE}?select=${encodeURIComponent(CHAMPS_ETABLISSEMENT.join(', '))}` +
+        `&where=${encodeURIComponent(`siret in (${morceau.map((x) => `"${x}"`).join(',')})`)}&delimiter=%3B`,
+    );
+    const l = lignes(t.replace(/^﻿/, ''));
+    const j = CHAMPS_ETABLISSEMENT.map((c) => l[0]?.indexOf(c) ?? -1);
+    if (j.some((x) => x === -1)) throw new Error('SIRENE : l’export des établissements a changé de forme');
+    for (const r of l.slice(1)) {
+      const [siret, siren, commune, statut, categorie, denomination, nom, usage, prenomUsuel, prenom] = j.map((k) => (r[k] ?? '').trim());
+      if (!siret) continue;
+      const ei = categorie === '1000';
+      const affiche = ei ? nomPersonne(nom, usage, prenomUsuel, prenom) : denomination || nomPersonne(nom, usage, prenomUsuel, prenom);
+      sortie.set(siret, { siren, commune, ei, nom: statut === 'O' && affiche ? affiche : null });
+    }
+    if ((i / lot) % 50 === 49) dire(`  SIRENE : ${Math.min(i + lot, uniques.length)} établissements lus sur ${uniques.length}.`);
+  }
+  // Les entrepreneurs, relus à l'INSEE : la copie a jusqu'à un mois de retard.
+  const ei = [...sortie.values()].filter((e) => e.ei && e.nom).map((e) => e.siren);
+  const refuses = await refusesAJour(ei, dire);
+  if (refuses) for (const e of sortie.values()) if (e.ei && refuses.has(e.siren)) e.nom = null;
+  return sortie;
+}

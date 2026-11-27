@@ -635,6 +635,81 @@ Ouverte 2.0, adresses comprises (« DPE Logements existants depuis juillet
 2021 », 15,7 millions de diagnostics au 30 juin 2026) ; les notaires publient
 chaque année une mesure de même nature, la « valeur verte ».
 
+### Les opérateurs certifiés en agriculture biologique (27 novembre 2026)
+
+Écrit avant la collecte. Le mainteneur a tranché le 27 novembre 2026 : les
+opérateurs sont nommés, et un entrepreneur en diffusion partielle à SIRENE
+apparaît sous son seul SIREN, pour qu'on sache qu'il existe sans le nommer.
+
+**Le registre.** L'article 34, paragraphe 6, du règlement (UE) 2018/848
+oblige chaque État membre à tenir à jour la liste des noms et adresses des
+opérateurs ayant notifié leur activité biologique, et à la rendre publique
+avec les informations de leurs certificats, « including by means of links to
+a single internet website », dans le respect de la protection des données
+personnelles (texte lu sur legislation.gov.uk le 27 novembre 2026, version
+du 31 décembre 2020 ; le règlement d'exécution (UE) 2025/1470 précise la
+publication de ces listes). En France, l'Agence Bio tient cette liste et la
+publie sur data.gouv.fr (« Professionnels engagés en BIO », jeu
+622f52bb6b1fe2b127f0ce64, Licence Ouverte 2.0, mise à jour quotidienne) :
+SIRET, numéro bio, dénomination, code postal du siège, activités certifiées,
+organisme certificateur, date d'engagement. Sa finalité est que
+l'acheteur, le consommateur et l'administration puissent vérifier qu'un
+opérateur est bien certifié.
+
+**Ce qu'une personne peut en attendre.** Un opérateur qui se notifie sait
+que la notification le fait figurer à l'annuaire officiel : le guide de la
+notification de l'Agence Bio le dit (« figurer sur l'annuaire officiel des
+opérateurs notifiés en agriculture biologique », et « L'opérateur bio y
+figure tant qu'il reste engagé en agriculture biologique » ;
+notification.agencebio.org/files/GUIDE-NOTIFICATION.pdf, lu le 27 novembre
+2026). C'est une publicité qu'il
+recherche le plus souvent — la certification se vend. Une exploitation en
+nom propre porte le nom de son exploitant, et beaucoup de sociétés agricoles
+(GAEC, EARL) celui de la famille.
+
+**Ce qui est repris.**
+
+- la dénomination telle que la liste la publie pour une personne morale ;
+  pour un entrepreneur individuel, le nom que publie SIRENE, **seulement
+  s'il y est diffusible** — le statut relu à l'INSEE à chaque ingestion,
+  comme pour les entrepreneurs du BODACC ;
+- un entrepreneur individuel en **diffusion partielle** apparaît sous son
+  **SIREN seul**, avec ses activités certifiées et sa date d'engagement.
+  L'INSEE masque alors « les nom, prénoms, pseudonyme, enseigne et nom
+  commercial de l'entreprise et de l'établissement le cas échéant, ainsi que
+  l'adresse exacte dans la commune ; les variables de géolocalisation sont
+  également non-diffusées. Les autres informations concernant l'unité légale
+  restent diffusées » (insee.fr/fr/information/7456564, lu le 27 novembre
+  2026) : le SIREN et la commune en font partie, le site ne montre donc rien
+  que l'INSEE ne diffuse. Le nom commercial que la liste de l'Agence Bio
+  publie pour lui n'est pas repris. Un SIRET que SIRENE ne connaît pas suit
+  la même règle : le refus est le cas par défaut ;
+- la commune est celle de l'établissement à SIRENE ; à défaut, celle que
+  désigne seul le code postal du siège ;
+- les activités certifiées, l'organisme certificateur, la date
+  d'engagement, et le lien vers la fiche de l'unité légale à l'annuaire des
+  entreprises, qui montre les certificats bio.
+
+**Ce qui n'est pas repris.** Ni le gérant, ni le téléphone, ni le courriel,
+ni l'adresse que l'API de l'Agence Bio publie aussi : ils ne servent pas à
+dire qu'un opérateur est certifié, et l'API ne déclare pas de licence. Ni les
+opérateurs qui ont arrêté la certification.
+
+**Sans conclure.** Le site dit qu'un opérateur figure sur la liste à la
+date de la liste ; il ne dit rien de la qualité de ses produits. Un
+opérateur absent n'est pas un opérateur « non bio » : la liste ne recense
+que ceux qui se sont notifiés.
+
+**Le retrait.** Une opposition s'inscrit par le SIREN sous `entreprises`
+dans `retraits.yaml` ; l'opérateur est alors montré comme un entrepreneur en
+diffusion partielle, sous son SIREN seul. `/mentions` dit ce qui est collecté.
+
+**À valider par un avocat** : que la republication du nom d'un entrepreneur
+individuel, hors du site unique que vise l'article 34, paragraphe 6, reste
+dans la finalité du registre ; et que l'affichage du SIREN seul d'un
+entrepreneur en diffusion partielle, que l'INSEE diffuse lui-même, ne
+contrevient pas à son opposition.
+
 ## 4. Risques juridiques directs
 
 - **Diffamation** (famille D) : traitée par la règle « pas de personnes » dans

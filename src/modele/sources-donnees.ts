@@ -283,6 +283,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /professionnels engagés en bio publiée par l’Agence Bio/i,
+    liens: [
+      { titre: 'Professionnels engagés en BIO (Agence Bio)', url: dg('622f52bb6b1fe2b127f0ce64') },
+      { titre: 'L’annuaire officiel des opérateurs bio', url: 'https://annuaire.agencebio.org/' },
+    ],
+  },
+  {
     motif: /opérateurs par commune publié par l’Agence Bio/i,
     liens: [{ titre: 'Historique détaillé des surfaces, cheptels et opérateurs bio par commune (Agence Bio)', url: dg('61a6250d8660681353681fa8') }],
   },
