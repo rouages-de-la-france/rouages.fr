@@ -317,6 +317,12 @@ sigles:
     definition: "Tient les comptes des collectivités et recouvre l'impôt local."
     liens: [od-actes-budgetaires, od-ofgl]
 
+  - id: sigle-dgccrf
+    sigle: DGCCRF
+    developpe: "Direction générale de la concurrence, de la consommation et de la répression des fraudes"
+    definition: "Publie le flux des prix des carburants que déclarent les stations-service."
+    liens: [od-prix-carburants]
+
   - id: sigle-bodacc
     sigle: BODACC
     developpe: "Bulletin officiel des annonces civiles et commerciales"

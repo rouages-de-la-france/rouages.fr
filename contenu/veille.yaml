@@ -1182,6 +1182,14 @@ surveillances:
     url: "https://www.data.gouv.fr/api/1/datasets/57fce28ac751df0e4079df72/"
     lien: od-baignade
 
+  - id: prix-carburants
+    nom: "DGCCRF — prix des carburants, flux instantané"
+    alimente: "les stations-service de la commune, leurs prix, ruptures et services"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2"
+    lien: od-prix-carburants
+
   # Aucune liste nationale officielle des toilettes publiques : OpenStreetMap est la seule
   # source qui couvre la France. Base collaborative, sous ODbL : les fichiers sont à part.
   - id: osm-toilettes

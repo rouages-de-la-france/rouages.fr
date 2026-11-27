@@ -248,6 +248,8 @@ type HebergementsDep = { maj: string; c: Record<string, [string, string, string,
 const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
 type ToilettesDep = { maj: string; c: Record<string, [number, number, 'gratuit' | 'payant' | 'clientele' | 'inconnu', string, 0 | 1 | null, string, string][]> };
 const toilettesDep = parDepartement<ToilettesDep>('toilettes');
+type CarburantsDep = { maj: string; services: string[]; c: Record<string, [number, number, string, 0 | 1, 0 | 1, [string, number | null, string, '' | 't' | 'd', string][], number[], number][]> };
+const carburantsDep = parDepartement<CarburantsDep>('carburants');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -908,6 +910,41 @@ export interface Toilettes {
   maj: string;
 }
 
+/** Un carburant d'une station : son dernier prix déclaré et sa date, ou sa rupture. */
+export interface CarburantStation {
+  /** `gazole`, `sp95`, `e10`, `sp98`, `e85`, `gplc`. */
+  cle: string;
+  prix: number | null;
+  /** Date du dernier prix, ISO. */
+  maj: string;
+  rupture: '' | 'temporaire' | 'definitive';
+  /** Début de la rupture, ISO ; vide sans rupture. */
+  depuis: string;
+}
+
+/** Une station-service, d'après le flux « Prix des carburants » de la DGCCRF (`scripts/carburants-emettre.ts`). */
+export interface Station {
+  x: number;
+  y: number;
+  adresse: string;
+  autoroute: boolean;
+  automate: boolean;
+  carburants: CarburantStation[];
+  services: string[];
+  id: number;
+}
+
+export interface Carburants {
+  stations: Station[];
+  /**
+   * Pour chaque carburant, la médiane des prix déclarés dans le département depuis moins de huit
+   * jours (à la date du flux), et sur combien de stations : le repère que la page donne à côté du
+   * prix de chaque station. Absent sous dix stations.
+   */
+  medianes: Record<string, { prix: number; n: number }>;
+  maj: string;
+}
+
 /** Un site de baignade et son classement, d'après le rapportage de la saison balnéaire (`scripts/baignade-emettre.ts`). */
 export interface SiteBaignade {
   nom: string;
@@ -1103,6 +1140,7 @@ export interface ComplementsVie {
   hebergements: Hebergements | null;
   baignade: Baignade | null;
   toilettes: Toilettes | null;
+  carburants: Carburants | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1715,6 +1753,41 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function carburants(c: CommuneFiche): Carburants | null {
+  const d = carburantsDep.get(c.dep);
+  if (!d) return null;
+  const R = { t: 'temporaire', d: 'definitive', '': '' } as const;
+  return {
+    stations: (d.c[c.code] ?? []).map(([x, y, adresse, autoroute, automate, cs, sv, id]) => ({
+      x, y, adresse, autoroute: autoroute === 1, automate: automate === 1, id,
+      carburants: cs.map(([cle, prix, maj, r, depuis]) => ({ cle, prix, maj, rupture: R[r], depuis })),
+      services: sv.map((i) => d.services[i]).filter(Boolean),
+    })),
+    medianes: medianesCarburants(c.dep, d),
+    maj: d.maj,
+  };
+}
+
+const medianesParDep = new Map<string, Record<string, { prix: number; n: number }>>();
+function medianesCarburants(dep: string, d: CarburantsDep): Record<string, { prix: number; n: number }> {
+  const deja = medianesParDep.get(dep);
+  if (deja) return deja;
+  const seuil = new Date(Date.parse(`${d.maj}T00:00:00Z`) - 8 * 86_400_000).toISOString().slice(0, 10);
+  const prix = new Map<string, number[]>();
+  for (const stations of Object.values(d.c))
+    for (const st of stations)
+      for (const [cle, p, maj, r] of st[5]) if (p !== null && !r && maj >= seuil) prix.set(cle, [...(prix.get(cle) ?? []), p]);
+  const sortie: Record<string, { prix: number; n: number }> = {};
+  for (const [cle, l] of prix) {
+    if (l.length < 10) continue;
+    l.sort((a, b) => a - b);
+    const m = l.length % 2 ? l[(l.length - 1) / 2] : (l[l.length / 2 - 1] + l[l.length / 2]) / 2;
+    sortie[cle] = { prix: Math.round(m * 1000) / 1000, n: l.length };
+  }
+  medianesParDep.set(dep, sortie);
+  return sortie;
+}
+
 function toilettes(c: CommuneFiche): Toilettes | null {
   const d = toilettesDep.get(c.dep);
   if (!d) return null;
@@ -2135,6 +2208,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     hebergements: hebergements(c),
     baignade: baignade(c),
     toilettes: toilettes(c),
+    carburants: carburants(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

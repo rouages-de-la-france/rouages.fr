@@ -276,6 +276,13 @@ const ENTREES: Entree[] = [
     liens: [{ titre: 'Données de rapportage de la saison balnéaire (ministère chargé de la santé)', url: dg('57fce28ac751df0e4079df72') }],
   },
   {
+    motif: /prix des carburants publié par la DGCCRF/i,
+    liens: [
+      { titre: 'Prix des carburants en France — flux instantané (DGCCRF)', url: 'https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/' },
+      { titre: 'Le site public des prix des carburants', url: 'https://www.prix-carburants.gouv.fr/' },
+    ],
+  },
+  {
     motif: /hébergements touristiques classés/i,
     liens: [
       { titre: 'Hébergements touristiques classés en France (Atout France)', url: dg('59c36c6a88ee3826d5998a35') },

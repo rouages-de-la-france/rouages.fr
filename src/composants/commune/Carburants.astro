@@ -1,0 +1,78 @@
+---
+/**
+ * Les stations-service de la commune, d'après le flux « Prix des carburants »
+ * de la DGCCRF : pour chacune, les carburants vendus avec leur dernier prix
+ * déclaré et sa date, ceux qui manquent (rupture temporaire) ou que la station
+ * ne vend plus (rupture définitive), et les services qu'elle déclare.
+ *
+ * Le prix est celui que le gérant a déclaré en dernier : la date dit ce qu'il
+ * vaut. À côté, la médiane des prix déclarés dans le département depuis moins
+ * de huit jours, pour situer — sans rien en conclure. Voir
+ * `scripts/carburants-emettre.ts`.
+ */
+import type { Carburants } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  c: Carburants;
+}
+const { c } = Astro.props;
+const LIBELLES: Record<string, string> = { gazole: 'Gazole', sp95: 'SP95', e10: 'SP95-E10', sp98: 'SP98', e85: 'Superéthanol E85', gplc: 'GPL carburant' };
+const euros = (v: number) => `${v.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} €`;
+const jour = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const mois = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const n = c.stations.length;
+---
+{n === 0 ? (
+  <p class="mesure">Aucune station-service de la commune n’est déclarée sur le site public des prix des carburants.</p>
+) : (
+  <>
+    <p class="mesure">{`${n} station${n > 1 ? 's' : ''}-service déclarée${n > 1 ? 's' : ''} dans la commune.`}</p>
+    {c.stations.map((st) => {
+      const vendus = st.carburants.filter((x) => x.prix !== null && x.rupture === '');
+      const manquent = st.carburants.filter((x) => x.rupture === 'temporaire');
+      const plus = st.carburants.filter((x) => x.rupture === 'definitive');
+      return (
+        <div class="c-station">
+          <h3 class="c-station-titre">{st.adresse || 'Adresse non déclarée'}</h3>
+          <p class="c-station-detail">
+            {[st.autoroute ? 'Sur autoroute' : null, st.automate ? 'automate de paiement 24 h sur 24' : 'pas d’automate 24 h sur 24 déclaré'].filter(Boolean).join(', ').replace(/^./, (m) => m.toUpperCase()) + '.'}
+          </p>
+          {vendus.length > 0 && (
+            <div class="cpt-defile" tabindex="0" role="region" aria-label={`Les prix de la station ${st.adresse} — le tableau défile sur les petits écrans`}>
+              <table class="cpt-tableau">
+                <thead>
+                  <tr><th scope="col">Carburant</th><th scope="col">Prix le litre</th><th scope="col">Déclaré le</th><th scope="col">Médiane du département</th></tr>
+                </thead>
+                <tbody>
+                  {vendus.map((x) => (
+                    <tr>
+                      <th scope="row">{LIBELLES[x.cle] ?? x.cle}</th>
+                      <td>{euros(x.prix!)}</td>
+                      <td>{x.maj ? jour(x.maj) : '—'}</td>
+                      <td>{c.medianes[x.cle] ? `${euros(c.medianes[x.cle].prix)} (${c.medianes[x.cle].n} stations)` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {manquent.length > 0 && (
+            <p class="mesure">{`En rupture : ${manquent.map((x) => `${LIBELLES[x.cle] ?? x.cle}${x.depuis ? ` depuis le ${jour(x.depuis)}` : ''}`).join(', ')}.`}</p>
+          )}
+          {plus.length > 0 && (
+            <p class="c-station-detail">{`Ne vend plus : ${plus.map((x) => `${LIBELLES[x.cle] ?? x.cle}${x.depuis ? ` (depuis ${mois(x.depuis)})` : ''}`).join(', ')}.`}</p>
+          )}
+          {st.services.length > 0 && <p class="c-station-detail">{`Services déclarés : ${st.services.map((s) => s.charAt(0).toLowerCase() + s.slice(1)).join(', ')}.`}</p>}
+        </div>
+      );
+    })}
+  </>
+)}
+<p class="p-strate">
+  Le prix est celui que le gérant a déclaré en dernier ; la date dit s’il est récent. La médiane est celle des prix
+  déclarés dans le département depuis moins de huit jours : la moitié des stations vendent plus cher, l’autre moitié
+  moins cher.
+</p>
+<p class="p-source-territoire">
+  {`D’après le flux instantané des prix des carburants publié par la DGCCRF (${c.maj}) : points de vente, prix, ruptures et services tels que déclarés sur `}<a href="https://www.prix-carburants.gouv.fr/">prix-carburants.gouv.fr</a>.
+</p>
