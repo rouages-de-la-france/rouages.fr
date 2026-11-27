@@ -1,0 +1,67 @@
+---
+/**
+ * L'agriculture biologique dans la commune, d'après l'Agence Bio : combien
+ * d'opérateurs certifiés, ce qu'ils font, depuis quand, et les surfaces en bio
+ * ou en conversion. Des comptes seulement, sans nom. Voir `scripts/bio-emettre.ts`.
+ */
+import type { Bio } from '../../modele/fiche-vie.ts';
+import Repere from './Repere.astro';
+
+interface Props {
+  b: Bio;
+}
+const { b } = Astro.props;
+const entier = (v: number) => v.toLocaleString('fr-FR');
+const hectares = (v: number) => `${v.toLocaleString('fr-FR', { maximumFractionDigits: v < 10 ? 1 : 0 })} ha`;
+const pluriel = (n: number, un: string, plusieurs: string) => `${entier(n)} ${n > 1 ? plusieurs : un}`;
+const jamais = b.serie.valeurs.every((v) => v === 0);
+const premier = b.serie.annees[b.serie.valeurs.findIndex((v) => v > 0)];
+const dernier = b.serie.annees.filter((_, i) => b.serie.valeurs[i] > 0).at(-1);
+const activites = [
+  b.production ? pluriel(b.production, 'producteur', 'producteurs') : null,
+  b.transformation ? pluriel(b.transformation, 'transformateur ou restaurant', 'transformateurs ou restaurants') : null,
+  b.distribution ? pluriel(b.distribution, 'distributeur', 'distributeurs') : null,
+  b.importation ? pluriel(b.importation, 'importateur', 'importateurs') : null,
+].filter(Boolean);
+const s = b.surfaces;
+---
+{jamais ? (
+  <p class="mesure">{`Aucun opérateur de l’agriculture biologique n’est recensé dans la commune depuis 2008.`}</p>
+) : (
+  <>
+    {b.operateurs > 0 ? (
+      <p class="mesure">
+        {`En ${b.annee}, ${pluriel(b.operateurs, 'opérateur certifié en agriculture biologique', 'opérateurs certifiés en agriculture biologique')} dans la commune` +
+          (activites.length ? ` : ${activites.join(', ')}` : '') + '.' +
+          (b.productions.length ? ` ${b.production > 1 ? 'Production principale des producteurs' : 'Production principale du producteur'} : ${b.productions.map((p) => `${p.libelle.charAt(0).toLowerCase()}${p.libelle.slice(1)}${b.productions.length > 1 ? ` (${p.n})` : ''}`).join(', ')}.` : '')}
+      </p>
+    ) : (
+      <p class="mesure">{`Aucun opérateur certifié en agriculture biologique dans la commune en ${b.annee} ; le dernier recensé l’était en ${dernier}.`}</p>
+    )}
+    <dl class="p-reperes">
+      <Repere
+        nom="Opérateurs certifiés bio"
+        montant={entier(b.operateurs)}
+        serie={{ valeurs: b.serie.valeurs, annees: b.serie.annees, formater: (v) => entier(v) }}
+        evolution={premier === b.serie.annees[0] ? `${b.serie.annees[0]}-${b.annee}, déjà présents en ${premier}` : `${b.serie.annees[0]}-${b.annee}, le premier recensé en ${premier}`}
+      />
+    </dl>
+    {s && (
+      <p class="mesure">
+        {`${pluriel(s.exploitations, 'exploitation engagée', 'exploitations engagées')} en ${s.annee}` +
+          (s.bio !== null
+            ? ` : ${hectares(s.bio)} en bio ou en conversion${s.certifiee !== null && s.conversion !== null ? `, dont ${hectares(s.certifiee)} certifiés et ${hectares(s.conversion)} en conversion` : ''}.`
+            : ' ; l’Agence Bio n’en publie pas les surfaces.')}
+      </p>
+    )}
+  </>
+)}
+<p class="p-strate">
+  Un opérateur est une entreprise contrôlée chaque année par un organisme certificateur : une ferme, un atelier de
+  transformation, un restaurant, un magasin. Il est compté dans la commune de son site d’activité, à défaut de son siège ;
+  les parcelles d’une exploitation peuvent se trouver dans d’autres communes. L’Agence Bio ne publie pas les surfaces
+  d’une commune de moins de trois exploitations engagées (« NC » dans ses fichiers).
+</p>
+<p class="p-source-territoire">
+  {`D’après l’historique des surfaces, cheptels et opérateurs par commune publié par l’Agence Bio (${b.maj}), issu des contrôles des organismes certificateurs.`}
+</p>

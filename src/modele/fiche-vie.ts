@@ -248,6 +248,12 @@ type HebergementsDep = { maj: string; c: Record<string, [string, string, string,
 const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
 type ToilettesDep = { maj: string; c: Record<string, [number, number, 'gratuit' | 'payant' | 'clientele' | 'inconnu', string, 0 | 1 | null, string, string][]> };
 const toilettesDep = parDepartement<ToilettesDep>('toilettes');
+type CarburantsDep = { maj: string; services: string[]; c: Record<string, [number, number, string, 0 | 1, 0 | 1, [string, number | null, string, '' | 't' | 'd', string][], number[], number][]> };
+const carburantsDep = parDepartement<CarburantsDep>('carburants');
+type BioDep = { maj: string; annee: number; anneeSurfaces: number; c: Record<string, { o: [number, number][]; a: [number, number, number, number]; p: [string, number][]; s: [number, number | null, number | null, number | null] | null; h: [number, number | null][] }> };
+const bioDep = parDepartement<BioDep>('bio');
+type CovoiturageDep = { maj: string; c: Record<string, [number, number][]> };
+const covoiturageDep = parDepartement<CovoiturageDep>('covoiturage');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -908,6 +914,59 @@ export interface Toilettes {
   maj: string;
 }
 
+/** Un carburant d'une station : son dernier prix déclaré et sa date, ou sa rupture. */
+export interface CarburantStation {
+  /** `gazole`, `sp95`, `e10`, `sp98`, `e85`, `gplc`. */
+  cle: string;
+  prix: number | null;
+  /** Date du dernier prix, ISO. */
+  maj: string;
+  rupture: '' | 'temporaire' | 'definitive';
+  /** Début de la rupture, ISO ; vide sans rupture. */
+  depuis: string;
+}
+
+/** Une station-service, d'après le flux « Prix des carburants » de la DGCCRF (`scripts/carburants-emettre.ts`). */
+export interface Station {
+  x: number;
+  y: number;
+  adresse: string;
+  autoroute: boolean;
+  automate: boolean;
+  carburants: CarburantStation[];
+  services: string[];
+  id: number;
+}
+
+/** L'agriculture biologique dans la commune, d'après l'Agence Bio (`scripts/bio-emettre.ts`) : des comptes, sans nom. */
+export interface Bio {
+  annee: number;
+  /** Les opérateurs de la dernière année, et par activité principale. */
+  operateurs: number;
+  production: number;
+  transformation: number;
+  distribution: number;
+  importation: number;
+  /** Les producteurs par production principale, du plus nombreux au moins nombreux. */
+  productions: { libelle: string; n: number }[];
+  /** Les opérateurs de chaque année depuis 2008 ; 0 pour une année où la commune n'en avait aucun. */
+  serie: { annees: number[]; valeurs: number[] };
+  /** Les surfaces de la dernière année, en hectares ; null sous le secret statistique. */
+  surfaces: { annee: number; exploitations: number; bio: number | null; certifiee: number | null; conversion: number | null } | null;
+  maj: string;
+}
+
+export interface Carburants {
+  stations: Station[];
+  /**
+   * Pour chaque carburant, la médiane des prix déclarés dans le département depuis moins de huit
+   * jours (à la date du flux), et sur combien de stations : le repère que la page donne à côté du
+   * prix de chaque station. Absent sous dix stations.
+   */
+  medianes: Record<string, { prix: number; n: number }>;
+  maj: string;
+}
+
 /** Un site de baignade et son classement, d'après le rapportage de la saison balnéaire (`scripts/baignade-emettre.ts`). */
 export interface SiteBaignade {
   nom: string;
@@ -1003,6 +1062,11 @@ export interface Recharge {
   lieuxCovoiturage: number;
   places: number;
   dates: { irve: string; bnlc: string };
+  /**
+   * Les trajets de covoiturage par plateforme au départ de la commune, année par année, d'après le
+   * Registre de preuve de covoiturage (`scripts/covoiturage-emettre.ts`, ODbL) ; null sans le fichier.
+   */
+  trajets: { annees: number[]; valeurs: number[]; maj: string } | null;
   maj: string;
 }
 
@@ -1103,6 +1167,8 @@ export interface ComplementsVie {
   hebergements: Hebergements | null;
   baignade: Baignade | null;
   toilettes: Toilettes | null;
+  carburants: Carburants | null;
+  bio: Bio | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1715,6 +1781,65 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function carburants(c: CommuneFiche): Carburants | null {
+  const d = carburantsDep.get(c.dep);
+  if (!d) return null;
+  const R = { t: 'temporaire', d: 'definitive', '': '' } as const;
+  return {
+    stations: (d.c[c.code] ?? []).map(([x, y, adresse, autoroute, automate, cs, sv, id]) => ({
+      x, y, adresse, autoroute: autoroute === 1, automate: automate === 1, id,
+      carburants: cs.map(([cle, prix, maj, r, depuis]) => ({ cle, prix, maj, rupture: R[r], depuis })),
+      services: sv.map((i) => d.services[i]).filter(Boolean),
+    })),
+    medianes: medianesCarburants(c.dep, d),
+    maj: d.maj,
+  };
+}
+
+const medianesParDep = new Map<string, Record<string, { prix: number; n: number }>>();
+function medianesCarburants(dep: string, d: CarburantsDep): Record<string, { prix: number; n: number }> {
+  const deja = medianesParDep.get(dep);
+  if (deja) return deja;
+  const seuil = new Date(Date.parse(`${d.maj}T00:00:00Z`) - 8 * 86_400_000).toISOString().slice(0, 10);
+  const prix = new Map<string, number[]>();
+  for (const stations of Object.values(d.c))
+    for (const st of stations)
+      for (const [cle, p, maj, r] of st[5]) if (p !== null && !r && maj >= seuil) prix.set(cle, [...(prix.get(cle) ?? []), p]);
+  const sortie: Record<string, { prix: number; n: number }> = {};
+  for (const [cle, l] of prix) {
+    if (l.length < 10) continue;
+    l.sort((a, b) => a - b);
+    const m = l.length % 2 ? l[(l.length - 1) / 2] : (l[l.length / 2 - 1] + l[l.length / 2]) / 2;
+    sortie[cle] = { prix: Math.round(m * 1000) / 1000, n: l.length };
+  }
+  medianesParDep.set(dep, sortie);
+  return sortie;
+}
+
+function bio(c: CommuneFiche): Bio | null {
+  const d = bioDep.get(c.dep);
+  if (!d) return null;
+  const x = d.c[c.code];
+  const debut = 2008;
+  const annees = Array.from({ length: d.annee - debut + 1 }, (_, i) => debut + i);
+  const par = new Map(x?.o ?? []);
+  const n = par.get(d.annee) ?? 0;
+  const [p, t, di, im] = x?.a ?? [0, 0, 0, 0];
+  const s = x?.s;
+  return {
+    annee: d.annee,
+    operateurs: n,
+    production: p,
+    transformation: t,
+    distribution: di,
+    importation: im,
+    productions: (x?.p ?? []).map(([libelle, k]) => ({ libelle, n: k })),
+    serie: { annees, valeurs: annees.map((a) => par.get(a) ?? 0) },
+    surfaces: s ? { annee: d.anneeSurfaces, exploitations: s[0], bio: s[1], certifiee: s[2], conversion: s[3] } : null,
+    maj: d.maj,
+  };
+}
+
 function toilettes(c: CommuneFiche): Toilettes | null {
   const d = toilettesDep.get(c.dep);
   if (!d) return null;
@@ -1793,7 +1918,10 @@ function recharge(c: CommuneFiche): Recharge | null {
   const d = rechargeDep.get(c.dep);
   if (!d) return null;
   const [stations, points, rapides, lieuxCovoiturage, places] = d.c[c.code] ?? [0, 0, 0, 0, 0];
-  return { stations, points, rapides, lieuxCovoiturage, places, dates: d.dates, maj: d.maj };
+  const cv = covoiturageDep.get(c.dep);
+  const t = cv?.c[c.code];
+  const trajets = cv && t?.length ? { annees: t.map(([a]) => a), valeurs: t.map(([, v]) => v), maj: cv.maj } : null;
+  return { stations, points, rapides, lieuxCovoiturage, places, dates: d.dates, trajets, maj: d.maj };
 }
 
 const taux = ([global, eaje, assistantesMaternelles, ecole, domicile]: Couverture): TauxCouverture => ({
@@ -2135,6 +2263,8 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     hebergements: hebergements(c),
     baignade: baignade(c),
     toilettes: toilettes(c),
+    carburants: carburants(c),
+    bio: bio(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

@@ -131,6 +131,8 @@ import Lieux from '../../composants/commune/Lieux.astro';
 import Hebergements from '../../composants/commune/Hebergements.astro';
 import Baignade from '../../composants/commune/Baignade.astro';
 import Toilettes from '../../composants/commune/Toilettes.astro';
+import Carburants from '../../composants/commune/Carburants.astro';
+import Bio from '../../composants/commune/Bio.astro';
 import LogementBref from '../../composants/commune/LogementBref.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
@@ -437,8 +439,10 @@ const sommaire: [string, string, unknown][] = [
   ['gares', 'Le train', vie.gares],
   ['transports', 'Transports en commun', vie.transports],
   ['zfe', 'La zone à faibles émissions', zfeIci],
+  ['carburants', 'Les stations-service', vie.carburants],
   ['recharge', 'Recharge et covoiturage', vie.recharge],
   ['agriculture', 'L’agriculture', vie.agriculture],
+  ['bio', 'L’agriculture biologique', vie.bio],
   ['appellations', 'Les appellations', vie.appellations],
   ['ailleurs', 'Ailleurs', true],
   ['journal', 'Ce qui a bougé', journal.length > 0],
@@ -469,7 +473,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'habitants',
     nom: 'Habitants et économie',
-    blocs: ['habitants', 'niveaux', 'travail', 'france-travail', 'entreprises', 'representants', 'associations', 'agriculture', 'appellations'],
+    blocs: ['habitants', 'niveaux', 'travail', 'france-travail', 'entreprises', 'representants', 'associations', 'agriculture', 'bio', 'appellations'],
   },
   {
     id: 'logement',
@@ -479,7 +483,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'quotidien',
     nom: 'Au quotidien',
-    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'toilettes', 'reseaux', 'gares', 'transports', 'zfe', 'recharge', 'mobile', 'securite', 'route'],
+    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'toilettes', 'reseaux', 'gares', 'transports', 'zfe', 'carburants', 'recharge', 'mobile', 'securite', 'route'],
   },
   {
     id: 'environnement',
@@ -1403,6 +1407,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       </section>
     )}
 
+    {vie.carburants && (
+      <section id="carburants">
+        <h2 class="badge">Les stations-service</h2>
+        <Carburants c={vie.carburants} />
+      </section>
+    )}
+
     {vie.recharge && (
       <section id="recharge">
         <h2 class="badge">Recharger, covoiturer</h2>
@@ -1414,6 +1425,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="agriculture">
         <h2 class="badge">Sa surface agricole</h2>
         <Agriculture a={vie.agriculture} />
+      </section>
+    )}
+
+    {vie.bio && (
+      <section id="bio">
+        <h2 class="badge">L’agriculture biologique</h2>
+        <Bio b={vie.bio} />
       </section>
     )}
 
