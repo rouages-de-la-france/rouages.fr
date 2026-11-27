@@ -1218,6 +1218,14 @@ surveillances:
     url: "https://www.data.gouv.fr/api/1/datasets/69b9892671a02fb27d4bd716/"
     lien: od-covoiturage-trajets
 
+  - id: data-es
+    nom: "Ministère chargé des sports — recensement des équipements sportifs"
+    alimente: "les équipements sportifs de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/data-es-recensement-des-equipements-sportifs-et-lieux-de-pratique-complet"
+    lien: od-data-es
+
   # Aucune liste nationale officielle des toilettes publiques : OpenStreetMap est la seule
   # source qui couvre la France. Base collaborative, sous ODbL : les fichiers sont à part.
   - id: osm-toilettes
