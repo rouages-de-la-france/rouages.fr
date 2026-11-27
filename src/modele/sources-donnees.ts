@@ -283,6 +283,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /D’après Data ES/i,
+    liens: [
+      { titre: 'Data ES — recensement des équipements sportifs et lieux de pratique', url: dg('6a5036faf53d94a0ff7fa58f') },
+      { titre: 'Le site du recensement', url: 'https://equipements.sports.gouv.fr/' },
+    ],
+  },
+  {
     motif: /professionnels engagés en bio publiée par l’Agence Bio/i,
     liens: [
       { titre: 'Professionnels engagés en BIO (Agence Bio)', url: dg('622f52bb6b1fe2b127f0ce64') },

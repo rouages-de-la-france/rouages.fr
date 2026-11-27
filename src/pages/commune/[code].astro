@@ -133,6 +133,7 @@ import Baignade from '../../composants/commune/Baignade.astro';
 import Toilettes from '../../composants/commune/Toilettes.astro';
 import Carburants from '../../composants/commune/Carburants.astro';
 import Bio from '../../composants/commune/Bio.astro';
+import Sport from '../../composants/commune/Sport.astro';
 import LogementBref from '../../composants/commune/LogementBref.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
@@ -433,6 +434,7 @@ const sommaire: [string, string, unknown][] = [
   ['a-voir', 'À voir', vie.lieux],
   ['hebergements', 'Les hébergements classés', vie.hebergements],
   ['baignade', 'La baignade', vie.baignade],
+  ['sport', 'Les équipements sportifs', vie.sport],
   ['toilettes', 'Les toilettes publiques', vie.toilettes],
   ['securite', 'La sécurité', vie.delinquance || vie.police],
   ['route', 'Les accidents de la route', vie.route],
@@ -483,7 +485,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'quotidien',
     nom: 'Au quotidien',
-    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'toilettes', 'reseaux', 'gares', 'transports', 'zfe', 'carburants', 'recharge', 'mobile', 'securite', 'route'],
+    blocs: ['equipements', 'services', 'sante', 'defibrillateurs', 'petite-enfance', 'ecoles', 'cantines', 'sport', 'toilettes', 'reseaux', 'gares', 'transports', 'zfe', 'carburants', 'recharge', 'mobile', 'securite', 'route'],
   },
   {
     id: 'environnement',
@@ -1341,6 +1343,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="a-voir">
         <h2 class="badge">À voir</h2>
         <Lieux l={vie.lieux} />
+      </section>
+    )}
+
+    {vie.sport && (
+      <section id="sport">
+        <h2 class="badge">Les équipements sportifs</h2>
+        <Sport s={vie.sport} />
       </section>
     )}
 

@@ -256,6 +256,8 @@ type BioOperateursDep = { maj: string; c: Record<string, [string | null, string,
 const bioOperateursDep = parDepartement<BioOperateursDep>('bio-operateurs');
 type CovoiturageDep = { maj: string; c: Record<string, [number, number][]> };
 const covoiturageDep = parDepartement<CovoiturageDep>('covoiturage');
+type SportDep = { maj: string; c: Record<string, [string, string, string, string, string, string, string, number, number, string[], number, number][]> };
+const sportDep = parDepartement<SportDep>('sport');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -964,6 +966,31 @@ export interface Bio {
   maj: string;
 }
 
+/** Un équipement sportif, d'après Data ES (`scripts/sport-emettre.ts`). */
+export interface EquipementSportif {
+  numero: string;
+  installation: string;
+  /** Le nom de l'installation et de l'équipement ; vides quand ils ne sont pas gardés. */
+  nomInstallation: string;
+  nom: string;
+  type: string;
+  famille: string;
+  /** Le type de propriétaire (« Commune », « Département »…), jamais son nom. */
+  proprietaire: string;
+  /** L'année de mise en service ; 0 si inconnue. */
+  annee: number;
+  libre: boolean;
+  ouvert: boolean;
+  fauteuil: boolean;
+  horsService: boolean;
+  activites: string[];
+}
+
+export interface Sport {
+  equipements: EquipementSportif[];
+  maj: string;
+}
+
 export interface Carburants {
   stations: Station[];
   /**
@@ -1176,6 +1203,7 @@ export interface ComplementsVie {
   baignade: Baignade | null;
   toilettes: Toilettes | null;
   carburants: Carburants | null;
+  sport: Sport | null;
   bio: Bio | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
@@ -1789,6 +1817,18 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function sport(c: CommuneFiche): Sport | null {
+  const d = sportDep.get(c.dep);
+  if (!d) return null;
+  return {
+    equipements: (d.c[c.code] ?? []).map(([numero, installation, nomInstallation, nom, type, famille, proprietaire, annee, f, activites]) => ({
+      numero, installation, nomInstallation, nom, type, famille, proprietaire, annee,
+      libre: (f & 1) > 0, ouvert: (f & 2) > 0, fauteuil: (f & 4) > 0, horsService: (f & 8) > 0, activites,
+    })),
+    maj: d.maj,
+  };
+}
+
 function carburants(c: CommuneFiche): Carburants | null {
   const d = carburantsDep.get(c.dep);
   if (!d) return null;
@@ -2279,6 +2319,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     baignade: baignade(c),
     toilettes: toilettes(c),
     carburants: carburants(c),
+    sport: sport(c),
     bio: bio(c),
     zonages: zonages(c),
     investissement: investissement(c),

@@ -1,0 +1,72 @@
+---
+/**
+ * Les équipements sportifs de la commune, d'après Data ES, le recensement du
+ * ministère chargé des sports : regroupés par installation (le stade, le
+ * complexe, le collège), avec le type de propriétaire, l'année de mise en
+ * service, l'accès libre et l'accessibilité. Voir `scripts/sport-emettre.ts`.
+ */
+import type { Sport } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  s: Sport;
+}
+const { s } = Astro.props;
+const MONTREES = 40;
+const entier = (v: number) => v.toLocaleString('fr-FR');
+const minuscule = (t: string) => t.toLowerCase();
+const n = s.equipements.length;
+// Par famille, la plus fournie d'abord.
+const familles = [...new Set(s.equipements.map((e) => e.famille || e.type))]
+  .map((f) => ({ f, n: s.equipements.filter((e) => (e.famille || e.type) === f).length }))
+  .sort((a, b) => b.n - a.n || a.f.localeCompare(b.f, 'fr'));
+// Par installation, dans l'ordre du recensement.
+const installations = [...new Set(s.equipements.map((e) => e.installation))].map((i) => {
+  const l = s.equipements.filter((e) => e.installation === i);
+  return { nom: l[0].nomInstallation, proprietaires: [...new Set(l.map((e) => e.proprietaire).filter(Boolean))], fauteuil: l[0].fauteuil, equipements: l };
+});
+const libres = s.equipements.filter((e) => e.libre).length;
+const detail = (e: Sport['equipements'][number]) =>
+  [
+    e.nom && e.nom !== e.type ? `${e.nom} (${minuscule(e.type)})` : e.type,
+    e.annee ? `en service depuis ${e.annee}` : null,
+    e.libre ? 'en accès libre' : null,
+    e.horsService ? 'hors service' : null,
+  ]
+    .filter(Boolean)
+    .join(', ') + (e.activites.length ? ` — ${e.activites.join(', ')}` : '');
+---
+{n === 0 ? (
+  <p class="mesure">Aucun équipement sportif de la commune n’est recensé par le ministère chargé des sports.</p>
+) : (
+  <>
+    <p class="mesure">
+      {`${entier(n)} équipement${n > 1 ? 's' : ''} sportif${n > 1 ? 's' : ''} recensé${n > 1 ? 's' : ''}, dans ${entier(installations.length)} installation${installations.length > 1 ? 's' : ''}` +
+        (libres ? `, dont ${entier(libres)} en accès libre` : '') +
+        ` : ${familles.slice(0, 6).map((f) => `${minuscule(f.f)} (${f.n})`).join(', ')}${familles.length > 6 ? ', et d’autres' : ''}.`}
+    </p>
+    <details class="p-service-groupe" open={installations.length <= 6}>
+      <summary class="p-service-famille">{`Les ${entier(installations.length)} installation${installations.length > 1 ? 's' : ''}`}</summary>
+      <ul class="c-structures">
+        {installations.slice(0, MONTREES).map((i) => (
+          <li>
+            <strong>{i.nom || 'Installation sans nom publié'}</strong>
+            {` — ${i.proprietaires.length ? `propriétaire : ${i.proprietaires.map(minuscule).join(', ')}` : 'propriétaire non renseigné'}${i.fauteuil ? ', accessible en fauteuil' : ''}`}
+            <ul class="c-sport-equipements">
+              {i.equipements.map((e) => <li>{detail(e)}</li>)}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      {installations.length > MONTREES && <p class="c-station-detail">{`Et ${entier(installations.length - MONTREES)} autres installations, sur le site du recensement.`}</p>}
+    </details>
+  </>
+)}
+<p class="p-strate">
+  Le recensement est déclaratif : tout propriétaire d’un équipement sportif doit le déclarer, et la base est mise à jour
+  chaque jour, mais un équipement récent ou fermé peut y manquer ou y rester. Le propriétaire est dit par son type —
+  commune, département, association, établissement privé —, jamais par son nom ; un nom d’installation qui désigne un
+  particulier n’est pas repris.
+</p>
+<p class="p-source-territoire">
+  {`D’après Data ES, le recensement des équipements sportifs et lieux de pratique du ministère chargé des sports (${s.maj}).`}
+</p>

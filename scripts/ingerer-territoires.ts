@@ -1292,6 +1292,11 @@ async function principal() {
   const toilettes = await tenter('Toilettes publiques (OpenStreetMap)', () => collecterToilettes(SORTIE, grise));
   if (toilettes) grise(`${ecrireToilettes(SORTIE, toilettes)} départements de toilettes écrits.`);
 
+  // Les équipements sportifs (Data ES, ministère chargé des sports).
+  const { collecterSport, ecrireSport } = await import('./sport-emettre.ts');
+  const sport = await tenter('Équipements sportifs (Data ES)', () => collecterSport(enCache('Data ES — équipements sportifs (80 Mo)'), CACHE, grise));
+  if (sport) grise(`${ecrireSport(SORTIE, sport)} départements d’équipements sportifs écrits.`);
+
   // Les stations-service et leurs prix (DGCCRF), placées dans les mêmes contours.
   const { collecterCarburants, ecrireCarburants } = await import('./carburants-emettre.ts');
   const carburants = await tenter('Stations-service et prix des carburants', () =>
