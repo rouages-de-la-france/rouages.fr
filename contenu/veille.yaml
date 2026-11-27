@@ -1182,6 +1182,17 @@ surveillances:
     url: "https://www.data.gouv.fr/api/1/datasets/57fce28ac751df0e4079df72/"
     lien: od-baignade
 
+  # Aucune liste nationale officielle des toilettes publiques : OpenStreetMap est la seule
+  # source qui couvre la France. Base collaborative, sous ODbL : les fichiers sont à part.
+  - id: osm-toilettes
+    nom: "OpenStreetMap — toilettes publiques"
+    alimente: "les toilettes publiques de la commune, sur sa carte"
+    type: disponibilite
+    licence: odbl
+    fichiers: ["dep/XX-toilettes.json"]
+    url: "https://overpass-api.de/api/status"
+    lien: od-osm-toilettes
+
 decouverte:
   mots_cles:
     - "intercommunalité compétences"

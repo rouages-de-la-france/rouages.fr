@@ -246,6 +246,8 @@ type LieuxDep = { maj: string; c: Record<string, [LieuDep[], LieuDep[], LieuDep[
 const lieuxDep = parDepartement<LieuxDep>('lieux');
 type HebergementsDep = { maj: string; c: Record<string, [string, string, string, string, number | null][]> };
 const hebergementsDep = parDepartement<HebergementsDep>('hebergements');
+type ToilettesDep = { maj: string; c: Record<string, [number, number, 'gratuit' | 'payant' | 'clientele' | 'inconnu', string, 0 | 1 | null, string, string][]> };
+const toilettesDep = parDepartement<ToilettesDep>('toilettes');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -887,6 +889,25 @@ export interface Hebergement {
   capacite: number | null;
 }
 
+/** Une toilette publique, d'après OpenStreetMap (`scripts/toilettes-emettre.ts`). */
+export interface Toilette {
+  /** En dix-millièmes de degré. */
+  x: number;
+  y: number;
+  acces: 'gratuit' | 'payant' | 'clientele' | 'inconnu';
+  /** `yes`, `limited`, `no`, ou vide si OpenStreetMap ne le dit pas. */
+  fauteuil: string;
+  langer: 0 | 1 | null;
+  horaires: string;
+  /** L'objet OpenStreetMap : « n123 », « w456 », « r789 ». */
+  osm: string;
+}
+
+export interface Toilettes {
+  liste: Toilette[];
+  maj: string;
+}
+
 /** Un site de baignade et son classement, d'après le rapportage de la saison balnéaire (`scripts/baignade-emettre.ts`). */
 export interface SiteBaignade {
   nom: string;
@@ -1081,6 +1102,7 @@ export interface ComplementsVie {
   lieux: Lieux | null;
   hebergements: Hebergements | null;
   baignade: Baignade | null;
+  toilettes: Toilettes | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
   loyers: Loyers | null;
@@ -1693,6 +1715,12 @@ function lieux(c: CommuneFiche): Lieux | null {
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
 }
 
+function toilettes(c: CommuneFiche): Toilettes | null {
+  const d = toilettesDep.get(c.dep);
+  if (!d) return null;
+  return { liste: (d.c[c.code] ?? []).map(([x, y, acces, fauteuil, langer, horaires, osm]) => ({ x, y, acces, fauteuil, langer, horaires, osm })), maj: d.maj };
+}
+
 function baignade(c: CommuneFiche): Baignade | null {
   const d = baignadeDep.get(c.dep);
   const x = d?.c[c.code];
@@ -2106,6 +2134,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     lieux: lieux(c),
     hebergements: hebergements(c),
     baignade: baignade(c),
+    toilettes: toilettes(c),
     zonages: zonages(c),
     investissement: investissement(c),
     loyers: loyers(c),

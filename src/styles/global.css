@@ -1946,3 +1946,18 @@ a.p-sommaire-lien { text-decoration: none; }
 .photos-patrimoine figcaption { font-size: .78rem; margin-top: .3rem; overflow-wrap: anywhere; }
 .photos-patrimoine .photo-credit { display: block; color: var(--encre-tres-douce); font-size: .72rem; }
 .photos-patrimoine figure[hidden] { display: none; }
+/* Les toilettes publiques (src/composants/commune/Toilettes.astro) : trois teintes validées deux à deux, et la forme. */
+.wc-carte { margin: 1rem 0; --wc-gratuit: #00b894; --wc-payant: #f47230; --wc-clientele: #257de0; --wc-inconnu: #9a958c; }
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) .wc-carte { --wc-gratuit: #00a888; --wc-payant: #e76624; --wc-clientele: #338ced; --wc-inconnu: #928e85; }
+}
+.wc-carte svg { width: 100%; height: auto; max-width: 40rem; display: block; }
+.wc-commune { fill: var(--fond-doux); stroke: var(--trait-fort); stroke-width: 1.2; }
+.wc-pt { stroke: var(--fond); stroke-width: 2; }
+.wc-pt--gratuit { fill: var(--wc-gratuit); }
+.wc-pt--payant { fill: var(--wc-payant); }
+.wc-pt--clientele { fill: var(--wc-clientele); }
+.wc-pt--inconnu { fill: var(--fond); stroke: var(--wc-inconnu); stroke-width: 2.5; }
+.wc-legende { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; font-size: .9rem; margin-top: .4rem; }
+.wc-legende span { display: inline-flex; align-items: center; gap: .35rem; }
+.wc-legende svg { width: 16px; height: 16px; overflow: visible; }

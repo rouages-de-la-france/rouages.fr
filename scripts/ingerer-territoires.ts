@@ -1270,6 +1270,11 @@ async function principal() {
   const transports = await tenter('Arrêts de transport en commun', () => collecterTransports(SORTIE, lireJson, grise, CACHE));
   if (transports) grise(`${ecrireTransports(SORTIE, transports)} départements d’arrêts écrits.`);
 
+  // Les toilettes publiques, d'OpenStreetMap (ODbL), placées dans les mêmes contours.
+  const { collecterToilettes, ecrireToilettes } = await import('./toilettes-emettre.ts');
+  const toilettes = await tenter('Toilettes publiques (OpenStreetMap)', () => collecterToilettes(SORTIE, grise));
+  if (toilettes) grise(`${ecrireToilettes(SORTIE, toilettes)} départements de toilettes écrits.`);
+
   // La couverture mobile, sur les mêmes contours ; recalculée seulement quand l'Arcep publie un nouveau trimestre.
   const { collecterCouverture, ecrireCouverture } = await import('./couverture-emettre.ts');
   const couverture = await tenter('Couverture mobile 4G', () =>
