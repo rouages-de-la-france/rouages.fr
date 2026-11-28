@@ -11,6 +11,13 @@
  * commune de moins de 3 500 habitants qui a choisi l'affichage ou le papier
  * (article L2131-1).
  *
+ * L'annuaire dit aussi, quand la mairie l'a renseigné, l'application par
+ * laquelle elle informe ses habitants (champ `application_mobile`) :
+ * PanneauPocket, IntraMuros, Illiwap ou une application propre. La page de la
+ * commune dans l'application montre ses messages ; à défaut, la fiche du
+ * magasin d'applications. Rien n'est cherché ailleurs que dans l'annuaire :
+ * une commune qui ne l'a pas déclaré n'en a pas sur la page.
+ *
  * Ce sont des coordonnées de services publics, pas de personnes : le courriel
  * est celui de la mairie, tel que l'annuaire le diffuse. Une fiche que
  * l'annuaire ne diffuse pas (`statut_de_diffusion` faux) n'est pas reprise ;
@@ -27,7 +34,7 @@ import { indisponible } from './echecs.ts';
 export const ANNUAIRE =
   'https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json' +
   '?select=nom,site_internet,telephone,adresse_courriel,adresse,plage_ouverture,commentaire_plage_ouverture,' +
-  'url_service_public,code_insee_commune,statut_de_diffusion' +
+  'url_service_public,code_insee_commune,statut_de_diffusion,application_mobile' +
   `&where=${encodeURIComponent('pivot like "mairie"')}`;
 
 type Fiche = {
@@ -41,14 +48,69 @@ type Fiche = {
   url_service_public: string | null;
   code_insee_commune: string | null;
   statut_de_diffusion: string | boolean | null;
+  application_mobile: string | null;
 };
 
 /**
- * Une mairie : nom, site, téléphone, courriel, adresse, latitude, longitude,
- * horaires, précision sur les horaires, fiche de l'annuaire. Chaîne vide ou
- * null quand l'annuaire ne dit rien.
+ * Une application d'information que la mairie déclare à l'annuaire : son nom (« PanneauPocket »,
+ * « IntraMuros », « Illiwap », ou vide pour une application propre à la commune), l'adresse, et
+ * sa nature — `page` pour la page de la commune dans l'application, qui montre ses messages ;
+ * `ios` ou `android` pour une fiche de magasin d'applications ; `site` pour la page de
+ * présentation de l'application.
  */
-export type Mairie = [string, string, string, string, string, number | null, number | null, string, string, string];
+export type Appli = [string, string, 'page' | 'ios' | 'android' | 'site'];
+
+/**
+ * Une mairie : nom, site, téléphone, courriel, adresse, latitude, longitude,
+ * horaires, précision sur les horaires, fiche de l'annuaire, applications
+ * déclarées. Chaîne vide ou null quand l'annuaire ne dit rien.
+ */
+export type Mairie = [string, string, string, string, string, number | null, number | null, string, string, string, Appli[]];
+
+/** L'application que désigne une adresse, d'après son hôte et son chemin. */
+export function appliDe(adresse: string, plateforme: string): Appli | null {
+  let u: URL;
+  try {
+    u = new URL(adresse.trim());
+  } catch {
+    return null;
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+  const h = u.hostname.replace(/^www\./, '');
+  const chemin = u.pathname.replace(/\/+$/, '');
+  const magasin = (nom: string): Appli | null =>
+    h === 'apps.apple.com' ? [nom, u.href, 'ios'] : h === 'play.google.com' ? [nom, u.href, 'android'] : null;
+  if (h === 'app.panneaupocket.com' && /^\/ville\/\d+-/.test(chemin)) return ['PanneauPocket', `https://app.panneaupocket.com${chemin}`, 'page'];
+  if (h === 'panneaupocket.com') return ['PanneauPocket', 'https://www.panneaupocket.com/', 'site'];
+  if (h === 'station.illiwap.com' && /^\/fr\/public\/@?\w+/.test(chemin)) return ['Illiwap', u.href, 'page'];
+  if (h === 'intramuros.org' && chemin.length > 1) return ['IntraMuros', u.href, 'page'];
+  if (h === 'intramuros.org' || h === 'appli-intramuros.fr') return ['IntraMuros', 'https://appli-intramuros.fr/', 'site'];
+  if (/jepreviens\.fr$/.test(h)) return ['JePréviens', u.href, chemin.length > 1 ? 'page' : 'site'];
+  const id = h === 'play.google.com' ? (u.searchParams.get('id') ?? '') : chemin;
+  if (/panopoche|panneaupocket/i.test(id)) return magasin('PanneauPocket');
+  if (/intramuros/i.test(id)) return magasin('IntraMuros');
+  if (/illiwap/i.test(id)) return magasin('Illiwap');
+  if (/jepreviens/i.test(id)) return magasin('JePréviens');
+  // Une application propre à la commune : seulement sa fiche de magasin, jamais une autre adresse.
+  const m = magasin('');
+  return m && (plateforme || id) ? m : null;
+}
+
+/** Les applications d'un champ `application_mobile`, une fois chacune, la page de la commune d'abord. */
+export function applisDe(champ: string | null): Appli[] {
+  const vues = new Map<string, Appli>();
+  for (const { valeur, custom_dico2 } of liste<{ valeur?: string; custom_dico2?: string }>(champ)) {
+    const a = appliDe(valeur ?? '', custom_dico2 ?? '');
+    if (!a) continue;
+    const cle = `${a[0]}|${a[1]}`;
+    if (!vues.has(cle)) vues.set(cle, a);
+  }
+  const ordre = { page: 0, site: 1, ios: 2, android: 3 } as const;
+  const l = [...vues.values()].sort((a, b) => a[0].localeCompare(b[0]) || ordre[a[2]] - ordre[b[2]]);
+  // Une application nommée qui a sa page n'a pas besoin de sa présentation ni de ses magasins.
+  const avecPage = new Set(l.filter((a) => a[2] === 'page').map((a) => a[0]));
+  return l.filter((a) => !a[0] || a[2] === 'page' || !avecPage.has(a[0])).slice(0, 6);
+}
 
 const liste = <T,>(champ: string | null): T[] => {
   if (!champ) return [];
@@ -143,6 +205,7 @@ function mairieDe(f: Fiche): Mairie {
     horaires(f.plage_ouverture),
     (f.commentaire_plage_ouverture ?? '').trim().slice(0, 400),
     fiche,
+    applisDe(f.application_mobile),
   ];
 }
 
@@ -172,9 +235,10 @@ export async function collecterMairies(
     return indisponible(dire, `Mairies : ${communes.size} communes seulement, on garde l’ingestion précédente.`);
   }
   const avecSite = [...communes.values()].filter((l) => l.some((m) => m[1])).length;
+  const avecAppli = [...communes.values()].filter((l) => l.some((m) => m[10].length)).length;
   dire(
     `Mairies : ${fiches.length.toLocaleString('fr-FR')} fiches, ${communes.size.toLocaleString('fr-FR')} communes, ` +
-      `${avecSite.toLocaleString('fr-FR')} avec un site` +
+      `${avecSite.toLocaleString('fr-FR')} avec un site, ${avecAppli.toLocaleString('fr-FR')} avec une application déclarée` +
       (nonDiffusees ? `, ${nonDiffusees} fiches non diffusées écartées.` : '.'),
   );
   return { maj: new Date().toISOString().slice(0, 10), communes };

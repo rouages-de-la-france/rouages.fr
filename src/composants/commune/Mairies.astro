@@ -25,6 +25,9 @@ const carte = (p: { lat: number; lon: number }) => `https://www.openstreetmap.or
 const geoportail = (p: { lat: number; lon: number }) =>
   `https://cartes.gouv.fr/explorer-les-cartes/?c=${p.lon},${p.lat}&z=18&p=${p.lon},${p.lat}&permalink=yes`;
 const tel = (t: string) => `tel:${t.replace(/[^\d+]/g, '')}`;
+// Les applications, par nom : la page de la commune (ses messages), sinon les magasins.
+const NATURE = { page: 'voir ses messages', site: 'présentation', ios: 'App Store', android: 'Google Play' } as const;
+const applis = [...new Set(mairie.applis.map((a) => a.nom))].map((n) => ({ nom: n || 'une application propre', liens: mairie.applis.filter((a) => a.nom === n) }));
 ---
 <div class="c-mairie">
   <p class="badge">La mairie</p>
@@ -53,6 +56,21 @@ const tel = (t: string) => `tel:${t.replace(/[^\d+]/g, '')}`;
     </p>
   )}
   {mairie.horaires && <p class="c-mairie-ligne">{`Ouverte ${mairie.horaires}.`}</p>}
+  {applis.length > 0 && (
+    <p class="c-mairie-ligne">
+      {'Elle informe ses habitants par '}
+      {applis.map((a, i) => (
+        <>
+          {i > 0 && (i === applis.length - 1 ? ' et ' : ', ')}
+          <strong>{a.nom}</strong>
+          {' ('}
+          {a.liens.map((l, j) => <>{j > 0 && ', '}<a href={l.url} target="_blank" rel="noopener">{NATURE[l.nature]}</a></>)}
+          {')'}
+        </>
+      ))}
+      {' — d’après ce qu’elle déclare à l’annuaire de service-public.fr.'}
+    </p>
+  )}
   {mairie.precision && <p class="c-mairie-precision">{mairie.precision}</p>}
   {mairie.site && (
     <p class="c-mairie-precision">
