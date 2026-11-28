@@ -1239,7 +1239,8 @@ Jusqu'ici, le site ne mesurait rien, et `/mentions` le disait. Il faut
 désormais savoir si le site est lu : c'est la condition, fixée par le
 mainteneur, pour publier la famille « influence » (`docs/12-rouages-influence.md`).
 
-**Ce qui est retenu** : une instance **Umami** hébergée par l'éditeur. Aucun
+**Ce qui est retenu** : une instance **Umami** administrée par l'éditeur, sur un serveur loué chez
+netcup GmbH, en Allemagne (sous-traitant ; précisé le 28 novembre 2026). Aucun
 cookie ; un identifiant de visite calculé par Umami à partir de l'adresse IP
 et du navigateur, mêlés à une valeur renouvelée chaque mois ; des statistiques
 agrégées par page, provenance, navigateur, appareil et pays.
