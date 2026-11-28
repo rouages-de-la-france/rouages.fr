@@ -134,6 +134,7 @@ import Toilettes from '../../composants/commune/Toilettes.astro';
 import Carburants from '../../composants/commune/Carburants.astro';
 import Bio from '../../composants/commune/Bio.astro';
 import Sport from '../../composants/commune/Sport.astro';
+import Rge from '../../composants/commune/Rge.astro';
 import LogementBref from '../../composants/commune/LogementBref.astro';
 import { complementsVie, ouverture, zfe } from '../../modele/fiche-vie.ts';
 
@@ -397,6 +398,7 @@ const sommaire: [string, string, unknown][] = [
   ['vacance', 'La vacance', vie.vacance],
   ['loyers', 'Les loyers', vie.loyers],
   ['dpe', 'Les étiquettes énergétiques', vie.dpe],
+  ['rge', 'Les entreprises RGE', vie.rge],
   ['aides-locales', 'Les aides à la rénovation', aidesIci.length > 0 || aidesAilleurs.length > 0],
   ['vente', 'Une vente immobilière', dmtoDernier >= 0],
   ['urbanisme', 'Ce qui peut s’y construire', fiche?.urbanisme],
@@ -480,7 +482,7 @@ const FAMILLES: { id: string; nom: string; blocs: string[] }[] = [
   {
     id: 'logement',
     nom: 'Se loger, construire',
-    blocs: ['logement-bref', 'zonages', 'logements', 'marche', 'batiments', 'vacance', 'loyers', 'dpe', 'aides-locales', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
+    blocs: ['logement-bref', 'zonages', 'logements', 'marche', 'batiments', 'vacance', 'loyers', 'dpe', 'aides-locales', 'rge', 'vente', 'urbanisme', 'construit', 'sols', 'logement-social'],
   },
   {
     id: 'quotidien',
@@ -898,6 +900,13 @@ const financementsPro = (dep: string) => !/^(97[5789]|98)/.test(dep);
       <section id="aides-locales" class="p-aides-locales">
         <h2 class="badge">Les aides locales à la rénovation</h2>
         <AidesLocales aides={aidesIci} horsPerimetre={aidesAilleurs} commune={{ code: commune.code, nom: commune.nom }} />
+      </section>
+    )}
+
+    {vie.rge && (
+      <section id="rge">
+        <h2 class="badge">Les entreprises RGE de la commune</h2>
+        <Rge r={vie.rge} />
       </section>
     )}
 

@@ -710,6 +710,81 @@ dans la finalité du registre ; et que l'affichage du SIREN seul d'un
 entrepreneur en diffusion partielle, que l'INSEE diffuse lui-même, ne
 contrevient pas à son opposition.
 
+### Les entreprises reconnues garantes de l'environnement (28 novembre 2026)
+
+Écrit avant la collecte. Le mainteneur a tranché le 28 novembre 2026 : les
+entreprises RGE sont nommées et comptées sur la page de commune, avec la même
+règle de diffusion que les opérateurs bio.
+
+**Le registre.** L'ADEME publie chaque jour la liste des entreprises qui
+détiennent la mention « Reconnu garant de l'environnement » (data.gouv.fr,
+« Liste des entreprises RGE », jeu 62bd63b70ff1edf452b83a6b ; données sur
+data.ademe.fr, Licence Ouverte), avec leurs domaines de travaux. La fiche du
+jeu le dit : la mention « est une mention indispensable pour que les clients
+bénéficient des aides de l'État (MaPrimeRénov', aides ANAH, ECO-Prêt à Taux
+Zéro, fiches CEE, Fonds chaleur de l'ADEME...) » (lu le 28 novembre 2026).
+Les critères de qualification sont fixés par le décret n° 2014-812 du
+16 juillet 2014 (JORFTEXT000029257515, relevé par recherche, Légifrance
+refusant cet environnement), et la fiche du jeu renvoie à france-renov.gouv.fr
+« pour plus d'informations sur les entreprises RGE ». La finalité du registre est exactement celle de la page : qu'un
+habitant trouve une entreprise dont les travaux ouvrent droit aux aides.
+
+**Ce qu'une entreprise peut en attendre.** Elle a demandé la mention pour
+être trouvée par des clients ; la liste de l'ADEME publie déjà, avec son nom,
+son adresse, son téléphone, son courriel et son site.
+
+**Ce qui est repris.** Pour chaque entreprise : son nom — la dénomination
+publiée pour une personne morale, le nom SIRENE d'un entrepreneur individuel
+diffusible, le **SIREN seul** pour un entrepreneur en diffusion partielle,
+un SIRET inconnu de SIRENE ou une opposition, comme pour les opérateurs bio —,
+ses domaines de travaux, ses qualifications et leur organisme, la date de fin
+de chaque qualification, si elle travaille pour les particuliers, le lien vers
+l'attestation de qualification publiée par l'organisme, et le lien vers la
+fiche de l'annuaire des entreprises. La commune est celle de l'adresse que
+donne la liste, placée par ses coordonnées.
+
+**Ce qui ne l'est pas.** Ni l'adresse, ni le téléphone, ni le courriel : le
+lien vers l'attestation et vers l'annuaire suffit à joindre l'entreprise, et
+un entrepreneur travaille souvent à son domicile.
+
+**Sans conclure.** La page dit qu'une entreprise détient la mention à la date
+de la liste, rien de la qualité de ses travaux.
+
+**Le retrait.** Par le SIREN, sous `entreprises` dans `retraits.yaml` :
+l'entreprise est alors montrée par son seul SIREN.
+
+**À valider par un avocat** : la republication du nom d'un entrepreneur
+individuel hors de l'annuaire de France Rénov'.
+
+### Les noms qui rendent hommage (28 novembre 2026)
+
+**Décision du mainteneur.** Le nom d'un lieu culturel, d'un équipement
+sportif, d'un objet protégé ou d'une association est montré tel que son
+registre le publie, même s'il porte le nom de quelqu'un. Le stade, la
+médiathèque, le gymnase nommés d'après une personne lui rendent presque
+toujours hommage, souvent après sa mort ; un objet protégé nomme une figure
+historique (« portrait de M. … ») ; une association porte un nom de personne
+morale. Les écarter privait le lecteur d'une information publique, utile pour
+s'orienter, sans protéger personne.
+
+**Ce qui changeait jusque-là.** Les lieux culturels (base Basilic) et les
+équipements sportifs (Data ES) perdaient leur nom quand il ressemblait à un
+nom de personne sans dire ce qu'est le lieu ; les objets protégés (Palissy)
+et les associations (répertoire national) dont le titre portait une civilité
+n'étaient pas repris du tout.
+
+**Ce qui reste écarté.**
+
+- le domicile d'un particulier : un point lecture « chez Mme … » ou un
+  « domicile de … » dans la base des lieux culturels, un « domicile » dans
+  le recensement sportif. Ce n'est pas un lieu public ; le lieu est montré
+  par son type, sans nom ;
+- les particuliers cités dans l'objet d'une délibération (règle de
+  `CLAUDE.md`), dans l'intitulé d'un projet subventionné par l'État
+  (« acquisition de la maison de M. … ») et parmi les bénéficiaires des
+  subventions : ce sont des personnes vivantes, nommées pour une transaction
+  ou une aide, pas pour un hommage.
+
 ## 4. Risques juridiques directs
 
 - **Diffamation** (famille D) : traitée par la règle « pas de personnes » dans

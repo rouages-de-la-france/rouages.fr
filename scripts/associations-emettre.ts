@@ -48,7 +48,6 @@
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { debutFenetre, GENRES, type Evenement } from '../src/modele/journal.ts';
 import { indisponible } from './echecs.ts';
 
@@ -240,7 +239,6 @@ export async function collecterAssociations(
   const communes = new Map<string, AssociationsCommune>();
   let total = 0;
   let horsDecoupage = 0;
-  let ecartees = 0;
 
   // Le journal regarde plus près que le décompte : les créations des derniers
   // mois sont celles qu'on veut voir passer, et le comptage par année civile
@@ -275,7 +273,7 @@ export async function collecterAssociations(
       const brutX = (l['adrs_codeinsee'] ?? '').trim();
       const codeX = reports.get(brutX) ?? brutX;
       const titreX = (l['titre'] ?? '').trim();
-      if (populations.has(codeX) && titreX && !nommeUnePersonne(titreX)) {
+      if (populations.has(codeX) && titreX) {
         const objet = (l['objet'] ?? '').replace(/\s+/g, ' ').trim();
         garder(codeX, (l['date_decla'] ?? '').slice(0, 10), [
           titreX.length > MAX_TITRE ? `${titreX.slice(0, MAX_TITRE - 1)}…` : titreX,
@@ -301,13 +299,9 @@ export async function collecterAssociations(
     }
     const titre = (l['titre'] ?? '').trim();
     if (!titre) continue;
-    // Une association porte un nom de personne morale. Le filtre qui vaut pour
-    // le reste du site s'applique quand même : un intitulé qui commence par une
-    // civilité désigne quelqu'un, pas un groupement.
-    if (nommeUnePersonne(titre)) {
-      if (pourCompte) ecartees++;
-      continue;
-    }
+    // Une association porte un nom de personne morale, publié tel quel au
+    // répertoire : un intitulé qui cite quelqu'un (« Les amis de M. … ») lui rend
+    // le plus souvent hommage. Il n'est plus écarté depuis le 28 novembre 2026.
     const domaine = RANG_DOMAINE.get((l['objet_social1'] ?? '').slice(0, 3)) ?? -1;
     if (pourJournal) {
       evenements.push({
@@ -384,7 +378,6 @@ export async function collecterAssociations(
         ? `, ${horsDecoupage.toLocaleString('fr-FR')} sur un code hors découpage ` +
           `(${((horsDecoupage / total) * 100).toFixed(2)} %)`
         : '') +
-      (ecartees > 0 ? `, ${ecartees.toLocaleString('fr-FR')} écartées (intitulé nommant une personne)` : '') +
       `. Médiane ${mediane.toFixed(1)} pour mille habitants sur ${ANNEES} ans, ` +
       `${evenements.length.toLocaleString('fr-FR')} créations pour le journal, ` +
       `${nExistantes.toLocaleString('fr-FR')} associations existantes dans ${existantes.size.toLocaleString('fr-FR')} communes.`,

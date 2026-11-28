@@ -193,7 +193,7 @@ type ProjetEurope = [
 ];
 const europeDep = parDepartement<EuropeDep>('europe');
 const europe21Dep = parDepartement<EuropeDep>('europe21');
-type MairiesDep = { maj: string; c: Record<string, [string, string, string, string, string, number | null, number | null, string, string, string][]> };
+type MairiesDep = { maj: string; c: Record<string, [string, string, string, string, string, number | null, number | null, string, string, string, ([string, string, 'page' | 'ios' | 'android' | 'site'][])?][]> };
 const mairiesDep = parDepartement<MairiesDep>('mairies');
 type SolsPolluesDep = {
   maj: string;
@@ -258,6 +258,8 @@ type CovoiturageDep = { maj: string; c: Record<string, [number, number][]> };
 const covoiturageDep = parDepartement<CovoiturageDep>('covoiturage');
 type SportDep = { maj: string; c: Record<string, [string, string, string, string, string, string, string, number, number, string[], number, number][]> };
 const sportDep = parDepartement<SportDep>('sport');
+type RgeDep = { maj: string; c: Record<string, [string | null, string, string[], 0 | 1, [string, string, string, string][]][]> };
+const rgeDep = parDepartement<RgeDep>('rge');
 type BaignadeDep = { maj: string; saison: number; c: Record<string, [string, string, string, string][]> };
 const baignadeDep = parDepartement<BaignadeDep>('baignade');
 
@@ -854,6 +856,12 @@ export interface Mairies {
     horaires: string | null;
     precision: string | null;
     fiche: string | null;
+    /**
+     * Les applications d'information que la mairie déclare à l'annuaire : le nom (vide pour une
+     * application propre à la commune), l'adresse, et sa nature — `page` montre les messages de la
+     * commune dans l'application.
+     */
+    applis: { nom: string; url: string; nature: 'page' | 'ios' | 'android' | 'site' }[];
   }[];
   maj: string;
 }
@@ -988,6 +996,21 @@ export interface EquipementSportif {
 
 export interface Sport {
   equipements: EquipementSportif[];
+  maj: string;
+}
+
+/** Une entreprise reconnue garante de l'environnement, d'après la liste de l'ADEME (`scripts/rge-emettre.ts`). */
+export interface EntrepriseRge {
+  /** Null quand elle n'est montrée que par son SIREN. */
+  nom: string | null;
+  siren: string;
+  domaines: string[];
+  particuliers: boolean;
+  qualifications: { nom: string; organisme: string; fin: string; attestation: string | null }[];
+}
+
+export interface Rge {
+  entreprises: EntrepriseRge[];
   maj: string;
 }
 
@@ -1204,6 +1227,7 @@ export interface ComplementsVie {
   toilettes: Toilettes | null;
   carburants: Carburants | null;
   sport: Sport | null;
+  rge: Rge | null;
   bio: Bio | null;
   zonages: Zonages | null;
   investissement: Investissement | null;
@@ -1741,7 +1765,7 @@ function mairies(c: CommuneFiche): Mairies | null {
   const l = d?.c[c.code];
   if (!d || !l || l.length === 0) return null;
   return {
-    liste: l.map(([nom, site, telephone, courriel, adresse, lat, lon, horaires, precision, fiche]) => ({
+    liste: l.map(([nom, site, telephone, courriel, adresse, lat, lon, horaires, precision, fiche, applis]) => ({
       nom,
       site: site || null,
       telephone: telephone || null,
@@ -1751,6 +1775,7 @@ function mairies(c: CommuneFiche): Mairies | null {
       horaires: horaires || null,
       precision: precision || null,
       fiche: fiche || null,
+      applis: (applis ?? []).map(([n, url, nature]) => ({ nom: n, url, nature })),
     })),
     maj: d.maj,
   };
@@ -1815,6 +1840,18 @@ function lieux(c: CommuneFiche): Lieux | null {
     typeof x === 'string' ? { nom: x, fiche: null } : { nom: x[0], fiche: x[1] ? `https://data.datatourisme.fr/${x[1]}` : null };
   const [patrimoine, nature, itineraires] = d.c[c.code] ?? [[], [], []];
   return { patrimoine: patrimoine.map(lieu), nature: nature.map(lieu), itineraires: itineraires.map(lieu), maj: d.maj };
+}
+
+function rge(c: CommuneFiche): Rge | null {
+  const d = rgeDep.get(c.dep);
+  if (!d) return null;
+  return {
+    entreprises: (d.c[c.code] ?? []).map(([nom, siren, domaines, part, q]) => ({
+      nom, siren, domaines, particuliers: part === 1,
+      qualifications: q.map(([n, organisme, fin, attestation]) => ({ nom: n, organisme, fin, attestation: attestation || null })),
+    })),
+    maj: d.maj,
+  };
 }
 
 function sport(c: CommuneFiche): Sport | null {
@@ -2320,6 +2357,7 @@ export function complementsVie(c: CommuneFiche): ComplementsVie {
     toilettes: toilettes(c),
     carburants: carburants(c),
     sport: sport(c),
+    rge: rge(c),
     bio: bio(c),
     zonages: zonages(c),
     investissement: investissement(c),

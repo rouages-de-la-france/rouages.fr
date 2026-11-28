@@ -283,6 +283,13 @@ const ENTREES: Entree[] = [
     ],
   },
   {
+    motif: /liste des entreprises RGE publiée/i,
+    liens: [
+      { titre: 'Liste des entreprises RGE (ADEME)', url: dg('62bd63b70ff1edf452b83a6b') },
+      { titre: 'France Rénov’', url: 'https://france-renov.gouv.fr/' },
+    ],
+  },
+  {
     motif: /D’après Data ES/i,
     liens: [
       { titre: 'Data ES — recensement des équipements sportifs et lieux de pratique', url: dg('6a5036faf53d94a0ff7fa58f') },

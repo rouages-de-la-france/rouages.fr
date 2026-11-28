@@ -7,8 +7,11 @@
  * Seuls les dossiers individuels et les dossiers d'ensemble sont comptés : un
  * sous-dossier décrit une partie d'un objet déjà compté. Un objet désinscrit
  * est écarté. La commune est celle de la notice (code « COG »), reportée sur
- * la commune actuelle par le découpage. Un titre qui nomme une personne
- * — civilité suivie d'un nom — n'est pas repris.
+ * la commune actuelle par le découpage. Le titre est repris tel que la base
+ * Palissy le publie, même s'il nomme une personne (« portrait de M. … ») :
+ * c'est un objet du patrimoine, et la personne, le plus souvent, une figure
+ * historique (décision du 28 novembre 2026 ; jusque-là, ces titres étaient
+ * écartés).
  *
  * Le fichier fait 365 Mo, séparé par des barres verticales, avec des retours
  * à la ligne entre guillemets.
@@ -19,7 +22,6 @@
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
 import { indisponible } from './echecs.ts';
 
@@ -66,7 +68,7 @@ export async function collecterObjets(
     else x.i++;
     const titre = (v[col.Titre_editorial] ?? '').replace(/\s+/g, ' ').trim();
     const ref = (v[col.Reference] ?? '').trim();
-    if (titre && ref && !nommeUnePersonne(titre)) x.liste.push([ref, titre.length > 140 ? `${titre.slice(0, 137)}…` : titre, classe]);
+    if (titre && ref) x.liste.push([ref, titre.length > 140 ? `${titre.slice(0, 137)}…` : titre, classe]);
     parCommune.set(code, x);
   }
   if (lus < 150000) {
