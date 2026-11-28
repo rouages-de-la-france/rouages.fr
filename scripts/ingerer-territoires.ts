@@ -1297,6 +1297,11 @@ async function principal() {
   const sport = await tenter('Équipements sportifs (Data ES)', () => collecterSport(enCache('Data ES — équipements sportifs (80 Mo)'), CACHE, grise));
   if (sport) grise(`${ecrireSport(SORTIE, sport)} départements d’équipements sportifs écrits.`);
 
+  // Les entreprises RGE (ADEME), nommées (décision du 28 novembre 2026) ; placées dans les mêmes contours.
+  const { collecterRge, ecrireRge } = await import('./rge-emettre.ts');
+  const rge = await tenter('Entreprises RGE (ADEME)', () => collecterRge(SORTIE, lireJson, async (url) => (await obstine(url)).text(), grise));
+  if (rge) grise(`${ecrireRge(SORTIE, rge)} départements d’entreprises RGE écrits.`);
+
   // Les stations-service et leurs prix (DGCCRF), placées dans les mêmes contours.
   const { collecterCarburants, ecrireCarburants } = await import('./carburants-emettre.ts');
   const carburants = await tenter('Stations-service et prix des carburants', () =>

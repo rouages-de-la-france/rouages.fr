@@ -1,0 +1,70 @@
+---
+/**
+ * Les entreprises reconnues garantes de l'environnement (RGE) de la commune,
+ * d'après la liste quotidienne de l'ADEME : la mention qui ouvre droit aux
+ * aides de l'État pour la rénovation énergétique. Nommées selon la décision
+ * du 28 novembre 2026 (`docs/07-risques.md`) ; un entrepreneur qui a demandé
+ * que son nom ne soit pas diffusé apparaît par son seul SIREN. Voir
+ * `scripts/rge-emettre.ts`.
+ */
+import type { Rge } from '../../modele/fiche-vie.ts';
+
+interface Props {
+  r: Rge;
+}
+const { r } = Astro.props;
+const FICHE = 'https://annuaire-entreprises.data.gouv.fr/entreprise/';
+const entier = (v: number) => v.toLocaleString('fr-FR');
+const n = r.entreprises.length;
+const domaines = [...new Set(r.entreprises.flatMap((e) => e.domaines))]
+  .map((d) => ({ d, n: r.entreprises.filter((e) => e.domaines.includes(d)).length }))
+  .sort((a, b) => b.n - a.n || a.d.localeCompare(b.d, 'fr'));
+const particuliers = r.entreprises.filter((e) => e.particuliers).length;
+const seuls = r.entreprises.some((e) => !e.nom);
+const date = (d: string) => (d && d < '2090' ? new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
+---
+{n === 0 ? (
+  <p class="mesure">Aucune entreprise reconnue garante de l’environnement (RGE) n’a son adresse dans la commune.</p>
+) : (
+  <>
+    <p class="mesure">
+      {`${entier(n)} entreprise${n > 1 ? 's' : ''} reconnue${n > 1 ? 's' : ''} garante${n > 1 ? 's' : ''} de l’environnement (RGE) dans la commune` +
+        (particuliers ? `, dont ${entier(particuliers)} qui travaille${particuliers > 1 ? 'nt' : ''} pour les particuliers` : '') +
+        ` : ${domaines.slice(0, 5).map((d) => `${d.d.toLowerCase()} (${d.n})`).join(', ')}${domaines.length > 5 ? ', et d’autres travaux' : ''}.`}
+    </p>
+    <details class="p-service-groupe" open={n <= 8}>
+      <summary class="p-service-famille">{`Les ${entier(n)} entreprise${n > 1 ? 's' : ''} RGE`}</summary>
+      <ul class="c-structures">
+        {r.entreprises.map((e) => (
+          <li>
+            <a href={`${FICHE}${e.siren}`}>{e.nom ?? `SIREN ${e.siren}`}</a>
+            {` — ${e.domaines.join(', ').toLowerCase()}${e.particuliers ? '' : ' (ne travaille pas pour les particuliers)'}`}
+            <ul class="c-sport-equipements">
+              {e.qualifications.map((q) => (
+                <li>
+                  {q.attestation ? <a href={q.attestation} target="_blank" rel="noopener">{q.nom}</a> : q.nom}
+                  {`${q.organisme ? `, ${q.organisme}` : ''}${date(q.fin) ? `, jusqu’en ${date(q.fin)}` : ''}`}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      {seuls && (
+        <p class="c-station-detail">
+          Une entreprise montrée par son seul numéro SIREN est un entrepreneur individuel qui a demandé que son nom ne soit pas
+          diffusé, ou que le répertoire des entreprises ne permet pas de nommer.
+        </p>
+      )}
+    </details>
+  </>
+)}
+<p class="p-strate">
+  La mention RGE est celle qu’il faut à l’entreprise pour que ses clients obtiennent les aides publiques aux travaux de
+  rénovation énergétique, comme MaPrimeRénov’ ou l’éco-prêt à taux zéro. La liste dit qu’une entreprise la détient à sa
+  date, rien de la qualité de ses travaux ; une entreprise d’une commune voisine peut aussi intervenir ici. Le lien de
+  chaque qualification ouvre son attestation, publiée par l’organisme qui l’a délivrée.
+</p>
+<p class="p-source-territoire">
+  {`D’après la liste des entreprises RGE publiée chaque jour par l’ADEME (${r.maj}) ; le nom d’un entrepreneur individuel d’après le répertoire SIRENE.`}
+</p>

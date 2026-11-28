@@ -263,7 +263,14 @@ Ce qui est autorisé à ce jour :
   diffusion partielle apparaît sous son SIREN seul**, que l'INSEE diffuse :
   on sait qu'il existe, sans son nom. Ni gérant, ni téléphone, ni courriel,
   ni adresse. Une opposition s'inscrit par le SIREN dans `retraits.yaml` et
-  ramène l'opérateur à son SIREN seul.
+  ramène l'opérateur à son SIREN seul ;
+- **les entreprises reconnues garantes de l'environnement (RGE)**, d'après
+  la liste quotidienne de l'ADEME — décision du 28 novembre 2026, justifiée
+  dans `docs/07-risques.md` : même règle de nom que les opérateurs bio
+  (personne morale par sa dénomination, entrepreneur diffusible par son nom
+  SIRENE, sinon le SIREN seul), les domaines de travaux, les qualifications
+  et leur échéance, le lien vers l'attestation et vers l'annuaire des
+  entreprises. Ni adresse, ni téléphone, ni courriel.
 
 Le nom d'un lieu, d'un équipement, d'un objet protégé ou d'une association
 est montré tel que son registre le publie, même s'il porte le nom de

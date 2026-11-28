@@ -1226,6 +1226,16 @@ surveillances:
     url: "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/data-es-recensement-des-equipements-sportifs-et-lieux-de-pratique-complet"
     lien: od-data-es
 
+  # Nomme les entreprises (décision du 28 novembre 2026, docs/07-risques.md) ; un entrepreneur
+  # en diffusion partielle à SIRENE n'y apparaît que par son SIREN.
+  - id: rge
+    nom: "ADEME — entreprises reconnues garantes de l'environnement"
+    alimente: "les entreprises RGE de la commune"
+    type: disponibilite
+    licence: licence-ouverte-2.0
+    url: "https://data.ademe.fr/data-fair/api/v1/datasets/liste-des-entreprises-rge-2"
+    lien: od-rge
+
   # Aucune liste nationale officielle des toilettes publiques : OpenStreetMap est la seule
   # source qui couvre la France. Base collaborative, sous ODbL : les fichiers sont à part.
   - id: osm-toilettes
