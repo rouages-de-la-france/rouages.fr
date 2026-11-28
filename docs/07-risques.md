@@ -1240,7 +1240,8 @@ désormais savoir si le site est lu : c'est la condition, fixée par le
 mainteneur, pour publier la famille « influence » (`docs/12-rouages-influence.md`).
 
 **Ce qui est retenu** : une instance **Umami** administrée par l'éditeur, sur un serveur loué chez
-netcup GmbH, en Allemagne (sous-traitant ; précisé le 28 novembre 2026). Aucun
+netcup GmbH, en Allemagne (sous-traitant ; précisé le 28 novembre 2026),
+dont le disque est entièrement chiffré, sans que netcup en ait la clé. Aucun
 cookie ; un identifiant de visite calculé par Umami à partir de l'adresse IP
 et du navigateur, mêlés à une valeur renouvelée chaque mois ; des statistiques
 agrégées par page, provenance, navigateur, appareil et pays.
