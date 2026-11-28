@@ -12,10 +12,10 @@
  * l'installation est accessible en fauteuil, les activités qui s'y pratiquent,
  * et sa position.
  *
- * Les noms passent par le même filtre que les lieux culturels
- * (`nomMontrable`, `culture-emettre.ts`) : un nom qui désigne un particulier
- * n'est pas gardé, et la page dit alors le type d'équipement sans son nom.
- * Un nom de lieu qui honore quelqu'un (« Complexe Fernand Fayet ») reste.
+ * Les noms sont gardés tels que le recensement les publie — un équipement
+ * nommé d'après quelqu'un lui rend le plus souvent hommage (« Complexe
+ * Fernand Fayet »), et une civilité y est souvent un sigle de club ou une
+ * enseigne (« Chez … ») —, sauf celui qui dit le domicile d'un particulier.
  *
  * Lancé seul — `tsx scripts/sport-emettre.ts` —, il réécrit les fichiers
  * `public/territoires/dep/XX-sport.json`.
@@ -23,8 +23,6 @@
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nomMontrable } from './culture-emettre.ts';
-import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { communeDe, ecrireParDepartement, lignesCsv, telechargerSiAbsent } from './par-departement.ts';
 import { ECHELLE } from './espaces-emettre.ts';
 import { indisponible } from './echecs.ts';
@@ -38,13 +36,9 @@ const CHAMPS = [
 ];
 export const EXPORT = `${ODS}?select=${encodeURIComponent(CHAMPS.join(','))}&delimiter=%3B`;
 
-/** Un nom de lieu de sport, même quand il ressemble à un nom de personne. */
-const MOT_DE_SPORT = /stand|ensemble|lyc[ée]e|coll[èe]ge|palais|hall|plaine|marina|port|sentier|refuge|ar[èe]nes|institut|[ée]tablissement|[ée]quipement|installations|cercle|stade|gymnase|complexe|terrain|piscine|court|halle|dojo|club|base|plateau|boucle|circuit|parcours|boulodrome|skate|tennis|golf|piste|centre|salle|espace|parc|plan d.eau|aire|city|hippodrome|manège|carrière/i;
 export const nomGarde = (n: string) => {
   const s = n.replace(/\s+/g, ' ').trim();
-  if (!s) return '';
-  if (nomMontrable(s)) return s;
-  return !nommeUnePersonne(s) && !/\bdomicile\b|\bchez\b/i.test(s) && MOT_DE_SPORT.test(s) ? s : '';
+  return /\bdomicile\b/i.test(s) ? '' : s;
 };
 
 /**

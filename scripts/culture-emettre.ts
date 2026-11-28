@@ -15,11 +15,11 @@
  * Un lieu peut porter le nom de quelqu'un qu'on honore — le cinéma Jean Gabin,
  * la médiathèque Louis Aragon — comme l'école primaire Yves Duteil. Mais la
  * base recense aussi des dépôts de livres chez l'habitant (« Domicile de
- * Mme … »). Le nom n'est donc gardé que s'il ne porte ni civilité ni
- * « domicile », et, s'il ressemble à un nom de personne, que s'il dit aussi ce
- * qu'est le lieu (« médiathèque », « salle », « musée »…). Sinon la page dit le
- * type de lieu sans son nom : un cinéma de moins nommé, plutôt qu'un
- * particulier nommé.
+ * Mme … »). Le nom est gardé tel que publié, sauf s'il porte une civilité,
+ * « domicile » ou « chez » : la page dit alors le type de lieu sans son nom.
+ * Jusqu'au 28 novembre 2026, un nom qui ressemblait à un nom de personne
+ * était aussi écarté s'il ne disait pas ce qu'est le lieu ; le mainteneur a
+ * jugé que c'était se priver d'hommages publics (`docs/07-risques.md`).
  *
  * La base n'a pas de date de mise à jour régulière : la date de la ressource
  * sur data.gouv.fr est gardée, et la page la donne.
@@ -30,7 +30,7 @@
 import { createReadStream } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nommeUnePersonne, nommeUnParticulier, estUnPrenomCourant } from '../src/modele/civilites.ts';
+import { nommeUnePersonne } from '../src/modele/civilites.ts';
 import { ressourcesDuJeu } from './donnees-ouvertes.ts';
 import { codeCommune, communeDe, ecrireParDepartement, lignesCsv, reportsDuDecoupage, telechargerSiAbsent } from './par-departement.ts';
 import { indisponible } from './echecs.ts';
@@ -73,16 +73,18 @@ export interface Culture {
   communes: Map<string, LieuCulturel[]>;
 }
 
-const MOT_DE_LIEU =
-  /biblioth|m[ée]diath|mus[ée]e|cin[ée]|th[ée][aâ]tre|salle|sc[èe]ne|conservatoire|[ée]cole|centre|espace|maison|archives|site|jardin|parc|op[ée]ra|auditorium|lieu|foyer|point lecture|ludo/i;
 
-/** Le nom se montre-t-il ? Voir l'en-tête : jamais un particulier. */
+/**
+ * Le nom se montre-t-il ? Oui, tel que la base le publie — un lieu nommé
+ * d'après quelqu'un lui rend le plus souvent hommage (décision du 28 novembre
+ * 2026). Seul est écarté le domicile d'un particulier : « domicile de… »,
+ * « chez… », ou une civilité (« Mme Dupont »), qui marquent un dépôt chez
+ * l'habitant, pas un lieu public.
+ */
 export function nomMontrable(nom: string): boolean {
   if (!nom.trim()) return false;
   if (/\bdomicile\b|\bchez\b/i.test(nom)) return false;
-  if (nommeUnePersonne(nom)) return false;
-  const ressemble = nommeUnParticulier(nom) || nom.trim().split(/\s+/).every((m) => estUnPrenomCourant(m));
-  return !ressemble || MOT_DE_LIEU.test(nom);
+  return !nommeUnePersonne(nom);
 }
 
 export async function collecterCulture(

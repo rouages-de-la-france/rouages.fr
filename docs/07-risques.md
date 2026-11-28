@@ -710,6 +710,35 @@ dans la finalité du registre ; et que l'affichage du SIREN seul d'un
 entrepreneur en diffusion partielle, que l'INSEE diffuse lui-même, ne
 contrevient pas à son opposition.
 
+### Les noms qui rendent hommage (28 novembre 2026)
+
+**Décision du mainteneur.** Le nom d'un lieu culturel, d'un équipement
+sportif, d'un objet protégé ou d'une association est montré tel que son
+registre le publie, même s'il porte le nom de quelqu'un. Le stade, la
+médiathèque, le gymnase nommés d'après une personne lui rendent presque
+toujours hommage, souvent après sa mort ; un objet protégé nomme une figure
+historique (« portrait de M. … ») ; une association porte un nom de personne
+morale. Les écarter privait le lecteur d'une information publique, utile pour
+s'orienter, sans protéger personne.
+
+**Ce qui changeait jusque-là.** Les lieux culturels (base Basilic) et les
+équipements sportifs (Data ES) perdaient leur nom quand il ressemblait à un
+nom de personne sans dire ce qu'est le lieu ; les objets protégés (Palissy)
+et les associations (répertoire national) dont le titre portait une civilité
+n'étaient pas repris du tout.
+
+**Ce qui reste écarté.**
+
+- le domicile d'un particulier : un point lecture « chez Mme … » ou un
+  « domicile de … » dans la base des lieux culturels, un « domicile » dans
+  le recensement sportif. Ce n'est pas un lieu public ; le lieu est montré
+  par son type, sans nom ;
+- les particuliers cités dans l'objet d'une délibération (règle de
+  `CLAUDE.md`), dans l'intitulé d'un projet subventionné par l'État
+  (« acquisition de la maison de M. … ») et parmi les bénéficiaires des
+  subventions : ce sont des personnes vivantes, nommées pour une transaction
+  ou une aide, pas pour un hommage.
+
 ## 4. Risques juridiques directs
 
 - **Diffamation** (famille D) : traitée par la règle « pas de personnes » dans

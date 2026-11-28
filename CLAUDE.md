@@ -265,6 +265,12 @@ Ce qui est autorisé à ce jour :
   ni adresse. Une opposition s'inscrit par le SIREN dans `retraits.yaml` et
   ramène l'opérateur à son SIREN seul.
 
+Le nom d'un lieu, d'un équipement, d'un objet protégé ou d'une association
+est montré tel que son registre le publie, même s'il porte le nom de
+quelqu'un : c'est le plus souvent un hommage (décision du 28 novembre 2026,
+`docs/07-risques.md`). Seul le domicile d'un particulier (« chez Mme … »,
+« domicile de … ») y reste sans nom.
+
 Ce qui reste exclu : les particuliers cités dans les délibérations, les
 dirigeants d'associations hors du répertoire de la HATVP — aucun registre
 public ne les nomme —, et toute opinion du site. **Le site n'a pas d'opinion :
